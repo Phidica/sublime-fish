@@ -1,0 +1,9 @@
+<snippet>
+    <content><![CDATA[if ${1:condition}
+  ${2:# commands}
+end
+]]></content>
+    <tabTrigger>if</tabTrigger>
+    <scope>source.fish</scope>
+    <description>if … end</description>
+</snippet>

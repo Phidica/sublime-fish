@@ -1,0 +1,8 @@
+<snippet>
+    <content><![CDATA[function ${1:name}
+  ${2:body}
+end]]></content>
+    <tabTrigger>function</tabTrigger>
+    <scope>source.fish</scope>
+    <description>function … end</description>
+</snippet>

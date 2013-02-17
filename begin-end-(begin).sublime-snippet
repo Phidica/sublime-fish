@@ -1,0 +1,7 @@
+<snippet>
+    <content><![CDATA[begin; ${1:# commands}; end
+]]></content>
+    <tabTrigger>begin</tabTrigger>
+    <scope>source.fish</scope>
+    <description>begin … end</description>
+</snippet>

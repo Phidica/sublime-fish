@@ -1,0 +1,6 @@
+<snippet>
+    <content><![CDATA[for ${1:varname} in ${2:values}; ${3:# commands}; end]]></content>
+    <tabTrigger>for</tabTrigger>
+    <scope>source.fish</scope>
+    <description>for … in … end</description>
+</snippet>

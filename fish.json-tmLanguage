@@ -1,0 +1,378 @@
+{
+  "name": "Shell Script (fish)",
+  "scopeName": "source.fish",
+  "fileTypes": [
+    "fish"
+  ],
+  "firstLineMatch": "^#!.*\\b(fish)|^#\\s*-\\*-[^*]*mode:\\s*shell-script[^*]*-\\*-",
+  "foldingStartMarker": "\\b(if|switch|case|while|begin)\\b|(\\{)$",
+  "foldingStopMarker": "^\\s*(\\}|(end)\\b)",
+  "keyEquivalent": "^~S",
+  "patterns": [
+    { "include": "#comment" },
+    { "include": "#function-definition" },
+    { "include": "#interpolation" },
+    { "include": "#keyword" },
+    { "include": "#list" },
+    { "include": "#logical-expression" },
+    { "include": "#loop" },
+    { "include": "#math" },
+    { "include": "#pathname" },
+    { "include": "#pipeline" },
+    { "include": "#redirection" },
+    { "include": "#string" },
+    { "include": "#support" },
+    { "include": "#variable" }
+  ],
+  "repository": {
+    "comment": {
+      "patterns": [
+        {
+          "name": "comment.line.number-sign.fish",
+          "match": "(?<!\\S)(#)(?!\\{).*$\\n?",
+          "captures": {
+            "1": { "name": "punctuation.definition.comment.fish" }
+          }
+        }
+      ]
+    },
+    "function-definition": {
+      "patterns": [
+        {
+          "name": "meta.function.fish",
+          "begin": "\\b(function)\\s+([^\\s\\\\]+)(?:\\s*(\\(\\)))?",
+          "beginCaptures": {
+            "1": { "name": "storage.type.function.fish" },
+            "2": { "name": "entity.name.function.fish" },
+            "3": { "name": "punctuation.definition.arguments.fish" }
+          },
+          "end": ";|&|$",
+          "endCaptures": {
+            "1": { "name": "punctuation.definition.function.fish" }
+          },
+          "patterns": [
+            { "include": "$self" }
+          ]
+        }
+      ]
+    },
+    "interpolation": {
+      "patterns": [
+        {
+          "name": "string.interpolated.dollar.fish",
+          "begin": "\\{\\$",
+          "beginCaptures": {
+            "0": { "name": "punctuation.definition.string.begin.fish" }
+          },
+          "end": "\\}",
+          "endCaptures": {
+            "0": { "name": "punctuation.definition.string.end.fish" }
+          },
+          "patterns": [
+            { "include": "$self" }
+          ]
+        }
+      ]
+    },
+    "keyword": {
+      "patterns": [
+        {
+          "name": "keyword.control.fish",
+          "match": "\\b(?:if|else|for|in|switch|case|while|continue|begin|end|return)\\b"
+        },
+        {
+          "name": "storage.modifier.fish",
+          "match": "(?<![-/])\\b(?:set)\\b"
+        }
+      ]
+    },
+    "list": {
+      "patterns": [
+        {
+          "name": "keyword.operator.list.fish",
+          "match": ";|&&|&|\\|\\|"
+        }
+      ]
+    },
+    "logical-expression": {
+      "patterns": [
+        {
+          "name": "keyword.operator.logical.fish",
+          "match": "=[=~]?|!=?|<|>|&&|\\|\\|",
+          "comment": "do we want a special rule for ( expr )?"
+        },
+        {
+          "name": "keyword.operator.logical.fish",
+          "match": "(?<!\\S)-(nt|ot|ef|eq|ne|l[te]|g[te]|[a-hknoprstuwxzOGLSN])"
+        }
+      ]
+    },
+    "loop": {
+      "patterns": [
+        {
+          "name": "meta.scope.for-loop.fish",
+          "begin": "\\b(for)\\s+(?=\\({2})",
+          "end": "\\b(end)\\b",
+          "captures": {
+            "1": { "name": "keyword.control.fish" }
+          },
+          "patterns": [
+            { "include": "$self" }
+          ]
+        },
+        {
+          "name": "meta.scope.for-in-loop.fish",
+          "begin": "\\b(for)\\s+((?:[^\\s\\\\]|\\\\.)+)\\b", 
+          "beginCaptures": {
+            "1": { "name": "keyword.control.fish" },
+            "2": { "name": "variable.other.loop.fish" }
+          },
+          "end": "\\b(end)\\b",
+          "endCaptures": {
+            "1": { "name": "keyword.control.fish" }
+          },
+          "patterns": [
+            { "include": "$self" }
+          ]
+        },
+        {
+          "name": "meta.scope.while-loop.fish",
+          "begin": "\\b(while)\\b",
+          "captures": {
+            "1": { "name": "keyword.control.fish" }
+          },
+          "end": "\\b(end)\\b",
+          "patterns": [
+            { "include": "$self" }
+          ]
+        },
+        {
+          "name": "meta.scope.case-block.fish",
+          "match": "\\b(case)\\b",
+          "captures": {
+            "1": { "name": "keyword.control.fish" }
+          },
+          "patterns": [
+            { "include": "$self" }
+          ]
+        },
+        {
+          "name": "meta.scope.if-block.fish",
+          "begin": "\\b(if)\\b",
+          "captures": {
+            "1": { "name": "keyword.control.fish" }
+          },
+          "end": "\\b(end)\\b",
+          "patterns": [
+            { "include": "$self" }
+          ]
+        }
+      ]
+    },
+    "math": {
+      "patterns": [
+        {
+          "name": "keyword.operator.arithmetic.fish",
+          "match": "\\+{1,2}|-{1,2}|!|~|\\*{1,2}|/|%|<[<=]?|>[>=]?|==|!=|^|\\|{1,2}|&{1,2}|\\?|\\:|,|=|[*/%+\\-&^|]=|<<=|>>="
+        },
+        {
+          "name": "constant.numeric.hex.fish",
+          "match": "0[xX]\\h+"
+        },
+        {
+          "name": "constant.numeric.octal.fish",
+          "match": "0\\d+"
+        },
+        {
+          "name": "constant.numeric.other.fish",
+          "match": "\\d{1,2}#[0-9a-zA-Z@_]+"
+        },
+        {
+          "name": "constant.numeric.integer.fish",
+          "match": "\\d+"
+        },
+        { "include": "#valiable" }
+      ]
+    },
+    "pathname": {
+      "patterns": [
+        {
+          "name": "keyword.operator.tilde.fish",
+          "match": "(?<=\\s|:|=|^)~"
+        },
+        {
+          "name": "keyword.operator.glob.fish",
+          "match": "\\*|\\?"
+        },
+        {
+          "name": "meta.structure.extglob.fish",
+          "begin": "([?*+@!])(\\()",
+          "beginCaptures": {
+            "1": { "name": "keyword.operator.extglob.fish" },
+            "2": { "name": "punctuation.definition.extglob.fish" }
+          },
+          "end": "(\\))",
+          "endCaptures": {
+            "1": { "name": "punctuation.definition.extglob.fish" }
+          },
+          "patterns": [
+            { "include": "$self" }
+          ]
+        }
+      ]
+    },
+    "pipeline": {
+      "patterns": [
+        {
+          "name": "keyword.operator.pipe.fish",
+          "match": "[|!]"
+        }
+      ]
+    },
+    "redirection": {
+      "patterns": [
+        {
+          "name": "string.interpolated.process-substitution.fish",
+          "begin": "[><]\\(",
+          "beginCaptures": {
+            "0": { "name": "punctuation.definition.string.begin.fish" }
+          },
+          "end": "\\)",
+          "endCaptures": {
+            "0": { "name": "punctuation.definition.string.end.fish" }
+          },
+          "patterns": [
+            { "include": "$self" }
+          ]
+        },
+        {
+          "name": "keyword.operator.redirect.fish",
+          "match": "&>|\\d*>&\\d*|\\d*(>>|>|<)|\\d*<&|\\d*<>",
+          "comment": "valid: &>word >&word >word [n]>&[n] [n]<word [n]>word [n]>>word [n]<&word (last one is duplicate)"
+        }
+      ]
+    },
+    "string": {
+    	"patterns": [
+        {
+          "name": "constant.character.escape.fish",
+          "match": "\\\\."
+        },
+        {
+          "name": "string.quoted.single.fish",
+          "begin": "'",
+          "beginCaptures": {
+            "0": { "name": "punctuation.definition.string.begin.fish" }
+          },
+          "end": "'",
+          "endCaptures": {
+            "0": { "name": "punctuation.definition.string.end.fish" }
+          }
+        },
+        {
+          "name": "string.quoted.double.fish",
+          "begin": "\"",
+          "beginCaptures": {
+            "0": { "name": "punctuation.definition.string.begin.fish" }
+          },
+          "end": "\"",
+          "endCaptures": {
+            "0": { "name": "punctuation.definition.string.end.fish" }
+          },
+          "patterns": [
+		        {
+		          "name": "constant.character.escape.fish",
+		          "match": "\\\\[\\$`\"\\\\\\n]"
+		        },
+            { "include": "#valiable" },
+            { "include": "#interpolation" }
+          ]
+        },
+        {
+          "name": "string.quoted.single.dollar.fish",
+          "begin": "\\$'",
+          "beginCaptures": {
+            "0": { "name": "punctuation.definition.string.begin.fish" }
+          },
+          "end": "'",
+          "endCaptures": {
+            "0": { "name": "punctuation.definition.string.end.fish" }
+          },
+          "patterns": [
+		        {
+		          "name": "constant.character.escape.ansi-c.fish",
+		          "match": "\\\\(a|b|e|f|n|r|t|v|\\\\|')"
+		        },
+		        {
+		          "name": "constant.character.escape.octal.fish",
+		          "match": "\\\\[0-9]{3}"
+		        },
+		        {
+		          "name": "constant.character.escape.hex.fish",
+		          "match": "\\\\([xX][0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8})"
+		        },
+		        {
+		          "name": "constant.character.escape.control-char.fish",
+		          "match": "\\\\c."
+		        }
+          ]
+        }
+    	]
+    },
+    "support": {
+      "patterns": [
+        {
+          "name": "support.function.builtin.fish",
+          "match": "(?<=^|\\s)(?::|\\.)(?=\\s|;|&|$)"
+        },
+        {
+          "name": "support.function.builtin.fish",
+          "match": "(?<![-/])\\b(?:alias|and|begin|bg|bind|block|break|breakpoint|builtin|case|cd|command|commandline|complete|contains|continue|count|dirh|dirs|else|emit|end|eval|exec|exit|fg|fish|fish_config|fish_indent|fish_pager|fish_prompt|fish_update_completions|fishd|for|funced|funcsave|function|functions|help|if|isatty|jobs|math|mimedb|nextd|not|open|or|popd|prevd|psub|pushd|random|read|return|set|set_color|\\.|status|switch|trap|type|ulimit|umask|vared|while)\\b"
+        }
+      ]
+    },
+    "variable": {
+      "patterns": [
+        {
+          "name": "variable.other.special.fish",
+          "match": "(\\$)[-*@#?$!0_]",
+          "captures": {
+            "1": { "name": "punctuation.definition.variable.fish" }
+          }
+        },
+        {
+          "name": "variable.other.positional.fish",
+          "match": "(\\$)[1-9]",
+          "captures": {
+            "1": { "name": "punctuation.definition.variable.fish" }
+          }
+        },
+        {
+          "name": "variable.other.normal.fish",
+          "match": "(\\$+)[a-zA-Z_][a-zA-Z0-9_]*",
+          "captures": {
+            "1": { "name": "punctuation.definition.variable.fish" }
+          }
+        },
+        {
+          "name": "variable.other.bracket.fish",
+          "begin": "(?<!\")(\\{\\$+)",
+          "end": "(\\})(?!\")",
+          "captures": {
+            "0": { "name": "punctuation.definition.variable.fish" }
+          },
+          "patterns": [
+            {
+              "name": "variable.other.normal.fish",
+              "match": "[a-zA-Z_][a-zA-Z0-9_]*",
+              "captures": {
+                "1": { "name": "punctuation.definition.variable.fish" }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "uuid": "a6b750ed-a12a-43c1-84e7-689ac7e2fbc9"
+}

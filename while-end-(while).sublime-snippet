@@ -1,0 +1,9 @@
+<snippet>
+    <content><![CDATA[while ${1:condition}
+  ${2:# commands}
+end
+]]></content>
+    <tabTrigger>while</tabTrigger>
+    <scope>source.fish</scope>
+    <description>while … end</description>
+</snippet>
