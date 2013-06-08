@@ -1,0 +1,13 @@
+{
+  "name": "Comments",
+  "scope": "source.fish",
+  "settings" : {
+    "shellVariables": [
+      {
+        "name": "TM_COMMENT_START",
+        "value": "# "
+      }
+    ]
+  },
+  "uuid": "8b2c53cb-42b5-4e0c-a37a-f8cf5527b26b"
+}

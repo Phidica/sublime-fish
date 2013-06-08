@@ -31,5 +31,6 @@ Icon
 *.sublime-project
 *.sublime-workspace
 *.tmLanguage.cache
+*.tmPreferences.cache
 package-metadata.json
 
