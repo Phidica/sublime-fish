@@ -2,7 +2,7 @@
 Sublime fish shell
 ==================
 
-Sublime text 2 package for [fish-shell](https://github.com/fish-shell/fish-shell).
+Sublime text 2/3 package for [fish-shell](https://github.com/fish-shell/fish-shell).
 
 Instalation
 -----------
