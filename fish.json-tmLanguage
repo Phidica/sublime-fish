@@ -191,7 +191,7 @@
           "name": "constant.numeric.integer.fish",
           "match": "\\d+"
         },
-        { "include": "#valiable" }
+        { "include": "#variable" }
       ]
     },
     "pathname": {
@@ -284,7 +284,7 @@
 		          "name": "constant.character.escape.fish",
 		          "match": "\\\\[\\$`\"\\\\\\n]"
 		        },
-            { "include": "#valiable" },
+            { "include": "#variable" },
             { "include": "#interpolation" }
           ]
         },

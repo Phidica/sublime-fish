@@ -399,7 +399,7 @@
 				</dict>
 				<dict>
 					<key>include</key>
-					<string>#valiable</string>
+					<string>#variable</string>
 				</dict>
 			</array>
 		</dict>
@@ -581,7 +581,7 @@
 						</dict>
 						<dict>
 							<key>include</key>
-							<string>#valiable</string>
+							<string>#variable</string>
 						</dict>
 						<dict>
 							<key>include</key>
