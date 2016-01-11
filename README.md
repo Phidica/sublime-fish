@@ -7,9 +7,9 @@ Sublime text 2/3 package for [fish-shell](https://github.com/fish-shell/fish-she
 Instalation
 -----------
 
-Clone the repository in your Sublime Text "Packages" directory.
+Clone the repository in your [Sublime Text Packages directory](http://docs.sublimetext.info/en/latest/basic_concepts.html#the-packages-directory).
 
-    cd SUBLIME_TEXT_PACKAGES_DIR
+    cd /path/to/sublime/packages/directory
     git clone https://github.com/toru-hamaguchi/sublime-fish-shell.git
 
 Contribution
