@@ -654,7 +654,7 @@
 				</dict>
 				<dict>
 					<key>match</key>
-					<string>(?&lt;![-/])\b(?:alias|and|begin|bg|bind|block|break|breakpoint|builtin|case|cd|command|commandline|complete|contains|continue|count|dirh|dirs|else|emit|end|eval|exec|exit|fg|fish|fish_config|fish_indent|fish_pager|fish_prompt|fish_update_completions|fishd|for|funced|funcsave|function|functions|help|if|isatty|jobs|math|mimedb|nextd|not|open|or|popd|prevd|psub|pushd|random|read|return|set|set_color|\.|status|switch|trap|type|ulimit|umask|vared|while)\b</string>
+					<string>(?&lt;![-/])\b(?:alias|and|begin|bg|bind|block|break|breakpoint|builtin|case|cd|command|commandline|complete|contains|continue|count|dirh|dirs|else|emit|end|eval|exec|exit|fg|fish|fish_config|fish_indent|fish_prompt|fish_update_completions|for|funced|funcsave|function|functions|help|if|isatty|jobs|math|nextd|not|open|or|popd|prevd|psub|pushd|random|read|return|set|set_color|status|switch|trap|type|ulimit|umask|vared|while)\b</string>
 					<key>name</key>
 					<string>support.function.builtin.fish</string>
 				</dict>
