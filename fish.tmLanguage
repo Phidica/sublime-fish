@@ -649,6 +649,8 @@
 				<dict>
 					<key>match</key>
 					<string>(?&lt;=^|\s)(?::|\.)(?=\s|;|&amp;|$)</string>
+					<key>comment</key>
+					<string>Matches literal . (alias for source, may be deprecated in future)</string>
 					<key>name</key>
 					<string>support.function.builtin.fish</string>
 				</dict>

@@ -201,6 +201,7 @@ contexts:
   support:
     - match: (?<=^|\s)(?::|\.)(?=\s|;|&|$)
       scope: support.function.builtin.fish
+      comment: Matches literal . (alias for source, may be deprecated in future)
     - match: '(?<![-/])\b(?:abbr|alias|bg|bind|block|breakpoint|builtin|cd|command|commandline|complete|contains|count|dirh|dirs|echo|emit|eval|exec|exit|false|fg|fish|fish_config|fish_indent|fish_prompt|fish_realpath|fish_right_prompt|fish_update_completions|fish_vi_mode|funced|funcsave|function|functions|help|history|isatty|jobs|math|nextd|not|open|popd|prevd|printf|prompt_pwd|psub|pushd|pwd|random|read|return|set|set_color|source|status|string|suspend|test|trap|true|type|ulimit|umask|vared)\b'
       scope: support.function.builtin.fish
   variable:
