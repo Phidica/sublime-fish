@@ -187,7 +187,7 @@
 			<array>
 				<dict>
 					<key>match</key>
-					<string>\b(?:if|else|for|in|switch|case|while|continue|begin|end|return)\b</string>
+					<string>\b(?:and|begin|break|case|continue|else|end|for|if|in|return|switch|while)\b</string>
 					<key>name</key>
 					<string>keyword.control.fish</string>
 				</dict>
@@ -654,7 +654,7 @@
 				</dict>
 				<dict>
 					<key>match</key>
-					<string>(?&lt;![-/])\b(?:alias|and|begin|bg|bind|block|break|breakpoint|builtin|case|cd|command|commandline|complete|contains|continue|count|dirh|dirs|else|emit|end|eval|exec|exit|fg|fish|fish_config|fish_indent|fish_prompt|fish_update_completions|for|funced|funcsave|function|functions|help|if|isatty|jobs|math|nextd|not|open|or|popd|prevd|psub|pushd|random|read|return|set|set_color|status|switch|trap|type|ulimit|umask|vared|while)\b</string>
+					<string>(?&lt;![-/])\b(?:abbr|alias|bg|bind|block|breakpoint|builtin|cd|command|commandline|complete|contains|count|dirh|dirs|echo|emit|eval|exec|exit|false|fg|fish|fish_config|fish_indent|fish_prompt|fish_realpath|fish_right_prompt|fish_update_completions|fish_vi_mode|funced|funcsave|function|functions|help|history|isatty|jobs|math|nextd|not|open|popd|prevd|printf|prompt_pwd|psub|pushd|pwd|random|read|return|set|set_color|source|status|string|suspend|test|trap|true|type|ulimit|umask|vared)\b</string>
 					<key>name</key>
 					<string>support.function.builtin.fish</string>
 				</dict>
