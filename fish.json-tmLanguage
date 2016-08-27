@@ -253,7 +253,7 @@
       ]
     },
     "string": {
-    	"patterns": [
+      "patterns": [
         {
           "name": "constant.character.escape.fish",
           "match": "\\\\."
@@ -280,10 +280,10 @@
             "0": { "name": "punctuation.definition.string.end.fish" }
           },
           "patterns": [
-		        {
-		          "name": "constant.character.escape.fish",
-		          "match": "\\\\[\\$`\"\\\\\\n]"
-		        },
+            {
+              "name": "constant.character.escape.fish",
+              "match": "\\\\[\\$`\"\\\\\\n]"
+            },
             { "include": "#variable" },
             { "include": "#interpolation" }
           ]
@@ -299,25 +299,25 @@
             "0": { "name": "punctuation.definition.string.end.fish" }
           },
           "patterns": [
-		        {
-		          "name": "constant.character.escape.ansi-c.fish",
-		          "match": "\\\\(a|b|e|f|n|r|t|v|\\\\|')"
-		        },
-		        {
-		          "name": "constant.character.escape.octal.fish",
-		          "match": "\\\\[0-9]{3}"
-		        },
-		        {
-		          "name": "constant.character.escape.hex.fish",
-		          "match": "\\\\([xX][0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8})"
-		        },
-		        {
-		          "name": "constant.character.escape.control-char.fish",
-		          "match": "\\\\c."
-		        }
+            {
+              "name": "constant.character.escape.ansi-c.fish",
+              "match": "\\\\(a|b|e|f|n|r|t|v|\\\\|')"
+            },
+            {
+              "name": "constant.character.escape.octal.fish",
+              "match": "\\\\[0-9]{3}"
+            },
+            {
+              "name": "constant.character.escape.hex.fish",
+              "match": "\\\\([xX][0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8})"
+            },
+            {
+              "name": "constant.character.escape.control-char.fish",
+              "match": "\\\\c."
+            }
           ]
         }
-    	]
+      ]
     },
     "support": {
       "patterns": [
