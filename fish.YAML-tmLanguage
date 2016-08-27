@@ -5,35 +5,50 @@ fileTypes: [fish]
 uuid: a6b750ed-a12a-43c1-84e7-689ac7e2fbc9
 
 patterns:
+- include: '#command'
 - include: '#comment'
-
-- include: '#function-definition'
-
-- include: '#interpolation'
-
-- include: '#keyword'
-
-- include: '#list'
-
-- include: '#logical-expression'
-
-- include: '#loop'
-
-- include: '#math'
-
-- include: '#pathname'
-
-- include: '#pipeline'
-
-- include: '#redirection'
-
-- include: '#string'
-
-- include: '#support'
-
-- include: '#variable'
+# - include: '#function-definition'
+# - include: '#interpolation'
+# - include: '#keyword'
+# - include: '#list'
+# - include: '#logical-expression'
+# - include: '#loop'
+# - include: '#math'
+# - include: '#pathname'
+# - include: '#pipeline'
+# - include: '#redirection'
+# - include: '#string'
+# - include: '#support'
+# - include: '#variable'
 
 repository:
+  command:
+    patterns:
+    - name: meta.command.fish
+      begin: \b([\w][\w+]*)\b
+      beginCaptures:
+        '1': {name: support.function.user.fish}
+      # end: ;|&|\||(?=\))|$
+      end: (?=\))|$
+      comment: End might want to match the start of comments "#"?
+      patterns:
+      - include: '#command-substitution'
+      - include: '#comment'
+      - include: '#string'
+      - include: '#variable'
+
+  command-substitution:
+    patterns:
+    - name: meta.command-substitution.fish
+      begin: \(
+      beginCaptures:
+        '0': {name: storage.type.command-substitution.fish}
+      end: \)
+      endCaptures:
+        '0': {name: storage.type.command-substitution.fish}
+      patterns:
+      - include: '#command'
+
   comment:
     patterns:
     - name: comment.line.number-sign.fish
@@ -180,6 +195,11 @@ repository:
       name: keyword.operator.redirect.fish
       match: '&>|\d*>&\d*|\d*(>>|>|<)|\d*<&|\d*<>'
 
+  # general: no expansion (brace expansion, parameter expansion, variable expansion) will take place, the parameter may contain spaces, and all escape sequences are ignored. Single quotes have no special meaning within double quotes and vice versa
+  # exceptions:
+    # single-quotes: Accepted escapes are \', \\
+    # double-quotes: Variable expansion DOES happen. Accepted escapes are \", \\, \$, \ followed by a newline (deletes the backslash and the newline)
+
   string:
     patterns:
     - name: constant.character.escape.fish
@@ -202,7 +222,8 @@ repository:
       - name: constant.character.escape.fish
         match: \\[\$`"\\\n]
       - include: '#variable'
-      - include: '#interpolation'
+      # - include: '#interpolation'
+      # I suspect #interpolation is a holdover from Bash; it seems to do bad things for fish so I'm disabling it for now
     - name: string.quoted.single.dollar.fish
       begin: \$'
       beginCaptures:
@@ -230,28 +251,11 @@ repository:
 
   variable:
     patterns:
-    - name: variable.other.special.fish
-      match: (\$)[-*@#?$!0_](?![a-zA-Z0-9_])
+    - name: variable.other.fish
+      comment: fish variables are very simple, as they can only be word characters and little special treatment is necessary
+      match: (\$)(\w+)(?=\W)
       captures:
-        '1': {name: punctuation.definition.variable.fish}
-    - name: variable.other.positional.fish
-      match: (\$)[1-9]
-      captures:
-        '1': {name: punctuation.definition.variable.fish}
-    - name: variable.other.normal.fish
-      match: (\$+)[a-zA-Z0-9_][a-zA-Z0-9_]*
-      captures:
-        '1': {name: punctuation.definition.variable.fish}
-    - name: variable.other.bracket.fish
-      begin: (?<!")(\{\$+)
-      end: (\})(?!")
-      captures:
-        '0': {name: punctuation.definition.variable.fish}
-      patterns:
-      - name: variable.other.normal.fish
-        match: '[a-zA-Z0-9_][a-zA-Z0-9_]*'
-        captures:
-          '1': {name: punctuation.definition.variable.fish}
+        '1': {name: punctuation.definition.variable.fish }
 
 firstLineMatch: ^#!.*\b(fish)|^#\s*-\*-[^*]*mode:\s*shell-script[^*]*-\*-
 foldingStartMarker: \b(begin|for|if|else|function|switch|while)\b|(\{)$

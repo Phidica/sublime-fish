@@ -20,63 +20,95 @@
 	<array>
 		<dict>
 			<key>include</key>
+			<string>#command</string>
+		</dict>
+		<dict>
+			<key>include</key>
 			<string>#comment</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#function-definition</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#interpolation</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#keyword</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#list</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#logical-expression</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#loop</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#math</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#pathname</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#pipeline</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#redirection</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#string</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#support</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#variable</string>
 		</dict>
 	</array>
 	<key>repository</key>
 	<dict>
+		<key>command</key>
+		<dict>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>begin</key>
+					<string>\b([\w][\w+]*)\b</string>
+					<key>beginCaptures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>support.function.user.fish</string>
+						</dict>
+					</dict>
+					<key>comment</key>
+					<string>End might want to match the start of comments "#"?</string>
+					<key>end</key>
+					<string>(?=\))|$</string>
+					<key>name</key>
+					<string>meta.command.fish</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>include</key>
+							<string>#command-substitution</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#comment</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#string</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#variable</string>
+						</dict>
+					</array>
+				</dict>
+			</array>
+		</dict>
+		<key>command-substitution</key>
+		<dict>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>begin</key>
+					<string>\(</string>
+					<key>beginCaptures</key>
+					<dict>
+						<key>0</key>
+						<dict>
+							<key>name</key>
+							<string>storage.type.command-substitution.fish</string>
+						</dict>
+					</dict>
+					<key>end</key>
+					<string>\)</string>
+					<key>endCaptures</key>
+					<dict>
+						<key>0</key>
+						<dict>
+							<key>name</key>
+							<string>storage.type.command-substitution.fish</string>
+						</dict>
+					</dict>
+					<key>name</key>
+					<string>meta.command-substitution.fish</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>include</key>
+							<string>#command</string>
+						</dict>
+					</array>
+				</dict>
+			</array>
+		</dict>
 		<key>comment</key>
 		<dict>
 			<key>patterns</key>
@@ -579,10 +611,6 @@
 							<key>include</key>
 							<string>#variable</string>
 						</dict>
-						<dict>
-							<key>include</key>
-							<string>#interpolation</string>
-						</dict>
 					</array>
 				</dict>
 				<dict>
@@ -671,71 +699,12 @@
 							<string>punctuation.definition.variable.fish</string>
 						</dict>
 					</dict>
+					<key>comment</key>
+					<string>fish variables are very simple, as they can only be word characters and little special treatment is necessary</string>
 					<key>match</key>
-					<string>(\$)[-*@#?$!0_](?![a-zA-Z0-9_])</string>
+					<string>(\$)(\w+)(?=\W)</string>
 					<key>name</key>
-					<string>variable.other.special.fish</string>
-				</dict>
-				<dict>
-					<key>captures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>punctuation.definition.variable.fish</string>
-						</dict>
-					</dict>
-					<key>match</key>
-					<string>(\$)[1-9]</string>
-					<key>name</key>
-					<string>variable.other.positional.fish</string>
-				</dict>
-				<dict>
-					<key>captures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>punctuation.definition.variable.fish</string>
-						</dict>
-					</dict>
-					<key>match</key>
-					<string>(\$+)[a-zA-Z0-9_][a-zA-Z0-9_]*</string>
-					<key>name</key>
-					<string>variable.other.normal.fish</string>
-				</dict>
-				<dict>
-					<key>begin</key>
-					<string>(?&lt;!")(\{\$+)</string>
-					<key>captures</key>
-					<dict>
-						<key>0</key>
-						<dict>
-							<key>name</key>
-							<string>punctuation.definition.variable.fish</string>
-						</dict>
-					</dict>
-					<key>end</key>
-					<string>(\})(?!")</string>
-					<key>name</key>
-					<string>variable.other.bracket.fish</string>
-					<key>patterns</key>
-					<array>
-						<dict>
-							<key>captures</key>
-							<dict>
-								<key>1</key>
-								<dict>
-									<key>name</key>
-									<string>punctuation.definition.variable.fish</string>
-								</dict>
-							</dict>
-							<key>match</key>
-							<string>[a-zA-Z0-9_][a-zA-Z0-9_]*</string>
-							<key>name</key>
-							<string>variable.other.normal.fish</string>
-						</dict>
-					</array>
+					<string>variable.other.fish</string>
 				</dict>
 			</array>
 		</dict>
