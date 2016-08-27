@@ -5,10 +5,11 @@ fileTypes: [fish]
 uuid: a6b750ed-a12a-43c1-84e7-689ac7e2fbc9
 
 patterns:
-- include: '#command'
+- include: '#command-call'
 - include: '#comment'
+  # probably this global scope will only allow comment, command-call, and block, once I write a block structure (begin, if, function, ...)
+
 # - include: '#function-definition'
-# - include: '#interpolation'
 # - include: '#keyword'
 # - include: '#list'
 # - include: '#logical-expression'
@@ -22,37 +23,69 @@ patterns:
 # - include: '#variable'
 
 repository:
-  command:
+  argument:
     patterns:
-    - name: meta.command.fish
-      begin: \b([\w][\w+]*)\b
-      beginCaptures:
-        '1': {name: support.function.user.fish}
-      # end: ;|&|\||(?=\))|$
-      end: (?=\))|$
-      comment: End might want to match the start of comments "#"?
+    - name: function.call.argument.fish #! \todo Find the right name, it's not this
+      comment: An argument is one of the fundamental units, however we define it by the very essence of not being any of the other fundamental units # and \ . Both those units have special treatment when they appear in command-calls, so we attend to them uniquely
+      begin: (?<=^|\s)(?!\s|#|$|\\$)
+      comment: Begin arg at the boundary between whitespace (or beginline for when command-call escapes its endline) and anything but whitespace, a comment character (because a lone # can't be an arg), an endline (to prevent blank lines being called args), or an escaped endline (because command-call can spot a lone \ and match it)
+      comment: Hm, ` echo \ #` is supposed to print " #" because the whitespace is forced to become a character and then the # isn't considered lone because forced whitespace precedes it
+      end: (?<=\S)(?=\s|\)|;|&|\||$)
+      comment: End arg if it precedes unescaped control characters. This could prove troublesome for arguments like --foo=";" unless argument is extended to permit strings after = signs. fish assumes a command call ends at an arg like --foo=; so we should too
       patterns:
-      - include: '#command-substitution'
-      - include: '#comment'
+      # - include: '#numeric' #! \todo This will be things like lone numbers, even though fish doesn't treat those differently
       - include: '#string'
       - include: '#variable'
+      - include: '#command-substitution'
+      # - match: '[\w-]+' # This probably isn't needed, get rid of it later
+
+  command-call:
+    patterns:
+    - name: meta.command-call.fish
+      begin: \b([\w][\w-]*)\b
+      beginCaptures:
+        '1': {name: support.function.user.fish}
+      end: (?=\))|(;|&|\|)|(?<!\\)(?=\n)
+      endCaptures:
+        '1': {name: keyword.control.fish}
+      comment: command call ends at ), ;, &, |, or an unescaped endline
+      patterns:
+      - include: '#argument'
+      - include: '#comment'
+      - include: '#comment-inline'
+      - name: constant.character.escape
+        match: \\(?=\n)
 
   command-substitution:
     patterns:
     - name: meta.command-substitution.fish
       begin: \(
       beginCaptures:
-        '0': {name: storage.type.command-substitution.fish}
+        '0': {name: constant.character.command-substitution.fish}
       end: \)
       endCaptures:
-        '0': {name: storage.type.command-substitution.fish}
+        '0': {name: constant.character.command-substitution.fish}
       patterns:
-      - include: '#command'
+      # - name: invalid.illegal.unescaped.endline
+      #   match: (?<!\\)\n
+      # - name: constant.character.escape
+      #   match: \\(?=\n)
+      - include: '#command-call'
+      - include: '#comment'
 
   comment:
     patterns:
     - name: comment.line.number-sign.fish
-      match: (?<!\S)(#)(?!\{).*$\n?
+      comment: Consumes the entire line, including the endline, thus hiding the entire comment from command-call
+      match: ^\s*(#).*$\n?
+      captures:
+        '1': {name: punctuation.definition.comment.fish}
+
+  comment-inline:
+    patterns:
+    - name: comment.line.number-sign.fish
+      comment: Does not consume the endline, thus allowing the command-call to capture it and end
+      match: (?<=^|\s)(#).*(?=$\n)
       captures:
         '1': {name: punctuation.definition.comment.fish}
 
@@ -67,18 +100,6 @@ repository:
       end: ;|&|$
       endCaptures:
         '1': {name: punctuation.definition.function.fish}
-      patterns:
-      - include: $self
-
-  interpolation:
-    patterns:
-    - name: string.interpolated.dollar.fish
-      begin: \{\$
-      beginCaptures:
-        '0': {name: punctuation.definition.string.begin.fish}
-      end: \}
-      endCaptures:
-        '0': {name: punctuation.definition.string.end.fish}
       patterns:
       - include: $self
 
@@ -195,51 +216,32 @@ repository:
       name: keyword.operator.redirect.fish
       match: '&>|\d*>&\d*|\d*(>>|>|<)|\d*<&|\d*<>'
 
-  # general: no expansion (brace expansion, parameter expansion, variable expansion) will take place, the parameter may contain spaces, and all escape sequences are ignored. Single quotes have no special meaning within double quotes and vice versa
-  # exceptions:
-    # single-quotes: Accepted escapes are \', \\
-    # double-quotes: Variable expansion DOES happen. Accepted escapes are \", \\, \$, \ followed by a newline (deletes the backslash and the newline)
-
+  # fish strings accept very few escape codes, quite unlike Bash, make only a few simple distinctions between the single- and double-quoted variants
   string:
     patterns:
-    - name: constant.character.escape.fish
-      match: \\.
     - name: string.quoted.single.fish
-      begin: ''''
+      begin: \'
       beginCaptures:
         '0': {name: punctuation.definition.string.begin.fish}
-      end: ''''
-      endCaptures:
-        '0': {name: punctuation.definition.string.end.fish}
-    - name: string.quoted.double.fish
-      begin: '"'
-      beginCaptures:
-        '0': {name: punctuation.definition.string.begin.fish}
-      end: '"'
+      end: \'
       endCaptures:
         '0': {name: punctuation.definition.string.end.fish}
       patterns:
       - name: constant.character.escape.fish
-        match: \\[\$`"\\\n]
-      - include: '#variable'
-      # - include: '#interpolation'
-      # I suspect #interpolation is a holdover from Bash; it seems to do bad things for fish so I'm disabling it for now
-    - name: string.quoted.single.dollar.fish
-      begin: \$'
+        match: \\[\'\\]
+        comment: Only accepted escapes are \' and \\
+    - name: string.quoted.double.fish
+      begin: \"
       beginCaptures:
         '0': {name: punctuation.definition.string.begin.fish}
-      end: ''''
+      end: \"
       endCaptures:
         '0': {name: punctuation.definition.string.end.fish}
       patterns:
-      - name: constant.character.escape.ansi-c.fish
-        match: \\(a|b|e|f|n|r|t|v|\\|')
-      - name: constant.character.escape.octal.fish
-        match: \\[0-9]{3}
-      - name: constant.character.escape.hex.fish
-        match: \\([xX][0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8})
-      - name: constant.character.escape.control-char.fish
-        match: \\c.
+      - name: constant.character.escape.fish
+        match: \\[\"$\n\\]
+        comment: Only accepted escapes are \", \$, \<newline>, and \\
+      - include: '#variable'
 
   support:
     patterns:
@@ -252,8 +254,8 @@ repository:
   variable:
     patterns:
     - name: variable.other.fish
-      comment: fish variables are very simple, as they can only be word characters and little special treatment is necessary
-      match: (\$)(\w+)(?=\W)
+      comment: fish variables can only be word characters and no special treatment is necessary
+      match: (\$)\w+(?=\W)
       captures:
         '1': {name: punctuation.definition.variable.fish }
 

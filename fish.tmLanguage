@@ -20,7 +20,7 @@
 	<array>
 		<dict>
 			<key>include</key>
-			<string>#command</string>
+			<string>#command-call</string>
 		</dict>
 		<dict>
 			<key>include</key>
@@ -29,13 +29,44 @@
 	</array>
 	<key>repository</key>
 	<dict>
-		<key>command</key>
+		<key>argument</key>
 		<dict>
 			<key>patterns</key>
 			<array>
 				<dict>
 					<key>begin</key>
-					<string>\b([\w][\w+]*)\b</string>
+					<string>(?&lt;=^|\s)(?!\s|#|$|\\$)</string>
+					<key>comment</key>
+					<string>End arg if it precedes unescaped control characters. This could prove troublesome for arguments like --foo=";" unless argument is extended to permit strings after = signs. fish assumes a command call ends at an arg like --foo=; so we should too</string>
+					<key>end</key>
+					<string>(?&lt;=\S)(?=\s|\)|;|&amp;|\||$)</string>
+					<key>name</key>
+					<string>function.call.argument.fish</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>include</key>
+							<string>#string</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#variable</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#command-substitution</string>
+						</dict>
+					</array>
+				</dict>
+			</array>
+		</dict>
+		<key>command-call</key>
+		<dict>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>begin</key>
+					<string>\b([\w][\w-]*)\b</string>
 					<key>beginCaptures</key>
 					<dict>
 						<key>1</key>
@@ -45,16 +76,24 @@
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>End might want to match the start of comments "#"?</string>
+					<string>command call ends at ), ;, &amp;, |, or an unescaped endline</string>
 					<key>end</key>
-					<string>(?=\))|$</string>
+					<string>(?=\))|(;|&amp;|\|)|(?&lt;!\\)(?=\n)</string>
+					<key>endCaptures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.fish</string>
+						</dict>
+					</dict>
 					<key>name</key>
-					<string>meta.command.fish</string>
+					<string>meta.command-call.fish</string>
 					<key>patterns</key>
 					<array>
 						<dict>
 							<key>include</key>
-							<string>#command-substitution</string>
+							<string>#argument</string>
 						</dict>
 						<dict>
 							<key>include</key>
@@ -62,11 +101,13 @@
 						</dict>
 						<dict>
 							<key>include</key>
-							<string>#string</string>
+							<string>#comment-inline</string>
 						</dict>
 						<dict>
-							<key>include</key>
-							<string>#variable</string>
+							<key>match</key>
+							<string>\\(?=\n)</string>
+							<key>name</key>
+							<string>constant.character.escape</string>
 						</dict>
 					</array>
 				</dict>
@@ -84,7 +125,7 @@
 						<key>0</key>
 						<dict>
 							<key>name</key>
-							<string>storage.type.command-substitution.fish</string>
+							<string>constant.character.command-substitution.fish</string>
 						</dict>
 					</dict>
 					<key>end</key>
@@ -94,7 +135,7 @@
 						<key>0</key>
 						<dict>
 							<key>name</key>
-							<string>storage.type.command-substitution.fish</string>
+							<string>constant.character.command-substitution.fish</string>
 						</dict>
 					</dict>
 					<key>name</key>
@@ -103,7 +144,11 @@
 					<array>
 						<dict>
 							<key>include</key>
-							<string>#command</string>
+							<string>#command-call</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#comment</string>
 						</dict>
 					</array>
 				</dict>
@@ -122,8 +167,32 @@
 							<string>punctuation.definition.comment.fish</string>
 						</dict>
 					</dict>
+					<key>comment</key>
+					<string>Consumes the entire line, including the endline, thus hiding the entire comment from command-call</string>
 					<key>match</key>
-					<string>(?&lt;!\S)(#)(?!\{).*$\n?</string>
+					<string>^\s*(#).*$\n?</string>
+					<key>name</key>
+					<string>comment.line.number-sign.fish</string>
+				</dict>
+			</array>
+		</dict>
+		<key>comment-inline</key>
+		<dict>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>captures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>punctuation.definition.comment.fish</string>
+						</dict>
+					</dict>
+					<key>comment</key>
+					<string>Does not consume the endline, thus allowing the command-call to capture it and end</string>
+					<key>match</key>
+					<string>(?&lt;=^|\s)(#).*(?=$\n)</string>
 					<key>name</key>
 					<string>comment.line.number-sign.fish</string>
 				</dict>
@@ -166,43 +235,6 @@
 					</dict>
 					<key>name</key>
 					<string>meta.function.fish</string>
-					<key>patterns</key>
-					<array>
-						<dict>
-							<key>include</key>
-							<string>$self</string>
-						</dict>
-					</array>
-				</dict>
-			</array>
-		</dict>
-		<key>interpolation</key>
-		<dict>
-			<key>patterns</key>
-			<array>
-				<dict>
-					<key>begin</key>
-					<string>\{\$</string>
-					<key>beginCaptures</key>
-					<dict>
-						<key>0</key>
-						<dict>
-							<key>name</key>
-							<string>punctuation.definition.string.begin.fish</string>
-						</dict>
-					</dict>
-					<key>end</key>
-					<string>\}</string>
-					<key>endCaptures</key>
-					<dict>
-						<key>0</key>
-						<dict>
-							<key>name</key>
-							<string>punctuation.definition.string.end.fish</string>
-						</dict>
-					</dict>
-					<key>name</key>
-					<string>string.interpolated.dollar.fish</string>
 					<key>patterns</key>
 					<array>
 						<dict>
@@ -547,14 +579,8 @@
 			<key>patterns</key>
 			<array>
 				<dict>
-					<key>match</key>
-					<string>\\.</string>
-					<key>name</key>
-					<string>constant.character.escape.fish</string>
-				</dict>
-				<dict>
 					<key>begin</key>
-					<string>'</string>
+					<string>\'</string>
 					<key>beginCaptures</key>
 					<dict>
 						<key>0</key>
@@ -564,7 +590,7 @@
 						</dict>
 					</dict>
 					<key>end</key>
-					<string>'</string>
+					<string>\'</string>
 					<key>endCaptures</key>
 					<dict>
 						<key>0</key>
@@ -575,10 +601,21 @@
 					</dict>
 					<key>name</key>
 					<string>string.quoted.single.fish</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>comment</key>
+							<string>Only accepted escapes are \' and \\</string>
+							<key>match</key>
+							<string>\\[\'\\]</string>
+							<key>name</key>
+							<string>constant.character.escape.fish</string>
+						</dict>
+					</array>
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>"</string>
+					<string>\"</string>
 					<key>beginCaptures</key>
 					<dict>
 						<key>0</key>
@@ -588,7 +625,7 @@
 						</dict>
 					</dict>
 					<key>end</key>
-					<string>"</string>
+					<string>\"</string>
 					<key>endCaptures</key>
 					<dict>
 						<key>0</key>
@@ -602,65 +639,16 @@
 					<key>patterns</key>
 					<array>
 						<dict>
+							<key>comment</key>
+							<string>Only accepted escapes are \", \$, \&lt;newline&gt;, and \\</string>
 							<key>match</key>
-							<string>\\[\$`"\\\n]</string>
+							<string>\\[\"$\n\\]</string>
 							<key>name</key>
 							<string>constant.character.escape.fish</string>
 						</dict>
 						<dict>
 							<key>include</key>
 							<string>#variable</string>
-						</dict>
-					</array>
-				</dict>
-				<dict>
-					<key>begin</key>
-					<string>\$'</string>
-					<key>beginCaptures</key>
-					<dict>
-						<key>0</key>
-						<dict>
-							<key>name</key>
-							<string>punctuation.definition.string.begin.fish</string>
-						</dict>
-					</dict>
-					<key>end</key>
-					<string>'</string>
-					<key>endCaptures</key>
-					<dict>
-						<key>0</key>
-						<dict>
-							<key>name</key>
-							<string>punctuation.definition.string.end.fish</string>
-						</dict>
-					</dict>
-					<key>name</key>
-					<string>string.quoted.single.dollar.fish</string>
-					<key>patterns</key>
-					<array>
-						<dict>
-							<key>match</key>
-							<string>\\(a|b|e|f|n|r|t|v|\\|')</string>
-							<key>name</key>
-							<string>constant.character.escape.ansi-c.fish</string>
-						</dict>
-						<dict>
-							<key>match</key>
-							<string>\\[0-9]{3}</string>
-							<key>name</key>
-							<string>constant.character.escape.octal.fish</string>
-						</dict>
-						<dict>
-							<key>match</key>
-							<string>\\([xX][0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8})</string>
-							<key>name</key>
-							<string>constant.character.escape.hex.fish</string>
-						</dict>
-						<dict>
-							<key>match</key>
-							<string>\\c.</string>
-							<key>name</key>
-							<string>constant.character.escape.control-char.fish</string>
 						</dict>
 					</array>
 				</dict>
@@ -700,9 +688,9 @@
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>fish variables are very simple, as they can only be word characters and little special treatment is necessary</string>
+					<string>fish variables can only be word characters and no special treatment is necessary</string>
 					<key>match</key>
-					<string>(\$)(\w+)(?=\W)</string>
+					<string>(\$)\w+(?=\W)</string>
 					<key>name</key>
 					<string>variable.other.fish</string>
 				</dict>
