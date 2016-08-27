@@ -84,8 +84,8 @@ repository:
     - comment: do we want a special rule for ( expr )?
       name: keyword.operator.logical.fish
       match: =[=~]?|!=?|<|>|&&|\|\|
-    - name: keyword.operator.logical.fish
-      match: (?<!\S)-(nt|ot|ef|eq|ne|l[te]|g[te]|[a-hknoprstuwxzOGLSN])
+    # - name: keyword.operator.logical.fish
+    #   match: (?<!\S)-(nt|ot|ef|eq|ne|l[te]|g[te]|[a-hknoprstuwxzOGLSN])
 
   loop:
     patterns:
@@ -130,7 +130,8 @@ repository:
   math:
     patterns:
     - name: keyword.operator.arithmetic.fish
-      match: \+{1,2}|-{1,2}|!|~|\*{1,2}|/|%|<[<=]?|>[>=]?|==|!=|^|\|{1,2}|&{1,2}|\?|\:|,|=|[*/%+\-&^|]=|<<=|>>=
+      match: (\+{1,2}|-{1,2}|!|~|\*{1,2}|/|%|<[<=]?|>[>=]?|==|!=|^|\|{1,2}|&{1,2}|\?|\:|,|=|[*/%+\-&^|]=|<<=|>>=)(?=(\s|$|\$|\())
+      comment: Only match an operator if the element to the right is whitespace/endline, a variable, or command substitution
     - name: constant.numeric.hex.fish
       match: 0[xX]\h+
     - name: constant.numeric.octal.fish

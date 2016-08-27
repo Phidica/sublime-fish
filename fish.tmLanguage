@@ -223,12 +223,6 @@
 					<key>name</key>
 					<string>keyword.operator.logical.fish</string>
 				</dict>
-				<dict>
-					<key>match</key>
-					<string>(?&lt;!\S)-(nt|ot|ef|eq|ne|l[te]|g[te]|[a-hknoprstuwxzOGLSN])</string>
-					<key>name</key>
-					<string>keyword.operator.logical.fish</string>
-				</dict>
 			</array>
 		</dict>
 		<key>loop</key>
@@ -368,8 +362,10 @@
 			<key>patterns</key>
 			<array>
 				<dict>
+					<key>comment</key>
+					<string>Only match an operator if the element to the right is whitespace/endline, a variable, or command substitution</string>
 					<key>match</key>
-					<string>\+{1,2}|-{1,2}|!|~|\*{1,2}|/|%|&lt;[&lt;=]?|&gt;[&gt;=]?|==|!=|^|\|{1,2}|&amp;{1,2}|\?|\:|,|=|[*/%+\-&amp;^|]=|&lt;&lt;=|&gt;&gt;=</string>
+					<string>(\+{1,2}|-{1,2}|!|~|\*{1,2}|/|%|&lt;[&lt;=]?|&gt;[&gt;=]?|==|!=|^|\|{1,2}|&amp;{1,2}|\?|\:|,|=|[*/%+\-&amp;^|]=|&lt;&lt;=|&gt;&gt;=)(?=(\s|$|\$|\())</string>
 					<key>name</key>
 					<string>keyword.operator.arithmetic.fish</string>
 				</dict>
