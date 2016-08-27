@@ -230,7 +230,7 @@ repository:
   variable:
     patterns:
     - name: variable.other.special.fish
-      match: (\$)[-*@#?$!0_]
+      match: (\$)[-*@#?$!0_](?![a-zA-Z0-9_])
       captures:
         '1': {name: punctuation.definition.variable.fish}
     - name: variable.other.positional.fish
@@ -238,7 +238,7 @@ repository:
       captures:
         '1': {name: punctuation.definition.variable.fish}
     - name: variable.other.normal.fish
-      match: (\$+)[a-zA-Z_][a-zA-Z0-9_]*
+      match: (\$+)[a-zA-Z0-9_][a-zA-Z0-9_]*
       captures:
         '1': {name: punctuation.definition.variable.fish}
     - name: variable.other.bracket.fish
@@ -248,11 +248,11 @@ repository:
         '0': {name: punctuation.definition.variable.fish}
       patterns:
       - name: variable.other.normal.fish
-        match: '[a-zA-Z_][a-zA-Z0-9_]*'
+        match: '[a-zA-Z0-9_][a-zA-Z0-9_]*'
         captures:
           '1': {name: punctuation.definition.variable.fish}
 
 firstLineMatch: ^#!.*\b(fish)|^#\s*-\*-[^*]*mode:\s*shell-script[^*]*-\*-
-foldingStartMarker: \b(if|switch|case|while|begin)\b|(\{)$
-foldingStopMarker: ^\s*(\}|(end)\b)
+foldingStartMarker: \b(begin|for|if|else|function|switch|while)\b|(\{)$
+foldingStopMarker: ^\s*(\}|(else|end)\b)
 keyEquivalent: ^~S
