@@ -190,7 +190,7 @@
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>Does not consume the endline, thus allowing the command-call to capture it and end</string>
+					<string>Known bug - If comment line ends with \ then since it didn't consume the endline, a command-call will NOT end because command-call doesn't end if an endline it encountered had a \ preceding it. Solution may be to have comment-inline match the endline character if it is preceded by a \, but not sure how to implement</string>
 					<key>match</key>
 					<string>(?&lt;=^|\s)(#).*(?=$\n)</string>
 					<key>name</key>

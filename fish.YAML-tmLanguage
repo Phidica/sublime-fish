@@ -85,6 +85,7 @@ repository:
     patterns:
     - name: comment.line.number-sign.fish
       comment: Does not consume the endline, thus allowing the command-call to capture it and end
+      comment: Known bug - If comment line ends with \ then since it didn't consume the endline, a command-call will NOT end because command-call doesn't end if an endline it encountered had a \ preceding it. Solution may be to have comment-inline match the endline character if it is preceded by a \, but not sure how to implement
       match: (?<=^|\s)(#).*(?=$\n)
       captures:
         '1': {name: punctuation.definition.comment.fish}
