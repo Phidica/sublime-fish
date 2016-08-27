@@ -9,9 +9,9 @@
 	<key>firstLineMatch</key>
 	<string>^#!.*\b(fish)|^#\s*-\*-[^*]*mode:\s*shell-script[^*]*-\*-</string>
 	<key>foldingStartMarker</key>
-	<string>\b(if|switch|case|while|begin)\b|(\{)$</string>
+	<string>\b(begin|for|if|else|function|switch|while)\b|(\{)$</string>
 	<key>foldingStopMarker</key>
-	<string>^\s*(\}|(end)\b)</string>
+	<string>^\s*(\}|(else|end)\b)</string>
 	<key>keyEquivalent</key>
 	<string>^~S</string>
 	<key>name</key>
@@ -676,7 +676,7 @@
 						</dict>
 					</dict>
 					<key>match</key>
-					<string>(\$)[-*@#?$!0_]</string>
+					<string>(\$)[-*@#?$!0_](?![a-zA-Z0-9_])</string>
 					<key>name</key>
 					<string>variable.other.special.fish</string>
 				</dict>
@@ -704,7 +704,7 @@
 						</dict>
 					</dict>
 					<key>match</key>
-					<string>(\$+)[a-zA-Z_][a-zA-Z0-9_]*</string>
+					<string>(\$+)[a-zA-Z0-9_][a-zA-Z0-9_]*</string>
 					<key>name</key>
 					<string>variable.other.normal.fish</string>
 				</dict>
@@ -735,7 +735,7 @@
 								</dict>
 							</dict>
 							<key>match</key>
-							<string>[a-zA-Z_][a-zA-Z0-9_]*</string>
+							<string>[a-zA-Z0-9_][a-zA-Z0-9_]*</string>
 							<key>name</key>
 							<string>variable.other.normal.fish</string>
 						</dict>
