@@ -29,7 +29,7 @@ repository:
       comment: An argument is one of the fundamental units, however we define it by the very essence of not being any of the other fundamental units #, \, or control characters. All those have special treatment when they appear in command-calls, so we attend to them uniquely
       begin: (?<=^|\s)(?!\s|#|$|\\$)
       comment: Begin arg at the boundary between whitespace (or beginline for when command-call escapes its endline) and anything but whitespace, a comment character (because a lone # can't be an arg), an endline (to prevent blank lines being called args), or an escaped endline (because command-call can spot a lone \ and match it)
-      comment: Known bug - ` echo \ #` is supposed to print " #" because the whitespace is forced to become a character and then the # isn't considered lone because forced whitespace precedes it
+      comment: Known bug - ` echo \ #` is supposed to print " #" because the whitespace is forced to become a character and then the # isn't considered lone because forced whitespace precedes it. So "\ #" should be one arg
       end: (?<=\S)(?=\s|\)|;|&|\||$)
       comment: End arg if it precedes unescaped control characters. This could prove troublesome for arguments like --foo=";" unless argument is extended to permit strings after = signs. fish assumes a command call ends at an arg like --foo=; so we should too
       patterns:
@@ -84,9 +84,9 @@ repository:
   comment-inline:
     patterns:
     - name: comment.line.number-sign.fish
-      comment: Does not consume the endline, thus allowing the command-call to capture it and end
+      comment: Does not consume the endline, thus allowing the command-call to capture it and end. Note that a comment won't start if escaped whitespace precedes the # character
       comment: Known bug - If comment line ends with \ then since it didn't consume the endline, a command-call will NOT end because command-call doesn't end if an endline it encountered had a \ preceding it. Solution may be to have comment-inline match the endline character if it is preceded by a \, but not sure how to implement
-      match: (?<=^|\s)(#).*(?=$\n)
+      match: (?<=^|[^\\]\s)(#).*(?=$\n)
       captures:
         '1': {name: punctuation.definition.comment.fish}
 
