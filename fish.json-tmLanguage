@@ -78,7 +78,7 @@
       "patterns": [
         {
           "name": "keyword.control.fish",
-          "match": "\\b(?:if|else|for|in|switch|case|while|continue|begin|end|return)\\b"
+          "match": "\\b(?:and|begin|break|case|continue|else|end|for|if|in|return|switch|while)\\b"
         },
         {
           "name": "storage.modifier.fish",
@@ -122,7 +122,7 @@
         },
         {
           "name": "meta.scope.for-in-loop.fish",
-          "begin": "\\b(for)\\s+((?:[^\\s\\\\]|\\\\.)+)\\b", 
+          "begin": "\\b(for)\\s+((?:[^\\s\\\\]|\\\\.)+)\\b",
           "beginCaptures": {
             "1": { "name": "keyword.control.fish" },
             "2": { "name": "variable.other.loop.fish" }
@@ -323,11 +323,12 @@
       "patterns": [
         {
           "name": "support.function.builtin.fish",
-          "match": "(?<=^|\\s)(?::|\\.)(?=\\s|;|&|$)"
+          "match": "(?<=^|\\s)(?::|\\.)(?=\\s|;|&|$)",
+          "comment": "Matches literal . (alias for source, may be deprecated in future)"
         },
         {
           "name": "support.function.builtin.fish",
-          "match": "(?<![-/])\\b(?:alias|and|begin|bg|bind|block|break|breakpoint|builtin|case|cd|command|commandline|complete|contains|continue|count|dirh|dirs|else|emit|end|eval|exec|exit|fg|fish|fish_config|fish_indent|fish_pager|fish_prompt|fish_update_completions|fishd|for|funced|funcsave|function|functions|help|if|isatty|jobs|math|mimedb|nextd|not|open|or|popd|prevd|psub|pushd|random|read|return|set|set_color|\\.|status|switch|trap|type|ulimit|umask|vared|while)\\b"
+          "match": "(?<![-/])\\b(?:abbr|alias|bg|bind|block|breakpoint|builtin|cd|command|commandline|complete|contains|count|dirh|dirs|echo|emit|eval|exec|exit|false|fg|fish|fish_config|fish_indent|fish_prompt|fish_realpath|fish_right_prompt|fish_update_completions|fish_vi_mode|funced|funcsave|function|functions|help|history|isatty|jobs|math|nextd|not|open|popd|prevd|printf|prompt_pwd|psub|pushd|pwd|random|read|return|set|set_color|source|status|string|suspend|test|trap|true|type|ulimit|umask|vared)\\b"
         }
       ]
     },
