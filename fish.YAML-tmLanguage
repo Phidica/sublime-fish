@@ -26,10 +26,10 @@ repository:
   argument:
     patterns:
     - name: function.call.argument.fish #! \todo Find the right name, it's not this
-      comment: An argument is one of the fundamental units, however we define it by the very essence of not being any of the other fundamental units # and \ . Both those units have special treatment when they appear in command-calls, so we attend to them uniquely
+      comment: An argument is one of the fundamental units, however we define it by the very essence of not being any of the other fundamental units #, \, or control characters. All those have special treatment when they appear in command-calls, so we attend to them uniquely
       begin: (?<=^|\s)(?!\s|#|$|\\$)
       comment: Begin arg at the boundary between whitespace (or beginline for when command-call escapes its endline) and anything but whitespace, a comment character (because a lone # can't be an arg), an endline (to prevent blank lines being called args), or an escaped endline (because command-call can spot a lone \ and match it)
-      comment: Hm, ` echo \ #` is supposed to print " #" because the whitespace is forced to become a character and then the # isn't considered lone because forced whitespace precedes it
+      comment: Known bug - ` echo \ #` is supposed to print " #" because the whitespace is forced to become a character and then the # isn't considered lone because forced whitespace precedes it
       end: (?<=\S)(?=\s|\)|;|&|\||$)
       comment: End arg if it precedes unescaped control characters. This could prove troublesome for arguments like --foo=";" unless argument is extended to permit strings after = signs. fish assumes a command call ends at an arg like --foo=; so we should too
       patterns:
