@@ -33,7 +33,7 @@ repository:
       end: (?<=\S)(?=\s|\)|;|&|\||$)
       comment: End arg if it precedes unescaped control characters. This could prove troublesome for arguments like --foo=";" unless argument is extended to permit strings after = signs. fish assumes a command call ends at an arg like --foo=; so we should too
       patterns:
-      # - include: '#numeric' #! \todo This will be things like lone numbers, even though fish doesn't treat those differently
+      # - include: '#constant' #! \todo This will be things like lone numbers and escape characters, even though fish doesn't treat numbers any differently
       - include: '#string'
       - include: '#variable'
       - include: '#command-substitution'
@@ -59,6 +59,7 @@ repository:
   command-substitution:
     patterns:
     - name: meta.command-substitution.fish
+      comment: Multiple command-calls may appear in a command-substitution, separated by unescaped endlines
       begin: \(
       beginCaptures:
         '0': {name: constant.character.command-substitution.fish}
@@ -66,10 +67,6 @@ repository:
       endCaptures:
         '0': {name: constant.character.command-substitution.fish}
       patterns:
-      # - name: invalid.illegal.unescaped.endline
-      #   match: (?<!\\)\n
-      # - name: constant.character.escape
-      #   match: \\(?=\n)
       - include: '#command-call'
       - include: '#comment'
 

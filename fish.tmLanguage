@@ -128,6 +128,8 @@
 							<string>constant.character.command-substitution.fish</string>
 						</dict>
 					</dict>
+					<key>comment</key>
+					<string>Multiple command-calls may appear in a command-substitution, separated by unescaped endlines</string>
 					<key>end</key>
 					<string>\)</string>
 					<key>endCaptures</key>
