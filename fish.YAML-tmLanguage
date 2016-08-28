@@ -7,16 +7,16 @@ uuid: a6b750ed-a12a-43c1-84e7-689ac7e2fbc9
 patterns:
 - include: '#command-call'
 - include: '#comment'
+- include: '#comment-inline'
+- include: '#control-operator'
   # probably this global scope will only allow comment, command-call, and block, once I write a block structure (begin, if, function, ...)
 
 # - include: '#function-definition'
 # - include: '#keyword'
-# - include: '#list'
 # - include: '#logical-expression'
 # - include: '#loop'
 # - include: '#math'
 # - include: '#pathname'
-# - include: '#pipeline'
 # - include: '#redirection'
 # - include: '#string'
 # - include: '#support'
@@ -25,13 +25,13 @@ patterns:
 repository:
   argument:
     patterns:
-    - name: function.call.argument.fish #! \todo Find the right name, it's not this
-      comment: An argument is one of the fundamental units, however we define it by the very essence of not being any of the other fundamental units #, \, or control characters. All those have special treatment when they appear in command-calls, so we attend to them uniquely
+    - name: meta.function-call.arguments.fish
+      comment: An argument is one of the fundamental units, however we define it by the very essence of not being any of the other fundamental units '#', '\', and the control operators (';', '&', and '|'). All those have special treatment when they appear in command-calls, so we attend to them uniquely
       begin: (?<=^|\s)(?!\s|#|$|\\$)
       comment: Begin arg at the boundary between whitespace (or beginline for when command-call escapes its endline) and anything but whitespace, a comment character (because a lone # can't be an arg), an endline (to prevent blank lines being called args), or an escaped endline (because command-call can spot a lone \ and match it)
       comment: Known bug - ` echo \ #` is supposed to print " #" because the whitespace is forced to become a character and then the # isn't considered lone because forced whitespace precedes it. So "\ #" should be one arg
       end: (?<=\S)(?=\s|\)|;|&|\||$)
-      comment: End arg if it precedes unescaped control characters. This could prove troublesome for arguments like --foo=";" unless argument is extended to permit strings after = signs. fish assumes a command call ends at an arg like --foo=; so we should too
+      comment: End arg if it precedes unescaped control operators. This could prove troublesome for arguments like --foo=";" unless argument is extended to permit strings after = signs. fish assumes a command call ends at an arg like --foo=; so we should too
       patterns:
       # - include: '#constant' #! \todo This will be things like lone numbers and escape characters, even though fish doesn't treat numbers any differently
       - include: '#string'
@@ -41,14 +41,30 @@ repository:
 
   command-call:
     patterns:
-    - name: meta.command-call.fish
+    - name: meta.function-call.fish
+      comment: First check if command-call uses one of the builtins that can specifically take other command-calls as a sole argument. Because some of these builtins can instead take switches, or be backgrounded/piped (in which case they should be considered user commands), look ahead to ensure that no switches or bg/pipe control operators are found
+      begin: \b((builtin|command|exec)|(and|not|or))\s+(?!\s|-|&|\|)
+      beginCaptures:
+        '2': {name: support.function.builtin.fish}
+        '3': {name: keyword.control.fish}
+      end: (?=\)|;)|(?<!\\)(?=\n)|(?<=&|\|)
+      endCaptures:
+        '1': {name: keyword.control.fish}
+      comment: Command call ends before ')', ';', or an unescaped endline, and just after '&' or '|'
+      patterns:
+      - include: $self
+      - name: constant.character.escape
+        match: \\(?=\n)
+
+    - name: meta.function-call.fish
+      comment: If the above match for builtin commands failed, try and match user commands
       begin: \b([\w][\w-]*)\b
       beginCaptures:
         '1': {name: support.function.user.fish}
-      end: (?=\))|(;|&|\|)|(?<!\\)(?=\n)
+      end: (?=\)|;)|(?<!\\)(?=\n)|(&|\|)
       endCaptures:
         '1': {name: keyword.control.fish}
-      comment: command call ends at ), ;, &, |, or an unescaped endline
+      comment: Command call ends before ')', ';', or an unescaped endline, and at '&' or '|'. Those two control operators must be part of a command, so consume them here
       patterns:
       - include: '#argument'
       - include: '#comment'
@@ -59,7 +75,7 @@ repository:
   command-substitution:
     patterns:
     - name: meta.command-substitution.fish
-      comment: Multiple command-calls may appear in a command-substitution, separated by unescaped endlines
+      comment: If an unescaped endline is encountered within a command-substitution, a command-call ends and on the next line a new one may begin
       begin: \(
       beginCaptures:
         '0': {name: constant.character.command-substitution.fish}
@@ -69,23 +85,36 @@ repository:
       patterns:
       - include: '#command-call'
       - include: '#comment'
+      - include: '#control-operator'
+      - name: constant.character.escape
+        match: \\(?=\n)
+        comment: This match should only be needed for escaped endlines which are not part of any command-call, like if they precede the first command in the substitution
 
   comment:
     patterns:
     - name: comment.line.number-sign.fish
-      comment: Consumes the entire line, including the endline, thus hiding the entire comment from command-call
+      comment: Consumes the entire line, including the endline, thus hiding the entire comment from whatever scope we're in
       match: ^\s*(#).*$\n?
       captures:
         '1': {name: punctuation.definition.comment.fish}
 
   comment-inline:
     patterns:
-    - name: comment.line.number-sign.fish
-      comment: Does not consume the endline, thus allowing the command-call to capture it and end. Note that a comment won't start if escaped whitespace precedes the # character
-      comment: Known bug - If comment line ends with \ then since it didn't consume the endline, a command-call will NOT end because command-call doesn't end if an endline it encountered had a \ preceding it. Solution may be to have comment-inline match the endline character if it is preceded by a \, but not sure how to implement
-      match: (?<=^|[^\\]\s)(#).*(?=$\n)
+    - name: comment.inline.number-sign.fish
+      comment: Separate from comment as this is only valid inside of a command-call. Does not consume the endline, thus allowing the command-call to capture it and end. Note that a comment-inline won't start if escaped whitespace precedes the '#'
+      comment: Known bug - If comment-inline ends with '\' then since it didn't consume the endline, a command-call will NOT end because command-call doesn't end if an endline it encountered had a '\' preceding it. Solution would be to have comment-inline match the endline character if it is preceded by a '\', but not sure how to implement
+      match: (?<=[^\\]\s)(#).*(?=$\n)
       captures:
         '1': {name: punctuation.definition.comment.fish}
+
+  control-operator:
+    patterns:
+    - name: keyword.control.fish
+      match: ;
+      comment: This is the only operator which is allowed to exist alone on a line. The other control operators are '&' and '|' however they must be preceded by a command, so command-call matches those
+    - name: invalid.illegal.control.fish
+      match: (^|(?<!\())\s*(&|\|).*$\n?
+      comment: These two control operators, '&' and '|', must be preceded by a command, so command-call matches them when they are valid. If they are found in the global scope or first inside a command-substitution, that means they are dangling
 
   function-definition:
     patterns:
@@ -107,11 +136,6 @@ repository:
       match: \b(?:and|begin|break|case|continue|else|end|for|if|in|return|switch|while)\b
     - name: storage.modifier.fish
       match: (?<![-/])\b(?:set)\b
-
-  list:
-    patterns:
-    - name: keyword.operator.list.fish
-      match: ;|&&|&|\|\|
 
   logical-expression:
     patterns:
@@ -193,11 +217,6 @@ repository:
       patterns:
       - include: $self
 
-  pipeline:
-    patterns:
-    - name: keyword.operator.pipe.fish
-      match: '[|!]'
-
   redirection:
     patterns:
     - name: string.interpolated.process-substitution.fish
@@ -214,7 +233,7 @@ repository:
       name: keyword.operator.redirect.fish
       match: '&>|\d*>&\d*|\d*(>>|>|<)|\d*<&|\d*<>'
 
-  # fish strings accept very few escape codes, quite unlike Bash, make only a few simple distinctions between the single- and double-quoted variants
+  # fish strings accept very few escape codes, and make only a few simple distinctions between the single- and double-quoted variants
   string:
     patterns:
     - name: string.quoted.single.fish

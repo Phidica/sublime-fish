@@ -26,6 +26,14 @@
 			<key>include</key>
 			<string>#comment</string>
 		</dict>
+		<dict>
+			<key>include</key>
+			<string>#comment-inline</string>
+		</dict>
+		<dict>
+			<key>include</key>
+			<string>#control-operator</string>
+		</dict>
 	</array>
 	<key>repository</key>
 	<dict>
@@ -37,11 +45,11 @@
 					<key>begin</key>
 					<string>(?&lt;=^|\s)(?!\s|#|$|\\$)</string>
 					<key>comment</key>
-					<string>End arg if it precedes unescaped control characters. This could prove troublesome for arguments like --foo=";" unless argument is extended to permit strings after = signs. fish assumes a command call ends at an arg like --foo=; so we should too</string>
+					<string>End arg if it precedes unescaped control operators. This could prove troublesome for arguments like --foo=";" unless argument is extended to permit strings after = signs. fish assumes a command call ends at an arg like --foo=; so we should too</string>
 					<key>end</key>
 					<string>(?&lt;=\S)(?=\s|\)|;|&amp;|\||$)</string>
 					<key>name</key>
-					<string>function.call.argument.fish</string>
+					<string>meta.function-call.arguments.fish</string>
 					<key>patterns</key>
 					<array>
 						<dict>
@@ -66,6 +74,50 @@
 			<array>
 				<dict>
 					<key>begin</key>
+					<string>\b((builtin|command|exec)|(and|not|or))\s+(?!\s|-|&amp;|\|)</string>
+					<key>beginCaptures</key>
+					<dict>
+						<key>2</key>
+						<dict>
+							<key>name</key>
+							<string>support.function.builtin.fish</string>
+						</dict>
+						<key>3</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.fish</string>
+						</dict>
+					</dict>
+					<key>comment</key>
+					<string>Command call ends before ')', ';', or an unescaped endline, and just after '&amp;' or '|'</string>
+					<key>end</key>
+					<string>(?=\)|;)|(?&lt;!\\)(?=\n)|(?&lt;=&amp;|\|)</string>
+					<key>endCaptures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.fish</string>
+						</dict>
+					</dict>
+					<key>name</key>
+					<string>meta.function-call.fish</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>include</key>
+							<string>$self</string>
+						</dict>
+						<dict>
+							<key>match</key>
+							<string>\\(?=\n)</string>
+							<key>name</key>
+							<string>constant.character.escape</string>
+						</dict>
+					</array>
+				</dict>
+				<dict>
+					<key>begin</key>
 					<string>\b([\w][\w-]*)\b</string>
 					<key>beginCaptures</key>
 					<dict>
@@ -76,9 +128,9 @@
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>command call ends at ), ;, &amp;, |, or an unescaped endline</string>
+					<string>Command call ends before ')', ';', or an unescaped endline, and at '&amp;' or '|'. Those two control operators must be part of a command, so consume them here</string>
 					<key>end</key>
-					<string>(?=\))|(;|&amp;|\|)|(?&lt;!\\)(?=\n)</string>
+					<string>(?=\)|;)|(?&lt;!\\)(?=\n)|(&amp;|\|)</string>
 					<key>endCaptures</key>
 					<dict>
 						<key>1</key>
@@ -88,7 +140,7 @@
 						</dict>
 					</dict>
 					<key>name</key>
-					<string>meta.command-call.fish</string>
+					<string>meta.function-call.fish</string>
 					<key>patterns</key>
 					<array>
 						<dict>
@@ -129,7 +181,7 @@
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>Multiple command-calls may appear in a command-substitution, separated by unescaped endlines</string>
+					<string>If an unescaped endline is encountered within a command-substitution, a command-call ends and on the next line a new one may begin</string>
 					<key>end</key>
 					<string>\)</string>
 					<key>endCaptures</key>
@@ -152,6 +204,18 @@
 							<key>include</key>
 							<string>#comment</string>
 						</dict>
+						<dict>
+							<key>include</key>
+							<string>#control-operator</string>
+						</dict>
+						<dict>
+							<key>comment</key>
+							<string>This match should only be needed for escaped endlines which are not part of any command-call, like if they precede the first command in the substitution</string>
+							<key>match</key>
+							<string>\\(?=\n)</string>
+							<key>name</key>
+							<string>constant.character.escape</string>
+						</dict>
 					</array>
 				</dict>
 			</array>
@@ -170,7 +234,7 @@
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>Consumes the entire line, including the endline, thus hiding the entire comment from command-call</string>
+					<string>Consumes the entire line, including the endline, thus hiding the entire comment from whatever scope we're in</string>
 					<key>match</key>
 					<string>^\s*(#).*$\n?</string>
 					<key>name</key>
@@ -192,11 +256,33 @@
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>Known bug - If comment line ends with \ then since it didn't consume the endline, a command-call will NOT end because command-call doesn't end if an endline it encountered had a \ preceding it. Solution may be to have comment-inline match the endline character if it is preceded by a \, but not sure how to implement</string>
+					<string>Known bug - If comment-inline ends with '\' then since it didn't consume the endline, a command-call will NOT end because command-call doesn't end if an endline it encountered had a '\' preceding it. Solution would be to have comment-inline match the endline character if it is preceded by a '\', but not sure how to implement</string>
 					<key>match</key>
-					<string>(?&lt;=^|[^\\]\s)(#).*(?=$\n)</string>
+					<string>(?&lt;=[^\\]\s)(#).*(?=$\n)</string>
 					<key>name</key>
-					<string>comment.line.number-sign.fish</string>
+					<string>comment.inline.number-sign.fish</string>
+				</dict>
+			</array>
+		</dict>
+		<key>control-operator</key>
+		<dict>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>comment</key>
+					<string>This is the only operator which is allowed to exist alone on a line. The other control operators are '&amp;' and '|' however they must be preceded by a command, so command-call matches those</string>
+					<key>match</key>
+					<string>;</string>
+					<key>name</key>
+					<string>keyword.control.fish</string>
+				</dict>
+				<dict>
+					<key>comment</key>
+					<string>These two control operators, '&amp;' and '|', must be preceded by a command, so command-call matches them when they are valid. If they are found in the global scope or first inside a command-substitution, that means they are dangling</string>
+					<key>match</key>
+					<string>(^|(?&lt;!\())\s*(&amp;|\|).*$\n?</string>
+					<key>name</key>
+					<string>invalid.illegal.control.fish</string>
 				</dict>
 			</array>
 		</dict>
@@ -262,18 +348,6 @@
 					<string>(?&lt;![-/])\b(?:set)\b</string>
 					<key>name</key>
 					<string>storage.modifier.fish</string>
-				</dict>
-			</array>
-		</dict>
-		<key>list</key>
-		<dict>
-			<key>patterns</key>
-			<array>
-				<dict>
-					<key>match</key>
-					<string>;|&amp;&amp;|&amp;|\|\|</string>
-					<key>name</key>
-					<string>keyword.operator.list.fish</string>
 				</dict>
 			</array>
 		</dict>
@@ -516,18 +590,6 @@
 							<string>$self</string>
 						</dict>
 					</array>
-				</dict>
-			</array>
-		</dict>
-		<key>pipeline</key>
-		<dict>
-			<key>patterns</key>
-			<array>
-				<dict>
-					<key>match</key>
-					<string>[|!]</string>
-					<key>name</key>
-					<string>keyword.operator.pipe.fish</string>
 				</dict>
 			</array>
 		</dict>

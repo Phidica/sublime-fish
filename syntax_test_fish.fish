@@ -1,47 +1,108 @@
 #! SYNTAX TEST "Packages/sublime-fish-shell/fish.tmLanguage"
 
+# If using fish to test parsing of this file, all invalid illegal control operators must be commented out, and their tests disabled
+
+;
+#! <- keyword.control
+&
+#! <- invalid.illegal.control
+|
+#! <- invalid.illegal.control
+
 echo --arg -arg arg ; echo arg # comment
 #! <- support.function.user
-#! ^^^^^^^^^^^^^^^^^ meta.command-call
-#!   ^^^^^ function.call.argument
-#!         ^^^^ function.call.argument
-#!              ^^^ function.call.argument
+#! ^^^^^^^^^^^^^^^^^ meta.function-call
+#!   ^^^^^ meta.function-call.arguments
+#!         ^^^^ meta.function-call.arguments
+#!              ^^^ meta.function-call.arguments
+#!                  ^ keyword.control
 #!                    ^^^^ support.function.user
-#!                    ^^^^^^^^ meta.command-call
+#!                    ^^^^^^^^ meta.function-call
 #!                             ^ punctuation.definition.comment
-#!                             ^^^^^^^^^ comment.line
+#!                             ^^^^^^^^^ comment.inline
+
+echo arg & # comment
+#!       ^ keyword.control
+#!         ^ comment.inline
+
+echo \  # comment
+#!   ^ meta.function-call.arguments
 
 echo arg \ arg \
 #! <- support.function.user
-#! ^^^^^^^^^^^^^ meta.command-call
-#!   ^^^ function.call.argument
-#!       ^ function.call.argument
+#! ^^^^^^^^^^^^^ meta.function-call
+#!   ^^^ meta.function-call.arguments
+#!       ^ meta.function-call.arguments
 #!             ^ constant.character.escape
-# comment
+  # comment
 #! <- comment.line
-arg arg
-#! <- meta.command-call function.call.argument
-#! ^^^^ meta.command-call
-#!  ^^^ meta.command-call function.call.argument
+arg arg # comment
+#! <- meta.function-call meta.function-call.arguments
+#! ^^^^ meta.function-call
+#!  ^^^ meta.function-call meta.function-call.arguments
+#!      ^ comment.inline
 
 echo arg (echo inner arg) outer arg
 #!       ^^^^^^^^^^^^^^^^ meta.command-substitution
 #!       ^ constant.character.command-substitution
-#!        ^^^^^^^^^^^^^^ meta.command-call
+#!        ^^^^^^^^^^^^^^ meta.function-call
 #!                      ^ constant.character.command-substitution
-#!                        ^ meta.command-call
+#!                        ^ meta.function-call
 
 echo (echo one \
 #!   ^^^^^^^^^^^ meta.command-substitution
 #!             ^ constant.character.escape
 two three # comment
+#!        ^ comment.inline
 # comment
 #! <- comment.line
-echo four
+echo four \
 #! <- support.function.user
 #! ^^^^^^ meta.command-substitution
+five six # tricky comment \
+echo seven
+#! <- support.function.user
 )
 #! <- meta.command-substitution
+
+echo ( \
+#!     ^ constant.character.escape
+;
+#! <- keyword.control
+  &
+#! <- invalid.illegal.control
+echo &
+#! <- meta.function-call
+)
+
+builtin echo arg ; and echo arg
+#! <- meta.function-call support.function.builtin
+#!      ^^^^ meta.function-call meta.function-call support.function.user
+#!           ^^^ meta.function-call meta.function-call meta.function-call.arguments
+#!               ^ keyword.control
+#!                 ^^^ meta.function-call keyword.control
+#!                     ^^^^ meta.function-call meta.function-call support.function.user
+
+command  \
+#! <- meta.function-call support.function.builtin
+echo  \
+#! <- meta.function-call meta.function-call support.function.user
+arg & # comment
+#! <-meta.function-call meta.function-call meta.function-call.arguments
+#!    ^ comment.inline
+
+command  &
+#! <- meta.function-call support.function.user
+echo arg &
+#! <-meta.function-call
+
+echo arg1 ; and echo arg2 & not echo arg3 | cat
+#! <- meta.function-call support.function.user
+#!          ^^^ meta.function-call keyword.control
+#!              ^^^^ meta.function-call meta.function-call support.function.user
+#!                        ^ keyword.control
+#!                          ^^^ meta.function-call keyword.control
+#!                              ^^^^ meta.function-call meta.function-call support.function.user
 
 echo "string"(echo "inner string")" outer string"
 #!           ^^^^^^^^^^^^^^^^^^^^^ meta.command-substitution
@@ -60,7 +121,8 @@ echo 'str$str\$str\'str\\"str"'
 
 # This is to test that single-quoted strings always include newlines
 echo 'str\
-str'
+str
+'
 
 echo "str$var\$str\"str\\'str'"
 #!   ^ string.quoted.double punctuation.definition.string.begin
@@ -81,4 +143,24 @@ echo $var(echo {$arg} "{$var}")$var"str"$var
 #!   ^^^^ variable.other
 #!   ^ punctuation.definition.variable
 #!              ^^^^ variable.other
-#!                    ^^^^^^^^ function.call.argument
+#!                    ^^^^^^^^ string.quoted
+
+echo -n --switch=(echo "str;";);
+#!   ^^ meta.function-call.arguments
+#!      ^^^^^^^^^^^^^^^^^^^^^^^ meta.function-call.arguments
+#!                         ^ string.quoted
+#!                           ^ keyword.control
+#!                             ^ keyword.control
+
+echo --switch=(echo "str;";
+#!   ^^^^^^^^^^^^^^^^^^^^^^^ meta.function-call.arguments
+#!                      ^ string.quoted
+#!                        ^ keyword.control
+  echo test \
+#!   ^^^^^^^^^ meta.function-call.arguments
+#!          ^ constant.character.escape
+    &
+#!  ^ keyword.control
+#!   ^ meta.function-call.arguments
+)  ;
+#! ^ keyword.control
