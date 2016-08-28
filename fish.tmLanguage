@@ -94,7 +94,7 @@
 					<array>
 						<dict>
 							<key>include</key>
-							<string>$self</string>
+							<string>#command-call</string>
 						</dict>
 						<dict>
 							<key>comment</key>
