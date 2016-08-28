@@ -50,8 +50,8 @@ repository:
       patterns:
       - include: $self
       - name: constant.character.escape
-        match: \\\n
-        comment: command-call may contain an endline if it is escaped
+        match: \\(?=\n)
+        comment: command-call may contain an endline if it is escaped; no need to consume the endline (I may be wrong, switch back to \\\n if problems arise)
 
     - name: meta.function-call.fish
       comment: If the above match for builtin commands failed, try and match user commands
@@ -68,7 +68,7 @@ repository:
       - include: '#comment-inline'
       - name: constant.character.escape
         match: \\\n
-        comment: command-call may contain an endline if it is escaped
+        comment: command-call may contain an endline if it is escaped; consume the endline to prevent the command-call ending
 
   command-substitution:
     patterns:
@@ -86,7 +86,7 @@ repository:
       - include: '#control-operator'
       - name: constant.character.escape
         match: \\(?=\n)
-        comment: This match should only be needed for escaped endlines which are not part of any command-call, like if they precede the first command in the substitution
+        comment: This match should only be needed for escaped endlines which are not part of any command-call, like if they precede the first command in the substitution. No need to consume the endline
 
   comment:
     patterns:

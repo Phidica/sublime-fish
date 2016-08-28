@@ -98,9 +98,9 @@
 						</dict>
 						<dict>
 							<key>comment</key>
-							<string>command-call may contain an endline if it is escaped</string>
+							<string>command-call may contain an endline if it is escaped; no need to consume the endline (I may be wrong, switch back to \\\n if problems arise)</string>
 							<key>match</key>
-							<string>\\\n</string>
+							<string>\\(?=\n)</string>
 							<key>name</key>
 							<string>constant.character.escape</string>
 						</dict>
@@ -147,7 +147,7 @@
 						</dict>
 						<dict>
 							<key>comment</key>
-							<string>command-call may contain an endline if it is escaped</string>
+							<string>command-call may contain an endline if it is escaped; consume the endline to prevent the command-call ending</string>
 							<key>match</key>
 							<string>\\\n</string>
 							<key>name</key>
@@ -202,7 +202,7 @@
 						</dict>
 						<dict>
 							<key>comment</key>
-							<string>This match should only be needed for escaped endlines which are not part of any command-call, like if they precede the first command in the substitution</string>
+							<string>This match should only be needed for escaped endlines which are not part of any command-call, like if they precede the first command in the substitution. No need to consume the endline</string>
 							<key>match</key>
 							<string>\\(?=\n)</string>
 							<key>name</key>
