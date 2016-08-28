@@ -7,7 +7,6 @@ uuid: a6b750ed-a12a-43c1-84e7-689ac7e2fbc9
 patterns:
 - include: '#command-call'
 - include: '#comment'
-- include: '#comment-inline'
 - include: '#control-operator'
   # probably this global scope will only allow comment, command-call, and block, once I write a block structure (begin, if, function, ...)
 
@@ -31,13 +30,12 @@ repository:
       comment: Begin arg at the boundary between whitespace (or beginline for when command-call escapes its endline) and anything but whitespace, a comment character (because a lone # can't be an arg), an endline (to prevent blank lines being called args), or an escaped endline (because command-call can spot a lone \ and match it)
       comment: Known bug - ` echo \ #` is supposed to print " #" because the whitespace is forced to become a character and then the # isn't considered lone because forced whitespace precedes it. So "\ #" should be one arg
       end: (?<=\S)(?=\s|\)|;|&|\||$)
-      comment: End arg if it precedes unescaped control operators. This could prove troublesome for arguments like --foo=";" unless argument is extended to permit strings after = signs. fish assumes a command call ends at an arg like --foo=; so we should too
+      comment: End arg if it precedes unescaped control operators. Everything else is fair game, and strings and variables are matched and properly highlighted if found
       patterns:
       # - include: '#constant' #! \todo This will be things like lone numbers and escape characters, even though fish doesn't treat numbers any differently
       - include: '#string'
       - include: '#variable'
       - include: '#command-substitution'
-      # - match: '[\w-]+' # This probably isn't needed, get rid of it later
 
   command-call:
     patterns:
@@ -48,29 +46,29 @@ repository:
         '2': {name: support.function.builtin.fish}
         '3': {name: keyword.control.fish}
       end: (?=\)|;)|(?<!\\)(?=\n)|(?<=&|\|)
-      endCaptures:
-        '1': {name: keyword.control.fish}
-      comment: Command call ends before ')', ';', or an unescaped endline, and just after '&' or '|'
+      comment: Builtin command-call ends before ')', ';', or an unescaped endline (user command-call will catch the endline), and just after '&' or '|'
       patterns:
       - include: $self
       - name: constant.character.escape
-        match: \\(?=\n)
+        match: \\\n
+        comment: command-call may contain an endline if it is escaped
 
     - name: meta.function-call.fish
       comment: If the above match for builtin commands failed, try and match user commands
       begin: \b([\w][\w-]*)\b
       beginCaptures:
         '1': {name: support.function.user.fish}
-      end: (?=\)|;)|(?<!\\)(?=\n)|(&|\|)
+      end: (?=\)|;)|\n|(&|\|)
       endCaptures:
         '1': {name: keyword.control.fish}
-      comment: Command call ends before ')', ';', or an unescaped endline, and at '&' or '|'. Those two control operators must be part of a command, so consume them here
+      comment: command-call ends before ')' or ';', and at an endline, '&', or '|'. Those last two control operators must be part of a command, so consume them here
       patterns:
       - include: '#argument'
       - include: '#comment'
       - include: '#comment-inline'
       - name: constant.character.escape
-        match: \\(?=\n)
+        match: \\\n
+        comment: command-call may contain an endline if it is escaped
 
   command-substitution:
     patterns:
@@ -93,17 +91,16 @@ repository:
   comment:
     patterns:
     - name: comment.line.number-sign.fish
-      comment: Consumes the entire line, including the endline, thus hiding the entire comment from whatever scope we're in
-      match: ^\s*(#).*$\n?
+      comment: Consumes an entire line or the remainder of a line after a control operator, including the endline, thus hiding the entire comment from whatever scope we're in
+      match: (?<=^|;|&|\|)\s*(#).*$\n?
       captures:
         '1': {name: punctuation.definition.comment.fish}
 
   comment-inline:
     patterns:
     - name: comment.inline.number-sign.fish
-      comment: Separate from comment as this is only valid inside of a command-call. Does not consume the endline, thus allowing the command-call to capture it and end. Note that a comment-inline won't start if escaped whitespace precedes the '#'
-      comment: Known bug - If comment-inline ends with '\' then since it didn't consume the endline, a command-call will NOT end because command-call doesn't end if an endline it encountered had a '\' preceding it. Solution would be to have comment-inline match the endline character if it is preceded by a '\', but not sure how to implement
-      match: (?<=[^\\]\s)(#).*(?=$\n)
+      comment: Separate from comment as this is only valid inside of command-call. Does not consume the endline, thus allowing command-call to capture it and end. Note that a comment-inline won't start if escaped whitespace precedes the '#'
+      match: (?<=[^\\]\s)(#).*$
       captures:
         '1': {name: punctuation.definition.comment.fish}
 

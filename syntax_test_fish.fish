@@ -23,7 +23,7 @@ echo --arg -arg arg ; echo arg # comment
 
 echo arg & # comment
 #!       ^ keyword.control
-#!         ^ comment.inline
+#!         ^ comment.line
 
 echo \  # comment
 #!   ^ meta.function-call.arguments
@@ -75,6 +75,13 @@ echo &
 #! <- meta.function-call
 )
 
+exec echo \
+#! <- meta.function-call support.function.builtin
+#!   ^^^^ meta.function-call meta.function-call support.function.user
+arg
+#! <-meta.function-call meta.function-call meta.function-call.arguments
+#! ^ meta.function-call meta.function-call
+
 builtin echo arg ; and echo arg
 #! <- meta.function-call support.function.builtin
 #!      ^^^^ meta.function-call meta.function-call support.function.user
@@ -87,9 +94,11 @@ command  \
 #! <- meta.function-call support.function.builtin
 echo  \
 #! <- meta.function-call meta.function-call support.function.user
-arg & # comment
+arg & # comment \
 #! <-meta.function-call meta.function-call meta.function-call.arguments
-#!    ^ comment.inline
+#!    ^ comment.line
+echo arg
+#! <- meta.function-call support.function.user
 
 command  &
 #! <- meta.function-call support.function.user

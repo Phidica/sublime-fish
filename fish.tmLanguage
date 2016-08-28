@@ -28,10 +28,6 @@
 		</dict>
 		<dict>
 			<key>include</key>
-			<string>#comment-inline</string>
-		</dict>
-		<dict>
-			<key>include</key>
 			<string>#control-operator</string>
 		</dict>
 	</array>
@@ -45,7 +41,7 @@
 					<key>begin</key>
 					<string>(?&lt;=^|\s)(?!\s|#|$|\\$)</string>
 					<key>comment</key>
-					<string>End arg if it precedes unescaped control operators. This could prove troublesome for arguments like --foo=";" unless argument is extended to permit strings after = signs. fish assumes a command call ends at an arg like --foo=; so we should too</string>
+					<string>End arg if it precedes unescaped control operators. Everything else is fair game, and strings and variables are matched and properly highlighted if found</string>
 					<key>end</key>
 					<string>(?&lt;=\S)(?=\s|\)|;|&amp;|\||$)</string>
 					<key>name</key>
@@ -89,17 +85,9 @@
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>Command call ends before ')', ';', or an unescaped endline, and just after '&amp;' or '|'</string>
+					<string>Builtin command-call ends before ')', ';', or an unescaped endline (user command-call will catch the endline), and just after '&amp;' or '|'</string>
 					<key>end</key>
 					<string>(?=\)|;)|(?&lt;!\\)(?=\n)|(?&lt;=&amp;|\|)</string>
-					<key>endCaptures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>keyword.control.fish</string>
-						</dict>
-					</dict>
 					<key>name</key>
 					<string>meta.function-call.fish</string>
 					<key>patterns</key>
@@ -109,8 +97,10 @@
 							<string>$self</string>
 						</dict>
 						<dict>
+							<key>comment</key>
+							<string>command-call may contain an endline if it is escaped</string>
 							<key>match</key>
-							<string>\\(?=\n)</string>
+							<string>\\\n</string>
 							<key>name</key>
 							<string>constant.character.escape</string>
 						</dict>
@@ -128,9 +118,9 @@
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>Command call ends before ')', ';', or an unescaped endline, and at '&amp;' or '|'. Those two control operators must be part of a command, so consume them here</string>
+					<string>command-call ends before ')' or ';', and at an endline, '&amp;', or '|'. Those last two control operators must be part of a command, so consume them here</string>
 					<key>end</key>
-					<string>(?=\)|;)|(?&lt;!\\)(?=\n)|(&amp;|\|)</string>
+					<string>(?=\)|;)|\n|(&amp;|\|)</string>
 					<key>endCaptures</key>
 					<dict>
 						<key>1</key>
@@ -156,8 +146,10 @@
 							<string>#comment-inline</string>
 						</dict>
 						<dict>
+							<key>comment</key>
+							<string>command-call may contain an endline if it is escaped</string>
 							<key>match</key>
-							<string>\\(?=\n)</string>
+							<string>\\\n</string>
 							<key>name</key>
 							<string>constant.character.escape</string>
 						</dict>
@@ -234,9 +226,9 @@
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>Consumes the entire line, including the endline, thus hiding the entire comment from whatever scope we're in</string>
+					<string>Consumes an entire line or the remainder of a line after a control operator, including the endline, thus hiding the entire comment from whatever scope we're in</string>
 					<key>match</key>
-					<string>^\s*(#).*$\n?</string>
+					<string>(?&lt;=^|;|&amp;|\|)\s*(#).*$\n?</string>
 					<key>name</key>
 					<string>comment.line.number-sign.fish</string>
 				</dict>
@@ -256,9 +248,9 @@
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>Known bug - If comment-inline ends with '\' then since it didn't consume the endline, a command-call will NOT end because command-call doesn't end if an endline it encountered had a '\' preceding it. Solution would be to have comment-inline match the endline character if it is preceded by a '\', but not sure how to implement</string>
+					<string>Separate from comment as this is only valid inside of command-call. Does not consume the endline, thus allowing command-call to capture it and end. Note that a comment-inline won't start if escaped whitespace precedes the '#'</string>
 					<key>match</key>
-					<string>(?&lt;=[^\\]\s)(#).*(?=$\n)</string>
+					<string>(?&lt;=[^\\]\s)(#).*$</string>
 					<key>name</key>
 					<string>comment.inline.number-sign.fish</string>
 				</dict>
