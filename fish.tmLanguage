@@ -94,7 +94,7 @@
 					<array>
 						<dict>
 							<key>include</key>
-							<string>#command-call</string>
+							<string>$self</string>
 						</dict>
 						<dict>
 							<key>comment</key>
@@ -734,6 +734,63 @@
 		<dict>
 			<key>patterns</key>
 			<array>
+				<dict>
+					<key>begin</key>
+					<string>(\$)\w+(?=\[)</string>
+					<key>beginCaptures</key>
+					<dict>
+						<key>0</key>
+						<dict>
+							<key>name</key>
+							<string>variable.other.fish</string>
+						</dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>punctuation.definition.variable.fish</string>
+						</dict>
+					</dict>
+					<key>end</key>
+					<string>(?&lt;=\])</string>
+					<key>name</key>
+					<string>meta.item-access.fish</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>begin</key>
+							<string>\[</string>
+							<key>beginCaptures</key>
+							<dict>
+								<key>0</key>
+								<dict>
+									<key>name</key>
+									<string>punctuation.definition.arguments.begin.fish</string>
+								</dict>
+							</dict>
+							<key>end</key>
+							<string>\]</string>
+							<key>endCaptures</key>
+							<dict>
+								<key>0</key>
+								<dict>
+									<key>name</key>
+									<string>punctuation.definition.arguments.end.fish</string>
+								</dict>
+							</dict>
+							<key>name</key>
+							<string>meta.item-access.arguments.fish</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>comment</key>
+									<string>Not even fish does its item-access highlighting this well</string>
+									<key>include</key>
+									<string>#variable</string>
+								</dict>
+							</array>
+						</dict>
+					</array>
+				</dict>
 				<dict>
 					<key>captures</key>
 					<dict>

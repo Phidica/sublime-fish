@@ -117,9 +117,16 @@ echo "string"(echo "inner string")" outer string"
 #!           ^^^^^^^^^^^^^^^^^^^^^ meta.command-substitution
 #!                                ^ string.quoted
 
-echo $variable
-#!   ^^^^^^^^^ variable.other
+echo $var
+#!   ^^^^ variable.other
 #!   ^ punctuation.definition.variable
+
+echo $var $var[$var[1 $var[1]] $var[1]] "str"
+#!   ^^^^ variable.other
+#!        ^^^^ meta.item-access variable.other
+#!                  ^ meta.item-access meta.item-access.arguments meta.item-access meta.item-access.arguments
+#!                    ^^^^ meta.item-access meta.item-access.arguments meta.item-access meta.item-access.arguments meta.item-access variable.other
+#!                                      ^^^^^ string.quoted
 
 echo 'str$str\$str\'str\\"str"'
 #!   ^ string.quoted.single punctuation.definition.string.begin

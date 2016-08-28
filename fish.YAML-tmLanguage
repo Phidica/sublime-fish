@@ -48,7 +48,7 @@ repository:
       end: (?=\)|;)|(?<!\\)(?=\n)|(?<=&|\|)
       comment: Builtin command-call ends before ')', ';', or an unescaped endline (user command-call will catch the endline), and just after '&' or '|'
       patterns:
-      - include: '#command-call'
+      - include: $self
       - name: constant.character.escape
         match: \\(?=\n)
         comment: command-call may contain an endline if it is escaped; no need to consume the endline (I may be wrong, switch back to \\\n if problems arise)
@@ -267,11 +267,31 @@ repository:
 
   variable:
     patterns:
+    - name: meta.item-access.fish
+      begin: (\$)\w+(?=\[)
+      beginCaptures:
+        '0': {name: variable.other.fish }
+        '1': {name: punctuation.definition.variable.fish }
+      end: (?<=\])
+      patterns:
+      - name: meta.item-access.arguments.fish
+        begin: \[
+        beginCaptures:
+          '0': {name: punctuation.definition.arguments.begin.fish }
+        end: \]
+        endCaptures:
+          '0': {name: punctuation.definition.arguments.end.fish }
+        patterns:
+        - include: '#variable'
+          comment: Not even fish does its item-access highlighting this well
+        # - include: '#constant' # Once it's written
+
     - name: variable.other.fish
       comment: fish variables can only be word characters and no special treatment is necessary
       match: (\$)\w+(?=\W)
       captures:
         '1': {name: punctuation.definition.variable.fish }
+
 
 firstLineMatch: ^#!.*\b(fish)|^#\s*-\*-[^*]*mode:\s*shell-script[^*]*-\*-
 foldingStartMarker: \b(begin|for|if|else|function|switch|while)\b|(\{)$
