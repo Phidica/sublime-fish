@@ -30,6 +30,10 @@
 			<key>include</key>
 			<string>#control-operator</string>
 		</dict>
+		<dict>
+			<key>include</key>
+			<string>#escape-character</string>
+		</dict>
 	</array>
 	<key>repository</key>
 	<dict>
@@ -211,12 +215,8 @@
 							<string>#control-operator</string>
 						</dict>
 						<dict>
-							<key>comment</key>
-							<string>This match should only be needed for escaped endlines which are not part of any command-call, like if they precede the first command in the substitution. No need to consume the newline</string>
-							<key>match</key>
-							<string>\\(?=\n)</string>
-							<key>name</key>
-							<string>constant.character.escape</string>
+							<key>include</key>
+							<string>#escape-character</string>
 						</dict>
 					</array>
 				</dict>
@@ -285,6 +285,28 @@
 					<string>(^|(?&lt;!\())\s*(&amp;|\|).*$\n?</string>
 					<key>name</key>
 					<string>invalid.illegal.control.fish</string>
+				</dict>
+			</array>
+		</dict>
+		<key>escape-character</key>
+		<dict>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>comment</key>
+					<string>This match should only be needed for an escaped newline which is not part of any command-call, like if it comes alone on a line. No need to consume the newline</string>
+					<key>match</key>
+					<string>\\(?=\n)</string>
+					<key>name</key>
+					<string>constant.character.escape</string>
+				</dict>
+				<dict>
+					<key>comment</key>
+					<string>Unless the user has a function called '\', this is most likely a typo</string>
+					<key>match</key>
+					<string>(^|(?&lt;!\())\s*(\\\\).*$\n?</string>
+					<key>name</key>
+					<string>invalid.illegal.escape.fish</string>
 				</dict>
 			</array>
 		</dict>

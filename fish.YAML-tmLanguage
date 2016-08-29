@@ -8,6 +8,7 @@ patterns:
 - include: '#command-call'
 - include: '#comment'
 - include: '#control-operator'
+- include: '#escape-character'
   # probably this global scope will only allow comment, command-call, and block, once I write a block structure (begin, if, function, ...)
 
 # - include: '#function-definition'
@@ -85,10 +86,7 @@ repository:
       - include: '#command-call'
       - include: '#comment'
       - include: '#control-operator'
-      - name: constant.character.escape
-        match: \\(?=\n)
-        comment: This match should only be needed for escaped endlines which are not part of any command-call, like if they precede the first command in the substitution. No need to consume the newline
-        #! \todo This is allowed even in the global scope, so if nothing bad happens you might as well chuck it into the control-operator group, since control-operators are only valid in global scope or a command substitution
+      - include: '#escape-character'
 
   comment:
     patterns:
@@ -114,6 +112,15 @@ repository:
     - name: invalid.illegal.control.fish
       match: (^|(?<!\())\s*(&|\|).*$\n?
       comment: These two control operators, '&' and '|', must be preceded by a command, so command-call matches them when they are valid. If they are found in the global scope or first inside a command-substitution, that means they are dangling
+
+  escape-character:
+    patterns:
+    - name: constant.character.escape
+      match: \\(?=\n)
+      comment: This match should only be needed for an escaped newline which is not part of any command-call, like if it comes alone on a line. No need to consume the newline
+    - name: invalid.illegal.escape.fish
+      match: (^|(?<!\())\s*(\\\\).*$\n?
+      comment: Unless the user has a function called '\', this is most likely a typo
 
   function-definition:
     patterns:

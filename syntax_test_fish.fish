@@ -1,6 +1,6 @@
 #! SYNTAX TEST "Packages/sublime-fish-shell/fish.tmLanguage"
 
-# If using fish to test parsing of this file, all invalid illegal control operators must be commented out, and their tests disabled
+# If using fish to test parsing of this file, all invalid illegal tokens must be commented out, and their tests disabled
 
 ;
 #! <- keyword.control
@@ -8,6 +8,10 @@
 #! <- invalid.illegal.control
 |
 #! <- invalid.illegal.control
+\
+#! <- constant.character.escape
+\\
+#! <- invalid.illegal.escape
 
 echo --arg -arg arg ; echo arg # comment
 #! <- support.function.user
