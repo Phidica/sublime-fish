@@ -85,11 +85,11 @@
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>Builtin command-call ends before ')', ';', or an unescaped endline (user command-call will catch the endline), and just after '&amp;' or '|'</string>
+					<string>Recursive command-call ends before ')' or ';', and just after a newline, '&amp;', or '|'. Standard command-call will have consumed the '&amp;' or '|'. Unfortunately, we cannot help but end after any newline we encounter, as the standard command-call only ends when it consumes a newline (allowing us to insert comments by having the comment consume its newline and prevent command-call matching it) and we cannot distinguish between a newline that was consumed by a command and a newline that was consumed by a comment. This simply means that when a recursive command-call reaches a newline before its first standard command-call, the scope ends and the standard command-call on the next line loses the recursive command-call scope</string>
 					<key>end</key>
-					<string>(?=\)|;)|(?&lt;!\\)(?=\n)|(?&lt;=&amp;|\|)</string>
+					<string>(?=\)|;)|(?&lt;=\n|&amp;|\|)</string>
 					<key>name</key>
-					<string>meta.function-call.fish</string>
+					<string>meta.function-call.recursive.fish</string>
 					<key>patterns</key>
 					<array>
 						<dict>
@@ -97,12 +97,16 @@
 							<string>#command-call</string>
 						</dict>
 						<dict>
-							<key>comment</key>
-							<string>command-call may contain an endline if it is escaped; no need to consume the endline (I may be wrong, switch back to \\\n if problems arise)</string>
+							<key>captures</key>
+							<dict>
+								<key>1</key>
+								<dict>
+									<key>name</key>
+									<string>constant.character.escape</string>
+								</dict>
+							</dict>
 							<key>match</key>
-							<string>\\(?=\n)</string>
-							<key>name</key>
-							<string>constant.character.escape</string>
+							<string>(\\)\n</string>
 						</dict>
 					</array>
 				</dict>
@@ -118,7 +122,7 @@
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>command-call ends before ')' or ';', and at an endline, '&amp;', or '|'. Those last two control operators must be part of a command, so consume them here</string>
+					<string>command-call ends before ')' or ';', and at a newline, '&amp;', or '|'. Those last two control operators must be part of a command, so consume them here</string>
 					<key>end</key>
 					<string>(?=\)|;)|\n|(&amp;|\|)</string>
 					<key>endCaptures</key>
@@ -130,7 +134,7 @@
 						</dict>
 					</dict>
 					<key>name</key>
-					<string>meta.function-call.fish</string>
+					<string>meta.function-call.standard.fish</string>
 					<key>patterns</key>
 					<array>
 						<dict>
@@ -155,7 +159,7 @@
 								</dict>
 							</dict>
 							<key>comment</key>
-							<string>command-call may contain an endline if it is escaped; consume the endline to prevent the command-call ending</string>
+							<string>command-call may contain a newline if it is escaped; consume the newline to prevent the command-call ending</string>
 							<key>match</key>
 							<string>(\\)\n</string>
 						</dict>
@@ -179,7 +183,7 @@
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>If an unescaped endline is encountered within a command-substitution, a command-call ends and on the next line a new one may begin</string>
+					<string>If an unescaped newline is encountered within a command-substitution, a command-call ends and on the next line a new one may begin</string>
 					<key>end</key>
 					<string>\)</string>
 					<key>endCaptures</key>
@@ -208,7 +212,7 @@
 						</dict>
 						<dict>
 							<key>comment</key>
-							<string>This match should only be needed for escaped endlines which are not part of any command-call, like if they precede the first command in the substitution. No need to consume the endline</string>
+							<string>This match should only be needed for escaped endlines which are not part of any command-call, like if they precede the first command in the substitution. No need to consume the newline</string>
 							<key>match</key>
 							<string>\\(?=\n)</string>
 							<key>name</key>
@@ -232,7 +236,7 @@
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>Consumes an entire line or the remainder of a line after a control operator, including the endline, thus hiding the entire comment from whatever scope we're in</string>
+					<string>Consumes an entire line or the remainder of a line after a control operator, including the newline, thus hiding the entire comment from whatever scope we're in</string>
 					<key>match</key>
 					<string>(?&lt;=^|;|&amp;|\|)\s*(#).*$\n?</string>
 					<key>name</key>
@@ -254,7 +258,7 @@
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>Separate from comment as this is only valid inside of command-call. Does not consume the endline, thus allowing command-call to capture it and end. Note that a comment-inline won't start if escaped whitespace precedes the '#'</string>
+					<string>Separate from comment as this is only valid inside of command-call. Does not consume the newline, thus allowing command-call to capture it and end. Note that a comment-inline won't start if escaped whitespace precedes the '#'</string>
 					<key>match</key>
 					<string>(?&lt;=[^\\]\s)(#).*$</string>
 					<key>name</key>
@@ -501,7 +505,7 @@
 			<array>
 				<dict>
 					<key>comment</key>
-					<string>Only match an operator if the element to the right is whitespace/endline, a variable, or command substitution</string>
+					<string>Only match an operator if the element to the right is whitespace/newline, a variable, or command substitution</string>
 					<key>match</key>
 					<string>(\+{1,2}|-{1,2}|!|~|\*{1,2}|/|%|&lt;[&lt;=]?|&gt;[&gt;=]?|==|!=|^|\|{1,2}|&amp;{1,2}|\?|\:|,|=|[*/%+\-&amp;^|]=|&lt;&lt;=|&gt;&gt;=)(?=(\s|$|\$|\())</string>
 					<key>name</key>

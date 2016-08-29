@@ -27,7 +27,7 @@ repository:
     - name: meta.function-call.arguments.fish
       comment: An argument is one of the fundamental units, however we define it by the very essence of not being any of the other fundamental units '#', '\', and the control operators (';', '&', and '|'). All those have special treatment when they appear in command-calls, so we attend to them uniquely
       begin: (?<=^|\s)(?!\s|#|$|\\$)
-      comment: Begin arg at the boundary between whitespace (or beginline for when command-call escapes its endline) and anything but whitespace, a comment character (because a lone # can't be an arg), an endline (to prevent blank lines being called args), or an escaped endline (because command-call can spot a lone \ and match it)
+      comment: Begin arg at the boundary between whitespace (or begin of line for when command-call escapes its newline) and anything but whitespace, a comment character (because a lone # can't be an arg), a newline (to prevent blank lines being called args), or an escaped newline (because command-call can spot a lone \ and match it)
       comment: Known bug - ` echo \ #` is supposed to print " #" because the whitespace is forced to become a character and then the # isn't considered lone because forced whitespace precedes it. So "\ #" should be one arg
       end: (?<=\S)(?=\s|\)|;|&|\||$)
       comment: End arg if it precedes unescaped control operators. Everything else is fair game, and strings and variables are matched and properly highlighted if found
@@ -39,29 +39,29 @@ repository:
 
   command-call:
     patterns:
-    - name: meta.function-call.fish
-      comment: First check if command-call uses one of the builtins that can specifically take other command-calls as a sole argument. Because some of these builtins can instead take switches, or be backgrounded/piped (in which case they should be considered user commands), look ahead to ensure that no switches or bg/pipe control operators are found
+    - name: meta.function-call.recursive.fish
+      comment: First check if command-call uses one of the builtins that can specifically take another command-call as a sole argument, ie, to recursively contain another command-call. Because some of these builtins can instead take switches, or be backgrounded/piped (in which case they should be considered user commands), look ahead to ensure that no switches or bg/pipe control operators are found
       begin: \b((builtin|command|exec)|(and|not|or))\s+(?!\s|-|&|\|)
       beginCaptures:
         '2': {name: support.function.builtin.fish}
         '3': {name: keyword.control.fish}
-      end: (?=\)|;)|(?<!\\)(?=\n)|(?<=&|\|)
-      comment: Builtin command-call ends before ')', ';', or an unescaped endline (user command-call will catch the endline), and just after '&' or '|'
+      end: (?=\)|;)|(?<=\n|&|\|)
+      comment: Recursive command-call ends before ')' or ';', and just after a newline, '&', or '|'. Standard command-call will have consumed the '&' or '|'. Unfortunately, we cannot help but end after any newline we encounter, as the standard command-call only ends when it consumes a newline (allowing us to insert comments by having the comment consume its newline and prevent command-call matching it) and we cannot distinguish between a newline that was consumed by a command and a newline that was consumed by a comment. This simply means that when a recursive command-call reaches a newline before its first standard command-call, the scope ends and the standard command-call on the next line loses the recursive command-call scope
       patterns:
       - include: '#command-call'
-      - name: constant.character.escape
-        match: \\(?=\n)
-        comment: command-call may contain an endline if it is escaped; no need to consume the endline (I may be wrong, switch back to \\\n if problems arise)
+      - match: (\\)\n
+        captures:
+          '1': {name: constant.character.escape}
 
-    - name: meta.function-call.fish
-      comment: If the above match for builtin commands failed, try and match user commands
+    - name: meta.function-call.standard.fish
+      comment: If the above match for recursive commands failed, try and match standard commands
       begin: \b([\w][\w-]*)\b
       beginCaptures:
         '1': {name: support.function.user.fish}
       end: (?=\)|;)|\n|(&|\|)
       endCaptures:
         '1': {name: keyword.control.fish}
-      comment: command-call ends before ')' or ';', and at an endline, '&', or '|'. Those last two control operators must be part of a command, so consume them here
+      comment: command-call ends before ')' or ';', and at a newline, '&', or '|'. Those last two control operators must be part of a command, so consume them here
       patterns:
       - include: '#argument'
       - include: '#comment'
@@ -69,12 +69,12 @@ repository:
       - match: (\\)\n
         captures:
           '1': {name: constant.character.escape}
-        comment: command-call may contain an endline if it is escaped; consume the endline to prevent the command-call ending
+        comment: command-call may contain a newline if it is escaped; consume the newline to prevent the command-call ending
 
   command-substitution:
     patterns:
     - name: meta.command-substitution.fish
-      comment: If an unescaped endline is encountered within a command-substitution, a command-call ends and on the next line a new one may begin
+      comment: If an unescaped newline is encountered within a command-substitution, a command-call ends and on the next line a new one may begin
       begin: \(
       beginCaptures:
         '0': {name: constant.character.command-substitution.fish}
@@ -87,12 +87,13 @@ repository:
       - include: '#control-operator'
       - name: constant.character.escape
         match: \\(?=\n)
-        comment: This match should only be needed for escaped endlines which are not part of any command-call, like if they precede the first command in the substitution. No need to consume the endline
+        comment: This match should only be needed for escaped endlines which are not part of any command-call, like if they precede the first command in the substitution. No need to consume the newline
+        #! \todo This is allowed even in the global scope, so if nothing bad happens you might as well chuck it into the control-operator group, since control-operators are only valid in global scope or a command substitution
 
   comment:
     patterns:
     - name: comment.line.number-sign.fish
-      comment: Consumes an entire line or the remainder of a line after a control operator, including the endline, thus hiding the entire comment from whatever scope we're in
+      comment: Consumes an entire line or the remainder of a line after a control operator, including the newline, thus hiding the entire comment from whatever scope we're in
       match: (?<=^|;|&|\|)\s*(#).*$\n?
       captures:
         '1': {name: punctuation.definition.comment.fish}
@@ -100,7 +101,7 @@ repository:
   comment-inline:
     patterns:
     - name: comment.inline.number-sign.fish
-      comment: Separate from comment as this is only valid inside of command-call. Does not consume the endline, thus allowing command-call to capture it and end. Note that a comment-inline won't start if escaped whitespace precedes the '#'
+      comment: Separate from comment as this is only valid inside of command-call. Does not consume the newline, thus allowing command-call to capture it and end. Note that a comment-inline won't start if escaped whitespace precedes the '#'
       match: (?<=[^\\]\s)(#).*$
       captures:
         '1': {name: punctuation.definition.comment.fish}
@@ -187,7 +188,7 @@ repository:
     patterns:
     - name: keyword.operator.arithmetic.fish
       match: (\+{1,2}|-{1,2}|!|~|\*{1,2}|/|%|<[<=]?|>[>=]?|==|!=|^|\|{1,2}|&{1,2}|\?|\:|,|=|[*/%+\-&^|]=|<<=|>>=)(?=(\s|$|\$|\())
-      comment: Only match an operator if the element to the right is whitespace/endline, a variable, or command substitution
+      comment: Only match an operator if the element to the right is whitespace/newline, a variable, or command substitution
     - name: constant.numeric.hex.fish
       match: 0[xX]\h+
     - name: constant.numeric.octal.fish

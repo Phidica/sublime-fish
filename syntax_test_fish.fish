@@ -76,29 +76,30 @@ echo &
 )
 
 exec echo \
-#! <- meta.function-call support.function.builtin
-#!   ^^^^ meta.function-call meta.function-call support.function.user
+#! <- meta.function-call.recursive support.function.builtin
+#!   ^^^^ meta.function-call.recursive meta.function-call.standard support.function.user
 arg
-#! <-meta.function-call meta.function-call meta.function-call.arguments
-#! ^ meta.function-call meta.function-call
+#! <-meta.function-call.recursive meta.function-call.standard meta.function-call.arguments
+#! ^ meta.function-call.recursive meta.function-call.standard
 
 builtin echo arg ; and echo arg
-#! <- meta.function-call support.function.builtin
-#!      ^^^^ meta.function-call meta.function-call support.function.user
-#!           ^^^ meta.function-call meta.function-call meta.function-call.arguments
+#! <- meta.function-call.recursive support.function.builtin
+#!      ^^^^ meta.function-call.recursive meta.function-call.standard support.function.user
+#!           ^^^ meta.function-call.recursive meta.function-call.standard meta.function-call.arguments
 #!               ^ keyword.control
-#!                 ^^^ meta.function-call keyword.control
-#!                     ^^^^ meta.function-call meta.function-call support.function.user
+#!                 ^^^ meta.function-call.recursive keyword.control
+#!                     ^^^^ meta.function-call.recursive meta.function-call.standard support.function.user
 
+# See scope end match for meta.function-call.recursive
 command  \
-#! <- meta.function-call support.function.builtin
+#! <- meta.function-call.recursive support.function.builtin
 echo  \
-#! <- meta.function-call meta.function-call support.function.user
-arg & # comment \
-#! <-meta.function-call meta.function-call meta.function-call.arguments
+#! <- meta.function-call.standard support.function.user
+arg & # comment
+#! <-meta.function-call.standard meta.function-call.arguments
 #!    ^ comment.line
 echo arg
-#! <- meta.function-call support.function.user
+#! <- meta.function-call.standard support.function.user
 
 command  &
 #! <- meta.function-call support.function.user
@@ -112,6 +113,21 @@ echo arg1 ; and echo arg2 & not echo arg3 | cat
 #!                        ^ keyword.control
 #!                          ^^^ meta.function-call keyword.control
 #!                              ^^^^ meta.function-call meta.function-call support.function.user
+
+# See scope end match for meta.function-call.recursive
+# Cannot nest recursive scopes across lines if line break occurs before recursion
+builtin \
+#! <- meta.function-call.recursive
+not \
+#! <- meta.function-call.recursive
+command \
+#! <- meta.function-call.recursive
+echo \
+#! <- meta.function-call.standard
+arg \
+#! <- meta.function-call.standard meta.function-call.arguments
+&
+#! <- meta.function-call.standard
 
 echo "string"(echo "inner string")" outer string"
 #!           ^^^^^^^^^^^^^^^^^^^^^ meta.command-substitution
