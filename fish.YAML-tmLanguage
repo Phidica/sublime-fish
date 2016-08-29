@@ -88,8 +88,8 @@ repository:
   comment:
     patterns:
     - name: comment.line.number-sign.fish
-      comment: Consumes an entire line or the remainder of a line after a control operator, including the newline, thus hiding the entire comment from whatever scope we're in
-      match: (?<=^|;|&|\|)\s*(#).*$\n?
+      comment: Consumes the remainder of a line after any character which marks the start of a scope with no commands in it. Consumes the newline, thus hiding the entire comment from any scope which seeks newlines
+      match: (?<=^|\(|;|&|\|)\s*(#).*$\n?
       captures:
         '1': {name: punctuation.definition.comment.fish}
 

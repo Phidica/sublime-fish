@@ -79,6 +79,10 @@ echo &
 #! <- meta.function-call
 )
 
+echo ( # comment
+#!     ^ comment.line
+)
+
 exec echo \
 #! <- meta.function-call.recursive support.function.builtin
 #!   ^^^^ meta.function-call.recursive meta.function-call.standard support.function.user
