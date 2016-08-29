@@ -48,7 +48,7 @@ repository:
       end: (?=\)|;)|(?<!\\)(?=\n)|(?<=&|\|)
       comment: Builtin command-call ends before ')', ';', or an unescaped endline (user command-call will catch the endline), and just after '&' or '|'
       patterns:
-      - include: $self
+      - include: '#command-call'
       - name: constant.character.escape
         match: \\(?=\n)
         comment: command-call may contain an endline if it is escaped; no need to consume the endline (I may be wrong, switch back to \\\n if problems arise)
