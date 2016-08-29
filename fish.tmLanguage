@@ -187,7 +187,7 @@
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>If an unescaped newline is encountered within a command-substitution, a command-call ends and on the next line a new one may begin</string>
+					<string>The inside of a command substitution is indistinguishable from a global scope</string>
 					<key>end</key>
 					<string>\)</string>
 					<key>endCaptures</key>

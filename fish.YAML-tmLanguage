@@ -75,7 +75,7 @@ repository:
   command-substitution:
     patterns:
     - name: meta.command-substitution.fish
-      comment: If an unescaped newline is encountered within a command-substitution, a command-call ends and on the next line a new one may begin
+      comment: The inside of a command substitution is indistinguishable from a global scope
       begin: \(
       beginCaptures:
         '0': {name: constant.character.command-substitution.fish}
