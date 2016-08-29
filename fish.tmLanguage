@@ -204,19 +204,7 @@
 					<array>
 						<dict>
 							<key>include</key>
-							<string>#command-call</string>
-						</dict>
-						<dict>
-							<key>include</key>
-							<string>#comment</string>
-						</dict>
-						<dict>
-							<key>include</key>
-							<string>#control-operator</string>
-						</dict>
-						<dict>
-							<key>include</key>
-							<string>#escape-character</string>
+							<string>$self</string>
 						</dict>
 					</array>
 				</dict>

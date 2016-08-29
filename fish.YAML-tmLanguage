@@ -83,10 +83,7 @@ repository:
       endCaptures:
         '0': {name: constant.character.command-substitution.fish}
       patterns:
-      - include: '#command-call'
-      - include: '#comment'
-      - include: '#control-operator'
-      - include: '#escape-character'
+      - include: '$self'
 
   comment:
     patterns:
