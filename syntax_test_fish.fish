@@ -80,7 +80,7 @@ echo &
 )
 
 echo ( # comment
-#!     ^ comment.line
+#!    ^^^^^^^^^^ comment.line
 )
 
 exec echo \
