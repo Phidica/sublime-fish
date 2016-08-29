@@ -66,8 +66,9 @@ repository:
       - include: '#argument'
       - include: '#comment'
       - include: '#comment-inline'
-      - name: constant.character.escape
-        match: \\\n
+      - match: (\\)\n
+        captures:
+          '1': {name: constant.character.escape}
         comment: command-call may contain an endline if it is escaped; consume the endline to prevent the command-call ending
 
   command-substitution:
