@@ -42,7 +42,7 @@ repository:
     patterns:
     - name: meta.function-call.recursive.fish
       comment: First check if command-call uses one of the builtins that can specifically take another command-call as a sole argument, ie, to recursively contain another command-call. Because some of these builtins can instead take switches, or be backgrounded/piped (in which case they should be considered user commands), look ahead to ensure that no switches or bg/pipe control operators are found
-      begin: \b((builtin|command|exec)|(and|not|or))\s+(?!\s|-|&|\|)
+      begin: ((builtin|command|exec)|(and|not|or))\s+(?!\s|-|&|\|)
       beginCaptures:
         '2': {name: support.function.builtin.fish}
         '3': {name: keyword.control.fish}

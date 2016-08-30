@@ -74,7 +74,7 @@
 			<array>
 				<dict>
 					<key>begin</key>
-					<string>\b((builtin|command|exec)|(and|not|or))\s+(?!\s|-|&amp;|\|)</string>
+					<string>((builtin|command|exec)|(and|not|or))\s+(?!\s|-|&amp;|\|)</string>
 					<key>beginCaptures</key>
 					<dict>
 						<key>2</key>

@@ -101,6 +101,7 @@ builtin echo arg ; and echo arg
 # See scope end match for meta.function-call.recursive
 command  \
 #! <- meta.function-call.recursive support.function.builtin
+#!       ^ constant.character.escape
 echo  \
 #! <- meta.function-call.standard support.function.user
 arg & # comment
