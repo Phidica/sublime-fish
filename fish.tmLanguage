@@ -514,9 +514,9 @@
 				</dict>
 				<dict>
 					<key>comment</key>
-					<string>Unless the user has a function called '\', this is most likely a typo</string>
+					<string>Unless the user has a function starting with '\', a line beginning with '\' is almost certainly a typo</string>
 					<key>match</key>
-					<string>(^|(?&lt;!\())\s*(\\\\).*$\n?</string>
+					<string>(^|(?&lt;=\())\s*\\(?!\n).*$\n?</string>
 					<key>name</key>
 					<string>invalid.illegal.escape.fish</string>
 				</dict>

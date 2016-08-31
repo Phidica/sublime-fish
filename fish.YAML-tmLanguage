@@ -198,8 +198,8 @@ repository:
       match: \\(?=\n)
       comment: This match should only be needed for an escaped newline which is not part of any command-call, like if it comes alone on a line. No need to consume the newline
     - name: invalid.illegal.escape.fish
-      match: (^|(?<!\())\s*(\\\\).*$\n?
-      comment: Unless the user has a function called '\', this is most likely a typo
+      match: (^|(?<=\())\s*\\(?!\n).*$\n?
+      comment: Unless the user has a function starting with '\', a line beginning with '\' is almost certainly a typo
 
   function-definition:
     patterns:
