@@ -205,3 +205,45 @@ echo --switch=(echo "str;";
 #!   ^ meta.function-call.arguments
 )  ;
 #! ^ keyword.control
+
+if --help
+
+if test -f foo.txt
+  and test -r foo.txt
+  echo "foo.txt exists and is readable"
+end
+
+while test -f foo.txt
+  or test -f bar.txt
+
+  echo file exists
+  sleep 10
+end
+
+if     \
+  test nice
+
+end
+
+and     \   # oh dear
+echo true
+
+command  \
+echo true
+
+for \
+  varname \
+  in \
+  (\
+  echo \
+  one two \
+  three \
+)
+
+  echo arg arg
+end
+
+for in in in
+end
+
+echo ~/"string"

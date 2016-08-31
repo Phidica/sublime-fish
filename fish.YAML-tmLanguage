@@ -5,6 +5,7 @@ fileTypes: [fish]
 uuid: a6b750ed-a12a-43c1-84e7-689ac7e2fbc9
 
 patterns:
+- include: '#block'
 - include: '#command-call'
 - include: '#comment'
 - include: '#control-operator'
@@ -22,6 +23,15 @@ patterns:
 # - include: '#support'
 # - include: '#variable'
 
+#! \todo add comment-inline to the recursive command-call. no point adding comment because recursive will /always/ have ended by the time a full line comment shows up
+#! \todo add special behaviour to ~ as an argument
+#! \todo item-access for command-substitution
+#! \todo constants
+#! \todo blocks
+#! \todo redirection
+#! \todo a specific version of command-call which is just test and the possible expressions all highlighted special, as well as the [ ] form of test
+#! \todo `"echo" what` is valid syntax and executes. add a form of command-call where the command is in quotes, and highlight the quotes to match the command. escaped newlines within double quotes are valid. I think you can actually use string to do this, maybe by starting with a lookahead for a quote, ending with a lookback for a quote, and matching only a string inside of it then naming it all support.function.user. even though fish will never not error on a quoted command that has whitespace (because no function will ever be found that has whitespace in its name), technically the syntax isn't invalid. we don't need to police the user and make sure their quoted command has no whitespace; it is valid to do so because as far as ST is concerned that function may well exist
+
 repository:
   argument:
     patterns:
@@ -38,11 +48,83 @@ repository:
       - include: '#variable'
       - include: '#command-substitution'
 
+  block:
+    patterns:
+    - name: meta.block.fish
+      comment: while is indistinguishable from begin because the while condition is just a command, and can appear on any line
+      begin: (begin|while)(?!\s+(-|&|\|))
+      beginCaptures:
+        '0': {name: keyword.control.fish}
+      end: 'end'
+      endCaptures:
+        '0': {name: keyword.control.fish}
+      patterns:
+      - include: '$self'
+
+    - name: meta.block.if.fish
+      begin: (if)(?!\s+(-|&|\|))
+      beginCaptures:
+        '0': {name: keyword.control.fish}
+      end: 'end'
+      endCaptures:
+        '0': {name: keyword.control.fish}
+      patterns:
+      - include: '$self'
+
+    - name: meta.block.for-in.fish
+      begin: (for)(?!\s+(-|&|\|))
+      beginCaptures:
+        '0': {name: keyword.control.fish}
+      end: 'end'
+      endCaptures:
+        '0': {name: keyword.control.fish}
+      patterns:
+      - begin: (?<=for)
+        end: '^'
+        patterns:  # nope, because of comments entering the scope this will never work. just make special "from command names to an endline or the next special demarcation point" scopes for for-var and in-listothings
+        # better yet, don't be afraid of splitting block up into several matches, for the different types of block!
+        - include: '$self'
+        - begin: (\w+)(\s+((\\)\n)?)+(in)\s+
+          beginCaptures:
+            '1': {name: meta.function-call.arguments.fish}
+            '5': {name: keyword.control.fish}
+          comment: Treat the varname to `for` like a normal argument
+          end: '\n'
+          contentName: meta.function-call.arguments.fish
+          patterns:
+          - match: (\\)\n
+            captures:
+              '1': {name: constant.character.escape}
+          - include: '#command-substitution'
+          - match: \w+
+            comment: Treat values to `in` like normal arguments
+
+    - name: meta.block.switch.fish
+      begin: (switch)(?!\s+(-|&|\|))
+      beginCaptures:
+        '0': {name: keyword.control.fish}
+      end: 'end'
+      endCaptures:
+        '0': {name: keyword.control.fish}
+      patterns:
+      - include: '$self'
+
+    - name: meta.block.function.fish
+      begin: (function)(?!\s+(-|&|\|))
+      beginCaptures:
+        '0': {name: keyword.control.fish}
+      end: 'end'
+      endCaptures:
+        '0': {name: keyword.control.fish}
+      patterns:
+      - include: '$self'
+
   command-call:
     patterns:
     - name: meta.function-call.recursive.fish
       comment: First check if command-call uses one of the builtins that can specifically take another command-call as a sole argument, ie, to recursively contain another command-call. Because some of these builtins can instead take switches, or be backgrounded/piped (in which case they should be considered user commands), look ahead to ensure that no switches or bg/pipe control operators are found
-      begin: ((builtin|command|exec)|(and|not|or))\s+(?!\s|-|&|\|)
+      begin: ((builtin|command|exec)|(and|not|or))(?!\s+(-|&|\|))
+      comment: (?!\s+(-|&|\|)) is equivalent to (?= \s+ then \S except '-' '&' and '|')
       beginCaptures:
         '2': {name: support.function.builtin.fish}
         '3': {name: keyword.control.fish}
