@@ -206,12 +206,11 @@ echo --switch=(echo "str;";
 )  ;
 #! ^ keyword.control
 
-if --help
-
-if test -f foo.txt
-  and test -r foo.txt
-  echo "foo.txt exists and is readable"
-end
+while --help; end
+#! <- meta.function-call.standard support.function.user
+#!    ^^^^^^ meta.function-call.arguments
+#!          ^ keyword.control
+#!            ^^^ invalid.illegal.function
 
 while test -f foo.txt
   or test -f bar.txt
@@ -225,7 +224,7 @@ if     \
 
 end
 
-and     \   # oh dear
+and    \   # this is fine
 echo true
 
 command  \

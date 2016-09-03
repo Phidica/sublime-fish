@@ -136,8 +136,14 @@ repository:
         captures:
           '1': {name: constant.character.escape}
 
+    - name: invalid.illegal.function.fish
+      comment: Search for illegal standard commands by name
+      begin: \b(end)\b
+      comment: end isn't valid outside of a block
+      end: (?=\)|;)|\n|(&|\|)
+
     - name: meta.function-call.standard.fish
-      comment: If the above match for recursive commands failed, try and match standard commands
+      comment: If the above match for recursive commands failed, try and match legal standard commands
       begin: \b([\w][\w-]*)\b
       beginCaptures:
         '1': {name: support.function.user.fish}

@@ -340,6 +340,16 @@
 				</dict>
 				<dict>
 					<key>begin</key>
+					<string>\b(end)\b</string>
+					<key>comment</key>
+					<string>end isn't valid outside of a block</string>
+					<key>end</key>
+					<string>(?=\)|;)|\n|(&amp;|\|)</string>
+					<key>name</key>
+					<string>invalid.illegal.function.fish</string>
+				</dict>
+				<dict>
+					<key>begin</key>
 					<string>\b([\w][\w-]*)\b</string>
 					<key>beginCaptures</key>
 					<dict>
