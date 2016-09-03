@@ -344,7 +344,7 @@
 					<key>comment</key>
 					<string>end isn't valid outside of a block</string>
 					<key>end</key>
-					<string>(?=\)|;)|\n|(&amp;|\|)</string>
+					<string>$\n?</string>
 					<key>name</key>
 					<string>invalid.illegal.function.fish</string>
 				</dict>

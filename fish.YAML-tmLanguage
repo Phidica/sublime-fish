@@ -140,7 +140,7 @@ repository:
       comment: Search for illegal standard commands by name
       begin: \b(end)\b
       comment: end isn't valid outside of a block
-      end: (?=\)|;)|\n|(&|\|)
+      end: $\n?
 
     - name: meta.function-call.standard.fish
       comment: If the above match for recursive commands failed, try and match legal standard commands
