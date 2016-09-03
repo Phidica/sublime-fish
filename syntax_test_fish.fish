@@ -71,13 +71,15 @@ echo seven
 
 echo ( \
 #!     ^ constant.character.escape
-;
+;  &
 #! <- keyword.control
-  &
-#! <- invalid.illegal.control
-echo &
+#! ^ invalid.illegal.control
+echo & \\
+#!     ^ invalid.illegal.escape
 #! <- meta.function-call
-)
+)  &  &
+#! ^ keyword.control
+#!    ^ invalid.illegal.control
 
 echo ( # comment
 #!    ^^^^^^^^^^ comment.line
@@ -206,11 +208,30 @@ echo --switch=(echo "str;";
 )  ;
 #! ^ keyword.control
 
-while --help; end
+while --help; break& end
 #! <- meta.function-call.standard support.function.user
 #!    ^^^^^^ meta.function-call.arguments
 #!          ^ keyword.control
-#!            ^^^ invalid.illegal.function
+#!            ^^^^^ support.function.user
+#!                   ^^^ invalid.illegal.function
+
+begin
+#! <- meta.block.begin keyword.control
+  while echo arg
+#! ^^^^ meta.block.while keyword.control
+#!      ^^^^^^^^^ meta.block.while.condition
+    echo arg
+#   ^^^^^^^^ meta.function-call.standard
+    break &
+#!  ^^^^^ keyword.control
+  end ;
+#! ^^ keyword.control
+  break;
+#! ^^^^ support.function.user
+end &
+#! <- keyword.control
+
+
 
 while test -f foo.txt
   or test -f bar.txt

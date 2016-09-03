@@ -10,18 +10,6 @@ patterns:
 - include: '#comment'
 - include: '#control-operator'
 - include: '#escape-character'
-  # probably this global scope will only allow comment, command-call, and block, once I write a block structure (begin, if, function, ...)
-
-# - include: '#function-definition'
-# - include: '#keyword'
-# - include: '#logical-expression'
-# - include: '#loop'
-# - include: '#math'
-# - include: '#pathname'
-# - include: '#redirection'
-# - include: '#string'
-# - include: '#support'
-# - include: '#variable'
 
 #! \todo add comment-inline to the recursive command-call. no point adding comment because recursive will /always/ have ended by the time a full line comment shows up
 #! \todo add special behaviour to ~ as an argument
@@ -31,6 +19,8 @@ patterns:
 #! \todo redirection
 #! \todo a specific version of command-call which is just test and the possible expressions all highlighted special, as well as the [ ] form of test
 #! \todo `"echo" what` is valid syntax and executes. add a form of command-call where the command is in quotes, and highlight the quotes to match the command. escaped newlines within double quotes are valid. I think you can actually use string to do this, maybe by starting with a lookahead for a quote, ending with a lookback for a quote, and matching only a string inside of it then naming it all support.function.user. even though fish will never not error on a quoted command that has whitespace (because no function will ever be found that has whitespace in its name), technically the syntax isn't invalid. we don't need to police the user and make sure their quoted command has no whitespace; it is valid to do so because as far as ST is concerned that function may well exist
+#! \todo piping with | is more complicated than it seems, as fish expects a command to appear after the pipe. make a pattern match in command-call that is only valid inside of a command call that used the pipe, and matches from after a pipe until the end of the line, looking for command-call within it
+#!  Hm, because it is possible to pipe the output of an entire block by putting the pipe after `end`, a better approach may be to make a command that STARTS with a pipe, and is normal after that. then it can check inside itself to see if it is ONLY a pipe with no command following it, and mark that as invalid syntax. that would supersede the need for pipe to be matched invalid from in control-operator
 
 repository:
   argument:
@@ -50,34 +40,56 @@ repository:
 
   block:
     patterns:
-    - name: meta.block.fish
-      comment: while is indistinguishable from begin because the while condition is just a command, and can appear on any line
-      begin: (begin|while)(?!\s+(-|&|\|))
+    - name: meta.block.begin.fish
+      begin: (begin)(?!\s+(-|&|\|))
       beginCaptures:
         '0': {name: keyword.control.fish}
-      end: 'end'
+      end: (end)\s*(&)?
       endCaptures:
-        '0': {name: keyword.control.fish}
+        '1': {name: keyword.control.fish}
+        '2': {name: keyword.control.fish}
       patterns:
       - include: '$self'
 
+    - name: meta.block.while.fish
+      begin: (while)(?!\s+(-|&|\|))
+      beginCaptures:
+        '0': {name: keyword.control.fish}
+      end: (end)\s*(&)?
+      endCaptures:
+        '1': {name: keyword.control.fish}
+        '2': {name: keyword.control.fish}
+      patterns:
+      - name: meta.block.while.condition.fish
+        begin: (?<=while)
+        end: (?=;)|(?<=\n|&)
+        patterns:
+        - include: '#command-call'
+        - include: '#escape-character'
+      - include: '#loop-control-command'
+      - include: '$self'
+
+    #! \todo Needs work
     - name: meta.block.if.fish
       begin: (if)(?!\s+(-|&|\|))
       beginCaptures:
         '0': {name: keyword.control.fish}
-      end: 'end'
+      end: (end)\s*(&)?
       endCaptures:
-        '0': {name: keyword.control.fish}
+        '1': {name: keyword.control.fish}
+        '2': {name: keyword.control.fish}
       patterns:
       - include: '$self'
 
+    #! \todo Needs work
     - name: meta.block.for-in.fish
       begin: (for)(?!\s+(-|&|\|))
       beginCaptures:
         '0': {name: keyword.control.fish}
-      end: 'end'
+      end: (end)\s*(&)?
       endCaptures:
-        '0': {name: keyword.control.fish}
+        '1': {name: keyword.control.fish}
+        '2': {name: keyword.control.fish}
       patterns:
       - begin: (?<=for)
         end: '^'
@@ -98,31 +110,36 @@ repository:
           - include: '#command-substitution'
           - match: \w+
             comment: Treat values to `in` like normal arguments
+      - include: '$self'
 
+    #! \todo Needs work
     - name: meta.block.switch.fish
       begin: (switch)(?!\s+(-|&|\|))
       beginCaptures:
         '0': {name: keyword.control.fish}
-      end: 'end'
+      end: (end)\s*(&)?
       endCaptures:
-        '0': {name: keyword.control.fish}
+        '1': {name: keyword.control.fish}
+        '2': {name: keyword.control.fish}
       patterns:
       - include: '$self'
 
+    #! \todo Needs work, see old function-definition element
     - name: meta.block.function.fish
       begin: (function)(?!\s+(-|&|\|))
       beginCaptures:
         '0': {name: keyword.control.fish}
-      end: 'end'
+      end: (end)\s*(&)?
       endCaptures:
-        '0': {name: keyword.control.fish}
+        '1': {name: keyword.control.fish}
+        '2': {name: keyword.control.fish}
       patterns:
       - include: '$self'
 
   command-call:
     patterns:
     - name: meta.function-call.recursive.fish
-      comment: First check if command-call uses one of the builtins that can specifically take another command-call as a sole argument, ie, to recursively contain another command-call. Because some of these builtins can instead take switches, or be backgrounded/piped (in which case they should be considered user commands), look ahead to ensure that no switches or bg/pipe control operators are found
+      comment: Check if command-call uses a builtin that takes another command-call as a sole argument, ie, to recursively contain another command-call. Because some builtins can instead take switches, or be backgrounded/piped (in which case they should be considered user commands), look ahead to ensure that no switches or bg/pipe control operators are found
       begin: ((builtin|command|exec)|(and|not|or))(?!\s+(-|&|\|))
       comment: (?!\s+(-|&|\|)) is equivalent to (?= \s+ then \S except '-' '&' and '|')
       beginCaptures:
@@ -195,8 +212,8 @@ repository:
       match: ;
       comment: This is the only operator which is allowed to exist alone on a line. The other control operators are '&' and '|' however they must be preceded by a command, so command-call matches those
     - name: invalid.illegal.control.fish
-      match: (^|(?<!\())\s*(&|\|).*$\n?
-      comment: These two control operators, '&' and '|', must be preceded by a command, so command-call matches them when they are valid. If they are found in the global scope or first inside a command-substitution, that means they are dangling
+      match: (?<=^|\(|;|&|\|)\s*(&|\|).*$\n?
+      comment: These two control operators, '&' and '|', must be preceded by a command, so command patterns match them when they are valid. If they are found in the global scope or first inside a command-substitution, that means they are dangling
 
   escape-character:
     patterns:
@@ -204,8 +221,76 @@ repository:
       match: \\(?=\n)
       comment: This match should only be needed for an escaped newline which is not part of any command-call, like if it comes alone on a line. No need to consume the newline
     - name: invalid.illegal.escape.fish
-      match: (^|(?<=\())\s*\\(?!\n).*$\n?
+      match: (?<=^|\(|;|&|\|)\s*\\(?!\n).*$\n?
       comment: Unless the user has a function starting with '\', a line beginning with '\' is almost certainly a typo
+
+  loop-control-command:
+    patterns:
+    - begin: \b(break|continue)\b(?!\s+(-|\w))
+      comment: These commands only work as loop control when they are used without arguments
+      beginCaptures:
+        '1': {name: keyword.control.fish}
+      end: (?=;)|\n|(&)
+      endCaptures:
+        '1': {name: keyword.control.fish}
+      patterns:
+      - include: '#comment-inline'
+      - include: '#control-operator'
+      - include: '#escape-character'
+
+  # fish strings accept very few escape codes, and make only a few simple distinctions between the single- and double-quoted variants
+  string:
+    patterns:
+    - name: string.quoted.single.fish
+      begin: \'
+      beginCaptures:
+        '0': {name: punctuation.definition.string.begin.fish}
+      end: \'
+      endCaptures:
+        '0': {name: punctuation.definition.string.end.fish}
+      patterns:
+      - name: constant.character.escape.fish
+        match: \\[\'\\]
+        comment: Only accepted escapes are \' and \\
+    - name: string.quoted.double.fish
+      begin: \"
+      beginCaptures:
+        '0': {name: punctuation.definition.string.begin.fish}
+      end: \"
+      endCaptures:
+        '0': {name: punctuation.definition.string.end.fish}
+      patterns:
+      - name: constant.character.escape.fish
+        match: \\[\"$\n\\]
+        comment: Only accepted escapes are \", \$, \<newline>, and \\
+      - include: '#variable'
+
+  variable:
+    patterns:
+    - name: meta.item-access.fish
+      begin: (\$)\w+(?=\[)
+      beginCaptures:
+        '0': {name: variable.other.fish }
+        '1': {name: punctuation.definition.variable.fish }
+      end: (?<=\])
+      patterns:
+      - name: meta.item-access.arguments.fish
+        begin: \[
+        beginCaptures:
+          '0': {name: punctuation.definition.arguments.begin.fish }
+        end: \]
+        endCaptures:
+          '0': {name: punctuation.definition.arguments.end.fish }
+        patterns:
+        - include: '#variable'
+          comment: Not even fish does its item-access highlighting this well
+        # - include: '#constant' # Once it's written
+
+    - name: variable.other.fish
+      comment: fish variables can only be word characters and no special treatment is necessary
+      match: (\$)\w+(?=\W)
+      captures:
+        '1': {name: punctuation.definition.variable.fish }
 
   function-definition:
     patterns:
@@ -221,13 +306,6 @@ repository:
       patterns:
       - include: $self
 
-  keyword:
-    patterns:
-    - name: keyword.control.fish
-      match: \b(?:and|begin|break|case|continue|else|end|for|if|in|return|switch|while)\b
-    - name: storage.modifier.fish
-      match: (?<![-/])\b(?:set)\b
-
   logical-expression:
     patterns:
     - comment: do we want a special rule for ( expr )?
@@ -235,46 +313,6 @@ repository:
       match: =[=~]?|!=?|<|>|&&|\|\|
     # - name: keyword.operator.logical.fish
     #   match: (?<!\S)-(nt|ot|ef|eq|ne|l[te]|g[te]|[a-hknoprstuwxzOGLSN])
-
-  loop:
-    patterns:
-    - name: meta.scope.for-loop.fish
-      begin: \b(for)\s+(?=\({2})
-      end: \b(end)\b
-      captures:
-        '1': {name: keyword.control.fish}
-      patterns:
-      - include: $self
-    - name: meta.scope.for-in-loop.fish
-      begin: \b(for)\s+((?:[^\s\\]|\\.)+)\b
-      beginCaptures:
-        '1': {name: keyword.control.fish}
-        '2': {name: variable.other.loop.fish}
-      end: \b(end)\b
-      endCaptures:
-        '1': {name: keyword.control.fish}
-      patterns:
-      - include: $self
-    - name: meta.scope.while-loop.fish
-      begin: \b(while)\b
-      end: \b(end)\b
-      captures:
-        '1': {name: keyword.control.fish}
-      patterns:
-      - include: $self
-    - name: meta.scope.case-block.fish
-      match: \b(case)\b
-      captures:
-        '1': {name: keyword.control.fish}
-      patterns:
-      - include: $self
-    - name: meta.scope.if-block.fish
-      begin: \b(if)\b
-      end: \b(end)\b
-      captures:
-        '1': {name: keyword.control.fish}
-      patterns:
-      - include: $self
 
   math:
     patterns:
@@ -323,69 +361,6 @@ repository:
         (last one is duplicate)'
       name: keyword.operator.redirect.fish
       match: '&>|\d*>&\d*|\d*(>>|>|<)|\d*<&|\d*<>'
-
-  # fish strings accept very few escape codes, and make only a few simple distinctions between the single- and double-quoted variants
-  string:
-    patterns:
-    - name: string.quoted.single.fish
-      begin: \'
-      beginCaptures:
-        '0': {name: punctuation.definition.string.begin.fish}
-      end: \'
-      endCaptures:
-        '0': {name: punctuation.definition.string.end.fish}
-      patterns:
-      - name: constant.character.escape.fish
-        match: \\[\'\\]
-        comment: Only accepted escapes are \' and \\
-    - name: string.quoted.double.fish
-      begin: \"
-      beginCaptures:
-        '0': {name: punctuation.definition.string.begin.fish}
-      end: \"
-      endCaptures:
-        '0': {name: punctuation.definition.string.end.fish}
-      patterns:
-      - name: constant.character.escape.fish
-        match: \\[\"$\n\\]
-        comment: Only accepted escapes are \", \$, \<newline>, and \\
-      - include: '#variable'
-
-  support:
-    patterns:
-    - comment: Matches literal . (alias for source, may be deprecated in future)
-      name: support.function.builtin.fish
-      match: (?<=^|\s)(?::|\.)(?=\s|;|&|$)
-    - name: support.function.builtin.fish
-      match: (?<![-/])\b(?:abbr|alias|bg|bind|block|breakpoint|builtin|cd|command|commandline|complete|contains|count|dirh|dirs|echo|emit|eval|exec|exit|false|fg|fish|fish_config|fish_indent|fish_prompt|fish_realpath|fish_right_prompt|fish_update_completions|fish_vi_mode|funced|funcsave|function|functions|help|history|isatty|jobs|math|nextd|not|open|popd|prevd|printf|prompt_pwd|psub|pushd|pwd|random|read|return|set|set_color|source|status|string|suspend|test|trap|true|type|ulimit|umask|vared)\b
-
-  variable:
-    patterns:
-    - name: meta.item-access.fish
-      begin: (\$)\w+(?=\[)
-      beginCaptures:
-        '0': {name: variable.other.fish }
-        '1': {name: punctuation.definition.variable.fish }
-      end: (?<=\])
-      patterns:
-      - name: meta.item-access.arguments.fish
-        begin: \[
-        beginCaptures:
-          '0': {name: punctuation.definition.arguments.begin.fish }
-        end: \]
-        endCaptures:
-          '0': {name: punctuation.definition.arguments.end.fish }
-        patterns:
-        - include: '#variable'
-          comment: Not even fish does its item-access highlighting this well
-        # - include: '#constant' # Once it's written
-
-    - name: variable.other.fish
-      comment: fish variables can only be word characters and no special treatment is necessary
-      match: (\$)\w+(?=\W)
-      captures:
-        '1': {name: punctuation.definition.variable.fish }
-
 
 firstLineMatch: ^#!.*\b(fish)|^#\s*-\*-[^*]*mode:\s*shell-script[^*]*-\*-
 foldingStartMarker: \b(begin|for|if|else|function|switch|while)\b|(\{)$

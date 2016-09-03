@@ -78,7 +78,7 @@
 			<array>
 				<dict>
 					<key>begin</key>
-					<string>(begin|while)(?!\s+(-|&amp;|\|))</string>
+					<string>(begin)(?!\s+(-|&amp;|\|))</string>
 					<key>beginCaptures</key>
 					<dict>
 						<key>0</key>
@@ -87,11 +87,35 @@
 							<string>keyword.control.fish</string>
 						</dict>
 					</dict>
-					<key>comment</key>
-					<string>while is indistinguishable from begin because the while condition is just a command, and can appear on any line</string>
 					<key>end</key>
-					<string>end</string>
+					<string>(end)\s*(&amp;)?</string>
 					<key>endCaptures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.fish</string>
+						</dict>
+						<key>2</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.fish</string>
+						</dict>
+					</dict>
+					<key>name</key>
+					<string>meta.block.begin.fish</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>include</key>
+							<string>$self</string>
+						</dict>
+					</array>
+				</dict>
+				<dict>
+					<key>begin</key>
+					<string>(while)(?!\s+(-|&amp;|\|))</string>
+					<key>beginCaptures</key>
 					<dict>
 						<key>0</key>
 						<dict>
@@ -99,10 +123,48 @@
 							<string>keyword.control.fish</string>
 						</dict>
 					</dict>
+					<key>end</key>
+					<string>(end)\s*(&amp;)?</string>
+					<key>endCaptures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.fish</string>
+						</dict>
+						<key>2</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.fish</string>
+						</dict>
+					</dict>
 					<key>name</key>
-					<string>meta.block.fish</string>
+					<string>meta.block.while.fish</string>
 					<key>patterns</key>
 					<array>
+						<dict>
+							<key>begin</key>
+							<string>(?&lt;=while)</string>
+							<key>end</key>
+							<string>(?=;)|(?&lt;=\n|&amp;)</string>
+							<key>name</key>
+							<string>meta.block.while.condition.fish</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>#command-call</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#escape-character</string>
+								</dict>
+							</array>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#loop-control-command</string>
+						</dict>
 						<dict>
 							<key>include</key>
 							<string>$self</string>
@@ -121,10 +183,15 @@
 						</dict>
 					</dict>
 					<key>end</key>
-					<string>end</string>
+					<string>(end)\s*(&amp;)?</string>
 					<key>endCaptures</key>
 					<dict>
-						<key>0</key>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.fish</string>
+						</dict>
+						<key>2</key>
 						<dict>
 							<key>name</key>
 							<string>keyword.control.fish</string>
@@ -152,10 +219,15 @@
 						</dict>
 					</dict>
 					<key>end</key>
-					<string>end</string>
+					<string>(end)\s*(&amp;)?</string>
 					<key>endCaptures</key>
 					<dict>
-						<key>0</key>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.fish</string>
+						</dict>
+						<key>2</key>
 						<dict>
 							<key>name</key>
 							<string>keyword.control.fish</string>
@@ -226,6 +298,10 @@
 								</dict>
 							</array>
 						</dict>
+						<dict>
+							<key>include</key>
+							<string>$self</string>
+						</dict>
 					</array>
 				</dict>
 				<dict>
@@ -240,10 +316,15 @@
 						</dict>
 					</dict>
 					<key>end</key>
-					<string>end</string>
+					<string>(end)\s*(&amp;)?</string>
 					<key>endCaptures</key>
 					<dict>
-						<key>0</key>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.fish</string>
+						</dict>
+						<key>2</key>
 						<dict>
 							<key>name</key>
 							<string>keyword.control.fish</string>
@@ -271,10 +352,15 @@
 						</dict>
 					</dict>
 					<key>end</key>
-					<string>end</string>
+					<string>(end)\s*(&amp;)?</string>
 					<key>endCaptures</key>
 					<dict>
-						<key>0</key>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.fish</string>
+						</dict>
+						<key>2</key>
 						<dict>
 							<key>name</key>
 							<string>keyword.control.fish</string>
@@ -502,9 +588,9 @@
 				</dict>
 				<dict>
 					<key>comment</key>
-					<string>These two control operators, '&amp;' and '|', must be preceded by a command, so command-call matches them when they are valid. If they are found in the global scope or first inside a command-substitution, that means they are dangling</string>
+					<string>These two control operators, '&amp;' and '|', must be preceded by a command, so command patterns match them when they are valid. If they are found in the global scope or first inside a command-substitution, that means they are dangling</string>
 					<key>match</key>
-					<string>(^|(?&lt;!\())\s*(&amp;|\|).*$\n?</string>
+					<string>(?&lt;=^|\(|;|&amp;|\|)\s*(&amp;|\|).*$\n?</string>
 					<key>name</key>
 					<string>invalid.illegal.control.fish</string>
 				</dict>
@@ -526,7 +612,7 @@
 					<key>comment</key>
 					<string>Unless the user has a function starting with '\', a line beginning with '\' is almost certainly a typo</string>
 					<key>match</key>
-					<string>(^|(?&lt;=\())\s*\\(?!\n).*$\n?</string>
+					<string>(?&lt;=^|\(|;|&amp;|\|)\s*\\(?!\n).*$\n?</string>
 					<key>name</key>
 					<string>invalid.illegal.escape.fish</string>
 				</dict>
@@ -579,24 +665,6 @@
 				</dict>
 			</array>
 		</dict>
-		<key>keyword</key>
-		<dict>
-			<key>patterns</key>
-			<array>
-				<dict>
-					<key>match</key>
-					<string>\b(?:and|begin|break|case|continue|else|end|for|if|in|return|switch|while)\b</string>
-					<key>name</key>
-					<string>keyword.control.fish</string>
-				</dict>
-				<dict>
-					<key>match</key>
-					<string>(?&lt;![-/])\b(?:set)\b</string>
-					<key>name</key>
-					<string>storage.modifier.fish</string>
-				</dict>
-			</array>
-		</dict>
 		<key>logical-expression</key>
 		<dict>
 			<key>patterns</key>
@@ -611,36 +679,13 @@
 				</dict>
 			</array>
 		</dict>
-		<key>loop</key>
+		<key>loop-control-command</key>
 		<dict>
 			<key>patterns</key>
 			<array>
 				<dict>
 					<key>begin</key>
-					<string>\b(for)\s+(?=\({2})</string>
-					<key>captures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>keyword.control.fish</string>
-						</dict>
-					</dict>
-					<key>end</key>
-					<string>\b(end)\b</string>
-					<key>name</key>
-					<string>meta.scope.for-loop.fish</string>
-					<key>patterns</key>
-					<array>
-						<dict>
-							<key>include</key>
-							<string>$self</string>
-						</dict>
-					</array>
-				</dict>
-				<dict>
-					<key>begin</key>
-					<string>\b(for)\s+((?:[^\s\\]|\\.)+)\b</string>
+					<string>\b(break|continue)\b(?!\s+(-|\w))</string>
 					<key>beginCaptures</key>
 					<dict>
 						<key>1</key>
@@ -648,14 +693,11 @@
 							<key>name</key>
 							<string>keyword.control.fish</string>
 						</dict>
-						<key>2</key>
-						<dict>
-							<key>name</key>
-							<string>variable.other.loop.fish</string>
-						</dict>
 					</dict>
+					<key>comment</key>
+					<string>These commands only work as loop control when they are used without arguments</string>
 					<key>end</key>
-					<string>\b(end)\b</string>
+					<string>(?=;)|\n|(&amp;)</string>
 					<key>endCaptures</key>
 					<dict>
 						<key>1</key>
@@ -664,80 +706,19 @@
 							<string>keyword.control.fish</string>
 						</dict>
 					</dict>
-					<key>name</key>
-					<string>meta.scope.for-in-loop.fish</string>
 					<key>patterns</key>
 					<array>
 						<dict>
 							<key>include</key>
-							<string>$self</string>
+							<string>#comment-inline</string>
 						</dict>
-					</array>
-				</dict>
-				<dict>
-					<key>begin</key>
-					<string>\b(while)\b</string>
-					<key>captures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>keyword.control.fish</string>
-						</dict>
-					</dict>
-					<key>end</key>
-					<string>\b(end)\b</string>
-					<key>name</key>
-					<string>meta.scope.while-loop.fish</string>
-					<key>patterns</key>
-					<array>
 						<dict>
 							<key>include</key>
-							<string>$self</string>
+							<string>#control-operator</string>
 						</dict>
-					</array>
-				</dict>
-				<dict>
-					<key>captures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>keyword.control.fish</string>
-						</dict>
-					</dict>
-					<key>match</key>
-					<string>\b(case)\b</string>
-					<key>name</key>
-					<string>meta.scope.case-block.fish</string>
-					<key>patterns</key>
-					<array>
 						<dict>
 							<key>include</key>
-							<string>$self</string>
-						</dict>
-					</array>
-				</dict>
-				<dict>
-					<key>begin</key>
-					<string>\b(if)\b</string>
-					<key>captures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>keyword.control.fish</string>
-						</dict>
-					</dict>
-					<key>end</key>
-					<string>\b(end)\b</string>
-					<key>name</key>
-					<string>meta.scope.if-block.fish</string>
-					<key>patterns</key>
-					<array>
-						<dict>
-							<key>include</key>
-							<string>$self</string>
+							<string>#escape-character</string>
 						</dict>
 					</array>
 				</dict>
@@ -961,26 +942,6 @@
 							<string>#variable</string>
 						</dict>
 					</array>
-				</dict>
-			</array>
-		</dict>
-		<key>support</key>
-		<dict>
-			<key>patterns</key>
-			<array>
-				<dict>
-					<key>comment</key>
-					<string>Matches literal . (alias for source, may be deprecated in future)</string>
-					<key>match</key>
-					<string>(?&lt;=^|\s)(?::|\.)(?=\s|;|&amp;|$)</string>
-					<key>name</key>
-					<string>support.function.builtin.fish</string>
-				</dict>
-				<dict>
-					<key>match</key>
-					<string>(?&lt;![-/])\b(?:abbr|alias|bg|bind|block|breakpoint|builtin|cd|command|commandline|complete|contains|count|dirh|dirs|echo|emit|eval|exec|exit|false|fg|fish|fish_config|fish_indent|fish_prompt|fish_realpath|fish_right_prompt|fish_update_completions|fish_vi_mode|funced|funcsave|function|functions|help|history|isatty|jobs|math|nextd|not|open|popd|prevd|printf|prompt_pwd|psub|pushd|pwd|random|read|return|set|set_color|source|status|string|suspend|test|trap|true|type|ulimit|umask|vared)\b</string>
-					<key>name</key>
-					<string>support.function.builtin.fish</string>
 				</dict>
 			</array>
 		</dict>
