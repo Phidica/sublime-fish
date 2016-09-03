@@ -61,10 +61,12 @@ repository:
         '2': {name: keyword.control.fish}
       patterns:
       - name: meta.block.while.condition.fish
+        comment: Limitation - The scope has to assume the command appears on one line
         begin: (?<=while)
         end: (?=;)|(?<=\n|&)
         patterns:
         - include: '#command-call'
+        - include: '#comment-inline'
         - include: '#escape-character'
       - include: '#loop-control-command'
       - include: '$self'

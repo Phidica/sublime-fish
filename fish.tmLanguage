@@ -145,6 +145,8 @@
 						<dict>
 							<key>begin</key>
 							<string>(?&lt;=while)</string>
+							<key>comment</key>
+							<string>Limitation - The scope has to assume the command appears on one line</string>
 							<key>end</key>
 							<string>(?=;)|(?&lt;=\n|&amp;)</string>
 							<key>name</key>
@@ -154,6 +156,10 @@
 								<dict>
 									<key>include</key>
 									<string>#command-call</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#comment-inline</string>
 								</dict>
 								<dict>
 									<key>include</key>
