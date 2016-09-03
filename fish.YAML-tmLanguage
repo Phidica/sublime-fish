@@ -191,6 +191,9 @@ repository:
       end: ''''
       endCaptures:
         '0': {name: punctuation.definition.string.end.fish}
+      patterns:
+      - name: constant.character.escape.fish
+        match: \\'
     - name: string.quoted.double.fish
       begin: '"'
       beginCaptures:
