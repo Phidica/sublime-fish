@@ -78,7 +78,7 @@
 			<array>
 				<dict>
 					<key>begin</key>
-					<string>(begin)(?!\s+(-|&amp;|\|))</string>
+					<string>\b(begin)\b(?!\s+(-|&amp;|\|))</string>
 					<key>beginCaptures</key>
 					<dict>
 						<key>0</key>
@@ -114,7 +114,7 @@
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>(while)(?!\s+(-|&amp;|\|))</string>
+					<string>\b(while)\b(?!\s+(-|&amp;|\|))</string>
 					<key>beginCaptures</key>
 					<dict>
 						<key>0</key>
@@ -143,31 +143,6 @@
 					<key>patterns</key>
 					<array>
 						<dict>
-							<key>begin</key>
-							<string>(?&lt;=while)</string>
-							<key>comment</key>
-							<string>Limitation - The scope has to assume the command appears on one line</string>
-							<key>end</key>
-							<string>(?=;)|(?&lt;=\n|&amp;)</string>
-							<key>name</key>
-							<string>meta.block.while.condition.fish</string>
-							<key>patterns</key>
-							<array>
-								<dict>
-									<key>include</key>
-									<string>#command-call</string>
-								</dict>
-								<dict>
-									<key>include</key>
-									<string>#comment-inline</string>
-								</dict>
-								<dict>
-									<key>include</key>
-									<string>#escape-character</string>
-								</dict>
-							</array>
-						</dict>
-						<dict>
 							<key>include</key>
 							<string>#loop-control-command</string>
 						</dict>
@@ -179,7 +154,7 @@
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>(if)(?!\s+(-|&amp;|\|))</string>
+					<string>\b(if)\b(?!\s+(-|&amp;|\|))</string>
 					<key>beginCaptures</key>
 					<dict>
 						<key>0</key>
@@ -207,6 +182,14 @@
 					<string>meta.block.if.fish</string>
 					<key>patterns</key>
 					<array>
+						<dict>
+							<key>comment</key>
+							<string>Having a meta scope just for the condition command is complicated and ultimately useless, so treat these commands as standalone</string>
+							<key>match</key>
+							<string>\b(else|if)\b</string>
+							<key>name</key>
+							<string>keyword.control.fish</string>
+						</dict>
 						<dict>
 							<key>include</key>
 							<string>$self</string>
@@ -390,7 +373,7 @@
 			<array>
 				<dict>
 					<key>begin</key>
-					<string>((builtin|command|exec)|(and|not|or))(?!\s+(-|&amp;|\|))</string>
+					<string>\b((builtin|command|exec)|(and|not|or))\b(?!\s+(-|&amp;|\|))</string>
 					<key>beginCaptures</key>
 					<dict>
 						<key>2</key>
@@ -432,9 +415,9 @@
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>\b(end)\b</string>
+					<string>\b(else|end)\b</string>
 					<key>comment</key>
-					<string>end isn't valid outside of a block</string>
+					<string>These functions aren't valid outside of their blocks</string>
 					<key>end</key>
 					<string>$\n?</string>
 					<key>name</key>

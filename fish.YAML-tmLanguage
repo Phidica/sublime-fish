@@ -41,7 +41,7 @@ repository:
   block:
     patterns:
     - name: meta.block.begin.fish
-      begin: (begin)(?!\s+(-|&|\|))
+      begin: \b(begin)\b(?!\s+(-|&|\|))
       beginCaptures:
         '0': {name: keyword.control.fish}
       end: (end)\s*(&)?
@@ -52,7 +52,7 @@ repository:
       - include: '$self'
 
     - name: meta.block.while.fish
-      begin: (while)(?!\s+(-|&|\|))
+      begin: \b(while)\b(?!\s+(-|&|\|))
       beginCaptures:
         '0': {name: keyword.control.fish}
       end: (end)\s*(&)?
@@ -60,20 +60,11 @@ repository:
         '1': {name: keyword.control.fish}
         '2': {name: keyword.control.fish}
       patterns:
-      - name: meta.block.while.condition.fish
-        comment: Limitation - The scope has to assume the command appears on one line
-        begin: (?<=while)
-        end: (?=;)|(?<=\n|&)
-        patterns:
-        - include: '#command-call'
-        - include: '#comment-inline'
-        - include: '#escape-character'
       - include: '#loop-control-command'
       - include: '$self'
 
-    #! \todo Needs work
     - name: meta.block.if.fish
-      begin: (if)(?!\s+(-|&|\|))
+      begin: \b(if)\b(?!\s+(-|&|\|))
       beginCaptures:
         '0': {name: keyword.control.fish}
       end: (end)\s*(&)?
@@ -81,6 +72,9 @@ repository:
         '1': {name: keyword.control.fish}
         '2': {name: keyword.control.fish}
       patterns:
+      - name: keyword.control.fish
+        match: \b(else|if)\b
+        comment: Having a meta scope just for the condition command is complicated and ultimately useless, so treat these commands as standalone
       - include: '$self'
 
     #! \todo Needs work
@@ -142,7 +136,7 @@ repository:
     patterns:
     - name: meta.function-call.recursive.fish
       comment: Check if command-call uses a builtin that takes another command-call as a sole argument, ie, to recursively contain another command-call. Because some builtins can instead take switches, or be backgrounded/piped (in which case they should be considered user commands), look ahead to ensure that no switches or bg/pipe control operators are found
-      begin: ((builtin|command|exec)|(and|not|or))(?!\s+(-|&|\|))
+      begin: \b((builtin|command|exec)|(and|not|or))\b(?!\s+(-|&|\|))
       comment: (?!\s+(-|&|\|)) is equivalent to (?= \s+ then \S except '-' '&' and '|')
       beginCaptures:
         '2': {name: support.function.builtin.fish}
@@ -157,8 +151,8 @@ repository:
 
     - name: invalid.illegal.function.fish
       comment: Search for illegal standard commands by name
-      begin: \b(end)\b
-      comment: end isn't valid outside of a block
+      begin: \b(else|end)\b
+      comment: These functions aren't valid outside of their blocks
       end: $\n?
 
     - name: meta.function-call.standard.fish

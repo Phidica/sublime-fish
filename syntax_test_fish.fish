@@ -219,7 +219,7 @@ begin
 #! <- meta.block.begin keyword.control
   while echo arg
 #! ^^^^ meta.block.while keyword.control
-#!      ^^^^^^^^^ meta.block.while.condition
+#!      ^^^^^^^^^ meta.function-call.standard
     echo arg
 #   ^^^^^^^^ meta.function-call.standard
     break &
@@ -231,14 +231,25 @@ begin
 end &
 #! <- keyword.control
 
-
-
-while test -f foo.txt
-  or test -f bar.txt
-
-  echo file exists
-  sleep 10
+if echo arg
+#! <- meta.block.if keyword.control
+  and echo arg
+  echo arg
+else if echo arg
+#! <- keyword.control
+#!   ^^ keyword.control
+  and echo arg
+  echo arg
+else
+#! <- keyword.control
+  echo arg
 end
+
+if --help; else;
+#! <- meta.function-call.standard support.function.user
+#! ^^^^^^ meta.function-call.arguments
+#!       ^ keyword.control
+#!         ^^^^ invalid.illegal.function
 
 if     \
   test nice
