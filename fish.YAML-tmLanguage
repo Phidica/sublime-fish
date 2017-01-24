@@ -19,17 +19,16 @@ patterns:
 # - constant.character.escape is used for the backslash at the end of a line which causes line continuation because technically that backslash is "escaping" the literal newline which appears in the unquoted string environment which the shell assumes you are in. In this sense, the backslash is indeed an escape character
 # - Individual arguments in function calls do not get the variable.parameter label because that swiftly becomes the overwhelming majority of all words in a program
 
+#! \todo blocks (function, then for-in)
 #! \todo add comment-inline to the recursive command-call. no point adding comment because recursive will /always/ have ended by the time a full line comment shows up
-#! \todo add special behaviour to ~ as an argument
 #! \todo item-access for command-substitution
 #! \todo constants, including any command character when preceded by a slosh to escape it (eg, \;, \&, etc)
-#! \todo blocks
+#! \todo add special behaviour to ~ as an argument
 #! \todo redirection
 #! \todo a specific version of command-call which is just test and the possible expressions all highlighted special, as well as the [ ] form of test
 #! \todo `"echo" what` is valid syntax and executes. add a form of command-call where the command is in quotes, and highlight the quotes to match the command. escaped newlines within double quotes are valid. I think you can actually use string to do this, maybe by starting with a lookahead for a quote, ending with a lookback for a quote, and matching only a string inside of it then naming it all support.function.user. even though fish will never not error on a quoted command that has whitespace (because no function will ever be found that has whitespace in its name), technically the syntax isn't invalid. we don't need to police the user and make sure their quoted command has no whitespace; it is valid to do so because as far as ST is concerned that function may well exist
 #! \todo piping with | is more complicated than it seems, as fish expects a command to appear after the pipe. make a pattern match in command-call that is only valid inside of a command call that used the pipe, and matches from after a pipe until the end of the line, looking for command-call within it
 #!  Hm, because it is possible to pipe the output of an entire block by putting the pipe after `end`, a better approach may be to make a command that STARTS with a pipe, and is normal after that. then it can check inside itself to see if it is ONLY a pipe with no command following it, and mark that as invalid syntax. that would supersede the need for pipe to be matched invalid from in control-operator
-#! \todo What happens when a comment directly follows `end`? It should be a valid comment.
 
 repository:
   argument:
@@ -236,7 +235,7 @@ repository:
     patterns:
     - name: comment.line.fish
       comment: Consumes the remainder of a line after any character which marks the start of a scope with no commands in it. Consumes the newline, thus hiding the entire comment from any scope which seeks newlines
-      match: (?<=^|end|\(|;|&|\|)\s*(#).*$\n?
+      match: (?<=^|else|end|\(|;|&|\|)\s*(#).*$\n?
       captures:
         '1': {name: punctuation.definition.comment.fish}
 

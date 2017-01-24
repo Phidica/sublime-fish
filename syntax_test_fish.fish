@@ -242,8 +242,9 @@ else if echo arg
 #!   ^^ keyword.control.conditional
   and echo arg
   echo arg
-else
+else # comment
 #! <- keyword.control.conditional
+#!   ^^^^^^^^^ comment.line
   echo arg
   if echo arg
     # comment

@@ -662,7 +662,7 @@
 					<key>comment</key>
 					<string>Consumes the remainder of a line after any character which marks the start of a scope with no commands in it. Consumes the newline, thus hiding the entire comment from any scope which seeks newlines</string>
 					<key>match</key>
-					<string>(?&lt;=^|end|\(|;|&amp;|\|)\s*(#).*$\n?</string>
+					<string>(?&lt;=^|else|end|\(|;|&amp;|\|)\s*(#).*$\n?</string>
 					<key>name</key>
 					<string>comment.line.fish</string>
 				</dict>
