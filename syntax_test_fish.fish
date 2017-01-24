@@ -244,7 +244,12 @@ else if echo arg
 else
 #! <- keyword.control
   echo arg
+  if echo arg
+    # comment
+  end
+#! ^^ keyword.control
 end # comment
+#! <- keyword.control
 #!  ^^^^^^^^^ comment.line
 
 if --help; else;
@@ -302,8 +307,8 @@ switch \
 #! <- meta.block.switch.value string.quoted.double
   case \
 #! ^^^ meta.block.switch.case keyword.control
-  (echo foo)
-#! ^^^^^^^^^ meta.block.switch.case.wildcard
+  (echo foo) bar one two
+#! ^^^^^^^^^^^^^^^^^^^^^ meta.block.switch.case.wildcard
     echo bar
   case '*'
 #!     ^^^ meta.block.switch.case.wildcard string.quoted.single

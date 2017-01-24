@@ -188,9 +188,9 @@
 					<array>
 						<dict>
 							<key>comment</key>
-							<string>Having a meta scope just for the condition command is complicated and ultimately useless, so treat these commands as standalone keywords and let the conditions scope like normal instances of command-call</string>
+							<string>Having a meta scope just for the condition command is complicated and ultimately useless, so treat `else if` and `else` as standalone keywords and let the conditions scope like normal instances of command-call</string>
 							<key>match</key>
-							<string>\b(else|if)\b</string>
+							<string>\b(else(\s*if)?)\b</string>
 							<key>name</key>
 							<string>keyword.control.fish</string>
 						</dict>

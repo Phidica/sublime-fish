@@ -75,8 +75,8 @@ repository:
         '3': {name: keyword.control.fish}
       patterns:
       - name: keyword.control.fish
-        match: \b(else|if)\b
-        comment: Having a meta scope just for the condition command is complicated and ultimately useless, so treat these commands as standalone keywords and let the conditions scope like normal instances of command-call
+        match: \b(else(\s*if)?)\b
+        comment: Having a meta scope just for the condition command is complicated and ultimately useless, so treat `else if` and `else` as standalone keywords and let the conditions scope like normal instances of command-call
       - include: '$self'
 
     #! \todo Needs work !! See the arbitrary-commands_for-block-development branch for the WIP of whatever I was doing last time I tried to fix this block
