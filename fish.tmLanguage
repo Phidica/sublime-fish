@@ -57,7 +57,7 @@
 					<key>end</key>
 					<string>(?&lt;=\S)(?=\s|\)|;|&amp;|\||$)</string>
 					<key>name</key>
-					<string>meta.function-call.arguments.fish</string>
+					<string>meta.function-call.argument.fish</string>
 					<key>patterns</key>
 					<array>
 						<dict>
@@ -88,7 +88,7 @@
 						<key>0</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.control.fish</string>
+							<string>keyword.control.conditional.fish</string>
 						</dict>
 					</dict>
 					<key>end</key>
@@ -98,12 +98,12 @@
 						<key>1</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.control.fish</string>
+							<string>keyword.control.conditional.fish</string>
 						</dict>
 						<key>3</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.control.fish</string>
+							<string>keyword.control.fish punctuation.definition.keyword.fish</string>
 						</dict>
 					</dict>
 					<key>name</key>
@@ -124,7 +124,7 @@
 						<key>0</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.control.fish</string>
+							<string>keyword.control.conditional.fish</string>
 						</dict>
 					</dict>
 					<key>end</key>
@@ -134,12 +134,12 @@
 						<key>1</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.control.fish</string>
+							<string>keyword.control.conditional.fish</string>
 						</dict>
 						<key>3</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.control.fish</string>
+							<string>keyword.control.fish punctuation.definition.keyword.fish</string>
 						</dict>
 					</dict>
 					<key>name</key>
@@ -164,7 +164,7 @@
 						<key>0</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.control.fish</string>
+							<string>keyword.control.conditional.fish</string>
 						</dict>
 					</dict>
 					<key>end</key>
@@ -174,12 +174,12 @@
 						<key>1</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.control.fish</string>
+							<string>keyword.control.conditional.fish</string>
 						</dict>
 						<key>3</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.control.fish</string>
+							<string>keyword.control.fish punctuation.definition.keyword.fish</string>
 						</dict>
 					</dict>
 					<key>name</key>
@@ -192,7 +192,7 @@
 							<key>match</key>
 							<string>\b(else(\s*if)?)\b</string>
 							<key>name</key>
-							<string>keyword.control.fish</string>
+							<string>keyword.control.conditional.fish</string>
 						</dict>
 						<dict>
 							<key>include</key>
@@ -208,7 +208,7 @@
 						<key>0</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.control.fish</string>
+							<string>keyword.control.conditional.fish</string>
 						</dict>
 					</dict>
 					<key>end</key>
@@ -218,12 +218,12 @@
 						<key>1</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.control.fish</string>
+							<string>keyword.control.conditional.fish</string>
 						</dict>
 						<key>3</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.control.fish</string>
+							<string>keyword.control.fish punctuation.definition.keyword.fish</string>
 						</dict>
 					</dict>
 					<key>name</key>
@@ -249,18 +249,18 @@
 										<key>1</key>
 										<dict>
 											<key>name</key>
-											<string>meta.function-call.arguments.fish</string>
+											<string>meta.function-call.argument.fish</string>
 										</dict>
 										<key>5</key>
 										<dict>
 											<key>name</key>
-											<string>keyword.control.fish</string>
+											<string>keyword.control.conditional.fish</string>
 										</dict>
 									</dict>
 									<key>comment</key>
 									<string>Treat the varname to `for` like a normal argument</string>
 									<key>contentName</key>
-									<string>meta.function-call.arguments.fish</string>
+									<string>meta.function-call.argument.fish</string>
 									<key>end</key>
 									<string>\n</string>
 									<key>patterns</key>
@@ -305,7 +305,7 @@
 						<key>0</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.control.fish</string>
+							<string>keyword.control.conditional.fish</string>
 						</dict>
 					</dict>
 					<key>end</key>
@@ -315,12 +315,12 @@
 						<key>1</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.control.fish</string>
+							<string>keyword.control.conditional.fish</string>
 						</dict>
 						<key>3</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.control.fish</string>
+							<string>keyword.control.fish punctuation.definition.keyword.fish</string>
 						</dict>
 					</dict>
 					<key>name</key>
@@ -382,7 +382,7 @@
 								<key>0</key>
 								<dict>
 									<key>name</key>
-									<string>keyword.control.fish</string>
+									<string>keyword.control.conditional.fish</string>
 								</dict>
 							</dict>
 							<key>comment</key>
@@ -464,7 +464,7 @@
 						<key>0</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.control.fish</string>
+							<string>keyword.control.conditional.fish</string>
 						</dict>
 					</dict>
 					<key>end</key>
@@ -474,12 +474,12 @@
 						<key>1</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.control.fish</string>
+							<string>keyword.control.conditional.fish</string>
 						</dict>
 						<key>3</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.control.fish</string>
+							<string>keyword.control.fish punctuation.definition.keyword.fish</string>
 						</dict>
 					</dict>
 					<key>name</key>
@@ -511,11 +511,11 @@
 						<key>3</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.control.fish</string>
+							<string>keyword.operator.word.fish</string>
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>Recursive command-call ends before ')' or ';', and just after a newline, '&amp;', or '|'. Standard command-call will have consumed the '&amp;' or '|'. Unfortunately, we cannot help but end after any newline we encounter, as the standard command-call only ends when it consumes a newline (allowing us to insert comments by having the comment consume its newline and prevent command-call matching it) and we cannot distinguish between a newline that was consumed by a command and a newline that was consumed by a comment. This simply means that when a recursive command-call reaches a newline before its first standard command-call, the scope ends and the standard command-call on the next line loses the recursive command-call scope</string>
+					<string>Recursive command-call ends before ')' or ';', and just after a newline, '&amp;', or '|'. Standard command-call will have consumed the '&amp;' or '|'. Unfortunately, we cannot help but end after any newline we encounter, as the standard command-call only ends when it consumes a newline (allowing us to insert comments by having the comment consume its newline and prevent command-call matching it) and we cannot distinguish between a newline that was consumed by a command and a newline that was consumed by a comment. Put simply, this means that when a recursive command-call reaches a newline before its first standard command-call, the scope ends and the standard command-call on the next line loses the recursive command-call scope</string>
 					<key>end</key>
 					<string>(?=\)|;)|(?&lt;=\n|&amp;|\|)</string>
 					<key>name</key>
@@ -570,7 +570,7 @@
 						<key>1</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.control.fish</string>
+							<string>keyword.control.fish punctuation.definition.keyword.fish</string>
 						</dict>
 					</dict>
 					<key>name</key>
@@ -619,7 +619,7 @@
 						<key>0</key>
 						<dict>
 							<key>name</key>
-							<string>constant.character.command-substitution.fish</string>
+							<string>keyword.control.command-substitution.begin.fish punctuation.definition.keyword.fish</string>
 						</dict>
 					</dict>
 					<key>comment</key>
@@ -631,7 +631,7 @@
 						<key>0</key>
 						<dict>
 							<key>name</key>
-							<string>constant.character.command-substitution.fish</string>
+							<string>keyword.control.command-substitution.end.fish punctuation.definition.keyword.fish</string>
 						</dict>
 					</dict>
 					<key>name</key>
@@ -664,7 +664,7 @@
 					<key>match</key>
 					<string>(?&lt;=^|end|\(|;|&amp;|\|)\s*(#).*$\n?</string>
 					<key>name</key>
-					<string>comment.line.number-sign.fish</string>
+					<string>comment.line.fish</string>
 				</dict>
 			</array>
 		</dict>
@@ -686,7 +686,7 @@
 					<key>match</key>
 					<string>(?&lt;=[^\\]\s)(#).*$</string>
 					<key>name</key>
-					<string>comment.inline.number-sign.fish</string>
+					<string>comment.line.insert.fish</string>
 				</dict>
 			</array>
 		</dict>
@@ -700,7 +700,7 @@
 					<key>match</key>
 					<string>;</string>
 					<key>name</key>
-					<string>keyword.control.fish</string>
+					<string>keyword.control.fish punctuation.definition.keyword.fish</string>
 				</dict>
 				<dict>
 					<key>comment</key>
@@ -807,7 +807,7 @@
 						<key>1</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.control.fish</string>
+							<string>keyword.control.conditional.fish</string>
 						</dict>
 					</dict>
 					<key>comment</key>
@@ -819,7 +819,7 @@
 						<key>1</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.control.fish</string>
+							<string>keyword.control.fish punctuation.definition.keyword.fish</string>
 						</dict>
 					</dict>
 					<key>patterns</key>

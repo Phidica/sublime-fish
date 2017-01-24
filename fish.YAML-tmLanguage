@@ -12,6 +12,13 @@ patterns:
 - include: '#control-operator'
 - include: '#escape-character'
 
+# Style guide:
+# - keyword.control is applied to control operators such as ;, &, and | because although keyword.operator is suggested for symbols in general, these symbols are important to controlling program flow
+# - keyword.control.conditional is applied to all control keywords that are actually words (if, else, end, etc.)
+# - support.function is applied to standalone commands rather than variable.function because this is a scripting language and we can reliably act as though any command will be provided to the user as if it were part of a base framework
+# - constant.character.escape is used for the backslash at the end of a line which causes line continuation because technically that backslash is "escaping" the literal newline which appears in the unquoted string environment which the shell assumes you are in. In this sense, the backslash is indeed an escape character
+# - Individual arguments in function calls do not get the variable.parameter label because that swiftly becomes the overwhelming majority of all words in a program
+
 #! \todo add comment-inline to the recursive command-call. no point adding comment because recursive will /always/ have ended by the time a full line comment shows up
 #! \todo add special behaviour to ~ as an argument
 #! \todo item-access for command-substitution
@@ -27,7 +34,7 @@ patterns:
 repository:
   argument:
     patterns:
-    - name: meta.function-call.arguments.fish
+    - name: meta.function-call.argument.fish
       comment: An argument is one of the fundamental units, however we define it by the very essence of not being any of the other fundamental units '#', '\', and the control operators (';', '&', and '|'). All those have special treatment when they appear in command-calls, so we attend to them uniquely
       begin: (?<=^|\s)(?!\s|#|$|\\$)
       comment: Begin arg at the boundary between whitespace (or begin of line for when command-call escapes its newline) and anything but whitespace, a comment character (because a lone # can't be an arg), a newline (to prevent blank lines being called args), or an escaped newline (because command-call can spot a lone \ and match it)
@@ -45,22 +52,22 @@ repository:
     - name: meta.block.begin.fish
       begin: \b(begin)\b(?!\s+(-|&|\|))
       beginCaptures:
-        '0': {name: keyword.control.fish}
+        '0': {name: keyword.control.conditional.fish}
       end: (end)(\s*(&))?
       endCaptures:
-        '1': {name: keyword.control.fish}
-        '3': {name: keyword.control.fish}
+        '1': {name: keyword.control.conditional.fish}
+        '3': {name: keyword.control.fish punctuation.definition.keyword.fish}
       patterns:
       - include: '$self'
 
     - name: meta.block.while.fish
       begin: \b(while)\b(?!\s+(-|&|\|))
       beginCaptures:
-        '0': {name: keyword.control.fish}
+        '0': {name: keyword.control.conditional.fish}
       end: (end)(\s*(&))?
       endCaptures:
-        '1': {name: keyword.control.fish}
-        '3': {name: keyword.control.fish}
+        '1': {name: keyword.control.conditional.fish}
+        '3': {name: keyword.control.fish punctuation.definition.keyword.fish}
       patterns:
       - include: '#loop-control-command'
       - include: '$self'
@@ -68,13 +75,13 @@ repository:
     - name: meta.block.if.fish
       begin: \b(if)\b(?!\s+(-|&|\|))
       beginCaptures:
-        '0': {name: keyword.control.fish}
+        '0': {name: keyword.control.conditional.fish}
       end: (end)(\s*(&))?
       endCaptures:
-        '1': {name: keyword.control.fish}
-        '3': {name: keyword.control.fish}
+        '1': {name: keyword.control.conditional.fish}
+        '3': {name: keyword.control.fish punctuation.definition.keyword.fish}
       patterns:
-      - name: keyword.control.fish
+      - name: keyword.control.conditional.fish
         match: \b(else(\s*if)?)\b
         comment: Having a meta scope just for the condition command is complicated and ultimately useless, so treat `else if` and `else` as standalone keywords and let the conditions scope like normal instances of command-call
       - include: '$self'
@@ -83,11 +90,11 @@ repository:
     - name: meta.block.for-in.fish
       begin: \b(for)\b(?!\s+(-|&|\|))
       beginCaptures:
-        '0': {name: keyword.control.fish}
+        '0': {name: keyword.control.conditional.fish}
       end: (end)(\s*(&))?
       endCaptures:
-        '1': {name: keyword.control.fish}
-        '3': {name: keyword.control.fish}
+        '1': {name: keyword.control.conditional.fish}
+        '3': {name: keyword.control.fish punctuation.definition.keyword.fish}
       patterns:
       - begin: (?<=for)
         end: '^'
@@ -96,11 +103,11 @@ repository:
         - include: '$self'
         - begin: (\w+)(\s+((\\)\n)?)+(in)\s+
           beginCaptures:
-            '1': {name: meta.function-call.arguments.fish}
-            '5': {name: keyword.control.fish}
+            '1': {name: meta.function-call.argument.fish}
+            '5': {name: keyword.control.conditional.fish}
           comment: Treat the varname to `for` like a normal argument
           end: '\n'
-          contentName: meta.function-call.arguments.fish
+          contentName: meta.function-call.argument.fish
           patterns:
           - match: (\\)\n
             captures:
@@ -113,11 +120,11 @@ repository:
     - name: meta.block.switch.fish
       begin: \b(switch)\b(?!\s+(-|&|\|))
       beginCaptures:
-        '0': {name: keyword.control.fish}
+        '0': {name: keyword.control.conditional.fish}
       end: (end)(\s*(&))?
       endCaptures:
-        '1': {name: keyword.control.fish}
-        '3': {name: keyword.control.fish}
+        '1': {name: keyword.control.conditional.fish}
+        '3': {name: keyword.control.fish punctuation.definition.keyword.fish}
       patterns:
       - name: meta.block.switch.value.fish
         begin: (?<=switch)
@@ -136,7 +143,7 @@ repository:
       - name: meta.block.switch.case.fish
         begin: \b(case)\b
         beginCaptures:
-          '0': {name: keyword.control.fish}
+          '0': {name: keyword.control.conditional.fish}
         end: (?=\b(case|end)\b)
         comment: Case block ends before a new case or the end of the switch block
         patterns:
@@ -159,14 +166,15 @@ repository:
       - include: '#control-operator'
 
     #! \todo Needs work, see old function-definition element
+    # don't forget to use entity.name.function on the function name in the declaration
     - name: meta.block.function.fish
       begin: \b(function)\b(?!\s+(-|&|\|))
       beginCaptures:
-        '0': {name: keyword.control.fish}
+        '0': {name: keyword.control.conditional.fish}
       end: (end)(\s*(&))?
       endCaptures:
-        '1': {name: keyword.control.fish}
-        '3': {name: keyword.control.fish}
+        '1': {name: keyword.control.conditional.fish}
+        '3': {name: keyword.control.fish punctuation.definition.keyword.fish}
       patterns:
       - include: '$self'
 
@@ -178,9 +186,9 @@ repository:
       comment: (?!\s+(-|&|\|)) is equivalent to (?= \s+ then \S except '-' '&' and '|')
       beginCaptures:
         '2': {name: support.function.builtin.fish}
-        '3': {name: keyword.control.fish}
+        '3': {name: keyword.operator.word.fish}
       end: (?=\)|;)|(?<=\n|&|\|)
-      comment: Recursive command-call ends before ')' or ';', and just after a newline, '&', or '|'. Standard command-call will have consumed the '&' or '|'. Unfortunately, we cannot help but end after any newline we encounter, as the standard command-call only ends when it consumes a newline (allowing us to insert comments by having the comment consume its newline and prevent command-call matching it) and we cannot distinguish between a newline that was consumed by a command and a newline that was consumed by a comment. This simply means that when a recursive command-call reaches a newline before its first standard command-call, the scope ends and the standard command-call on the next line loses the recursive command-call scope
+      comment: Recursive command-call ends before ')' or ';', and just after a newline, '&', or '|'. Standard command-call will have consumed the '&' or '|'. Unfortunately, we cannot help but end after any newline we encounter, as the standard command-call only ends when it consumes a newline (allowing us to insert comments by having the comment consume its newline and prevent command-call matching it) and we cannot distinguish between a newline that was consumed by a command and a newline that was consumed by a comment. Put simply, this means that when a recursive command-call reaches a newline before its first standard command-call, the scope ends and the standard command-call on the next line loses the recursive command-call scope
       patterns:
       - include: '#command-call'
       - match: (\\)\n
@@ -188,7 +196,7 @@ repository:
           '1': {name: constant.character.escape}
 
     - name: invalid.illegal.function.fish
-      comment: Search for illegal standard commands by name
+      comment: Search for illegal builtin commands by name
       begin: \b(case|else|end)\b
       comment: These functions aren't valid outside of their blocks
       end: $\n?
@@ -200,7 +208,7 @@ repository:
         '1': {name: support.function.user.fish}
       end: (?=\)|;)|\n|(&|\|)
       endCaptures:
-        '1': {name: keyword.control.fish}
+        '1': {name: keyword.control.fish punctuation.definition.keyword.fish}
       comment: command-call ends before ')' or ';', and at a newline, '&', or '|'. Those last two control operators must be part of a command, so consume them here
       patterns:
       - include: '#argument'
@@ -217,16 +225,16 @@ repository:
       comment: The inside of a command substitution is indistinguishable from a global scope
       begin: \(
       beginCaptures:
-        '0': {name: constant.character.command-substitution.fish}
+        '0': {name: keyword.control.command-substitution.begin.fish punctuation.definition.keyword.fish}
       end: \)
       endCaptures:
-        '0': {name: constant.character.command-substitution.fish}
+        '0': {name: keyword.control.command-substitution.end.fish punctuation.definition.keyword.fish}
       patterns:
       - include: '$self'
 
   comment:
     patterns:
-    - name: comment.line.number-sign.fish
+    - name: comment.line.fish
       comment: Consumes the remainder of a line after any character which marks the start of a scope with no commands in it. Consumes the newline, thus hiding the entire comment from any scope which seeks newlines
       match: (?<=^|end|\(|;|&|\|)\s*(#).*$\n?
       captures:
@@ -234,7 +242,7 @@ repository:
 
   comment-inline:
     patterns:
-    - name: comment.inline.number-sign.fish
+    - name: comment.line.insert.fish
       comment: Separate from comment as this is only valid inside of command-call. Does not consume the newline, thus allowing command-call to capture it and end. Note that a comment-inline won't start if escaped whitespace precedes the '#'
       match: (?<=[^\\]\s)(#).*$
       captures:
@@ -242,7 +250,7 @@ repository:
 
   control-operator:
     patterns:
-    - name: keyword.control.fish
+    - name: keyword.control.fish punctuation.definition.keyword.fish
       match: ;
       comment: This is the only operator which is allowed to exist alone on a line. The other control operators are '&' and '|' however they must be preceded by a command, so command-call matches those
     - name: invalid.illegal.control.fish
@@ -263,10 +271,10 @@ repository:
     - begin: \b(break|continue)\b(?!\s+(-|\w))
       comment: These commands only work as loop control when they are used without arguments
       beginCaptures:
-        '1': {name: keyword.control.fish}
+        '1': {name: keyword.control.conditional.fish}
       end: (?=;)|\n|(&)
       endCaptures:
-        '1': {name: keyword.control.fish}
+        '1': {name: keyword.control.fish punctuation.definition.keyword.fish}
       patterns:
       - include: '#comment-inline'
       - include: '#control-operator'
@@ -325,6 +333,8 @@ repository:
       match: (\$)\w+(?=\W)
       captures:
         '1': {name: punctuation.definition.variable.fish }
+
+  # Inherited constructs; to be rewritten
 
   function-definition:
     patterns:
