@@ -230,6 +230,7 @@ begin
 #! ^^^^ support.function.user
 end &
 #! <- keyword.control
+#!  ^ keyword.control
 
 if echo arg
 #! <- meta.block.if keyword.control
@@ -243,7 +244,8 @@ else if echo arg
 else
 #! <- keyword.control
   echo arg
-end
+end # comment
+#!  ^^^^^^^^^ comment.line
 
 if --help; else;
 #! <- meta.function-call.standard support.function.user
@@ -251,16 +253,16 @@ if --help; else;
 #!       ^ keyword.control
 #!         ^^^^ invalid.illegal.function
 
-if     \
-  test nice
+if \
+#! ^ constant.character.escape
+  test foo; end & # comment
+#! ^^^ meta.block.if
+#!        ^ keyword.control
+#!          ^^^ keyword.control
+#!              ^ keyword.control
+#!                ^^^^^^^^^ comment.line
 
-end
-
-and    \   # this is fine
-echo true
-
-command  \
-echo true
+#######################
 
 for \
   varname \
@@ -278,3 +280,44 @@ for in in in
 end
 
 echo ~/"string"
+
+########################
+
+switch (echo $var)
+#! <- meta.block.switch keyword.control
+#!     ^^^^^^^^^^^ meta.block.switch.value
+  case foo
+#! ^^^ meta.block.switch.case keyword.control
+#!     ^^^ meta.block.switch.case.wildcard
+    echo bar
+  case bar
+#! ^^^ meta.block.switch.case keyword.control
+#!     ^^^ meta.block.switch.case.wildcard
+    echo foo
+end
+
+switch \
+# Comment
+"foo"
+#! <- meta.block.switch.value string.quoted.double
+  case \
+#! ^^^ meta.block.switch.case keyword.control
+  (echo foo)
+#! ^^^^^^^^^ meta.block.switch.case.wildcard
+    echo bar
+  case '*'
+#!     ^^^ meta.block.switch.case.wildcard string.quoted.single
+    echo wild
+end
+
+switch value; case wildcard; command echo foo; end # comment
+#!          ^ keyword.control
+#!                         ^ keyword.control
+#!                                           ^ keyword.control
+#!                                                 ^ comment.line
+
+switch --help; case;
+#! <- meta.function-call.standard support.function.user
+#!     ^^^^^^ meta.function-call.arguments
+#!           ^ keyword.control
+#!             ^^^^ invalid.illegal.function

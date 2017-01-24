@@ -9,15 +9,19 @@
 	<key>firstLineMatch</key>
 	<string>^#!.*\b(fish)|^#\s*-\*-[^*]*mode:\s*shell-script[^*]*-\*-</string>
 	<key>foldingStartMarker</key>
-	<string>\b(begin|for|if|else|function|switch|while)\b|(\{)$</string>
+	<string>\b(begin|case|for|if|else|function|switch|while)\b|(\{)$</string>
 	<key>foldingStopMarker</key>
-	<string>^\s*(\}|(else|end)\b)</string>
+	<string>^\s*(\}|(case|else|end)\b)</string>
 	<key>keyEquivalent</key>
 	<string>^~S</string>
 	<key>name</key>
 	<string>Shell Script (fish)</string>
 	<key>patterns</key>
 	<array>
+		<dict>
+			<key>comment</key>
+			<string>These are the patterns which can appear in the base scope</string>
+		</dict>
 		<dict>
 			<key>include</key>
 			<string>#block</string>
@@ -88,7 +92,7 @@
 						</dict>
 					</dict>
 					<key>end</key>
-					<string>(end)\s*(&amp;)?</string>
+					<string>(end)(\s*(&amp;))?</string>
 					<key>endCaptures</key>
 					<dict>
 						<key>1</key>
@@ -96,7 +100,7 @@
 							<key>name</key>
 							<string>keyword.control.fish</string>
 						</dict>
-						<key>2</key>
+						<key>3</key>
 						<dict>
 							<key>name</key>
 							<string>keyword.control.fish</string>
@@ -124,7 +128,7 @@
 						</dict>
 					</dict>
 					<key>end</key>
-					<string>(end)\s*(&amp;)?</string>
+					<string>(end)(\s*(&amp;))?</string>
 					<key>endCaptures</key>
 					<dict>
 						<key>1</key>
@@ -132,7 +136,7 @@
 							<key>name</key>
 							<string>keyword.control.fish</string>
 						</dict>
-						<key>2</key>
+						<key>3</key>
 						<dict>
 							<key>name</key>
 							<string>keyword.control.fish</string>
@@ -164,7 +168,7 @@
 						</dict>
 					</dict>
 					<key>end</key>
-					<string>(end)\s*(&amp;)?</string>
+					<string>(end)(\s*(&amp;))?</string>
 					<key>endCaptures</key>
 					<dict>
 						<key>1</key>
@@ -172,7 +176,7 @@
 							<key>name</key>
 							<string>keyword.control.fish</string>
 						</dict>
-						<key>2</key>
+						<key>3</key>
 						<dict>
 							<key>name</key>
 							<string>keyword.control.fish</string>
@@ -184,7 +188,7 @@
 					<array>
 						<dict>
 							<key>comment</key>
-							<string>Having a meta scope just for the condition command is complicated and ultimately useless, so treat these commands as standalone</string>
+							<string>Having a meta scope just for the condition command is complicated and ultimately useless, so treat these commands as standalone keywords and let the conditions scope like normal instances of command-call</string>
 							<key>match</key>
 							<string>\b(else|if)\b</string>
 							<key>name</key>
@@ -198,7 +202,7 @@
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>(for)(?!\s+(-|&amp;|\|))</string>
+					<string>\b(for)\b(?!\s+(-|&amp;|\|))</string>
 					<key>beginCaptures</key>
 					<dict>
 						<key>0</key>
@@ -208,7 +212,7 @@
 						</dict>
 					</dict>
 					<key>end</key>
-					<string>(end)\s*(&amp;)?</string>
+					<string>(end)(\s*(&amp;))?</string>
 					<key>endCaptures</key>
 					<dict>
 						<key>1</key>
@@ -216,7 +220,7 @@
 							<key>name</key>
 							<string>keyword.control.fish</string>
 						</dict>
-						<key>2</key>
+						<key>3</key>
 						<dict>
 							<key>name</key>
 							<string>keyword.control.fish</string>
@@ -295,7 +299,7 @@
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>(switch)(?!\s+(-|&amp;|\|))</string>
+					<string>\b(switch)\b(?!\s+(-|&amp;|\|))</string>
 					<key>beginCaptures</key>
 					<dict>
 						<key>0</key>
@@ -305,7 +309,7 @@
 						</dict>
 					</dict>
 					<key>end</key>
-					<string>(end)\s*(&amp;)?</string>
+					<string>(end)(\s*(&amp;))?</string>
 					<key>endCaptures</key>
 					<dict>
 						<key>1</key>
@@ -313,7 +317,7 @@
 							<key>name</key>
 							<string>keyword.control.fish</string>
 						</dict>
-						<key>2</key>
+						<key>3</key>
 						<dict>
 							<key>name</key>
 							<string>keyword.control.fish</string>
@@ -324,14 +328,137 @@
 					<key>patterns</key>
 					<array>
 						<dict>
+							<key>begin</key>
+							<string>(?&lt;=switch)</string>
+							<key>comment</key>
+							<string>Value ends before ';' or at a newline</string>
+							<key>end</key>
+							<string>(?=;)|\n</string>
+							<key>name</key>
+							<string>meta.block.switch.value.fish</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>#comment</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#comment-inline</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#command-substitution</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#string</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#variable</string>
+								</dict>
+								<dict>
+									<key>captures</key>
+									<dict>
+										<key>1</key>
+										<dict>
+											<key>name</key>
+											<string>constant.character.escape</string>
+										</dict>
+									</dict>
+									<key>comment</key>
+									<string>The value specification may contain a newline if it is escaped; consume the newline to prevent the value spec ending</string>
+									<key>match</key>
+									<string>(\\)\n</string>
+								</dict>
+							</array>
+						</dict>
+						<dict>
+							<key>begin</key>
+							<string>\b(case)\b</string>
+							<key>beginCaptures</key>
+							<dict>
+								<key>0</key>
+								<dict>
+									<key>name</key>
+									<string>keyword.control.fish</string>
+								</dict>
+							</dict>
+							<key>comment</key>
+							<string>Case block ends before a new case or the end of the switch block</string>
+							<key>end</key>
+							<string>(?=\b(case|end)\b)</string>
+							<key>name</key>
+							<string>meta.block.switch.case.fish</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>begin</key>
+									<string>(?&lt;=case)</string>
+									<key>comment</key>
+									<string>Wildcard ends before ';' or at a newline</string>
+									<key>end</key>
+									<string>(?=;)|\n</string>
+									<key>name</key>
+									<string>meta.block.switch.case.wildcard.fish</string>
+									<key>patterns</key>
+									<array>
+										<dict>
+											<key>include</key>
+											<string>#comment</string>
+										</dict>
+										<dict>
+											<key>include</key>
+											<string>#comment-inline</string>
+										</dict>
+										<dict>
+											<key>include</key>
+											<string>#command-substitution</string>
+										</dict>
+										<dict>
+											<key>include</key>
+											<string>#string</string>
+										</dict>
+										<dict>
+											<key>include</key>
+											<string>#variable</string>
+										</dict>
+										<dict>
+											<key>captures</key>
+											<dict>
+												<key>1</key>
+												<dict>
+													<key>name</key>
+													<string>constant.character.escape</string>
+												</dict>
+											</dict>
+											<key>comment</key>
+											<string>The wildcard specification may contain a newline if it is escaped; consume the newline to prevent the wildcard spec ending</string>
+											<key>match</key>
+											<string>(\\)\n</string>
+										</dict>
+									</array>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>$self</string>
+								</dict>
+							</array>
+						</dict>
+						<dict>
 							<key>include</key>
-							<string>$self</string>
+							<string>#comment</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#control-operator</string>
 						</dict>
 					</array>
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>(function)(?!\s+(-|&amp;|\|))</string>
+					<string>\b(function)\b(?!\s+(-|&amp;|\|))</string>
 					<key>beginCaptures</key>
 					<dict>
 						<key>0</key>
@@ -341,7 +468,7 @@
 						</dict>
 					</dict>
 					<key>end</key>
-					<string>(end)\s*(&amp;)?</string>
+					<string>(end)(\s*(&amp;))?</string>
 					<key>endCaptures</key>
 					<dict>
 						<key>1</key>
@@ -349,7 +476,7 @@
 							<key>name</key>
 							<string>keyword.control.fish</string>
 						</dict>
-						<key>2</key>
+						<key>3</key>
 						<dict>
 							<key>name</key>
 							<string>keyword.control.fish</string>
@@ -415,7 +542,7 @@
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>\b(else|end)\b</string>
+					<string>\b(case|else|end)\b</string>
 					<key>comment</key>
 					<string>These functions aren't valid outside of their blocks</string>
 					<key>end</key>
@@ -535,7 +662,7 @@
 					<key>comment</key>
 					<string>Consumes the remainder of a line after any character which marks the start of a scope with no commands in it. Consumes the newline, thus hiding the entire comment from any scope which seeks newlines</string>
 					<key>match</key>
-					<string>(?&lt;=^|\(|;|&amp;|\|)\s*(#).*$\n?</string>
+					<string>(?&lt;=^|end|\(|;|&amp;|\|)\s*(#).*$\n?</string>
 					<key>name</key>
 					<string>comment.line.number-sign.fish</string>
 				</dict>

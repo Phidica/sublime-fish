@@ -5,6 +5,7 @@ fileTypes: [fish]
 uuid: a6b750ed-a12a-43c1-84e7-689ac7e2fbc9
 
 patterns:
+- comment: These are the patterns which can appear in the base scope
 - include: '#block'
 - include: '#command-call'
 - include: '#comment'
@@ -14,13 +15,14 @@ patterns:
 #! \todo add comment-inline to the recursive command-call. no point adding comment because recursive will /always/ have ended by the time a full line comment shows up
 #! \todo add special behaviour to ~ as an argument
 #! \todo item-access for command-substitution
-#! \todo constants
+#! \todo constants, including any command character when preceded by a slosh to escape it (eg, \;, \&, etc)
 #! \todo blocks
 #! \todo redirection
 #! \todo a specific version of command-call which is just test and the possible expressions all highlighted special, as well as the [ ] form of test
 #! \todo `"echo" what` is valid syntax and executes. add a form of command-call where the command is in quotes, and highlight the quotes to match the command. escaped newlines within double quotes are valid. I think you can actually use string to do this, maybe by starting with a lookahead for a quote, ending with a lookback for a quote, and matching only a string inside of it then naming it all support.function.user. even though fish will never not error on a quoted command that has whitespace (because no function will ever be found that has whitespace in its name), technically the syntax isn't invalid. we don't need to police the user and make sure their quoted command has no whitespace; it is valid to do so because as far as ST is concerned that function may well exist
 #! \todo piping with | is more complicated than it seems, as fish expects a command to appear after the pipe. make a pattern match in command-call that is only valid inside of a command call that used the pipe, and matches from after a pipe until the end of the line, looking for command-call within it
 #!  Hm, because it is possible to pipe the output of an entire block by putting the pipe after `end`, a better approach may be to make a command that STARTS with a pipe, and is normal after that. then it can check inside itself to see if it is ONLY a pipe with no command following it, and mark that as invalid syntax. that would supersede the need for pipe to be matched invalid from in control-operator
+#! \todo What happens when a comment directly follows `end`? It should be a valid comment.
 
 repository:
   argument:
@@ -44,10 +46,10 @@ repository:
       begin: \b(begin)\b(?!\s+(-|&|\|))
       beginCaptures:
         '0': {name: keyword.control.fish}
-      end: (end)\s*(&)?
+      end: (end)(\s*(&))?
       endCaptures:
         '1': {name: keyword.control.fish}
-        '2': {name: keyword.control.fish}
+        '3': {name: keyword.control.fish}
       patterns:
       - include: '$self'
 
@@ -55,10 +57,10 @@ repository:
       begin: \b(while)\b(?!\s+(-|&|\|))
       beginCaptures:
         '0': {name: keyword.control.fish}
-      end: (end)\s*(&)?
+      end: (end)(\s*(&))?
       endCaptures:
         '1': {name: keyword.control.fish}
-        '2': {name: keyword.control.fish}
+        '3': {name: keyword.control.fish}
       patterns:
       - include: '#loop-control-command'
       - include: '$self'
@@ -67,25 +69,25 @@ repository:
       begin: \b(if)\b(?!\s+(-|&|\|))
       beginCaptures:
         '0': {name: keyword.control.fish}
-      end: (end)\s*(&)?
+      end: (end)(\s*(&))?
       endCaptures:
         '1': {name: keyword.control.fish}
-        '2': {name: keyword.control.fish}
+        '3': {name: keyword.control.fish}
       patterns:
       - name: keyword.control.fish
         match: \b(else|if)\b
-        comment: Having a meta scope just for the condition command is complicated and ultimately useless, so treat these commands as standalone
+        comment: Having a meta scope just for the condition command is complicated and ultimately useless, so treat these commands as standalone keywords and let the conditions scope like normal instances of command-call
       - include: '$self'
 
-    #! \todo Needs work
+    #! \todo Needs work !! See the arbitrary-commands_for-block-development branch for the WIP of whatever I was doing last time I tried to fix this block
     - name: meta.block.for-in.fish
-      begin: (for)(?!\s+(-|&|\|))
+      begin: \b(for)\b(?!\s+(-|&|\|))
       beginCaptures:
         '0': {name: keyword.control.fish}
-      end: (end)\s*(&)?
+      end: (end)(\s*(&))?
       endCaptures:
         '1': {name: keyword.control.fish}
-        '2': {name: keyword.control.fish}
+        '3': {name: keyword.control.fish}
       patterns:
       - begin: (?<=for)
         end: '^'
@@ -108,27 +110,63 @@ repository:
             comment: Treat values to `in` like normal arguments
       - include: '$self'
 
-    #! \todo Needs work
     - name: meta.block.switch.fish
-      begin: (switch)(?!\s+(-|&|\|))
+      begin: \b(switch)\b(?!\s+(-|&|\|))
       beginCaptures:
         '0': {name: keyword.control.fish}
-      end: (end)\s*(&)?
+      end: (end)(\s*(&))?
       endCaptures:
         '1': {name: keyword.control.fish}
-        '2': {name: keyword.control.fish}
+        '3': {name: keyword.control.fish}
       patterns:
-      - include: '$self'
+      - name: meta.block.switch.value.fish
+        begin: (?<=switch)
+        end: (?=;)|\n
+        comment: Value ends before ';' or at a newline
+        patterns:
+        - include: '#comment'
+        - include: '#comment-inline'
+        - include: '#command-substitution'
+        - include: '#string'
+        - include: '#variable'
+        - match: (\\)\n
+          captures:
+            '1': {name: constant.character.escape}
+          comment: The value specification may contain a newline if it is escaped; consume the newline to prevent the value spec ending
+      - name: meta.block.switch.case.fish
+        begin: \b(case)\b
+        beginCaptures:
+          '0': {name: keyword.control.fish}
+        end: (?=\b(case|end)\b)
+        comment: Case block ends before a new case or the end of the switch block
+        patterns:
+        - name: meta.block.switch.case.wildcard.fish
+          begin: (?<=case)
+          end: (?=;)|\n
+          comment: Wildcard ends before ';' or at a newline
+          patterns:
+          - include: '#comment'
+          - include: '#comment-inline'
+          - include: '#command-substitution'
+          - include: '#string'
+          - include: '#variable'
+          - match: (\\)\n
+            captures:
+              '1': {name: constant.character.escape}
+            comment: The wildcard specification may contain a newline if it is escaped; consume the newline to prevent the wildcard spec ending
+        - include: '$self'
+      - include: '#comment'
+      - include: '#control-operator'
 
     #! \todo Needs work, see old function-definition element
     - name: meta.block.function.fish
-      begin: (function)(?!\s+(-|&|\|))
+      begin: \b(function)\b(?!\s+(-|&|\|))
       beginCaptures:
         '0': {name: keyword.control.fish}
-      end: (end)\s*(&)?
+      end: (end)(\s*(&))?
       endCaptures:
         '1': {name: keyword.control.fish}
-        '2': {name: keyword.control.fish}
+        '3': {name: keyword.control.fish}
       patterns:
       - include: '$self'
 
@@ -151,7 +189,7 @@ repository:
 
     - name: invalid.illegal.function.fish
       comment: Search for illegal standard commands by name
-      begin: \b(else|end)\b
+      begin: \b(case|else|end)\b
       comment: These functions aren't valid outside of their blocks
       end: $\n?
 
@@ -190,7 +228,7 @@ repository:
     patterns:
     - name: comment.line.number-sign.fish
       comment: Consumes the remainder of a line after any character which marks the start of a scope with no commands in it. Consumes the newline, thus hiding the entire comment from any scope which seeks newlines
-      match: (?<=^|\(|;|&|\|)\s*(#).*$\n?
+      match: (?<=^|end|\(|;|&|\|)\s*(#).*$\n?
       captures:
         '1': {name: punctuation.definition.comment.fish}
 
@@ -359,6 +397,6 @@ repository:
       match: '&>|\d*>&\d*|\d*(>>|>|<)|\d*<&|\d*<>'
 
 firstLineMatch: ^#!.*\b(fish)|^#\s*-\*-[^*]*mode:\s*shell-script[^*]*-\*-
-foldingStartMarker: \b(begin|for|if|else|function|switch|while)\b|(\{)$
-foldingStopMarker: ^\s*(\}|(else|end)\b)
+foldingStartMarker: \b(begin|case|for|if|else|function|switch|while)\b|(\{)$
+foldingStopMarker: ^\s*(\}|(case|else|end)\b)
 keyEquivalent: ^~S
