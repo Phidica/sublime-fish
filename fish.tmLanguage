@@ -229,17 +229,15 @@
 						<dict>
 							<key>begin</key>
 							<string>(?&lt;=for)</string>
+							<key>comment</key>
+							<string>Arguments end before ';' or at a newline</string>
 							<key>end</key>
-							<string>^</string>
+							<string>(?=;)|\n</string>
 							<key>patterns</key>
 							<array>
 								<dict>
-									<key>include</key>
-									<string>$self</string>
-								</dict>
-								<dict>
 									<key>begin</key>
-									<string>(\w+)(\s+((\\)\n)?)+(in)\s+</string>
+									<string>\b(\w+)\b</string>
 									<key>beginCaptures</key>
 									<dict>
 										<key>1</key>
@@ -247,43 +245,134 @@
 											<key>name</key>
 											<string>meta.function-call.arguments.fish</string>
 										</dict>
-										<key>5</key>
+									</dict>
+									<key>end</key>
+									<string>\b(in)\b</string>
+									<key>endCaptures</key>
+									<dict>
+										<key>1</key>
 										<dict>
 											<key>name</key>
 											<string>keyword.control.fish</string>
 										</dict>
 									</dict>
-									<key>comment</key>
-									<string>Treat the varname to `for` like a normal argument</string>
-									<key>contentName</key>
-									<string>meta.function-call.arguments.fish</string>
-									<key>end</key>
-									<string>\n</string>
 									<key>patterns</key>
 									<array>
 										<dict>
-											<key>captures</key>
-											<dict>
-												<key>1</key>
-												<dict>
-													<key>name</key>
-													<string>constant.character.escape</string>
-												</dict>
-											</dict>
-											<key>match</key>
-											<string>(\\)\n</string>
+											<key>include</key>
+											<string>#comment</string>
 										</dict>
 										<dict>
 											<key>include</key>
-											<string>#command-substitution</string>
-										</dict>
-										<dict>
-											<key>comment</key>
-											<string>Treat values to `in` like normal arguments</string>
-											<key>match</key>
-											<string>\w+</string>
+											<string>#escape-character</string>
 										</dict>
 									</array>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#comment</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#comment-inline</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#command-substitution</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#variable</string>
+								</dict>
+								<dict>
+									<key>captures</key>
+									<dict>
+										<key>1</key>
+										<dict>
+											<key>name</key>
+											<string>constant.character.escape</string>
+										</dict>
+									</dict>
+									<key>comment</key>
+									<string>Arguments may contain a newline if it is escaped; consume the newline to prevent the argument list ending</string>
+									<key>match</key>
+									<string>(\\)\n</string>
+								</dict>
+							</array>
+						</dict>
+						<dict>
+							<key>begin</key>
+							<string>(?&lt;=for)</string>
+							<key>end</key>
+							<string>\b(\w+)\b</string>
+							<key>endCaptures</key>
+							<dict>
+								<key>1</key>
+								<dict>
+									<key>name</key>
+									<string>meta.function-call.arguments.fish</string>
+								</dict>
+							</dict>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>#comment</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#escape-character</string>
+								</dict>
+							</array>
+						</dict>
+						<dict>
+							<key>begin</key>
+							<string>\b(in)\b</string>
+							<key>beginCaptures</key>
+							<dict>
+								<key>1</key>
+								<dict>
+									<key>name</key>
+									<string>keyword.control.fish</string>
+								</dict>
+							</dict>
+							<key>comment</key>
+							<string>Arguments end before ';' or at a newline</string>
+							<key>contentName</key>
+							<string>meta.function-call.arguments.fish</string>
+							<key>end</key>
+							<string>(?=;)|\n</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>#comment</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#comment-inline</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#command-substitution</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#variable</string>
+								</dict>
+								<dict>
+									<key>captures</key>
+									<dict>
+										<key>1</key>
+										<dict>
+											<key>name</key>
+											<string>constant.character.escape</string>
+										</dict>
+									</dict>
+									<key>comment</key>
+									<string>Arguments may contain a newline if it is escaped; consume the newline to prevent the argument list ending</string>
+									<key>match</key>
+									<string>(\\)\n</string>
 								</dict>
 							</array>
 						</dict>
@@ -295,7 +384,7 @@
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>(switch)(?!\s+(-|&amp;|\|))</string>
+					<string>\b(switch)\b(?!\s+(-|&amp;|\|))</string>
 					<key>beginCaptures</key>
 					<dict>
 						<key>0</key>
@@ -331,7 +420,7 @@
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>(function)(?!\s+(-|&amp;|\|))</string>
+					<string>\b(function)\b(?!\s+(-|&amp;|\|))</string>
 					<key>beginCaptures</key>
 					<dict>
 						<key>0</key>

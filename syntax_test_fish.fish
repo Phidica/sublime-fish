@@ -251,25 +251,61 @@ if --help; else;
 #!       ^ keyword.control
 #!         ^^^^ invalid.illegal.function
 
-if     \
-  test nice
+# This should be valid
+for word in $varname
+  echo $word
+end
+
+# This should be valid
+for word in (for word in (seq 5); echo $word; end)
+  echo $word
+end
+
+# This should be valid
+for var var var in list of words
+  echo $var
+end
+
+# This should be valid
+for in in in in in
+  echo $in
+end
+
+# This should be valid
+for \
+  end \
+  in \
+  a
 
 end
 
-and    \   # this is fine
-echo true
+for in in for in end; echo $in; end
 
-command  \
-echo true
+# This should be valid
+for varname in (seq 5) # comment
+  echo $varname
+end
+
+for foo in one two three four
+  echo $foo
+end
 
 for \
+  # comment
   varname \
+  # comment
   in \
+  # comment
   (\
+  # comment
   echo \
+  # comment
   one two \
+  # comment
   three \
+  # comment
 )
+  # comment
 
   echo arg arg
 end

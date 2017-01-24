@@ -14,7 +14,7 @@ patterns:
 #! \todo add comment-inline to the recursive command-call. no point adding comment because recursive will /always/ have ended by the time a full line comment shows up
 #! \todo add special behaviour to ~ as an argument
 #! \todo item-access for command-substitution
-#! \todo constants
+#! \todo constants, including any command character when preceded by a slosh to escape it (eg, \;, \&, etc)
 #! \todo blocks
 #! \todo redirection
 #! \todo a specific version of command-call which is just test and the possible expressions all highlighted special, as well as the [ ] form of test
@@ -88,29 +88,89 @@ repository:
         '2': {name: keyword.control.fish}
       patterns:
       - begin: (?<=for)
-        end: '^'
-        patterns:  # nope, because of comments entering the scope this will never work. just make special "from command names to an endline or the next special demarcation point" scopes for for-var and in-listothings
-        # better yet, don't be afraid of splitting block up into several matches, for the different types of block!
-        - include: '$self'
-        - begin: (\w+)(\s+((\\)\n)?)+(in)\s+
+        end: (?=;)|\n
+        comment: Values end before ';' or at a newline
+        patterns:
+        - begin: \b(\w+)\b
           beginCaptures:
             '1': {name: meta.function-call.arguments.fish}
-            '5': {name: keyword.control.fish}
-          comment: Treat the varname to `for` like a normal argument
-          end: '\n'
-          contentName: meta.function-call.arguments.fish
+          end: \b(in)\b
+          endCaptures:
+            '1': {name: keyword.control.fish}
           patterns:
-          - match: (\\)\n
-            captures:
-              '1': {name: constant.character.escape}
-          - include: '#command-substitution'
-          - match: \w+
-            comment: Treat values to `in` like normal arguments
+          - include: '#comment'
+          - include: '#escape-character'
+        - include: '#comment'
+        - include: '#comment-inline'
+        - include: '#command-substitution'
+        - include: '#variable'
+        - match: (\\)\n
+          captures:
+            '1': {name: constant.character.escape}
+          comment: Arguments may contain a newline if it is escaped; consume the newline to prevent the argument list ending
+
+
+
+
+
+
+
+      - begin: (?<=for)
+        end: \b(\w+)\b
+        endCaptures:
+          '1': {name: meta.function-call.arguments.fish}
+        patterns:
+        - include: '#comment'
+        - include: '#escape-character'
+
+      - begin: \b(in)\b
+        beginCaptures:
+          '1': {name: keyword.control.fish}
+        end: (?=;)|\n
+        comment: Arguments end before ';' or at a newline
+        contentName: meta.function-call.arguments.fish
+        patterns:
+        - include: '#comment'
+        - include: '#comment-inline'
+        - include: '#command-substitution'
+        - include: '#variable'
+        - match: (\\)\n
+          captures:
+            '1': {name: constant.character.escape}
+          comment: Arguments may contain a newline if it is escaped; consume the newline to prevent the argument list ending
+
       - include: '$self'
+
+
+
+      # - begin: (?<=for)
+      #   end: (?=in)
+      #   comment: Treat the varname to `for` like a normal argument, except we excluded the argument starting with a '-' in the meta.block.for-in begin rule
+      #   patterns:
+      #   - include: '#argument'
+      #   - include: '#comment'
+      #   - include: '#escape-character'
+
+      # - begin: \b(in)\b
+      #   beginCaptures:
+      #     '1': {name: keyword.control.fish}
+      #   end: (?=;)|\n
+      #   comment: Arguments end before ';' or at a newline
+      #   contentName: meta.function-call.arguments.fish
+      #   patterns:
+      #   - include: '#comment'
+      #   - include: '#comment-inline'
+      #   - include: '#command-substitution'
+      #   - include: '#variable'
+      #   - match: (\\)\n
+      #     captures:
+      #       '1': {name: constant.character.escape}
+      #     comment: Arguments may contain a newline if it is escaped; consume the newline to prevent the argument list ending
+
 
     #! \todo Needs work
     - name: meta.block.switch.fish
-      begin: (switch)(?!\s+(-|&|\|))
+      begin: \b(switch)\b(?!\s+(-|&|\|))
       beginCaptures:
         '0': {name: keyword.control.fish}
       end: (end)\s*(&)?
@@ -122,7 +182,7 @@ repository:
 
     #! \todo Needs work, see old function-definition element
     - name: meta.block.function.fish
-      begin: (function)(?!\s+(-|&|\|))
+      begin: \b(function)\b(?!\s+(-|&|\|))
       beginCaptures:
         '0': {name: keyword.control.fish}
       end: (end)\s*(&)?
