@@ -51,26 +51,20 @@
 			<array>
 				<dict>
 					<key>begin</key>
-					<string>(?&lt;=^|\s)(?!\s|#|$|\\$)</string>
+					<string>(?&lt;=^|\s)(?!\s|#|$)</string>
 					<key>comment</key>
-					<string>End arg if it precedes unescaped control operators. Everything else is fair game, and strings and variables are matched and properly highlighted if found</string>
+					<string>End arg if it precedes whitespace, unescaped control operators, or a newline</string>
 					<key>end</key>
-					<string>(?&lt;=\S)(?=\s|\)|;|&amp;|\||$)</string>
+					<string>(?&lt;=.|\n)(?=\s|\)|;|&amp;|\||$)</string>
 					<key>name</key>
 					<string>meta.function-call.argument.fish</string>
 					<key>patterns</key>
 					<array>
 						<dict>
+							<key>comment</key>
+							<string>Arguments are made of strings, either quoted or unquoted. The unquoted string covers constants, escapes, command substitutions, and variable substitutions</string>
 							<key>include</key>
 							<string>#string</string>
-						</dict>
-						<dict>
-							<key>include</key>
-							<string>#variable</string>
-						</dict>
-						<dict>
-							<key>include</key>
-							<string>#command-substitution</string>
 						</dict>
 					</array>
 				</dict>
@@ -340,37 +334,15 @@
 							<array>
 								<dict>
 									<key>include</key>
+									<string>#argument</string>
+								</dict>
+								<dict>
+									<key>include</key>
 									<string>#comment</string>
 								</dict>
 								<dict>
 									<key>include</key>
 									<string>#comment-inline</string>
-								</dict>
-								<dict>
-									<key>include</key>
-									<string>#command-substitution</string>
-								</dict>
-								<dict>
-									<key>include</key>
-									<string>#string</string>
-								</dict>
-								<dict>
-									<key>include</key>
-									<string>#variable</string>
-								</dict>
-								<dict>
-									<key>captures</key>
-									<dict>
-										<key>1</key>
-										<dict>
-											<key>name</key>
-											<string>constant.character.escape</string>
-										</dict>
-									</dict>
-									<key>comment</key>
-									<string>The value specification may contain a newline if it is escaped; consume the newline to prevent the value spec ending</string>
-									<key>match</key>
-									<string>(\\)\n</string>
 								</dict>
 							</array>
 						</dict>
@@ -406,37 +378,15 @@
 									<array>
 										<dict>
 											<key>include</key>
+											<string>#argument</string>
+										</dict>
+										<dict>
+											<key>include</key>
 											<string>#comment</string>
 										</dict>
 										<dict>
 											<key>include</key>
 											<string>#comment-inline</string>
-										</dict>
-										<dict>
-											<key>include</key>
-											<string>#command-substitution</string>
-										</dict>
-										<dict>
-											<key>include</key>
-											<string>#string</string>
-										</dict>
-										<dict>
-											<key>include</key>
-											<string>#variable</string>
-										</dict>
-										<dict>
-											<key>captures</key>
-											<dict>
-												<key>1</key>
-												<dict>
-													<key>name</key>
-													<string>constant.character.escape</string>
-												</dict>
-											</dict>
-											<key>comment</key>
-											<string>The wildcard specification may contain a newline if it is escaped; consume the newline to prevent the wildcard spec ending</string>
-											<key>match</key>
-											<string>(\\)\n</string>
 										</dict>
 									</array>
 								</dict>
@@ -552,7 +502,7 @@
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>\b([\w][\w-]*)\b</string>
+					<string>((?:\w|\\ )(?:\w|\\\s|-)*)</string>
 					<key>beginCaptures</key>
 					<dict>
 						<key>1</key>
@@ -588,20 +538,6 @@
 						<dict>
 							<key>include</key>
 							<string>#comment-inline</string>
-						</dict>
-						<dict>
-							<key>captures</key>
-							<dict>
-								<key>1</key>
-								<dict>
-									<key>name</key>
-									<string>constant.character.escape</string>
-								</dict>
-							</dict>
-							<key>comment</key>
-							<string>command-call may contain a newline if it is escaped; consume the newline to prevent the command-call ending</string>
-							<key>match</key>
-							<string>(\\)\n</string>
 						</dict>
 					</array>
 				</dict>
@@ -682,9 +618,9 @@
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>Separate from comment as this is only valid inside of command-call. Does not consume the newline, thus allowing command-call to capture it and end. Note that a comment-inline won't start if escaped whitespace precedes the '#'</string>
+					<string>Separate from comment as this is only valid inside of command-call. Does not consume the newline, thus allowing command-call to capture it and end</string>
 					<key>match</key>
-					<string>(?&lt;=[^\\]\s)(#).*$</string>
+					<string>(#).*$</string>
 					<key>name</key>
 					<string>comment.line.insert.fish</string>
 				</dict>
@@ -1052,6 +988,45 @@
 							<string>\\[\"$\n\\]</string>
 							<key>name</key>
 							<string>constant.character.escape.fish</string>
+						</dict>
+						<dict>
+							<key>comment</key>
+							<string>Variable substitution is the only substitution permitted</string>
+							<key>include</key>
+							<string>#variable</string>
+						</dict>
+					</array>
+				</dict>
+				<dict>
+					<key>begin</key>
+					<string>(?&lt;=^|\s|\'|\")(?!\'|\")</string>
+					<key>comment</key>
+					<string>End string if it precedes the begin of a quoted string or anything that would end an argument</string>
+					<key>end</key>
+					<string>(?&lt;=.|\n)(?=\'|\"|\s|\)|;|&amp;|\||$)</string>
+					<key>name</key>
+					<string>string.unquoted.fish</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>comment</key>
+							<string>Treat integers as standalone constants if they aren't within strings of alphanumeric characters</string>
+							<key>match</key>
+							<string>(?&lt;![A-z0-9])[0-9]+(?![A-z0-9])</string>
+							<key>name</key>
+							<string>constant.numeric.fish</string>
+						</dict>
+						<dict>
+							<key>comment</key>
+							<string>This list follows the order given in official fish documentation, with the addition of an escaped newline match</string>
+							<key>match</key>
+							<string>\\\n|\\[abefnrtv $\\*?~%#(){}\[\]&lt;&gt;^&amp;;"']|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[A-z]</string>
+							<key>name</key>
+							<string>constant.character.escape.fish</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#command-substitution</string>
 						</dict>
 						<dict>
 							<key>include</key>

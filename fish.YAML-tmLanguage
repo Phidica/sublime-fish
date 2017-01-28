@@ -26,6 +26,7 @@ patterns:
 #! \todo add special behaviour to ~ as an argument
 #! \todo redirection
 #! \todo a specific version of command-call which is just test and the possible expressions all highlighted special, as well as the [ ] form of test
+#! \todo fish function names can contain whitespace. it must be escaped as in `foo\ bar` or the function name may be quoted to call it as in `"foo bar"`
 #! \todo `"echo" what` is valid syntax and executes. add a form of command-call where the command is in quotes, and highlight the quotes to match the command. escaped newlines within double quotes are valid. I think you can actually use string to do this, maybe by starting with a lookahead for a quote, ending with a lookback for a quote, and matching only a string inside of it then naming it all support.function.user. even though fish will never not error on a quoted command that has whitespace (because no function will ever be found that has whitespace in its name), technically the syntax isn't invalid. we don't need to police the user and make sure their quoted command has no whitespace; it is valid to do so because as far as ST is concerned that function may well exist
 #! \todo piping with | is more complicated than it seems, as fish expects a command to appear after the pipe. make a pattern match in command-call that is only valid inside of a command call that used the pipe, and matches from after a pipe until the end of the line, looking for command-call within it
 #!  Hm, because it is possible to pipe the output of an entire block by putting the pipe after `end`, a better approach may be to make a command that STARTS with a pipe, and is normal after that. then it can check inside itself to see if it is ONLY a pipe with no command following it, and mark that as invalid syntax. that would supersede the need for pipe to be matched invalid from in control-operator
@@ -34,17 +35,14 @@ repository:
   argument:
     patterns:
     - name: meta.function-call.argument.fish
-      comment: An argument is one of the fundamental units, however we define it by the very essence of not being any of the other fundamental units '#', '\', and the control operators (';', '&', and '|'). All those have special treatment when they appear in command-calls, so we attend to them uniquely
-      begin: (?<=^|\s)(?!\s|#|$|\\$)
-      comment: Begin arg at the boundary between whitespace (or begin of line for when command-call escapes its newline) and anything but whitespace, a comment character (because a lone # can't be an arg), a newline (to prevent blank lines being called args), or an escaped newline (because command-call can spot a lone \ and match it)
-      comment: Known bug - ` echo \ #` is supposed to print " #" because the whitespace is forced to become a character and then the # isn't considered lone because forced whitespace precedes it. So "\ #" should be one arg
-      end: (?<=\S)(?=\s|\)|;|&|\||$)
-      comment: End arg if it precedes unescaped control operators. Everything else is fair game, and strings and variables are matched and properly highlighted if found
+      comment: An argument is one of the fundamental units, however we define it by the very essence of not being any of the other fundamental units '#' and the control operators (';', '&', and '|'). All those have special treatment when they appear in command-calls, so we attend to them uniquely
+      begin: (?<=^|\s)(?!\s|#|$)
+      comment: Begin arg at a boundary. Before the boundary must be the begin of line (for when a command-call spans multiple lines) or whitespace. After the boundary may be anything but whitespace, a comment character, or a newline (to prevent blank lines being called args)
+      end: (?<=.|\n)(?=\s|\)|;|&|\||$)
+      comment: End arg if it precedes whitespace, unescaped control operators, or a newline
       patterns:
-      # - include: '#constant' #! \todo This will be things like lone numbers and escape characters, even though fish doesn't treat numbers any differently
       - include: '#string'
-      - include: '#variable'
-      - include: '#command-substitution'
+        comment: Arguments are made of strings, either quoted or unquoted. The unquoted string covers constants, escapes, command substitutions, and variable substitutions
 
   block:
     patterns:
@@ -130,15 +128,9 @@ repository:
         end: (?=;)|\n
         comment: Value ends before ';' or at a newline
         patterns:
+        - include: '#argument'
         - include: '#comment'
         - include: '#comment-inline'
-        - include: '#command-substitution'
-        - include: '#string'
-        - include: '#variable'
-        - match: (\\)\n
-          captures:
-            '1': {name: constant.character.escape}
-          comment: The value specification may contain a newline if it is escaped; consume the newline to prevent the value spec ending
       - name: meta.block.switch.case.fish
         begin: \b(case)\b
         beginCaptures:
@@ -151,15 +143,9 @@ repository:
           end: (?=;)|\n
           comment: Wildcard ends before ';' or at a newline
           patterns:
+          - include: '#argument'
           - include: '#comment'
           - include: '#comment-inline'
-          - include: '#command-substitution'
-          - include: '#string'
-          - include: '#variable'
-          - match: (\\)\n
-            captures:
-              '1': {name: constant.character.escape}
-            comment: The wildcard specification may contain a newline if it is escaped; consume the newline to prevent the wildcard spec ending
         - include: '$self'
       - include: '#comment'
       - include: '#control-operator'
@@ -200,11 +186,16 @@ repository:
       comment: These functions aren't valid outside of their blocks
       end: $\n?
 
+
+    # a command call can be done with a quoted string (single or double) or with an unquoted string that is suitably escaped
+
     - name: meta.function-call.standard.fish
       comment: If the above match for recursive commands failed, try and match legal standard commands
-      begin: \b([\w][\w-]*)\b
+      # begin: \b([\w][\w-]*)\b
+      begin: ((?:\w|\\ )(?:\w|\\\s|-)*)
       beginCaptures:
         '1': {name: support.function.user.fish}
+      comment: fish function names can contain escaped whitespace and even escaped newlines
       end: (?=\)|;)|\n|(&|\|)
       endCaptures:
         '1': {name: keyword.control.fish punctuation.definition.keyword.fish}
@@ -213,10 +204,6 @@ repository:
       - include: '#argument'
       - include: '#comment'
       - include: '#comment-inline'
-      - match: (\\)\n
-        captures:
-          '1': {name: constant.character.escape}
-        comment: command-call may contain a newline if it is escaped; consume the newline to prevent the command-call ending
 
   command-substitution:
     patterns:
@@ -242,8 +229,8 @@ repository:
   comment-inline:
     patterns:
     - name: comment.line.insert.fish
-      comment: Separate from comment as this is only valid inside of command-call. Does not consume the newline, thus allowing command-call to capture it and end. Note that a comment-inline won't start if escaped whitespace precedes the '#'
-      match: (?<=[^\\]\s)(#).*$
+      comment: Separate from comment as this is only valid inside of command-call. Does not consume the newline, thus allowing command-call to capture it and end
+      match: (#).*$
       captures:
         '1': {name: punctuation.definition.comment.fish}
 
@@ -279,7 +266,6 @@ repository:
       - include: '#control-operator'
       - include: '#escape-character'
 
-  # fish strings accept very few escape codes, and make only a few simple distinctions between the single- and double-quoted variants
   string:
     patterns:
     - name: string.quoted.single.fish
@@ -293,6 +279,7 @@ repository:
       - name: constant.character.escape.fish
         match: \\[\'\\]
         comment: Only accepted escapes are \' and \\
+
     - name: string.quoted.double.fish
       begin: \"
       beginCaptures:
@@ -304,6 +291,22 @@ repository:
       - name: constant.character.escape.fish
         match: \\[\"$\n\\]
         comment: Only accepted escapes are \", \$, \<newline>, and \\
+      - include: '#variable'
+        comment: Variable substitution is the only substitution permitted
+
+    - name: string.unquoted.fish
+      begin: (?<=^|\s|\'|\")(?!\'|\")
+      comment: Begin string at a boundary. Before the boundary must be anything that would initiate an argument, or the end of a quoted string. After the boundary may be anything that isn't the begin of a quoted string
+      end: (?<=.|\n)(?=\'|\"|\s|\)|;|&|\||$)
+      comment: End string if it precedes the begin of a quoted string or anything that would end an argument
+      patterns:
+      - name: constant.numeric.fish
+        match: (?<![A-z0-9])[0-9]+(?![A-z0-9])
+        comment: Treat integers as standalone constants if they aren't within strings of alphanumeric characters
+      - name: constant.character.escape.fish
+        match: \\\n|\\[abefnrtv $\\*?~%#(){}\[\]<>^&;"']|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[A-z]
+        comment: This list follows the order given in official fish documentation, with the addition of an escaped newline match
+      - include: '#command-substitution'
       - include: '#variable'
 
   variable:

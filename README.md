@@ -12,6 +12,23 @@ Clone the repository in your [Sublime Text Packages directory](http://docs.subli
     cd /path/to/sublime/packages/directory
     git clone https://github.com/toru-hamaguchi/sublime-fish-shell.git
 
+Tweaks
+------
+
+Almost everything in fish is an unquoted string, so if your color scheme highlights unquoted strings the same as quoted strings then you may wish to render the unquoted strings as normal text. To do so, edit the color scheme `.tmTheme` file and change
+
+    <key>name</key>
+    <string>String</string>
+    <key>scope</key>
+    <string>string</string>
+
+to
+
+    <key>name</key>
+    <string>String</string>
+    <key>scope</key>
+    <string>string - string.unquoted</string>
+
 Contribution
 ------------
 

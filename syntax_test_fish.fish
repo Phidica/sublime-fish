@@ -1,6 +1,6 @@
 #! SYNTAX TEST "Packages/sublime-fish-shell/fish.tmLanguage"
 
-# If using fish to test parsing of this file, all invalid illegal tokens must be commented out, and their tests disabled
+# If using fish to test parsing of this file, all invalid illegal tokens and their tests must be temporarily removed
 
 ;
 #! <- keyword.control
@@ -29,8 +29,46 @@ echo arg & # comment
 #!       ^ keyword.control
 #!         ^ comment.line
 
-echo \  # comment
-#!   ^ meta.function-call.argument
+echo 'single-quoted' "double-quoted" unquoted
+#!   ^^^^^^^^^^^^^^^ string.quoted.single
+#!                   ^^^^^^^^^^^^^^^ string.quoted.double
+#!                                   ^^^^^^^^ string.unquoted
+
+echo str\a str\x12345 str\X12345 str\012345
+#!   ^^^^^ string.unquoted
+#!      ^^ constant.character.escape
+#!            ^^^^ constant.character.escape
+#!                       ^^^^ constant.character.escape
+#!                                  ^^^^ constant.character.escape
+
+echo str\u01a2345 str\U01a2b3c45 str\cab
+#!   ^^^^^^^^^^^^ string.unquoted
+#!      ^^^^^^ constant.character.escape
+#!                   ^^^^^^^^^^ constant.character.escape
+#!                                  ^^ constant.character.escape
+
+echo str\
+#!   ^^^^^ string.unquoted
+#!      ^^ constant.character.escape
+ing # comment
+#! <- string.unquoted
+#!  ^^^^^^^^^ comment.line.insert
+
+echo str1 2 3str -b="str" --num=2
+#!   ^^^^ string.unquoted
+#!        ^ string.unquoted constant.numeric
+#!          ^^^^ string.unquoted
+#!               ^^^ string.unquoted
+#!                  ^^^^^ string.quoted.double
+#!                        ^^^^^^ string.unquoted
+#!                              ^ string.unquoted constant.numeric
+
+echo str \ # not-comment \  # comment
+#!   ^^^ string.unquoted
+#!       ^^^ string.unquoted
+#!       ^^ constant.character.escape
+#!                       ^^ string.unquoted constant.character.escape
+#!                          ^^^^^^^^^ comment.line.insert
 
 echo arg \ arg \
 #! <- support.function.user
@@ -85,6 +123,16 @@ echo ( # comment
 #!    ^^^^^^^^^^ comment.line
 )
 
+foo\  # comment
+#! ^^ support.function.user
+
+foo\ bar
+#! ^^^^^ support.function.user
+
+# foo\ \
+# bar
+# <- support.function.user
+
 exec echo \
 #! <- meta.function-call.recursive support.function.builtin
 #!   ^^^^ meta.function-call.recursive meta.function-call.standard support.function.user
@@ -127,6 +175,7 @@ echo arg1 ; and echo arg2 & not echo arg3 | cat
 
 # See scope end match for meta.function-call.recursive
 # Cannot nest recursive scopes across lines if line break occurs before recursion
+
 builtin \
 #! <- meta.function-call.recursive
 not \
