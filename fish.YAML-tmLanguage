@@ -22,12 +22,9 @@ patterns:
 #! \todo blocks (function, then for-in)
 #! \todo add comment-inline to the recursive command-call. no point adding comment because recursive will /always/ have ended by the time a full line comment shows up
 #! \todo item-access for command-substitution
-#! \todo constants, including any command character when preceded by a slosh to escape it (eg, \;, \&, etc)
 #! \todo add special behaviour to ~ as an argument
 #! \todo redirection
 #! \todo a specific version of command-call which is just test and the possible expressions all highlighted special, as well as the [ ] form of test
-#! \todo fish function names can contain whitespace. it must be escaped as in `foo\ bar` or the function name may be quoted to call it as in `"foo bar"`
-#! \todo `"echo" what` is valid syntax and executes. add a form of command-call where the command is in quotes, and highlight the quotes to match the command. escaped newlines within double quotes are valid. I think you can actually use string to do this, maybe by starting with a lookahead for a quote, ending with a lookback for a quote, and matching only a string inside of it then naming it all support.function.user. even though fish will never not error on a quoted command that has whitespace (because no function will ever be found that has whitespace in its name), technically the syntax isn't invalid. we don't need to police the user and make sure their quoted command has no whitespace; it is valid to do so because as far as ST is concerned that function may well exist
 #! \todo piping with | is more complicated than it seems, as fish expects a command to appear after the pipe. make a pattern match in command-call that is only valid inside of a command call that used the pipe, and matches from after a pipe until the end of the line, looking for command-call within it
 #!  Hm, because it is possible to pipe the output of an entire block by putting the pipe after `end`, a better approach may be to make a command that STARTS with a pipe, and is normal after that. then it can check inside itself to see if it is ONLY a pipe with no command following it, and mark that as invalid syntax. that would supersede the need for pipe to be matched invalid from in control-operator
 
@@ -289,16 +286,16 @@ repository:
         comment: Variable substitution is the only substitution permitted
 
     - name: string.unquoted.fish
-      begin: (?<=^|\s|\'|\")(?!\'|\")
-      comment: Begin string at a boundary. Before the boundary must be anything that would initiate an argument, or the end of a quoted string. After the boundary may be anything that isn't the begin of a quoted string
-      end: (?<=.|\n)(?=\'|\"|\s|\)|;|&|\||$)
-      comment: End string if it precedes the begin of a quoted string or anything that would end an argument
+      begin: (?<=\'|\"|\[|^|\s)(?!\'|\"|\]|\s)
+      comment: Begin string at a boundary. Before the boundary must be the end of a quoted string, the begin of an item-access argument list, or anything that would initiate a function-call argument. After the boundary may be anything that isn't the begin of a quoted string, the end of an item-access argument list, or whitespace
+      end: (?<=.|\n)(?=\'|\"|\]|\s|\)|;|&|\||$)
+      comment: End string if it precedes the begin of a quoted string, the end of an item-access argument list, or anything that would end an argument
       patterns:
       - name: constant.numeric.fish
-        match: (?<![A-z0-9])[0-9]+(?![A-z0-9])
+        match: (?<![0-9A-Za-z])[0-9]+(?![0-9A-Za-z])
         comment: Treat integers as standalone constants if they aren't within strings of alphanumeric characters
       - name: constant.character.escape.fish
-        match: \\\n|\\[abefnrtv $\\*?~%#(){}\[\]<>^&;"']|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[A-z]
+        match: \\\n|\\[abefnrtv $\\*?~%#(){}\[\]<>^&;"']|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[A-Za-z]
         comment: This list follows the order given in official fish documentation, with the addition of an escaped newline match
       - include: '#command-substitution'
       - include: '#variable'
@@ -320,9 +317,8 @@ repository:
         endCaptures:
           '0': {name: punctuation.definition.arguments.end.fish }
         patterns:
-        - include: '#variable'
-          comment: Not even fish does its item-access highlighting this well
-        # - include: '#constant' # Once it's written
+        - include: '#string'
+          comment: Not even fish does its item-access highlighting this neatly
 
     - name: variable.other.fish
       comment: fish variables can only be word characters and no special treatment is necessary

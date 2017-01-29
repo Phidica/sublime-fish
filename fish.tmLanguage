@@ -991,11 +991,11 @@
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>(?&lt;=^|\s|\'|\")(?!\'|\")</string>
+					<string>(?&lt;=\'|\"|\[|^|\s)(?!\'|\"|\]|\s)</string>
 					<key>comment</key>
-					<string>End string if it precedes the begin of a quoted string or anything that would end an argument</string>
+					<string>End string if it precedes the begin of a quoted string, the end of an item-access argument list, or anything that would end an argument</string>
 					<key>end</key>
-					<string>(?&lt;=.|\n)(?=\'|\"|\s|\)|;|&amp;|\||$)</string>
+					<string>(?&lt;=.|\n)(?=\'|\"|\]|\s|\)|;|&amp;|\||$)</string>
 					<key>name</key>
 					<string>string.unquoted.fish</string>
 					<key>patterns</key>
@@ -1004,7 +1004,7 @@
 							<key>comment</key>
 							<string>Treat integers as standalone constants if they aren't within strings of alphanumeric characters</string>
 							<key>match</key>
-							<string>(?&lt;![A-z0-9])[0-9]+(?![A-z0-9])</string>
+							<string>(?&lt;![0-9A-Za-z])[0-9]+(?![0-9A-Za-z])</string>
 							<key>name</key>
 							<string>constant.numeric.fish</string>
 						</dict>
@@ -1012,7 +1012,7 @@
 							<key>comment</key>
 							<string>This list follows the order given in official fish documentation, with the addition of an escaped newline match</string>
 							<key>match</key>
-							<string>\\\n|\\[abefnrtv $\\*?~%#(){}\[\]&lt;&gt;^&amp;;"']|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[A-z]</string>
+							<string>\\\n|\\[abefnrtv $\\*?~%#(){}\[\]&lt;&gt;^&amp;;"']|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[A-Za-z]</string>
 							<key>name</key>
 							<string>constant.character.escape.fish</string>
 						</dict>
@@ -1081,9 +1081,9 @@
 							<array>
 								<dict>
 									<key>comment</key>
-									<string>Not even fish does its item-access highlighting this well</string>
+									<string>Not even fish does its item-access highlighting this neatly</string>
 									<key>include</key>
-									<string>#variable</string>
+									<string>#string</string>
 								</dict>
 							</array>
 						</dict>

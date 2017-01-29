@@ -101,8 +101,8 @@ foo\ bar arg
 f''o"o"\ ''b""ar arg
 #! ^^^^^^^^^^^^^ support.function.user
 
-f'\''o"\$\\"o\ \|\$\*b\?\%\#\(\) arg
-#! ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ support.function.user
+f'\''o"\$\\"o\ \|\$\*b\?\%a\#\(r\) arg
+#! ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ support.function.user
 
 \\foo arg
 #! <- support.function.user
@@ -144,10 +144,6 @@ foo\  # comment
 
 foo\ bar
 #! ^^^^^ support.function.user
-
-# foo\ \
-# bar
-# <- support.function.user
 
 exec echo \
 #! <- meta.function-call.recursive support.function.builtin
@@ -213,12 +209,24 @@ echo $var
 #!   ^^^^ variable.other
 #!   ^ punctuation.definition.variable
 
+echo $var[1..$foo]
+#!   ^^^^ meta.item-access variable.other
+#!       ^^^^^^^^^ meta.item-access.arguments
+#!        ^ constant.numeric
+#!           ^^^^ variable.other
+
 echo $var $var[$var[1 $var[1]] $var[1]] "str"
 #!   ^^^^ variable.other
 #!        ^^^^ meta.item-access variable.other
 #!                  ^ meta.item-access meta.item-access.arguments meta.item-access meta.item-access.arguments
 #!                    ^^^^ meta.item-access meta.item-access.arguments meta.item-access meta.item-access.arguments meta.item-access variable.other
 #!                                      ^^^^^ string.quoted
+
+echo $var[(echo 1)] $var["2"] "str"
+#!   ^^^^ meta.item-access variable.other
+#!        ^^^^^^^^ meta.command-substitution
+#!                       ^^^ string.quoted
+#!                            ^^^^^ string.quoted
 
 echo 'str$str\$str\'str\\"str"'
 #!   ^ string.quoted.single punctuation.definition.string.begin
@@ -231,6 +239,7 @@ echo 'str$str\$str\'str\\"str"'
 echo 'str\
 str
 '
+#! <- string.quoted.single punctuation.definition.string.end
 
 echo "str$var\$str\"str\\'str'"
 #!   ^ string.quoted.double punctuation.definition.string.begin
@@ -246,6 +255,7 @@ echo "str$var\$str\"str\\'str'"
 echo "str\
 str
 "
+#! <- string.quoted.double punctuation.definition.string.end
 
 echo $var(echo {$arg} "{$var}")$var"str"$var
 #!   ^^^^ variable.other
@@ -379,7 +389,7 @@ switch \
     echo bar
   case '*'
 #!     ^^^ meta.block.switch.case.wildcard string.quoted.single
-    echo wild
+    echo arg
 end
 
 switch value; case wildcard; command echo foo; end # comment
