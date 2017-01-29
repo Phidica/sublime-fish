@@ -84,7 +84,7 @@ arg arg # comment
 #!  ^^^ meta.function-call meta.function-call.argument
 #!      ^ comment.line.insert
 
-echo arg (echo inner arg) outer arg
+echo arg (echo "inner" arg) outer arg
 #!       ^^^^^^^^^^^^^^^^ meta.command-substitution
 #!       ^ keyword.control.command-substitution
 #!        ^^^^^^^^^^^^^^ meta.function-call

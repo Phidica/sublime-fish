@@ -34,3 +34,5 @@ Icon
 *.tmPreferences.cache
 package-metadata.json
 
+# User
+*.xcf

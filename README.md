@@ -15,7 +15,7 @@ Clone the repository in your [Sublime Text Packages directory](http://docs.subli
 Tweaks
 ------
 
-Almost everything in fish is an unquoted string, so if your color scheme highlights unquoted strings the same as quoted strings then you may wish to render the unquoted strings as normal text. To do so, edit the color scheme `.tmTheme` file and change
+As with any shell, every string in fish that isn't enclosed in quotes is considered an unquoted string. If your Sublime Text color scheme highlights unquoted strings the same way it does quoted strings then you might find the result unappealing, so you may wish to render unquoted strings in the default text color instead. To do so, edit your color scheme `.tmTheme` file and change
 
     <key>name</key>
     <string>String</string>
@@ -27,7 +27,9 @@ to
     <key>name</key>
     <string>String</string>
     <key>scope</key>
-    <string>string - string.unquoted</string>
+    <string>string.quoted, string - string.unquoted</string>
+
+This will exclude unquoted strings from receiving string highlighting, but it also explicitly enforces string highlighting on quoted strings to ensure that quoted strings embedded within unquoted strings (such as via a command substitution) receive the correct highlighting.
 
 Contribution
 ------------
