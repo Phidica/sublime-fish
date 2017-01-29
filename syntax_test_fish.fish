@@ -10,8 +10,6 @@
 #! <- invalid.illegal.control
 \
 #! <- constant.character.escape
-\\
-#! <- invalid.illegal.escape
 
 echo --arg -arg arg ; echo arg # comment
 #! <- support.function.user
@@ -85,11 +83,30 @@ arg arg # comment
 #!      ^ comment.line.insert
 
 echo arg (echo "inner" arg) outer arg
-#!       ^^^^^^^^^^^^^^^^ meta.command-substitution
+#!       ^^^^^^^^^^^^^^^^^^ meta.command-substitution
 #!       ^ keyword.control.command-substitution
-#!        ^^^^^^^^^^^^^^ meta.function-call
-#!                      ^ keyword.control.command-substitution
-#!                        ^ meta.function-call
+#!        ^^^^^^^^^^^^^^^^ meta.function-call
+#!                        ^ keyword.control.command-substitution
+#!                          ^ meta.function-call
+
+foo\ bar arg
+#! ^^^^^ support.function.user
+
+'foo bar' arg
+#! ^^^^^^ support.function.user
+
+"foo bar" arg
+#! ^^^^^^ support.function.user
+
+f''o"o"\ ''b""ar arg
+#! ^^^^^^^^^^^^^ support.function.user
+
+f'\''o"\$\\"o\ \|\$\*b\?\%\#\(\) arg
+#! ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ support.function.user
+
+\\foo arg
+#! <- support.function.user
+#! ^^ support.function.user
 
 echo (echo one \
 #!   ^^^^^^^^^^^ meta.command-substitution
@@ -112,8 +129,7 @@ echo ( \
 ;  &
 #! <- keyword.control
 #! ^ invalid.illegal.control
-echo & \\
-#!     ^ invalid.illegal.escape
+echo &
 #! <- meta.function-call
 )  &  &
 #! ^ keyword.control

@@ -502,17 +502,17 @@
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>((?:\w|\\ )(?:\w|\\\s|-)*)</string>
+					<string>(?:\'(?:\\[\'\\]|[^\'\\])*\'|\"(?:\\[\"$\n\\]|[^\"$\n\\])*\"|(?:\\[ \\|$*?%#(){}\[\]&lt;&gt;^&amp;;"']|[^\s\\|$*?%#(){}\[\]&lt;&gt;^&amp;;"'])+)+</string>
 					<key>beginCaptures</key>
 					<dict>
-						<key>1</key>
+						<key>0</key>
 						<dict>
 							<key>name</key>
 							<string>support.function.user.fish</string>
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>command-call ends before ')' or ';', and at a newline, '&amp;', or '|'. Those last two control operators must be part of a command, so consume them here</string>
+					<string>Command call ends before ')' or ';', and at a newline, '&amp;', or '|'. Those last two control operators must be part of a command, so consume them here</string>
 					<key>end</key>
 					<string>(?=\)|;)|\n|(&amp;|\|)</string>
 					<key>endCaptures</key>
@@ -659,14 +659,6 @@
 					<string>\\(?=\n)</string>
 					<key>name</key>
 					<string>constant.character.escape</string>
-				</dict>
-				<dict>
-					<key>comment</key>
-					<string>Unless the user has a function starting with '\', a line beginning with '\' is almost certainly a typo</string>
-					<key>match</key>
-					<string>(?&lt;=^|\(|;|&amp;|\|)\s*\\(?!\n).*$\n?</string>
-					<key>name</key>
-					<string>invalid.illegal.escape.fish</string>
 				</dict>
 			</array>
 		</dict>
