@@ -108,6 +108,14 @@ f'\''o"\$\\"o\ \|\$\*b\?\%a\#\(r\) arg
 #! <- support.function.user
 #! ^^ support.function.user
 
+# Some valid function names are very strange
+\ \
+#! <- support.function.user
+  arg
+
+'\'\\'"\"\$\\"\a\b\e\f\n\r\t\v\ \$\\\*\?\~\%\#\(\)\{\}\[\]\<\>\^\&\|\;\"\'\x0a\X1b\01\u3ccc\U4dddeeee\cAfoo#bar
+#! ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ support.function.user
+
 echo (echo one \
 #!   ^^^^^^^^^^^ meta.command-substitution
 #!             ^ constant.character.escape
@@ -379,7 +387,7 @@ switch (echo $var)
 end
 
 switch \
-# Comment
+# comment
 "foo"
 #! <- meta.block.switch.value string.quoted.double
   case \
@@ -403,3 +411,35 @@ switch --help; case;
 #!     ^^^^^^ meta.function-call.argument
 #!           ^ keyword.control
 #!             ^^^^ invalid.illegal.function
+
+switch--help arg
+#! <- support.function.user
+#! ^^^^^^^^^ meta.function-call.standard support.function.user
+
+function foo --arg="bar"
+#! <- meta.block.function. keyword.control.conditional
+#!       ^^^ entity.name.function
+#!           ^^^^^^^^^^^ meta.function-call.argument
+  echo arg
+#! ^^^^^^^ meta.function-call.standard
+end
+
+function \
+#! <- meta.block.function. keyword.control.conditional
+#!       ^ constant.character.escape
+foo\ bar \
+#! <- entity.name.function
+#!       ^ constant.character.escape
+  arg1 \
+#! ^^^ meta.function-call.argument
+  arg2 # comment
+#! ^^^ meta.function-call.argument
+  echo arg
+#! ^^^^^^^ meta.function-call.standard
+end
+
+function inline; echo arg; end # comment
+#! <- meta.block.function. keyword.control.conditional
+#!       ^^^^^^ entity.name.function
+#!             ^ keyword.control
+#!                       ^ keyword.control
