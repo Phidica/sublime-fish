@@ -281,11 +281,26 @@ str
 "
 #! <- string.quoted.double punctuation.definition.string.end
 
-echo $var(echo {$arg} "{$var}")$var"str"$var
+echo $var{,'brace',"expansion",he{e,$e}re,}"str"
+#!   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string.unquoted
 #!   ^^^^ variable.other
 #!   ^ punctuation.definition.variable
-#!              ^^^^ variable.other
-#!                    ^^^^^^^^ string.quoted
+#!       ^ keyword.control.brace-expansion.begin
+#!        ^ keyword.control.brace-expansion.separator
+#!                ^ keyword.control.brace-expansion.separator
+#!                            ^ keyword.control.brace-expansion.separator
+#!                               ^ keyword.control.brace-expansion.begin
+#!                                 ^ keyword.control.brace-expansion.separator
+#!                                  ^^ variable.other
+#!                                    ^ keyword.control.brace-expansion.end
+#!                                       ^ keyword.control.brace-expansion.separator
+#!                                        ^ keyword.control.brace-expansion.end
+#!                                         ^^^^^ string.quoted
+
+echo $var(echo str{$arg}str "{$var}")$var"str"$var
+#!   ^^^^ variable.other
+#!                 ^^^^ variable.other
+#!                          ^^^^^^^^ string.quoted
 
 echo -n --switch=(echo "str;";);
 #!   ^^ meta.function-call.argument

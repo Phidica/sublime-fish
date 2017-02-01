@@ -289,6 +289,12 @@ repository:
       - include: '#escape-character'
 
   string:
+    comment: This should always be the string you want to include
+    patterns:
+    - include: '#string-quoted'
+    - include: '#string-unquoted'
+
+  string-quoted:
     patterns:
     - name: string.quoted.single.fish
       begin: \'
@@ -313,25 +319,52 @@ repository:
       - name: constant.character.escape.fish
         match: \\[\"$\n\\]
         comment: Only accepted escapes are \", \$, \<newline>, and \\
-      - include: '#variable'
-        comment: Variable substitution is the only substitution permitted
+      - include: '#variable-expansion'
+        comment: Variable expansion is the only expansion permitted
 
+  string-unquoted:
+    patterns:
     - name: string.unquoted.fish
-      begin: (?<=\'|\"|\[|^|\s)(?!\'|\"|\]|\s)
-      comment: Begin string at a boundary. Before the boundary must be the end of a quoted string, the begin of an item-access argument list, or anything that would initiate a function-call argument. After the boundary may be anything that isn't the begin of a quoted string, the end of an item-access argument list, or whitespace
-      end: (?<=.|\n)(?=\'|\"|\]|\s|\)|;|&|\||$)
-      comment: End string if it precedes the begin of a quoted string, the end of an item-access argument list, or anything that would end an argument
+      begin: (?<=\'|\"|\[|\{|^|\s)(?!\'|\"|\]|\}|\s)
+      comment: Begin string at a boundary. Before the boundary must be the end of a quoted string, the begin of an item-access argument list, the begin of a brace expansion, or anything that would initiate a function-call argument. After the boundary may be anything that isn't the begin of a quoted string, the end of an item-access argument list, the end of a brace expansion, or whitespace
+      end: (?<=.|\n)(?=\'|\"|\]|\}|\s|\)|;|&|\||$)
+      comment: End string if it precedes the begin of a quoted string, the end of an item-access argument list, the end of a brace expansion, or anything that would end an argument
       patterns:
-      - name: constant.numeric.fish
-        match: (?<![0-9A-Za-z])[0-9]+(?![0-9A-Za-z])
-        comment: Treat integers as standalone constants if they aren't within strings of alphanumeric characters
-      - name: constant.character.escape.fish
-        match: \\\n|\\[abefnrtv $\\*?#(){}\[\]<>^&|;"']|(?<=^|\s)\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]
-        comment: This list follows the order given in official fish documentation, with the addition of an escaped newline match and additional checks made on the ~ and % characters which only need escaping if they appear at the front of an argument
-      - include: '#command-substitution'
-      - include: '#variable'
+      - include: '#string-unquoted-patterns'
 
-  variable:
+  string-unquoted-patterns:
+    comment: Describes contents of an unquoted string separately for ease of recursion
+    patterns:
+    - include: '#command-substitution'
+    - include: '#variable-expansion'
+    - name: constant.numeric.fish
+      match: (?<![0-9A-Za-z])[0-9]+(?![0-9A-Za-z])
+      comment: Treat integers as standalone constants if they aren't within strings of alphanumeric characters
+    - name: constant.character.escape.fish
+      match: \\\n|\\[abefnrtv $\\*?#(){}\[\]<>^&|;"']|(?<=^|\s)\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]
+      comment: This list follows the order given in official fish documentation, with the addition of an escaped newline match and additional checks made on the ~ and % characters which only need escaping if they appear at the front of an argument
+    - name: meta.brace-expansion.fish
+      begin: \{
+      beginCaptures:
+        '0': {name: keyword.control.brace-expansion.begin.fish punctuation.definition.keyword.fish}
+      end: \}
+      endCaptures:
+        '0': {name: keyword.control.brace-expansion.end.fish punctuation.definition.keyword.fish}
+      patterns:
+      - name: keyword.control.brace-expansion.separator.fish
+        match: \,
+      - include: '#string-quoted'
+      - name: string.unquoted.fish
+        comment: We could name this scope differently if we wished, as we know that it must be occurring inside of a brace expansion
+        begin: (?<=\,|\'|\"|\[|\{|^|\s)(?!\,|\'|\"|\]|\}|\s)
+        end: (?<=.|\n)(?=\,|\'|\"|\]|\}|\s|\)|;|&|\||$)
+        comment: Begin/end string at same boundaries as before, but ',' can also force a start/stop
+        patterns:
+        - name: constant.character.escape.fish
+          match: \\\,
+        - include: '#string-unquoted-patterns'
+
+  variable-expansion:
     patterns:
     - name: meta.item-access.fish
       begin: (\$)\w+(?=\[)
@@ -359,14 +392,6 @@ repository:
 
   # Inherited constructs; to be rewritten
 
-  logical-expression:
-    patterns:
-    - comment: do we want a special rule for ( expr )?
-      name: keyword.operator.logical.fish
-      match: =[=~]?|!=?|<|>|&&|\|\|
-    # - name: keyword.operator.logical.fish
-    #   match: (?<!\S)-(nt|ot|ef|eq|ne|l[te]|g[te]|[a-hknoprstuwxzOGLSN])
-
   math:
     patterns:
     - name: keyword.operator.arithmetic.fish
@@ -380,7 +405,7 @@ repository:
       match: \d{1,2}#[0-9a-zA-Z@_]+
     - name: constant.numeric.integer.fish
       match: \d+
-    - include: '#variable'
+    - include: '#variable-expansion'
 
   pathname:
     patterns:
