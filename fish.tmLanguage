@@ -1167,27 +1167,47 @@
 			<key>patterns</key>
 			<array>
 				<dict>
-					<key>begin</key>
-					<string>(\$)\w+(?=\[)</string>
-					<key>beginCaptures</key>
-					<dict>
-						<key>0</key>
-						<dict>
-							<key>name</key>
-							<string>variable.other.fish</string>
-						</dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>punctuation.definition.variable.fish</string>
-						</dict>
-					</dict>
-					<key>end</key>
-					<string>(?&lt;=\])</string>
+					<key>comment</key>
+					<string>A lone '$' in a scope, or an attempt to expand a variable starting with a nonword character is an error</string>
+					<key>match</key>
+					<string>\$(?:(?=[,'"\]}\s);&amp;|])|[^\w\$][^$,'"\]}\s);&amp;|]*)</string>
 					<key>name</key>
-					<string>meta.item-access.fish</string>
+					<string>invalid.illegal.variable-expansion.fish</string>
+				</dict>
+				<dict>
+					<key>begin</key>
+					<string>(?=\$)</string>
+					<key>comment</key>
+					<string>Capture "$foo" or "$foo[]"</string>
+					<key>end</key>
+					<string>(?&lt;=[\$\w])(?=[^\$\w\[])|(?&lt;=\])</string>
 					<key>patterns</key>
 					<array>
+						<dict>
+							<key>begin</key>
+							<string>\$</string>
+							<key>beginCaptures</key>
+							<dict>
+								<key>0</key>
+								<dict>
+									<key>name</key>
+									<string>punctuation.definition.variable.fish</string>
+								</dict>
+							</dict>
+							<key>comment</key>
+							<string>Capture "foo"[ or "foo[]"[</string>
+							<key>end</key>
+							<string>(?&lt;=[\$\w\]])(?=[^\$\w])|(?&lt;=\])(?=\[)</string>
+							<key>name</key>
+							<string>variable.other.fish</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>#variable-expansion</string>
+								</dict>
+							</array>
+						</dict>
 						<dict>
 							<key>begin</key>
 							<string>\[</string>
@@ -1199,6 +1219,8 @@
 									<string>punctuation.definition.arguments.begin.fish</string>
 								</dict>
 							</dict>
+							<key>comment</key>
+							<string>In other words, the anonymous scope which contains the variable and the index expansion argument list should only be allowed to contain a single copy of each of those two things. We cannot enforce that without a scope stack</string>
 							<key>end</key>
 							<string>\]</string>
 							<key>endCaptures</key>
@@ -1210,34 +1232,16 @@
 								</dict>
 							</dict>
 							<key>name</key>
-							<string>meta.item-access.arguments.fish</string>
+							<string>meta.index-expansion.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
-									<key>comment</key>
-									<string>Not even fish does its item-access highlighting this neatly</string>
 									<key>include</key>
 									<string>#string</string>
 								</dict>
 							</array>
 						</dict>
 					</array>
-				</dict>
-				<dict>
-					<key>captures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>punctuation.definition.variable.fish</string>
-						</dict>
-					</dict>
-					<key>comment</key>
-					<string>fish variables can only be word characters and no special treatment is necessary</string>
-					<key>match</key>
-					<string>(\$)\w+(?=\W)</string>
-					<key>name</key>
-					<string>variable.other.fish</string>
 				</dict>
 			</array>
 		</dict>

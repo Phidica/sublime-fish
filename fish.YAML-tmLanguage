@@ -366,14 +366,25 @@ repository:
 
   variable-expansion:
     patterns:
-    - name: meta.item-access.fish
-      begin: (\$)\w+(?=\[)
-      beginCaptures:
-        '0': {name: variable.other.fish }
-        '1': {name: punctuation.definition.variable.fish }
-      end: (?<=\])
+    - name: invalid.illegal.variable-expansion.fish
+      match: \$(?:(?=[,'"\]}\s);&|])|[^\w\$][^$,'"\]}\s);&|]*)
+      comment: A lone '$' in a scope, or an attempt to expand a variable starting with a nonword character is an error
+
+    - begin: (?=\$)
+      end: (?<=[\$\w])(?=[^\$\w\[])|(?<=\])
+      comment: Capture "$foo" or "$foo[]"
       patterns:
-      - name: meta.item-access.arguments.fish
+      - name: variable.other.fish
+        begin: \$
+        beginCaptures:
+          '0': {name: punctuation.definition.variable.fish}
+        end: (?<=[\$\w\]])(?=[^\$\w])|(?<=\])(?=\[)
+        comment: Capture "foo"[ or "foo[]"[
+        patterns:
+        - include: '#variable-expansion'
+      - name: meta.index-expansion.fish
+        comment: The number of index expansion argument lists `[ ... ]` should always be less than or equal to the number of variable expansion operators `$`. Unfortunately, we can do nothing to moderate that with this syntax schema; with a *.sublime-syntax and a scope stack it could be done. As it stands, "$$foo[ ... ][ ... ]" is the deepest that we can accurately highlight, and only because the second "[ ... ]" will not fall under the anonymous scope and instead will be highlighted simply as a unquoted string
+        comment: In other words, the anonymous scope which contains the variable and the index expansion argument list should only be allowed to contain a single copy of each of those two things. We cannot enforce that without a scope stack
         begin: \[
         beginCaptures:
           '0': {name: punctuation.definition.arguments.begin.fish }
@@ -382,13 +393,6 @@ repository:
           '0': {name: punctuation.definition.arguments.end.fish }
         patterns:
         - include: '#string'
-          comment: Not even fish does its item-access highlighting this neatly
-
-    - name: variable.other.fish
-      comment: fish variables can only be word characters and no special treatment is necessary
-      match: (\$)\w+(?=\W)
-      captures:
-        '1': {name: punctuation.definition.variable.fish }
 
   # Inherited constructs; to be rewritten
 

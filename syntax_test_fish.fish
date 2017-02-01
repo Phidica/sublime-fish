@@ -229,26 +229,50 @@ echo "string"(echo "inner string")" outer string"
 #!           ^^^^^^^^^^^^^^^^^^^^^ meta.command-substitution
 #!                                ^ string.quoted
 
-echo $var
+echo $var $ $$"str" $var $$var $
 #!   ^^^^ variable.other
 #!   ^ punctuation.definition.variable
+#!        ^ invalid.illegal.variable-expansion
+#!          ^^ variable.other
+#!          ^ punctuation.definition.variable
+#!           ^ invalid.illegal.variable-expansion
+#!            ^^^^^ string.quoted
+#!                  ^^^^ variable.other
+#!                       ^^^^^ variable.other
+#!                       ^^ punctuation.definition.variable
+#!                        ^^^^ variable.other variable.other
+#!                             ^ invalid.illegal.variable-expansion
+
+echo $var$ (echo $) $$!bad_var # comment
+#!   ^^^^ variable.other
+#!   ^ punctuation.definition.variable
+#!       ^ invalid.illegal.variable-expansion
+#!               ^ invalid.illegal.variable-expansion
+#!                   ^^^^^^^^^ invalid.illegal.variable-expansion
+#!                             ^^^^^^^^^ comment.line
 
 echo $var[1..$foo]
-#!   ^^^^ meta.item-access variable.other
-#!       ^^^^^^^^^ meta.item-access.arguments
+#!   ^^^^ variable.other
+#!       ^^^^^^^^^ meta.index-expansion
 #!        ^ constant.numeric
 #!           ^^^^ variable.other
 
 echo $var $var[$var[1 $var[1]] $var[1]] "str"
 #!   ^^^^ variable.other
-#!        ^^^^ meta.item-access variable.other
-#!                  ^ meta.item-access meta.item-access.arguments meta.item-access meta.item-access.arguments
-#!                    ^^^^ meta.item-access meta.item-access.arguments meta.item-access meta.item-access.arguments meta.item-access variable.other
+#!        ^^^^ variable.other
+#!                  ^ meta.index-expansion meta.index-expansion
+#!                    ^^^^ meta.index-expansion meta.index-expansion variable.other
 #!                                      ^^^^^ string.quoted
 
+echo $$var[ 1 ][ 1 ]
+#!   ^^^^^^^^^ variable.other
+#!    ^^^^^^^^^ variable.other
+#!        ^^^^^ meta.index-expansion
+
 echo $var[(echo 1)] $var["2"] "str"
-#!   ^^^^ meta.item-access variable.other
-#!        ^^^^^^^^ meta.command-substitution
+#!   ^^^^ variable.other
+#!       ^^^^^^^^^^ meta.index-expansion
+#!        ^^^^^^^^  meta.command-substitution
 #!                       ^^^ string.quoted
 #!                            ^^^^^ string.quoted
 
