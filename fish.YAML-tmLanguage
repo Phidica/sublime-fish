@@ -17,6 +17,7 @@ patterns:
 # - keyword.control.conditional is applied to all control keywords that are actually words (if, else, end, function, etc.)
 # - support.function is applied to standalone commands rather than variable.function because this is a scripting language and we can reliably act as though any command will be provided to the user as if it were part of a base framework
 # - constant.character.escape is used for the backslash at the end of a line which causes line continuation because technically that backslash is "escaping" the literal newline which appears in the unquoted string environment which the shell assumes you are in. In this sense, the backslash is indeed an escape character
+# - constant.character.escape is used for \x?? and \0?? escape codes rather than constant.numeric.{hex,octal} because even though the user inputs a numeric value in hex or octal, the codes serve the purpose of making characters not numbers
 # - Individual arguments in function calls do not get the variable.parameter label because that swiftly becomes the overwhelming majority of all words in a program
 
 #! \todo for-in block
@@ -24,7 +25,6 @@ patterns:
 #! \todo add comment-inline to the recursive command-call. no point adding comment because recursive will /always/ have ended by the time a full line comment shows up
 #! \todo item-access for command-substitution
 #! \todo add special behaviour to parameter expansion arguments like ~
-#! \todo add brace expansion to unquoted strings, and remember that , is an operator in that environment unless it is escaped
 #! \todo redirection
 #! \todo a specific version of command-call which is just `test` and the possible expressions all highlighted special, as well as the `[ ]` form
 #! \todo piping with | is more complicated than it seems, as fish expects a command to appear after the pipe. make a pattern match in command-call that is only valid inside of a command call that used the pipe, and matches from after a pipe until the end of the line, looking for command-call within it
@@ -353,6 +353,7 @@ repository:
       patterns:
       - name: keyword.control.brace-expansion.separator.fish
         match: \,
+        comment: Explicitly treat ',' as a keyword
       - include: '#string-quoted'
       - name: string.unquoted.fish
         comment: We could name this scope differently if we wished, as we know that it must be occurring inside of a brace expansion
@@ -362,13 +363,14 @@ repository:
         patterns:
         - name: constant.character.escape.fish
           match: \\\,
+          comment: Explicitly allow a ',' to be escaped
         - include: '#string-unquoted-patterns'
 
   variable-expansion:
     patterns:
     - name: invalid.illegal.variable-expansion.fish
       match: \$(?:(?=[,'"\]}\s);&|])|[^\w\$][^$,'"\]}\s);&|]*)
-      comment: A lone '$' in a scope, or an attempt to expand a variable starting with a nonword character is an error
+      comment: A lone '$' in a scope, or an attempt to expand a variable starting with a nonword character, is an error. These boundaries are the same as for string.unquoted
 
     - begin: (?=\$)
       end: (?<=[\$\w])(?=[^\$\w\[])|(?<=\])
@@ -409,7 +411,6 @@ repository:
       match: \d{1,2}#[0-9a-zA-Z@_]+
     - name: constant.numeric.integer.fish
       match: \d+
-    - include: '#variable-expansion'
 
   pathname:
     patterns:

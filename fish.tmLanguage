@@ -844,10 +844,6 @@
 					<key>name</key>
 					<string>constant.numeric.integer.fish</string>
 				</dict>
-				<dict>
-					<key>include</key>
-					<string>#variable-expansion</string>
-				</dict>
 			</array>
 		</dict>
 		<key>pathname</key>
@@ -1126,6 +1122,8 @@
 					<key>patterns</key>
 					<array>
 						<dict>
+							<key>comment</key>
+							<string>Explicitly treat ',' as a keyword</string>
 							<key>match</key>
 							<string>\,</string>
 							<key>name</key>
@@ -1147,6 +1145,8 @@
 							<key>patterns</key>
 							<array>
 								<dict>
+									<key>comment</key>
+									<string>Explicitly allow a ',' to be escaped</string>
 									<key>match</key>
 									<string>\\\,</string>
 									<key>name</key>
@@ -1168,7 +1168,7 @@
 			<array>
 				<dict>
 					<key>comment</key>
-					<string>A lone '$' in a scope, or an attempt to expand a variable starting with a nonword character is an error</string>
+					<string>A lone '$' in a scope, or an attempt to expand a variable starting with a nonword character, is an error. These boundaries are the same as for string.unquoted</string>
 					<key>match</key>
 					<string>\$(?:(?=[,'"\]}\s);&amp;|])|[^\w\$][^$,'"\]}\s);&amp;|]*)</string>
 					<key>name</key>

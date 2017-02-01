@@ -305,8 +305,8 @@ str
 "
 #! <- string.quoted.double punctuation.definition.string.end
 
-echo $var{,'brace',"expansion",he{e,$e}re,}"str"
-#!   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string.unquoted
+echo $var{,'brace',"expansion",he{e,$e}re\,}"str"
+#!   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string.unquoted
 #!   ^^^^ variable.other
 #!   ^ punctuation.definition.variable
 #!       ^ keyword.control.brace-expansion.begin
@@ -317,9 +317,9 @@ echo $var{,'brace',"expansion",he{e,$e}re,}"str"
 #!                                 ^ keyword.control.brace-expansion.separator
 #!                                  ^^ variable.other
 #!                                    ^ keyword.control.brace-expansion.end
-#!                                       ^ keyword.control.brace-expansion.separator
-#!                                        ^ keyword.control.brace-expansion.end
-#!                                         ^^^^^ string.quoted
+#!                                       ^^ constant.character.escape
+#!                                         ^ keyword.control.brace-expansion.end
+#!                                          ^^^^^ string.quoted
 
 echo $var(echo str{$arg}str "{$var}")$var"str"$var
 #!   ^^^^ variable.other
