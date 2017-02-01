@@ -458,7 +458,7 @@
 											<key>comment</key>
 											<string>The function name may be given using any means that is valid for a command call</string>
 											<key>match</key>
-											<string>(?:\'(?:\\[\'\\]|[^\'\\])*\'|\"(?:\\[\"$\n\\]|[^\"$\n\\])*\"|(?:\\[abefnrtv $\\*?~%#(){}\[\]&lt;&gt;^&amp;;|"']|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[A-Za-z]|[^\s$\\*?#()&lt;&gt;&amp;|;"']|\\(?=[^abefnrtv\s$\\*?~%#(){}\[\]&lt;&gt;^&amp;;|"'xXuUc])|(?&lt;=\S|\\ )\\\n|(?&lt;=\S|\\ )#)+)+</string>
+											<string>(?:\'(?:\\[\'\\]|[^\'\\])*\'|\"(?:\\[\"$\n\\]|[^\"$\n\\])*\"|(?:\\[abefnrtv $\\*?#(){}\[\]&lt;&gt;^&amp;;|"']|(?&lt;=^|\s)\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]|[^\s$\\*?~%#()&lt;&gt;&amp;|;"']|\\(?=[^abefnrtv\s$\\*?#(){}\[\]&lt;&gt;^&amp;;|"'xXuUc])|(?&lt;=\S|\\ )\\\n|(?&lt;=\S|\\ )[~%#])+)+</string>
 											<key>name</key>
 											<string>entity.name.function.fish</string>
 										</dict>
@@ -484,6 +484,45 @@
 									<key>comment</key>
 									<string>The rest of the patterns are the typical elements of a standard command-call, which is what the `function` command adheres to</string>
 								</dict>
+								<dict>
+									<key>include</key>
+									<string>#argument</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#comment</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#comment-inline</string>
+								</dict>
+							</array>
+						</dict>
+						<dict>
+							<key>begin</key>
+							<string>\b(return)\b(?!\s+(-))</string>
+							<key>beginCaptures</key>
+							<dict>
+								<key>1</key>
+								<dict>
+									<key>name</key>
+									<string>keyword.control.conditional.fish</string>
+								</dict>
+							</dict>
+							<key>comment</key>
+							<string>The `return` command can't accept flags</string>
+							<key>end</key>
+							<string>(?=\)|;)|\n|(&amp;|\|)</string>
+							<key>endCaptures</key>
+							<dict>
+								<key>1</key>
+								<dict>
+									<key>name</key>
+									<string>keyword.control.fish punctuation.definition.keyword.fish</string>
+								</dict>
+							</dict>
+							<key>patterns</key>
+							<array>
 								<dict>
 									<key>include</key>
 									<string>#argument</string>
@@ -554,9 +593,9 @@
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>\b(case|else|end)\b</string>
+					<string>\b(?:case|else|end)\b|(?&lt;=^|\(|;|&amp;|\|\s)(?:~|%)</string>
 					<key>comment</key>
-					<string>These functions aren't valid outside of their blocks</string>
+					<string>These command names aren't valid outside of their use in blocks. A lone tilde is actually valid in fish (as is any directory path) because it performs an implicit `cd`. We assume that no reasonable user will be making a fish script containing implicit `cd` calls</string>
 					<key>end</key>
 					<string>$\n?</string>
 					<key>name</key>
@@ -564,7 +603,7 @@
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>(?:\'(?:\\[\'\\]|[^\'\\])*\'|\"(?:\\[\"$\n\\]|[^\"$\n\\])*\"|(?:\\[abefnrtv $\\*?~%#(){}\[\]&lt;&gt;^&amp;;|"']|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[A-Za-z]|[^\s$\\*?#()&lt;&gt;&amp;|;"']|\\(?=[^abefnrtv\s$\\*?~%#(){}\[\]&lt;&gt;^&amp;;|"'xXuUc])|(?&lt;=\S|\\ )\\\n|(?&lt;=\S|\\ )#)+)+</string>
+					<string>(?:\'(?:\\[\'\\]|[^\'\\])*\'|\"(?:\\[\"$\n\\]|[^\"$\n\\])*\"|(?:\\[abefnrtv $\\*?#(){}\[\]&lt;&gt;^&amp;;|"']|(?&lt;=^|\s)\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]|[^\s$\\*?~%#()&lt;&gt;&amp;|;"']|\\(?=[^abefnrtv\s$\\*?#(){}\[\]&lt;&gt;^&amp;;|"'xXuUc])|(?&lt;=\S|\\ )\\\n|(?&lt;=\S|\\ )[~%#])+)+</string>
 					<key>beginCaptures</key>
 					<dict>
 						<key>0</key>
@@ -721,53 +760,6 @@
 					<string>\\(?=\n)</string>
 					<key>name</key>
 					<string>constant.character.escape</string>
-				</dict>
-			</array>
-		</dict>
-		<key>function-definition</key>
-		<dict>
-			<key>patterns</key>
-			<array>
-				<dict>
-					<key>begin</key>
-					<string>\b(function)\s+([^\s\\]+)(?:\s*(\(\)))?</string>
-					<key>beginCaptures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>storage.type.function.fish</string>
-						</dict>
-						<key>2</key>
-						<dict>
-							<key>name</key>
-							<string>entity.name.function.fish</string>
-						</dict>
-						<key>3</key>
-						<dict>
-							<key>name</key>
-							<string>punctuation.definition.arguments.fish</string>
-						</dict>
-					</dict>
-					<key>end</key>
-					<string>;|&amp;|$</string>
-					<key>endCaptures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>punctuation.definition.function.fish</string>
-						</dict>
-					</dict>
-					<key>name</key>
-					<string>meta.function.fish</string>
-					<key>patterns</key>
-					<array>
-						<dict>
-							<key>include</key>
-							<string>$self</string>
-						</dict>
-					</array>
 				</dict>
 			</array>
 		</dict>
@@ -1072,9 +1064,9 @@
 						</dict>
 						<dict>
 							<key>comment</key>
-							<string>This list follows the order given in official fish documentation, with the addition of an escaped newline match</string>
+							<string>This list follows the order given in official fish documentation, with the addition of an escaped newline match and additional checks made on the ~ and % characters which only need escaping if they appear at the front of an argument</string>
 							<key>match</key>
-							<string>\\\n|\\[abefnrtv $\\*?~%#(){}\[\]&lt;&gt;^&amp;|;"']|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[A-Za-z]</string>
+							<string>\\\n|\\[abefnrtv $\\*?#(){}\[\]&lt;&gt;^&amp;|;"']|(?&lt;=^|\s)\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]</string>
 							<key>name</key>
 							<string>constant.character.escape.fish</string>
 						</dict>

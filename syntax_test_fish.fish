@@ -32,6 +32,15 @@ echo 'single-quoted' "double-quoted" unquoted
 #!                   ^^^^^^^^^^^^^^^ string.quoted.double
 #!                                   ^^^^^^^^ string.unquoted
 
+# The ~ and % are only special characters in need of escaping when at the front of arguments
+echo ~foo \~bar~\~ %foo \%bar%\%
+#!   ^^^^ string.unquoted
+#!        ^^^^^^^^ string.unquoted
+#!        ^^ constant.character.escape
+#!                 ^^^^ string.unquoted
+#!                      ^^^^^^^^ string.unquoted
+#!                      ^^ constant.character.escape
+
 echo str\a str\x12345 str\X12345 str\012345
 #!   ^^^^^ string.unquoted
 #!      ^^ constant.character.escape
@@ -43,7 +52,7 @@ echo str\u01a2345 str\U01a2b3c45 str\cab
 #!   ^^^^^^^^^^^^ string.unquoted
 #!      ^^^^^^ constant.character.escape
 #!                   ^^^^^^^^^^ constant.character.escape
-#!                                  ^^ constant.character.escape
+#!                                  ^^^ constant.character.escape
 
 echo str\
 #!   ^^^^^ string.unquoted
@@ -112,9 +121,16 @@ f'\''o"\$\\"o\ \|\$\*b\?\%a\#\(r\) arg
 \ \
 #! <- support.function.user
   arg
+#! ^^ meta.function-call.argument
 
-'\'\\'"\"\$\\"\a\b\e\f\n\r\t\v\ \$\\\*\?\~\%\#\(\)\{\}\[\]\<\>\^\&\|\;\"\'\x0a\X1b\01\u3ccc\U4dddeeee\cAfoo#bar
+'\'\\'"\"\$\\"\a\b\e\f\n\r\t\v\ \$\\\*\?~\~%\%#\#\(\)\{\}\[\]\<\>^\^\&\|\;\"\'\x0a\X1b\01\u3ccc\U4dddeeee\c?
 #! ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ support.function.user
+
+~
+#! <- invalid.illegal.function
+
+%
+#! <- invalid.illegal.function
 
 echo (echo one \
 #!   ^^^^^^^^^^^ meta.command-substitution
@@ -316,6 +332,10 @@ end &
 #! <- keyword.control.conditional
 #!  ^ keyword.control
 
+begin end
+#! <- meta.block.begin keyword.control.conditional
+#!    ^^^ keyword.control.conditional
+
 if echo arg
 #! <- meta.block.if keyword.control.conditional
   and echo arg
@@ -420,6 +440,8 @@ function foo --arg="bar"
 #! <- meta.block.function. keyword.control.conditional
 #!       ^^^ entity.name.function
 #!           ^^^^^^^^^^^ meta.function-call.argument
+  return 1
+#! ^^^^^ keyword.control.conditional
   echo arg
 #! ^^^^^^^ meta.function-call.standard
 end
