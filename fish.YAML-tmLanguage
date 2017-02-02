@@ -23,7 +23,6 @@ patterns:
 #! \todo for-in block
 #! \todo Known bug: if a command-call line ends in "end" then a comment following it on the line will not be of the insert type, causing the next line of text to be considered arguments. fixing may require a rethink of the two comment contexts and finding a way to merge them (the key difference is whether the newline is consumed and command-call either terminates or perpetuates based on that)
 #! \todo add comment-inline to the recursive command-call. no point adding comment because recursive will /always/ have ended by the time a full line comment shows up
-#! \todo item-access for command-substitution
 #! \todo add special behaviour to parameter expansion arguments like ~
 #! \todo redirection
 #! \todo a specific version of command-call which is just `test` and the possible expressions all highlighted special, as well as the `[ ]` form
@@ -232,16 +231,30 @@ repository:
 
   command-substitution:
     patterns:
-    - name: meta.command-substitution.fish
-      comment: The inside of a command substitution is indistinguishable from a global scope
-      begin: \(
-      beginCaptures:
-        '0': {name: keyword.control.command-substitution.begin.fish punctuation.definition.keyword.fish}
-      end: \)
-      endCaptures:
-        '0': {name: keyword.control.command-substitution.end.fish punctuation.definition.keyword.fish}
+    - begin: (?=\()
+      end: (?<=\))(?!\[)|(?<=\])
+      comment: Capture "(...)" or "(...)[...]"
       patterns:
-      - include: '$self'
+      - name: meta.command-substitution.fish
+        comment: The inside of a command substitution is indistinguishable from a global scope
+        begin: \(
+        beginCaptures:
+          '0': {name: keyword.control.command-substitution.begin.fish punctuation.definition.keyword.fish}
+        end: \)
+        endCaptures:
+          '0': {name: keyword.control.command-substitution.end.fish punctuation.definition.keyword.fish}
+        patterns:
+        - include: '$self'
+
+      - name: meta.index-expansion.fish
+        begin: \[
+        beginCaptures:
+          '0': {name: keyword.control.index-expansion.begin.fish punctuation.definition.keyword.fish }
+        end: \]
+        endCaptures:
+          '0': {name: keyword.control.index-expansion.end.fish punctuation.definition.keyword.fish }
+        patterns:
+        - include: '#string'
 
   comment:
     patterns:
@@ -394,18 +407,18 @@ repository:
         beginCaptures:
           '0': {name: punctuation.definition.variable.fish}
         end: (?<=[\$\w\]])(?=[^\$\w])|(?<=\])(?=\[)
-        comment: Capture "foo"[ or "foo[]"[
+        comment: Capture "foo"[ or "foo[...]"[
         patterns:
         - include: '#variable-expansion'
       - name: meta.index-expansion.fish
-        comment: The number of index expansion argument lists `[ ... ]` should always be less than or equal to the number of variable expansion operators `$`. Unfortunately, we can do nothing to moderate that with this syntax schema; with a *.sublime-syntax and a scope stack it could be done. As it stands, "$$foo[ ... ][ ... ]" is the deepest that we can accurately highlight, and only because the second "[ ... ]" will not fall under the anonymous scope and instead will be highlighted simply as a unquoted string
+        comment: The number of index expansion argument lists `[...]` should always be less than or equal to the number of variable expansion operators `$`. Unfortunately, we can do nothing to moderate that with this syntax schema; with a *.sublime-syntax and a scope stack it could be done. As it stands, "$$foo[...]" is the deepest that we can accurately highlight
         comment: In other words, the anonymous scope which contains the variable and the index expansion argument list should only be allowed to contain a single copy of each of those two things. We cannot enforce that without a scope stack
         begin: \[
         beginCaptures:
-          '0': {name: punctuation.definition.arguments.begin.fish }
+          '0': {name: keyword.control.index-expansion.begin.fish punctuation.definition.keyword.fish }
         end: \]
         endCaptures:
-          '0': {name: punctuation.definition.arguments.end.fish }
+          '0': {name: keyword.control.index-expansion.end.fish punctuation.definition.keyword.fish }
         patterns:
         - include: '#string'
 

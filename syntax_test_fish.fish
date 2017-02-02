@@ -163,6 +163,13 @@ echo ( # comment
 #!    ^^^^^^^^^^ comment.line
 )
 
+echo foo(echo -e nar\nbar)[2] f(echo oo)\[bar]
+#!      ^^^^^^^^^^^^^^^^^^ meta.command-substitution
+#!                        ^^^ meta.index-expansion
+#!                        ^ keyword.control.index-expansion.begin
+#!                          ^ keyword.control.index-expansion.end
+#!                                      ^^ constant.character.escape
+
 foo\  # comment
 #! ^^ support.function.user
 

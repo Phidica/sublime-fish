@@ -650,34 +650,76 @@
 			<array>
 				<dict>
 					<key>begin</key>
-					<string>\(</string>
-					<key>beginCaptures</key>
-					<dict>
-						<key>0</key>
-						<dict>
-							<key>name</key>
-							<string>keyword.control.command-substitution.begin.fish punctuation.definition.keyword.fish</string>
-						</dict>
-					</dict>
+					<string>(?=\()</string>
 					<key>comment</key>
-					<string>The inside of a command substitution is indistinguishable from a global scope</string>
+					<string>Capture "(...)" or "(...)[...]"</string>
 					<key>end</key>
-					<string>\)</string>
-					<key>endCaptures</key>
-					<dict>
-						<key>0</key>
-						<dict>
-							<key>name</key>
-							<string>keyword.control.command-substitution.end.fish punctuation.definition.keyword.fish</string>
-						</dict>
-					</dict>
-					<key>name</key>
-					<string>meta.command-substitution.fish</string>
+					<string>(?&lt;=\))(?!\[)|(?&lt;=\])</string>
 					<key>patterns</key>
 					<array>
 						<dict>
-							<key>include</key>
-							<string>$self</string>
+							<key>begin</key>
+							<string>\(</string>
+							<key>beginCaptures</key>
+							<dict>
+								<key>0</key>
+								<dict>
+									<key>name</key>
+									<string>keyword.control.command-substitution.begin.fish punctuation.definition.keyword.fish</string>
+								</dict>
+							</dict>
+							<key>comment</key>
+							<string>The inside of a command substitution is indistinguishable from a global scope</string>
+							<key>end</key>
+							<string>\)</string>
+							<key>endCaptures</key>
+							<dict>
+								<key>0</key>
+								<dict>
+									<key>name</key>
+									<string>keyword.control.command-substitution.end.fish punctuation.definition.keyword.fish</string>
+								</dict>
+							</dict>
+							<key>name</key>
+							<string>meta.command-substitution.fish</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>$self</string>
+								</dict>
+							</array>
+						</dict>
+						<dict>
+							<key>begin</key>
+							<string>\[</string>
+							<key>beginCaptures</key>
+							<dict>
+								<key>0</key>
+								<dict>
+									<key>name</key>
+									<string>keyword.control.index-expansion.begin.fish punctuation.definition.keyword.fish</string>
+								</dict>
+							</dict>
+							<key>end</key>
+							<string>\]</string>
+							<key>endCaptures</key>
+							<dict>
+								<key>0</key>
+								<dict>
+									<key>name</key>
+									<string>keyword.control.index-expansion.end.fish punctuation.definition.keyword.fish</string>
+								</dict>
+							</dict>
+							<key>name</key>
+							<string>meta.index-expansion.fish</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>#string</string>
+								</dict>
+							</array>
 						</dict>
 					</array>
 				</dict>
@@ -1218,7 +1260,7 @@
 								</dict>
 							</dict>
 							<key>comment</key>
-							<string>Capture "foo"[ or "foo[]"[</string>
+							<string>Capture "foo"[ or "foo[...]"[</string>
 							<key>end</key>
 							<string>(?&lt;=[\$\w\]])(?=[^\$\w])|(?&lt;=\])(?=\[)</string>
 							<key>name</key>
@@ -1239,7 +1281,7 @@
 								<key>0</key>
 								<dict>
 									<key>name</key>
-									<string>punctuation.definition.arguments.begin.fish</string>
+									<string>keyword.control.index-expansion.begin.fish punctuation.definition.keyword.fish</string>
 								</dict>
 							</dict>
 							<key>comment</key>
@@ -1251,7 +1293,7 @@
 								<key>0</key>
 								<dict>
 									<key>name</key>
-									<string>punctuation.definition.arguments.end.fish</string>
+									<string>keyword.control.index-expansion.end.fish punctuation.definition.keyword.fish</string>
 								</dict>
 							</dict>
 							<key>name</key>
