@@ -105,6 +105,7 @@ repository:
         - include: '#argument'
           comment: Treat the list as arguments
         - include: '#comment'
+        - include: '#comment-inline'
       - include: '#loop-control-command'
       - include: '$self'
 

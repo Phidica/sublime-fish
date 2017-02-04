@@ -418,6 +418,7 @@ if --help; else;
 #!       ^ keyword.control
 #!         ^^^^ invalid.illegal.function
 
+<<<<<<< HEAD
 if \
 #! ^ constant.character.escape
   test foo; end & # comment
@@ -427,7 +428,7 @@ if \
 #!              ^ keyword.control
 #!                ^^^^^^^^^ comment.line
 
-for in in in in (seq 5) in in
+for in in in in (seq 5) in in # comment
 #! <- meta.block.for-in keyword.control.conditional
 #!  ^^ meta.function-call.argument
 #!     ^^ keyword.control.conditional
@@ -436,6 +437,7 @@ for in in in in (seq 5) in in
 #!              ^^^^^^^ meta.function-call.argument meta.command-substitution
 #!                      ^^ meta.function-call.argument
 #!                         ^^ meta.function-call.argument
+#!                            ^^^^^^^^^ comment.line
   echo arg
 #! ^^^ meta.function-call.standard
   continue
