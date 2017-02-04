@@ -228,62 +228,51 @@
 							<key>begin</key>
 							<string>(?&lt;=for)</string>
 							<key>end</key>
-							<string>^</string>
+							<string>(?&lt;=\w)(?=\W)</string>
 							<key>patterns</key>
 							<array>
 								<dict>
+									<key>comment</key>
+									<string>Treat the varname like an argument</string>
 									<key>include</key>
-									<string>$self</string>
+									<string>#argument</string>
 								</dict>
 								<dict>
-									<key>begin</key>
-									<string>(\w+)(\s+((\\)\n)?)+(in)\s+</string>
-									<key>beginCaptures</key>
-									<dict>
-										<key>1</key>
-										<dict>
-											<key>name</key>
-											<string>meta.function-call.argument.fish</string>
-										</dict>
-										<key>5</key>
-										<dict>
-											<key>name</key>
-											<string>keyword.control.conditional.fish</string>
-										</dict>
-									</dict>
-									<key>comment</key>
-									<string>Treat the varname to `for` like a normal argument</string>
-									<key>contentName</key>
-									<string>meta.function-call.argument.fish</string>
-									<key>end</key>
-									<string>\n</string>
-									<key>patterns</key>
-									<array>
-										<dict>
-											<key>captures</key>
-											<dict>
-												<key>1</key>
-												<dict>
-													<key>name</key>
-													<string>constant.character.escape</string>
-												</dict>
-											</dict>
-											<key>match</key>
-											<string>(\\)\n</string>
-										</dict>
-										<dict>
-											<key>include</key>
-											<string>#command-substitution</string>
-										</dict>
-										<dict>
-											<key>comment</key>
-											<string>Treat values to `in` like normal arguments</string>
-											<key>match</key>
-											<string>\w+</string>
-										</dict>
-									</array>
+									<key>include</key>
+									<string>#comment</string>
 								</dict>
 							</array>
+						</dict>
+						<dict>
+							<key>begin</key>
+							<string>\b(in)\b</string>
+							<key>beginCaptures</key>
+							<dict>
+								<key>0</key>
+								<dict>
+									<key>name</key>
+									<string>keyword.control.conditional.fish</string>
+								</dict>
+							</dict>
+							<key>end</key>
+							<string>(?=;)|\n</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>comment</key>
+									<string>Treat the list as arguments</string>
+									<key>include</key>
+									<string>#argument</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#comment</string>
+								</dict>
+							</array>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#loop-control-command</string>
 						</dict>
 						<dict>
 							<key>include</key>

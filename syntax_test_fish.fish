@@ -427,26 +427,43 @@ if \
 #!              ^ keyword.control
 #!                ^^^^^^^^^ comment.line
 
-#######################
+for in in in in (seq 5) in in
+#! <- meta.block.for-in keyword.control.conditional
+#!  ^^ meta.function-call.argument
+#!     ^^ keyword.control.conditional
+#!        ^^ meta.function-call.argument
+#!           ^^ meta.function-call.argument
+#!              ^^^^^^^ meta.function-call.argument meta.command-substitution
+#!                      ^^ meta.function-call.argument
+#!                         ^^ meta.function-call.argument
+  echo arg
+#! ^^^ meta.function-call.standard
+  continue
+#! ^^^^^^^ keyword.control.conditional
+end
+#! <- keyword.control.conditional
 
 for \
+#! <- meta.block.for-in keyword.control.conditional
+#!  ^ constant.character.escape
   varname \
+#! ^^^^^^ meta.function-call.argument
+#!        ^ constant.character.escape
   in \
-  (\
+#! ^ keyword.control.conditional
+#!   ^ constant.character.escape
+    (
+#!  ^ meta.function-call.argument meta.command-substitution
   echo \
+#! ^^^ meta.function-call.standard
   one two \
-  three \
+  three
 )
-
+#! <- meta.function-call.argument meta.command-substitution
   echo arg arg
+#! ^^^ meta.function-call.standard
 end
-
-for in in in
-end
-
-echo ~/"string"
-
-########################
+#! <- keyword.control.conditional
 
 switch (echo $var)
 #! <- meta.block.switch keyword.control.conditional
@@ -460,6 +477,7 @@ switch (echo $var)
 #!     ^^^ meta.block.switch.case.wildcard
     echo foo
 end
+#! <- keyword.control.conditional
 
 switch \
 # comment
@@ -474,6 +492,7 @@ switch \
 #!     ^^^ meta.block.switch.case.wildcard string.quoted.single
     echo arg
 end
+#! <- keyword.control.conditional
 
 switch value; case wildcard; command echo foo; end # comment
 #!          ^ keyword.control
@@ -500,6 +519,7 @@ function foo --arg="bar"
   echo arg
 #! ^^^^^^^ meta.function-call.standard
 end
+#! <- keyword.control.conditional
 
 function \
 #! <- meta.block.function. keyword.control.conditional
@@ -514,6 +534,7 @@ foo\ bar \
   echo arg
 #! ^^^^^^^ meta.function-call.standard
 end
+#! <- keyword.control.conditional
 
 function inline; echo arg; end # comment
 #! <- meta.block.function. keyword.control.conditional

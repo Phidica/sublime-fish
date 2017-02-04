@@ -21,6 +21,7 @@ patterns:
 # - Individual arguments in function calls do not get the variable.parameter label because that swiftly becomes the overwhelming majority of all words in a program
 
 #! \todo for-in block
+#! \todo Bug: Keywords that only work in loops or functions (eg, "continue", "return", etc) will be treated like standard commands if they are located within if-statements within those outer valid blocks. Without a scope stack, we'll have to treat them as always being keywords rather than trying to parse them for the user
 #! \todo Known bug: if a command-call line ends in "end" then a comment following it on the line will not be of the insert type, causing the next line of text to be considered arguments. fixing may require a rethink of the two comment contexts and finding a way to merge them (the key difference is whether the newline is consumed and command-call either terminates or perpetuates based on that)
 #! \todo add comment-inline to the recursive command-call. no point adding comment because recursive will /always/ have ended by the time a full line comment shows up
 #! \todo add special behaviour to parameter expansion arguments like ~
@@ -81,7 +82,6 @@ repository:
         comment: Having a meta scope just for the condition command is complicated and ultimately useless, so treat `else if` and `else` as standalone keywords and let the conditions scope like normal instances of command-call
       - include: '$self'
 
-    #! \todo Needs work !! See the arbitrary-commands_for-block-development branch for the WIP of whatever I was doing last time I tried to fix this block
     - name: meta.block.for-in.fish
       begin: \b(for)\b(?!\s*(-|&|\|))
       beginCaptures:
@@ -92,24 +92,20 @@ repository:
         '3': {name: keyword.control.fish punctuation.definition.keyword.fish}
       patterns:
       - begin: (?<=for)
-        end: '^'
-        patterns:  # nope, because of comments entering the scope this will never work. just make special "from command names to an endline or the next special demarcation point" scopes for for-var and in-listothings
-        # better yet, don't be afraid of splitting block up into several matches, for the different types of block!
-        - include: '$self'
-        - begin: (\w+)(\s+((\\)\n)?)+(in)\s+
-          beginCaptures:
-            '1': {name: meta.function-call.argument.fish}
-            '5': {name: keyword.control.conditional.fish}
-          comment: Treat the varname to `for` like a normal argument
-          end: '\n'
-          contentName: meta.function-call.argument.fish
-          patterns:
-          - match: (\\)\n
-            captures:
-              '1': {name: constant.character.escape}
-          - include: '#command-substitution'
-          - match: \w+
-            comment: Treat values to `in` like normal arguments
+        end: (?<=\w)(?=\W)
+        patterns:
+        - include: '#argument'
+          comment: Treat the varname like an argument
+        - include: '#comment'
+      - begin: \b(in)\b
+        beginCaptures:
+          '0': {name: keyword.control.conditional.fish}
+        end: (?=;)|\n
+        patterns:
+        - include: '#argument'
+          comment: Treat the list as arguments
+        - include: '#comment'
+      - include: '#loop-control-command'
       - include: '$self'
 
     - name: meta.block.switch.fish
