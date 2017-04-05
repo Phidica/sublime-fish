@@ -586,9 +586,9 @@
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>\b(?:case|else|end)\b|(?&lt;=^|\(|;|&amp;|\|\s)(?:~|%)</string>
+					<string>\b(?:case|else|end)\b|(?&lt;=^|\(|;|&amp;|\|\s)(?:%)</string>
 					<key>comment</key>
-					<string>These command names aren't valid outside of their use in blocks. A lone tilde is actually valid in fish (as is any directory path) because it performs an implicit `cd`. We assume that no reasonable user will be writing a fish script containing implicit `cd` calls</string>
+					<string>Search for illegal commands; these aren't valid outside of their use in blocks</string>
 					<key>end</key>
 					<string>$\n?</string>
 					<key>name</key>

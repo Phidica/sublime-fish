@@ -20,7 +20,6 @@ patterns:
 # - constant.character.escape is used for \x?? and \0?? escape codes rather than constant.numeric.{hex,octal} because even though the user inputs a numeric value in hex or octal, the codes serve the purpose of making characters not numbers
 # - Individual arguments in function calls do not get the variable.parameter label because that swiftly becomes the overwhelming majority of all words in a program
 
-#! \todo for-in block
 #! \todo Bug: Keywords that only work in loops or functions (eg, "continue", "return", etc) will be treated like standard commands if they are located within if-statements within those outer valid blocks. Without a scope stack, we'll have to treat them as always being keywords rather than trying to parse them for the user
 #! \todo Known bug: if a command-call line ends in "end" then a comment following it on the line will not be of the insert type, causing the next line of text to be considered arguments. fixing may require a rethink of the two comment contexts and finding a way to merge them (the key difference is whether the newline is consumed and command-call either terminates or perpetuates based on that)
 #! \todo add comment-inline to the recursive command-call. no point adding comment because recursive will /always/ have ended by the time a full line comment shows up
@@ -205,10 +204,9 @@ repository:
           '1': {name: constant.character.escape}
 
     - name: invalid.illegal.function.fish
-      comment: Search for illegal commands by name
-      begin: \b(?:case|else|end)\b|(?<=^|\(|;|&|\|\s)(?:~|%)
+      comment: Search for illegal commands; these aren't valid outside of their use in blocks
+      begin: \b(?:case|else|end)\b|(?<=^|\(|;|&|\|\s)(?:%)
       end: $\n?
-      comment: These command names aren't valid outside of their use in blocks. A lone tilde is actually valid in fish (as is any directory path) because it performs an implicit `cd`. We assume that no reasonable user will be writing a fish script containing implicit `cd` calls
 
     - name: meta.function-call.standard.fish
       comment: If the above match for recursive commands failed, try and match legal standard commands
