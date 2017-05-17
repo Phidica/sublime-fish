@@ -1,7 +1,7 @@
 <snippet>
-    <content><![CDATA[switch ${1:value};
-  case ${2:wildcard};
-    ${3:# commands};
+    <content><![CDATA[switch ${1:value}
+  case ${2:wildcard}
+    ${3:# commands}
 end
 ]]></content>
     <tabTrigger>switch</tabTrigger>
