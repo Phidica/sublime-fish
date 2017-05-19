@@ -15,7 +15,7 @@
 	<key>keyEquivalent</key>
 	<string>^~S</string>
 	<key>name</key>
-	<string>Shell Script (fish)</string>
+	<string>Shell Script Improved (fish)</string>
 	<key>patterns</key>
 	<array>
 		<dict>
@@ -1307,6 +1307,6 @@
 	<key>scopeName</key>
 	<string>source.fish</string>
 	<key>uuid</key>
-	<string>a6b750ed-a12a-43c1-84e7-689ac7e2fbc9</string>
+	<string>f9278d07-f7c1-4a9b-9581-ebcbc050fbfb</string>
 </dict>
 </plist>
