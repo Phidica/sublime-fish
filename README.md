@@ -14,10 +14,10 @@ Clone the repository to your [Sublime Text Packages directory](http://docs.subli
 
 Open a `.fish` file and set the default syntax highlighting to "Shell Script (fish)".
 
-Tweaks
-------
+Highlighting strings
+--------------------
 
-As with any shell, every string in fish that isn't enclosed in quotes is considered an unquoted string. If your Sublime Text color scheme highlights unquoted strings the same way it does quoted strings then you might find the result unappealing, so you may wish to render unquoted strings in the default text color instead. To do so, edit your color scheme `.tmTheme` file and change
+As with any shell, a string in fish that isn't enclosed in quotes is considered an "unquoted string". If your Sublime Text color scheme highlights unquoted strings the same way it does quoted strings then you might find the result visually unappealing, as almost everything is a string. You may therefore wish to render unquoted strings in the default text color instead. To do so, edit your color scheme `.tmTheme` file and change
 
     <key>name</key>
     <string>String</string>
@@ -32,6 +32,8 @@ to
     <string>string.quoted, string - string.unquoted</string>
 
 This will exclude unquoted strings from receiving string highlighting, but it also explicitly enforces string highlighting on quoted strings to ensure that quoted strings embedded within unquoted strings (such as via a command substitution) receive the correct highlighting.
+
+This should have no negative effects on other syntaxes which use strings, provided they follow convention and correctly scope them as "string.quoted".
 
 Contribution
 ------------
