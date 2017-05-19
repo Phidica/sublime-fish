@@ -9,9 +9,9 @@
 	<key>firstLineMatch</key>
 	<string>^#!.*\b(fish)|^#\s*-\*-[^*]*mode:\s*shell-script[^*]*-\*-</string>
 	<key>foldingStartMarker</key>
-	<string>\b(begin|for|if|else|function|switch|while)\b|(\{)$</string>
+	<string>\b(begin|case|for|if|else|function|switch|while)\b|(\{)$</string>
 	<key>foldingStopMarker</key>
-	<string>^\s*(\}|(else|end)\b)</string>
+	<string>^\s*(\}|(case|else|end)\b)</string>
 	<key>keyEquivalent</key>
 	<string>^~S</string>
 	<key>name</key>
@@ -19,64 +19,705 @@
 	<key>patterns</key>
 	<array>
 		<dict>
+			<key>comment</key>
+			<string>These are the patterns which can appear in the base scope</string>
+		</dict>
+		<dict>
+			<key>include</key>
+			<string>#block</string>
+		</dict>
+		<dict>
+			<key>include</key>
+			<string>#command-call</string>
+		</dict>
+		<dict>
 			<key>include</key>
 			<string>#comment</string>
 		</dict>
 		<dict>
 			<key>include</key>
-			<string>#function-definition</string>
+			<string>#control-operator</string>
 		</dict>
 		<dict>
 			<key>include</key>
-			<string>#interpolation</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#keyword</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#list</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#logical-expression</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#loop</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#math</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#pathname</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#pipeline</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#redirection</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#string</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#support</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#variable</string>
+			<string>#escape-character</string>
 		</dict>
 	</array>
 	<key>repository</key>
 	<dict>
+		<key>argument</key>
+		<dict>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>begin</key>
+					<string>(?&lt;=^|\s)(?!\s|#|$)</string>
+					<key>comment</key>
+					<string>End arg if it precedes whitespace, unescaped control operators, or a newline</string>
+					<key>end</key>
+					<string>(?&lt;=.|\n)(?=\s|\)|;|&amp;|\||$)</string>
+					<key>name</key>
+					<string>meta.function-call.argument.fish</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>comment</key>
+							<string>Arguments are made of strings, either quoted or unquoted. The unquoted string handles numerics, character escapes, command substitutions, and brace/variable/process expansions</string>
+							<key>include</key>
+							<string>#string</string>
+						</dict>
+					</array>
+				</dict>
+			</array>
+		</dict>
+		<key>block</key>
+		<dict>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>begin</key>
+					<string>\b(begin)\b(?!\s*(-|&amp;|\|))</string>
+					<key>beginCaptures</key>
+					<dict>
+						<key>0</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.conditional.fish</string>
+						</dict>
+					</dict>
+					<key>end</key>
+					<string>(end)(\s*(&amp;))?</string>
+					<key>endCaptures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.conditional.fish</string>
+						</dict>
+						<key>3</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.fish punctuation.definition.keyword.fish</string>
+						</dict>
+					</dict>
+					<key>name</key>
+					<string>meta.block.begin.fish</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>include</key>
+							<string>$self</string>
+						</dict>
+					</array>
+				</dict>
+				<dict>
+					<key>begin</key>
+					<string>\b(while)\b(?!\s*(-|&amp;|\|))</string>
+					<key>beginCaptures</key>
+					<dict>
+						<key>0</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.conditional.fish</string>
+						</dict>
+					</dict>
+					<key>end</key>
+					<string>(end)(\s*(&amp;))?</string>
+					<key>endCaptures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.conditional.fish</string>
+						</dict>
+						<key>3</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.fish punctuation.definition.keyword.fish</string>
+						</dict>
+					</dict>
+					<key>name</key>
+					<string>meta.block.while.fish</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>include</key>
+							<string>#loop-control-command</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>$self</string>
+						</dict>
+					</array>
+				</dict>
+				<dict>
+					<key>begin</key>
+					<string>\b(if)\b(?!\s*(-|&amp;|\|))</string>
+					<key>beginCaptures</key>
+					<dict>
+						<key>0</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.conditional.fish</string>
+						</dict>
+					</dict>
+					<key>end</key>
+					<string>(end)(\s*(&amp;))?</string>
+					<key>endCaptures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.conditional.fish</string>
+						</dict>
+						<key>3</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.fish punctuation.definition.keyword.fish</string>
+						</dict>
+					</dict>
+					<key>name</key>
+					<string>meta.block.if.fish</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>comment</key>
+							<string>Having a meta scope just for the condition command is complicated and ultimately useless, so treat `else if` and `else` as standalone keywords and let the conditions scope like normal instances of command-call</string>
+							<key>match</key>
+							<string>\b(else(\s*if)?)\b</string>
+							<key>name</key>
+							<string>keyword.control.conditional.fish</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>$self</string>
+						</dict>
+					</array>
+				</dict>
+				<dict>
+					<key>begin</key>
+					<string>\b(for)\b(?!\s*(-|&amp;|\|))</string>
+					<key>beginCaptures</key>
+					<dict>
+						<key>0</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.conditional.fish</string>
+						</dict>
+					</dict>
+					<key>end</key>
+					<string>(end)(\s*(&amp;))?</string>
+					<key>endCaptures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.conditional.fish</string>
+						</dict>
+						<key>3</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.fish punctuation.definition.keyword.fish</string>
+						</dict>
+					</dict>
+					<key>name</key>
+					<string>meta.block.for-in.fish</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>begin</key>
+							<string>(?&lt;=for)</string>
+							<key>end</key>
+							<string>(?&lt;=\w)(?=\W)</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>comment</key>
+									<string>Treat the varname like an argument</string>
+									<key>include</key>
+									<string>#argument</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#comment</string>
+								</dict>
+							</array>
+						</dict>
+						<dict>
+							<key>begin</key>
+							<string>\b(in)\b</string>
+							<key>beginCaptures</key>
+							<dict>
+								<key>0</key>
+								<dict>
+									<key>name</key>
+									<string>keyword.control.conditional.fish</string>
+								</dict>
+							</dict>
+							<key>end</key>
+							<string>(?=;)|\n</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>comment</key>
+									<string>Treat the list as arguments</string>
+									<key>include</key>
+									<string>#argument</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#comment</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#comment-inline</string>
+								</dict>
+							</array>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#loop-control-command</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>$self</string>
+						</dict>
+					</array>
+				</dict>
+				<dict>
+					<key>begin</key>
+					<string>\b(switch)\b(?!\s*(-|&amp;|\|))</string>
+					<key>beginCaptures</key>
+					<dict>
+						<key>0</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.conditional.fish</string>
+						</dict>
+					</dict>
+					<key>end</key>
+					<string>(end)(\s*(&amp;))?</string>
+					<key>endCaptures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.conditional.fish</string>
+						</dict>
+						<key>3</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.fish punctuation.definition.keyword.fish</string>
+						</dict>
+					</dict>
+					<key>name</key>
+					<string>meta.block.switch.fish</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>begin</key>
+							<string>(?&lt;=switch)</string>
+							<key>comment</key>
+							<string>Value ends before ';' or at a newline</string>
+							<key>end</key>
+							<string>(?=;)|\n</string>
+							<key>name</key>
+							<string>meta.block.switch.value.fish</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>#argument</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#comment</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#comment-inline</string>
+								</dict>
+							</array>
+						</dict>
+						<dict>
+							<key>begin</key>
+							<string>\b(case)\b</string>
+							<key>beginCaptures</key>
+							<dict>
+								<key>0</key>
+								<dict>
+									<key>name</key>
+									<string>keyword.control.conditional.fish</string>
+								</dict>
+							</dict>
+							<key>comment</key>
+							<string>Case block ends before a new case or the end of the switch block</string>
+							<key>end</key>
+							<string>(?=\b(case|end)\b)</string>
+							<key>name</key>
+							<string>meta.block.switch.case.fish</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>begin</key>
+									<string>(?&lt;=case)</string>
+									<key>comment</key>
+									<string>Wildcard ends before ';' or at a newline</string>
+									<key>end</key>
+									<string>(?=;)|\n</string>
+									<key>name</key>
+									<string>meta.block.switch.case.wildcard.fish</string>
+									<key>patterns</key>
+									<array>
+										<dict>
+											<key>include</key>
+											<string>#argument</string>
+										</dict>
+										<dict>
+											<key>include</key>
+											<string>#comment</string>
+										</dict>
+										<dict>
+											<key>include</key>
+											<string>#comment-inline</string>
+										</dict>
+									</array>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>$self</string>
+								</dict>
+							</array>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#comment</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#control-operator</string>
+						</dict>
+					</array>
+				</dict>
+				<dict>
+					<key>begin</key>
+					<string>\b(function)\b(?!\s+(-|&amp;|\|))</string>
+					<key>beginCaptures</key>
+					<dict>
+						<key>0</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.conditional.fish</string>
+						</dict>
+					</dict>
+					<key>end</key>
+					<string>(end)(\s*(&amp;))?</string>
+					<key>endCaptures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.conditional.fish</string>
+						</dict>
+						<key>3</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.fish punctuation.definition.keyword.fish</string>
+						</dict>
+					</dict>
+					<key>name</key>
+					<string>meta.block.function.fish</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>begin</key>
+							<string>(?&lt;=function)</string>
+							<key>comment</key>
+							<string>Name and options end before ';' or at a newline</string>
+							<key>end</key>
+							<string>(?=;)|\n</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>begin</key>
+									<string>(?&lt;=function)\s+</string>
+									<key>comment</key>
+									<string>Detect the region from just after the `function` command to between the defined function name the argument or control operators which follow it. Note that we have to account for the fact the defined function name may end in an escaped space</string>
+									<key>end</key>
+									<string>(?&lt;=\S|\\ )\s*(?=\S|;|\n)</string>
+									<key>patterns</key>
+									<array>
+										<dict>
+											<key>comment</key>
+											<string>The function name may be given using any means that is valid for a command call</string>
+											<key>match</key>
+											<string>(?:\'(?:\\[\'\\]|[^\'\\])*\'|\"(?:\\[\"$\n\\]|[^\"$\n\\])*\"|(?:\\[abefnrtv $\\*?#(){}\[\]&lt;&gt;^&amp;;|"']|(?&lt;=^|\s)\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]|[^\s$\\*?~%#()&lt;&gt;&amp;|;"']|\\(?=[^abefnrtv\s$\\*?#(){}\[\]&lt;&gt;^&amp;;|"'xXuUc])|(?&lt;=\S|\\ )\\\n|(?&lt;=\S|\\ )[~%#])+)+</string>
+											<key>name</key>
+											<string>entity.name.function.fish</string>
+										</dict>
+										<dict>
+											<key>include</key>
+											<string>#comment</string>
+										</dict>
+										<dict>
+											<key>include</key>
+											<string>#comment-inline</string>
+										</dict>
+										<dict>
+											<key>comment</key>
+											<string>We can't read across lines, so this is needed to catch an escaped newline at the start of a defined function name</string>
+											<key>match</key>
+											<string>\\\n</string>
+											<key>name</key>
+											<string>constant.character.escape</string>
+										</dict>
+									</array>
+								</dict>
+								<dict>
+									<key>comment</key>
+									<string>The rest of the patterns are the typical elements of a standard command-call, which is what the `function` command adheres to</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#argument</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#comment</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#comment-inline</string>
+								</dict>
+							</array>
+						</dict>
+						<dict>
+							<key>begin</key>
+							<string>\b(return)\b(?!\s+(-))</string>
+							<key>beginCaptures</key>
+							<dict>
+								<key>1</key>
+								<dict>
+									<key>name</key>
+									<string>keyword.control.conditional.fish</string>
+								</dict>
+							</dict>
+							<key>comment</key>
+							<string>The `return` command can't accept flags</string>
+							<key>end</key>
+							<string>(?=\)|;)|\n|(&amp;|\|)</string>
+							<key>endCaptures</key>
+							<dict>
+								<key>1</key>
+								<dict>
+									<key>name</key>
+									<string>keyword.control.fish punctuation.definition.keyword.fish</string>
+								</dict>
+							</dict>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>#argument</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#comment</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#comment-inline</string>
+								</dict>
+							</array>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>$self</string>
+						</dict>
+					</array>
+				</dict>
+			</array>
+		</dict>
+		<key>command-call</key>
+		<dict>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>begin</key>
+					<string>\b((builtin|command|exec)|(and|not|or))\b(?!\s+(-|&amp;|\|))</string>
+					<key>beginCaptures</key>
+					<dict>
+						<key>2</key>
+						<dict>
+							<key>name</key>
+							<string>support.function.builtin.fish</string>
+						</dict>
+						<key>3</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.operator.word.fish</string>
+						</dict>
+					</dict>
+					<key>comment</key>
+					<string>Recursive command-call ends before ')' or ';', and just after a newline, '&amp;', or '|'. Standard command-call will have consumed the '&amp;' or '|'. Unfortunately, we cannot help but end after any newline we encounter, as the standard command-call only ends when it consumes a newline (allowing us to insert comments by having the comment consume its newline and prevent command-call matching it) and we cannot distinguish between a newline that was consumed by a command and a newline that was consumed by a comment. Put simply, this means that when a recursive command-call reaches a newline before its first standard command-call, the scope ends and the standard command-call on the next line loses the recursive command-call scope</string>
+					<key>end</key>
+					<string>(?=\)|;)|(?&lt;=\n|&amp;|\|)</string>
+					<key>name</key>
+					<string>meta.function-call.recursive.fish</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>include</key>
+							<string>#command-call</string>
+						</dict>
+						<dict>
+							<key>captures</key>
+							<dict>
+								<key>1</key>
+								<dict>
+									<key>name</key>
+									<string>constant.character.escape</string>
+								</dict>
+							</dict>
+							<key>match</key>
+							<string>(\\)\n</string>
+						</dict>
+					</array>
+				</dict>
+				<dict>
+					<key>begin</key>
+					<string>\b(?:case|else|end)\b|(?&lt;=^|\(|;|&amp;|\|\s)(?:%)</string>
+					<key>comment</key>
+					<string>Search for illegal commands; these aren't valid outside of their use in blocks</string>
+					<key>end</key>
+					<string>$\n?</string>
+					<key>name</key>
+					<string>invalid.illegal.function.fish</string>
+				</dict>
+				<dict>
+					<key>begin</key>
+					<string>(?:\'(?:\\[\'\\]|[^\'\\])*\'|\"(?:\\[\"$\n\\]|[^\"$\n\\])*\"|(?:\\[abefnrtv $\\*?#(){}\[\]&lt;&gt;^&amp;;|"']|(?&lt;=^|\s)\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]|[^\s$\\*?~%#()&lt;&gt;&amp;|;"']|\\(?=[^abefnrtv\s$\\*?#(){}\[\]&lt;&gt;^&amp;;|"'xXuUc])|(?&lt;=\S|\\ )\\\n|(?&lt;=\S|\\ )[~%#])+)+</string>
+					<key>beginCaptures</key>
+					<dict>
+						<key>0</key>
+						<dict>
+							<key>name</key>
+							<string>support.function.user.fish</string>
+						</dict>
+					</dict>
+					<key>comment</key>
+					<string>Command call ends before ')' or ';', and at a newline, '&amp;', or '|'. Those last two control operators must be part of a command, so consume them here</string>
+					<key>end</key>
+					<string>(?=\)|;)|\n|(&amp;|\|)</string>
+					<key>endCaptures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.fish punctuation.definition.keyword.fish</string>
+						</dict>
+					</dict>
+					<key>name</key>
+					<string>meta.function-call.standard.fish</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>include</key>
+							<string>#argument</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#comment</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#comment-inline</string>
+						</dict>
+					</array>
+				</dict>
+			</array>
+		</dict>
+		<key>command-substitution</key>
+		<dict>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>begin</key>
+					<string>(?=\()</string>
+					<key>comment</key>
+					<string>Capture "(...)" or "(...)[...]"</string>
+					<key>end</key>
+					<string>(?&lt;=\))(?!\[)|(?&lt;=\])</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>begin</key>
+							<string>\(</string>
+							<key>beginCaptures</key>
+							<dict>
+								<key>0</key>
+								<dict>
+									<key>name</key>
+									<string>keyword.control.command-substitution.begin.fish punctuation.definition.keyword.fish</string>
+								</dict>
+							</dict>
+							<key>comment</key>
+							<string>The inside of a command substitution is indistinguishable from a global scope</string>
+							<key>end</key>
+							<string>\)</string>
+							<key>endCaptures</key>
+							<dict>
+								<key>0</key>
+								<dict>
+									<key>name</key>
+									<string>keyword.control.command-substitution.end.fish punctuation.definition.keyword.fish</string>
+								</dict>
+							</dict>
+							<key>name</key>
+							<string>meta.command-substitution.fish</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>$self</string>
+								</dict>
+							</array>
+						</dict>
+						<dict>
+							<key>begin</key>
+							<string>\[</string>
+							<key>beginCaptures</key>
+							<dict>
+								<key>0</key>
+								<dict>
+									<key>name</key>
+									<string>keyword.control.index-expansion.begin.fish punctuation.definition.keyword.fish</string>
+								</dict>
+							</dict>
+							<key>end</key>
+							<string>\]</string>
+							<key>endCaptures</key>
+							<dict>
+								<key>0</key>
+								<dict>
+									<key>name</key>
+									<string>keyword.control.index-expansion.end.fish punctuation.definition.keyword.fish</string>
+								</dict>
+							</dict>
+							<key>name</key>
+							<string>meta.index-expansion.fish</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>#string</string>
+								</dict>
+							</array>
+						</dict>
+					</array>
+				</dict>
+			</array>
+		</dict>
 		<key>comment</key>
 		<dict>
 			<key>patterns</key>
@@ -90,268 +731,113 @@
 							<string>punctuation.definition.comment.fish</string>
 						</dict>
 					</dict>
+					<key>comment</key>
+					<string>Consumes the remainder of a line after any character which marks the start of a scope with no commands in it. Consumes the newline, thus hiding the entire comment from any scope which seeks newlines</string>
 					<key>match</key>
-					<string>(?&lt;!\S)(#)(?!\{).*$\n?</string>
+					<string>(?&lt;=^|else|end|\(|;|&amp;|\|)\s*(#).*$\n?</string>
 					<key>name</key>
-					<string>comment.line.number-sign.fish</string>
+					<string>comment.line.fish</string>
 				</dict>
 			</array>
 		</dict>
-		<key>function-definition</key>
+		<key>comment-inline</key>
 		<dict>
 			<key>patterns</key>
 			<array>
 				<dict>
-					<key>begin</key>
-					<string>\b(function)\s+([^\s\\]+)(?:\s*(\(\)))?</string>
-					<key>beginCaptures</key>
+					<key>captures</key>
 					<dict>
 						<key>1</key>
 						<dict>
 							<key>name</key>
-							<string>storage.type.function.fish</string>
-						</dict>
-						<key>2</key>
-						<dict>
-							<key>name</key>
-							<string>entity.name.function.fish</string>
-						</dict>
-						<key>3</key>
-						<dict>
-							<key>name</key>
-							<string>punctuation.definition.arguments.fish</string>
+							<string>punctuation.definition.comment.fish</string>
 						</dict>
 					</dict>
-					<key>end</key>
-					<string>;|&amp;|$</string>
-					<key>endCaptures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>punctuation.definition.function.fish</string>
-						</dict>
-					</dict>
-					<key>name</key>
-					<string>meta.function.fish</string>
-					<key>patterns</key>
-					<array>
-						<dict>
-							<key>include</key>
-							<string>$self</string>
-						</dict>
-					</array>
-				</dict>
-			</array>
-		</dict>
-		<key>interpolation</key>
-		<dict>
-			<key>patterns</key>
-			<array>
-				<dict>
-					<key>begin</key>
-					<string>\{\$</string>
-					<key>beginCaptures</key>
-					<dict>
-						<key>0</key>
-						<dict>
-							<key>name</key>
-							<string>punctuation.definition.string.begin.fish</string>
-						</dict>
-					</dict>
-					<key>end</key>
-					<string>\}</string>
-					<key>endCaptures</key>
-					<dict>
-						<key>0</key>
-						<dict>
-							<key>name</key>
-							<string>punctuation.definition.string.end.fish</string>
-						</dict>
-					</dict>
-					<key>name</key>
-					<string>string.interpolated.dollar.fish</string>
-					<key>patterns</key>
-					<array>
-						<dict>
-							<key>include</key>
-							<string>$self</string>
-						</dict>
-					</array>
-				</dict>
-			</array>
-		</dict>
-		<key>keyword</key>
-		<dict>
-			<key>patterns</key>
-			<array>
-				<dict>
+					<key>comment</key>
+					<string>Separate from comment as this is only valid inside of command-call. Does not consume the newline, thus allowing command-call to capture it and end</string>
 					<key>match</key>
-					<string>\b(?:and|begin|break|case|continue|else|end|for|if|in|return|switch|while)\b</string>
+					<string>(#).*$</string>
 					<key>name</key>
-					<string>keyword.control.fish</string>
-				</dict>
-				<dict>
-					<key>match</key>
-					<string>(?&lt;![-/])\b(?:set)\b</string>
-					<key>name</key>
-					<string>storage.modifier.fish</string>
+					<string>comment.line.insert.fish</string>
 				</dict>
 			</array>
 		</dict>
-		<key>list</key>
-		<dict>
-			<key>patterns</key>
-			<array>
-				<dict>
-					<key>match</key>
-					<string>;|&amp;&amp;|&amp;|\|\|</string>
-					<key>name</key>
-					<string>keyword.operator.list.fish</string>
-				</dict>
-			</array>
-		</dict>
-		<key>logical-expression</key>
+		<key>control-operator</key>
 		<dict>
 			<key>patterns</key>
 			<array>
 				<dict>
 					<key>comment</key>
-					<string>do we want a special rule for ( expr )?</string>
+					<string>This is the only operator which is allowed to exist alone on a line. The other control operators are '&amp;' and '|' however they must be preceded by a command, so command-call matches those</string>
 					<key>match</key>
-					<string>=[=~]?|!=?|&lt;|&gt;|&amp;&amp;|\|\|</string>
+					<string>;</string>
 					<key>name</key>
-					<string>keyword.operator.logical.fish</string>
+					<string>keyword.control.fish punctuation.definition.keyword.fish</string>
+				</dict>
+				<dict>
+					<key>comment</key>
+					<string>These two control operators, '&amp;' and '|', must be preceded by a command, so command patterns match them when they are valid. If they are found in the global scope or first inside a command-substitution, that means they are dangling</string>
+					<key>match</key>
+					<string>(?&lt;=^|\(|;|&amp;|\|)\s*(&amp;|\|).*$\n?</string>
+					<key>name</key>
+					<string>invalid.illegal.control.fish</string>
 				</dict>
 			</array>
 		</dict>
-		<key>loop</key>
+		<key>escape-character</key>
+		<dict>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>comment</key>
+					<string>This match should only be needed for an escaped newline which is not part of any command-call, like if it comes alone on a line. No need to consume the newline</string>
+					<key>match</key>
+					<string>\\(?=\n)</string>
+					<key>name</key>
+					<string>constant.character.escape</string>
+				</dict>
+			</array>
+		</dict>
+		<key>loop-control-command</key>
 		<dict>
 			<key>patterns</key>
 			<array>
 				<dict>
 					<key>begin</key>
-					<string>\b(for)\s+(?=\({2})</string>
-					<key>captures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>keyword.control.fish</string>
-						</dict>
-					</dict>
-					<key>end</key>
-					<string>\b(end)\b</string>
-					<key>name</key>
-					<string>meta.scope.for-loop.fish</string>
-					<key>patterns</key>
-					<array>
-						<dict>
-							<key>include</key>
-							<string>$self</string>
-						</dict>
-					</array>
-				</dict>
-				<dict>
-					<key>begin</key>
-					<string>\b(for)\s+((?:[^\s\\]|\\.)+)\b</string>
+					<string>\b(break|continue)\b(?!\s+(-|\w))</string>
 					<key>beginCaptures</key>
 					<dict>
 						<key>1</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.control.fish</string>
-						</dict>
-						<key>2</key>
-						<dict>
-							<key>name</key>
-							<string>variable.other.loop.fish</string>
+							<string>keyword.control.conditional.fish</string>
 						</dict>
 					</dict>
+					<key>comment</key>
+					<string>These commands only work as loop control when they are used without arguments</string>
 					<key>end</key>
-					<string>\b(end)\b</string>
+					<string>(?=;)|\n|(&amp;)</string>
 					<key>endCaptures</key>
 					<dict>
 						<key>1</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.control.fish</string>
+							<string>keyword.control.fish punctuation.definition.keyword.fish</string>
 						</dict>
 					</dict>
-					<key>name</key>
-					<string>meta.scope.for-in-loop.fish</string>
 					<key>patterns</key>
 					<array>
 						<dict>
 							<key>include</key>
-							<string>$self</string>
+							<string>#comment-inline</string>
 						</dict>
-					</array>
-				</dict>
-				<dict>
-					<key>begin</key>
-					<string>\b(while)\b</string>
-					<key>captures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>keyword.control.fish</string>
-						</dict>
-					</dict>
-					<key>end</key>
-					<string>\b(end)\b</string>
-					<key>name</key>
-					<string>meta.scope.while-loop.fish</string>
-					<key>patterns</key>
-					<array>
 						<dict>
 							<key>include</key>
-							<string>$self</string>
+							<string>#control-operator</string>
 						</dict>
-					</array>
-				</dict>
-				<dict>
-					<key>captures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>keyword.control.fish</string>
-						</dict>
-					</dict>
-					<key>match</key>
-					<string>\b(case)\b</string>
-					<key>name</key>
-					<string>meta.scope.case-block.fish</string>
-					<key>patterns</key>
-					<array>
 						<dict>
 							<key>include</key>
-							<string>$self</string>
-						</dict>
-					</array>
-				</dict>
-				<dict>
-					<key>begin</key>
-					<string>\b(if)\b</string>
-					<key>captures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>keyword.control.fish</string>
-						</dict>
-					</dict>
-					<key>end</key>
-					<string>\b(end)\b</string>
-					<key>name</key>
-					<string>meta.scope.if-block.fish</string>
-					<key>patterns</key>
-					<array>
-						<dict>
-							<key>include</key>
-							<string>$self</string>
+							<string>#escape-character</string>
 						</dict>
 					</array>
 				</dict>
@@ -363,7 +849,7 @@
 			<array>
 				<dict>
 					<key>comment</key>
-					<string>Only match an operator if the element to the right is whitespace/endline, a variable, or command substitution</string>
+					<string>Only match an operator if the element to the right is whitespace/newline, a variable, or command substitution</string>
 					<key>match</key>
 					<string>(\+{1,2}|-{1,2}|!|~|\*{1,2}|/|%|&lt;[&lt;=]?|&gt;[&gt;=]?|==|!=|^|\|{1,2}|&amp;{1,2}|\?|\:|,|=|[*/%+\-&amp;^|]=|&lt;&lt;=|&gt;&gt;=)(?=(\s|$|\$|\())</string>
 					<key>name</key>
@@ -392,10 +878,6 @@
 					<string>\d+</string>
 					<key>name</key>
 					<string>constant.numeric.integer.fish</string>
-				</dict>
-				<dict>
-					<key>include</key>
-					<string>#variable</string>
 				</dict>
 			</array>
 		</dict>
@@ -453,18 +935,6 @@
 				</dict>
 			</array>
 		</dict>
-		<key>pipeline</key>
-		<dict>
-			<key>patterns</key>
-			<array>
-				<dict>
-					<key>match</key>
-					<string>[|!]</string>
-					<key>name</key>
-					<string>keyword.operator.pipe.fish</string>
-				</dict>
-			</array>
-		</dict>
 		<key>redirection</key>
 		<dict>
 			<key>patterns</key>
@@ -515,14 +985,22 @@
 			<key>patterns</key>
 			<array>
 				<dict>
-					<key>match</key>
-					<string>\\.</string>
-					<key>name</key>
-					<string>constant.character.escape.fish</string>
+					<key>include</key>
+					<string>#string-quoted</string>
 				</dict>
 				<dict>
+					<key>include</key>
+					<string>#string-unquoted</string>
+				</dict>
+			</array>
+		</dict>
+		<key>string-quoted</key>
+		<dict>
+			<key>patterns</key>
+			<array>
+				<dict>
 					<key>begin</key>
-					<string>'</string>
+					<string>\'</string>
 					<key>beginCaptures</key>
 					<dict>
 						<key>0</key>
@@ -532,7 +1010,7 @@
 						</dict>
 					</dict>
 					<key>end</key>
-					<string>'</string>
+					<string>\'</string>
 					<key>endCaptures</key>
 					<dict>
 						<key>0</key>
@@ -546,8 +1024,10 @@
 					<key>patterns</key>
 					<array>
 						<dict>
+							<key>comment</key>
+							<string>Only accepted escapes are \' and \\</string>
 							<key>match</key>
-							<string>\\'</string>
+							<string>\\[\'\\]</string>
 							<key>name</key>
 							<string>constant.character.escape.fish</string>
 						</dict>
@@ -555,7 +1035,7 @@
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>"</string>
+					<string>\"</string>
 					<key>beginCaptures</key>
 					<dict>
 						<key>0</key>
@@ -565,7 +1045,7 @@
 						</dict>
 					</dict>
 					<key>end</key>
-					<string>"</string>
+					<string>\"</string>
 					<key>endCaptures</key>
 					<dict>
 						<key>0</key>
@@ -579,170 +1059,245 @@
 					<key>patterns</key>
 					<array>
 						<dict>
+							<key>comment</key>
+							<string>Only accepted escapes are \", \$, \&lt;newline&gt;, and \\</string>
 							<key>match</key>
-							<string>\\[\$`"\\\n]</string>
+							<string>\\[\"$\n\\]</string>
 							<key>name</key>
 							<string>constant.character.escape.fish</string>
 						</dict>
 						<dict>
+							<key>comment</key>
+							<string>Variable expansion is the only expansion permitted</string>
 							<key>include</key>
-							<string>#variable</string>
-						</dict>
-						<dict>
-							<key>include</key>
-							<string>#interpolation</string>
+							<string>#variable-expansion</string>
 						</dict>
 					</array>
 				</dict>
+			</array>
+		</dict>
+		<key>string-unquoted</key>
+		<dict>
+			<key>patterns</key>
+			<array>
 				<dict>
 					<key>begin</key>
-					<string>\$'</string>
+					<string>(?&lt;=\'|\"|\[|\{|\%|^|\s)(?!\'|\"|\]|\}|\s)</string>
+					<key>comment</key>
+					<string>End string if it precedes the begin of a quoted string, the end of an index/brace expansion (but not a process expansion as '%' is valid in names), or anything that would end an argument</string>
+					<key>end</key>
+					<string>(?&lt;=.|\n)(?=\'|\"|\]|\}|\s|\)|;|&amp;|\||$)</string>
+					<key>name</key>
+					<string>string.unquoted.fish</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>include</key>
+							<string>#string-unquoted-patterns</string>
+						</dict>
+					</array>
+				</dict>
+			</array>
+		</dict>
+		<key>string-unquoted-patterns</key>
+		<dict>
+			<key>comment</key>
+			<string>Describes contents of an unquoted string separately for ease of recursion</string>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>comment</key>
+					<string>Treat integers as standalone constants if they aren't within strings of alphanumeric characters</string>
+					<key>match</key>
+					<string>(?&lt;![0-9A-Za-z])[0-9]+(?![0-9A-Za-z])</string>
+					<key>name</key>
+					<string>constant.numeric.fish</string>
+				</dict>
+				<dict>
+					<key>comment</key>
+					<string>This list follows the order given in official fish documentation, with the addition of an escaped newline match and additional checks made on the ~ and % characters which only need escaping if they appear at the front of an argument</string>
+					<key>match</key>
+					<string>\\\n|\\[abefnrtv $\\*?#(){}\[\]&lt;&gt;^&amp;|;"']|(?&lt;=^|\s)\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]</string>
+					<key>name</key>
+					<string>constant.character.escape.fish</string>
+				</dict>
+				<dict>
+					<key>include</key>
+					<string>#command-substitution</string>
+				</dict>
+				<dict>
+					<key>include</key>
+					<string>#variable-expansion</string>
+				</dict>
+				<dict>
+					<key>begin</key>
+					<string>\{</string>
 					<key>beginCaptures</key>
 					<dict>
 						<key>0</key>
 						<dict>
 							<key>name</key>
-							<string>punctuation.definition.string.begin.fish</string>
+							<string>keyword.control.brace-expansion.begin.fish punctuation.definition.keyword.fish</string>
 						</dict>
 					</dict>
 					<key>end</key>
-					<string>'</string>
+					<string>\}</string>
 					<key>endCaptures</key>
 					<dict>
 						<key>0</key>
 						<dict>
 							<key>name</key>
-							<string>punctuation.definition.string.end.fish</string>
+							<string>keyword.control.brace-expansion.end.fish punctuation.definition.keyword.fish</string>
 						</dict>
 					</dict>
 					<key>name</key>
-					<string>string.quoted.single.dollar.fish</string>
+					<string>meta.brace-expansion.fish</string>
 					<key>patterns</key>
 					<array>
 						<dict>
+							<key>comment</key>
+							<string>Explicitly treat ',' as a keyword</string>
 							<key>match</key>
-							<string>\\(a|b|e|f|n|r|t|v|\\|')</string>
+							<string>\,</string>
 							<key>name</key>
-							<string>constant.character.escape.ansi-c.fish</string>
+							<string>keyword.control.brace-expansion.separator.fish</string>
 						</dict>
 						<dict>
-							<key>match</key>
-							<string>\\[0-9]{3}</string>
-							<key>name</key>
-							<string>constant.character.escape.octal.fish</string>
+							<key>include</key>
+							<string>#string-quoted</string>
 						</dict>
 						<dict>
-							<key>match</key>
-							<string>\\([xX][0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8})</string>
+							<key>begin</key>
+							<string>(?&lt;=\,|\'|\"|\[|\{|^|\s)(?!\,|\'|\"|\]|\}|\s)</string>
+							<key>comment</key>
+							<string>Begin/end string at same boundaries as before, but ',' can also force a start/stop</string>
+							<key>end</key>
+							<string>(?&lt;=.|\n)(?=\,|\'|\"|\]|\}|\s|\)|;|&amp;|\||$)</string>
 							<key>name</key>
-							<string>constant.character.escape.hex.fish</string>
+							<string>string.unquoted.fish</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>comment</key>
+									<string>Explicitly allow a ',' to be escaped</string>
+									<key>match</key>
+									<string>\\\,</string>
+									<key>name</key>
+									<string>constant.character.escape.fish</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#string-unquoted-patterns</string>
+								</dict>
+							</array>
 						</dict>
+					</array>
+				</dict>
+				<dict>
+					<key>begin</key>
+					<string>\%</string>
+					<key>beginCaptures</key>
+					<dict>
+						<key>0</key>
 						<dict>
-							<key>match</key>
-							<string>\\c.</string>
 							<key>name</key>
-							<string>constant.character.escape.control-char.fish</string>
+							<string>punctuation.definition.process.fish</string>
+						</dict>
+					</dict>
+					<key>comment</key>
+					<string>Process expansion assumed to continue for the entire argument</string>
+					<key>end</key>
+					<string>(?&lt;=.|\n)(?=\s|\)|;|&amp;|\||$)</string>
+					<key>name</key>
+					<string>constant.other.process.fish</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>include</key>
+							<string>#string</string>
 						</dict>
 					</array>
 				</dict>
 			</array>
 		</dict>
-		<key>support</key>
+		<key>variable-expansion</key>
 		<dict>
 			<key>patterns</key>
 			<array>
 				<dict>
 					<key>comment</key>
-					<string>Matches literal . (alias for source, may be deprecated in future)</string>
+					<string>A lone '$' in a scope, or an attempt to expand a variable starting with a nonword character, is an error. These boundaries are the same as for string.unquoted</string>
 					<key>match</key>
-					<string>(?&lt;=^|\s)(?::|\.)(?=\s|;|&amp;|$)</string>
+					<string>\$(?:(?=[,'"\]}\s);&amp;|])|[^\w\$][^$,'"\]}\s);&amp;|]*)</string>
 					<key>name</key>
-					<string>support.function.builtin.fish</string>
-				</dict>
-				<dict>
-					<key>match</key>
-					<string>(?&lt;![-/])\b(?:abbr|alias|bg|bind|block|breakpoint|builtin|cd|command|commandline|complete|contains|count|dirh|dirs|echo|emit|eval|exec|exit|false|fg|fish|fish_config|fish_indent|fish_prompt|fish_realpath|fish_right_prompt|fish_update_completions|fish_vi_mode|funced|funcsave|function|functions|help|history|isatty|jobs|math|nextd|not|open|popd|prevd|printf|prompt_pwd|psub|pushd|pwd|random|read|return|set|set_color|source|status|string|suspend|test|trap|true|type|ulimit|umask|vared)\b</string>
-					<key>name</key>
-					<string>support.function.builtin.fish</string>
-				</dict>
-			</array>
-		</dict>
-		<key>variable</key>
-		<dict>
-			<key>patterns</key>
-			<array>
-				<dict>
-					<key>captures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>punctuation.definition.variable.fish</string>
-						</dict>
-					</dict>
-					<key>match</key>
-					<string>(\$)[-*@#?$!0_](?![a-zA-Z0-9_])</string>
-					<key>name</key>
-					<string>variable.other.special.fish</string>
-				</dict>
-				<dict>
-					<key>captures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>punctuation.definition.variable.fish</string>
-						</dict>
-					</dict>
-					<key>match</key>
-					<string>(\$)[1-9]</string>
-					<key>name</key>
-					<string>variable.other.positional.fish</string>
-				</dict>
-				<dict>
-					<key>captures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>punctuation.definition.variable.fish</string>
-						</dict>
-					</dict>
-					<key>match</key>
-					<string>(\$+)[a-zA-Z0-9_][a-zA-Z0-9_]*</string>
-					<key>name</key>
-					<string>variable.other.normal.fish</string>
+					<string>invalid.illegal.variable-expansion.fish</string>
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>(?&lt;!")(\{\$+)</string>
-					<key>captures</key>
-					<dict>
-						<key>0</key>
-						<dict>
-							<key>name</key>
-							<string>punctuation.definition.variable.fish</string>
-						</dict>
-					</dict>
+					<string>(?=\$)</string>
+					<key>comment</key>
+					<string>Capture "$foo" or "$foo[]"</string>
 					<key>end</key>
-					<string>(\})(?!")</string>
-					<key>name</key>
-					<string>variable.other.bracket.fish</string>
+					<string>(?&lt;=[\$\w])(?=[^\$\w\[])|(?&lt;=\])</string>
 					<key>patterns</key>
 					<array>
 						<dict>
-							<key>captures</key>
+							<key>begin</key>
+							<string>\$</string>
+							<key>beginCaptures</key>
 							<dict>
-								<key>1</key>
+								<key>0</key>
 								<dict>
 									<key>name</key>
 									<string>punctuation.definition.variable.fish</string>
 								</dict>
 							</dict>
-							<key>match</key>
-							<string>[a-zA-Z0-9_][a-zA-Z0-9_]*</string>
+							<key>comment</key>
+							<string>Capture "foo"[ or "foo[...]"[</string>
+							<key>end</key>
+							<string>(?&lt;=[\$\w\]])(?=[^\$\w])|(?&lt;=\])(?=\[)</string>
 							<key>name</key>
-							<string>variable.other.normal.fish</string>
+							<string>variable.other.fish</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>#variable-expansion</string>
+								</dict>
+							</array>
+						</dict>
+						<dict>
+							<key>begin</key>
+							<string>\[</string>
+							<key>beginCaptures</key>
+							<dict>
+								<key>0</key>
+								<dict>
+									<key>name</key>
+									<string>keyword.control.index-expansion.begin.fish punctuation.definition.keyword.fish</string>
+								</dict>
+							</dict>
+							<key>comment</key>
+							<string>In other words, the anonymous scope which contains the variable and the index expansion argument list should only be allowed to contain a single copy of each of those two things. We cannot enforce that without a scope stack</string>
+							<key>end</key>
+							<string>\]</string>
+							<key>endCaptures</key>
+							<dict>
+								<key>0</key>
+								<dict>
+									<key>name</key>
+									<string>keyword.control.index-expansion.end.fish punctuation.definition.keyword.fish</string>
+								</dict>
+							</dict>
+							<key>name</key>
+							<string>meta.index-expansion.fish</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>#string</string>
+								</dict>
+							</array>
 						</dict>
 					</array>
 				</dict>

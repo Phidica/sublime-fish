@@ -5,133 +5,425 @@ fileTypes: [fish]
 uuid: a6b750ed-a12a-43c1-84e7-689ac7e2fbc9
 
 patterns:
+- comment: These are the patterns which can appear in the base scope
+- include: '#block'
+- include: '#command-call'
 - include: '#comment'
+- include: '#control-operator'
+- include: '#escape-character'
 
-- include: '#function-definition'
+# Style guide:
+# - keyword.control is applied to control operators such as ;, &, and | because although keyword.operator is suggested for symbols in general, these symbols are important to controlling program flow
+# - keyword.control.conditional is applied to all control keywords that are actually words (if, else, end, function, etc.)
+# - support.function is applied to standalone commands rather than variable.function because this is a scripting language and we can reliably act as though any command will be provided to the user as if it were part of a base framework
+# - constant.character.escape is used for the backslash at the end of a line which causes line continuation because technically that backslash is "escaping" the literal newline which appears in the unquoted string environment which the shell assumes you are in. In this sense, the backslash is indeed an escape character
+# - constant.character.escape is used for \x?? and \0?? escape codes rather than constant.numeric.{hex,octal} because even though the user inputs a numeric value in hex or octal, the codes serve the purpose of making characters not numbers
+# - Individual arguments in function calls do not get the variable.parameter label because that swiftly becomes the overwhelming majority of all words in a program
 
-- include: '#interpolation'
-
-- include: '#keyword'
-
-- include: '#list'
-
-- include: '#logical-expression'
-
-- include: '#loop'
-
-- include: '#math'
-
-- include: '#pathname'
-
-- include: '#pipeline'
-
-- include: '#redirection'
-
-- include: '#string'
-
-- include: '#support'
-
-- include: '#variable'
+#! \todo Bug: Keywords that only work in loops or functions (eg, "continue", "return", etc) will be treated like standard commands if they are located within if-statements within those outer valid blocks. Without a scope stack, we'll have to treat them as always being keywords rather than trying to parse them for the user
+#! \todo Known bug: if a command-call line ends in "end" then a comment following it on the line will not be of the insert type, causing the next line of text to be considered arguments. fixing may require a rethink of the two comment contexts and finding a way to merge them (the key difference is whether the newline is consumed and command-call either terminates or perpetuates based on that)
+#! \todo add comment-inline to the recursive command-call. no point adding comment because recursive will /always/ have ended by the time a full line comment shows up
+#! \todo add special behaviour to parameter expansion arguments like ~
+#! \todo redirection
+#! \todo a specific version of command-call which is just `test` and the possible expressions all highlighted special, as well as the `[ ]` form
+#! \todo piping with | is more complicated than it seems, as fish expects a command to appear after the pipe. make a pattern match in command-call that is only valid inside of a command call that used the pipe, and matches from after a pipe until the end of the line, looking for command-call within it
+#!  Hm, because it is possible to pipe the output of an entire block by putting the pipe after `end`, a better approach may be to make a command that STARTS with a pipe, and is normal after that. then it can check inside itself to see if it is ONLY a pipe with no command following it, and mark that as invalid syntax. that would supersede the need for pipe to be matched invalid from in control-operator
 
 repository:
+  argument:
+    patterns:
+    - name: meta.function-call.argument.fish
+      comment: An argument is one of the fundamental units, however we define it by the very essence of not being any of the other fundamental units '#' and the control operators (';', '&', and '|'). All those have special treatment when they appear in command-calls, so we attend to them uniquely
+      begin: (?<=^|\s)(?!\s|#|$)
+      comment: Begin arg at a boundary. Before the boundary must be the begin of line (for when a command-call spans multiple lines) or whitespace. After the boundary may be anything but whitespace, a comment character, or a newline (to prevent blank lines being called args)
+      end: (?<=.|\n)(?=\s|\)|;|&|\||$)
+      comment: End arg if it precedes whitespace, unescaped control operators, or a newline
+      patterns:
+      - include: '#string'
+        comment: Arguments are made of strings, either quoted or unquoted. The unquoted string handles numerics, character escapes, command substitutions, and brace/variable/process expansions
+
+  block:
+    patterns:
+    - name: meta.block.begin.fish
+      begin: \b(begin)\b(?!\s*(-|&|\|))
+      beginCaptures:
+        '0': {name: keyword.control.conditional.fish}
+      end: (end)(\s*(&))?
+      endCaptures:
+        '1': {name: keyword.control.conditional.fish}
+        '3': {name: keyword.control.fish punctuation.definition.keyword.fish}
+      patterns:
+      - include: '$self'
+
+    - name: meta.block.while.fish
+      begin: \b(while)\b(?!\s*(-|&|\|))
+      beginCaptures:
+        '0': {name: keyword.control.conditional.fish}
+      end: (end)(\s*(&))?
+      endCaptures:
+        '1': {name: keyword.control.conditional.fish}
+        '3': {name: keyword.control.fish punctuation.definition.keyword.fish}
+      patterns:
+      - include: '#loop-control-command'
+      - include: '$self'
+
+    - name: meta.block.if.fish
+      begin: \b(if)\b(?!\s*(-|&|\|))
+      beginCaptures:
+        '0': {name: keyword.control.conditional.fish}
+      end: (end)(\s*(&))?
+      endCaptures:
+        '1': {name: keyword.control.conditional.fish}
+        '3': {name: keyword.control.fish punctuation.definition.keyword.fish}
+      patterns:
+      - name: keyword.control.conditional.fish
+        match: \b(else(\s*if)?)\b
+        comment: Having a meta scope just for the condition command is complicated and ultimately useless, so treat `else if` and `else` as standalone keywords and let the conditions scope like normal instances of command-call
+      - include: '$self'
+
+    - name: meta.block.for-in.fish
+      begin: \b(for)\b(?!\s*(-|&|\|))
+      beginCaptures:
+        '0': {name: keyword.control.conditional.fish}
+      end: (end)(\s*(&))?
+      endCaptures:
+        '1': {name: keyword.control.conditional.fish}
+        '3': {name: keyword.control.fish punctuation.definition.keyword.fish}
+      patterns:
+      - begin: (?<=for)
+        end: (?<=\w)(?=\W)
+        patterns:
+        - include: '#argument'
+          comment: Treat the varname like an argument
+        - include: '#comment'
+      - begin: \b(in)\b
+        beginCaptures:
+          '0': {name: keyword.control.conditional.fish}
+        end: (?=;)|\n
+        patterns:
+        - include: '#argument'
+          comment: Treat the list as arguments
+        - include: '#comment'
+        - include: '#comment-inline'
+      - include: '#loop-control-command'
+      - include: '$self'
+
+    - name: meta.block.switch.fish
+      begin: \b(switch)\b(?!\s*(-|&|\|))
+      beginCaptures:
+        '0': {name: keyword.control.conditional.fish}
+      end: (end)(\s*(&))?
+      endCaptures:
+        '1': {name: keyword.control.conditional.fish}
+        '3': {name: keyword.control.fish punctuation.definition.keyword.fish}
+      patterns:
+      - name: meta.block.switch.value.fish
+        begin: (?<=switch)
+        end: (?=;)|\n
+        comment: Value ends before ';' or at a newline
+        patterns:
+        - include: '#argument'
+        - include: '#comment'
+        - include: '#comment-inline'
+      - name: meta.block.switch.case.fish
+        begin: \b(case)\b
+        beginCaptures:
+          '0': {name: keyword.control.conditional.fish}
+        end: (?=\b(case|end)\b)
+        comment: Case block ends before a new case or the end of the switch block
+        patterns:
+        - name: meta.block.switch.case.wildcard.fish
+          begin: (?<=case)
+          end: (?=;)|\n
+          comment: Wildcard ends before ';' or at a newline
+          patterns:
+          - include: '#argument'
+          - include: '#comment'
+          - include: '#comment-inline'
+        - include: '$self'
+      - include: '#comment'
+      - include: '#control-operator'
+
+    - name: meta.block.function.fish
+      begin: \b(function)\b(?!\s+(-|&|\|))
+      beginCaptures:
+        '0': {name: keyword.control.conditional.fish}
+      end: (end)(\s*(&))?
+      endCaptures:
+        '1': {name: keyword.control.conditional.fish}
+        '3': {name: keyword.control.fish punctuation.definition.keyword.fish}
+      patterns:
+      - begin: (?<=function)
+        end: (?=;)|\n
+        comment: Name and options end before ';' or at a newline
+        patterns:
+        - begin: (?<=function)\s+
+          end: (?<=\S|\\ )\s*(?=\S|;|\n)
+          comment: Detect the region from just after the `function` command to between the defined function name the argument or control operators which follow it. Note that we have to account for the fact the defined function name may end in an escaped space
+          patterns:
+          - match: (?:\'(?:\\[\'\\]|[^\'\\])*\'|\"(?:\\[\"$\n\\]|[^\"$\n\\])*\"|(?:\\[abefnrtv $\\*?#(){}\[\]<>^&;|"']|(?<=^|\s)\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]|[^\s$\\*?~%#()<>&|;"']|\\(?=[^abefnrtv\s$\\*?#(){}\[\]<>^&;|"'xXuUc])|(?<=\S|\\ )\\\n|(?<=\S|\\ )[~%#])+)+
+            name: entity.name.function.fish
+            comment: The function name may be given using any means that is valid for a command call
+          - include: '#comment'
+          - include: '#comment-inline'
+          - name: constant.character.escape
+            match: \\\n
+            comment: We can't read across lines, so this is needed to catch an escaped newline at the start of a defined function name
+        - comment: The rest of the patterns are the typical elements of a standard command-call, which is what the `function` command adheres to
+        - include: '#argument'
+        - include: '#comment'
+        - include: '#comment-inline'
+      - begin: \b(return)\b(?!\s+(-))
+        beginCaptures:
+          '1': {name: keyword.control.conditional.fish}
+        end: (?=\)|;)|\n|(&|\|)
+        endCaptures:
+          '1': {name: keyword.control.fish punctuation.definition.keyword.fish}
+        comment: The `return` command can't accept flags
+        patterns:
+        - include: '#argument'
+        - include: '#comment'
+        - include: '#comment-inline'
+      - include: '$self'
+
+  command-call:
+    patterns:
+    - name: meta.function-call.recursive.fish
+      comment: Check if the command name is a builtin corresponding to a command that takes another command as arguments, ie, to recursively contain another command-call. Because some builtins can instead take switches, or be backgrounded/piped (in which case they should be considered user commands), look ahead to ensure that no switches or bg/pipe control operators are found
+      begin: \b((builtin|command|exec)|(and|not|or))\b(?!\s+(-|&|\|))
+      comment: (?!\s+(-|&|\|)) is equivalent to (?= \s+ then \S except '-' '&' and '|')
+      beginCaptures:
+        '2': {name: support.function.builtin.fish}
+        '3': {name: keyword.operator.word.fish}
+      end: (?=\)|;)|(?<=\n|&|\|)
+      comment: Recursive command-call ends before ')' or ';', and just after a newline, '&', or '|'. Standard command-call will have consumed the '&' or '|'. Unfortunately, we cannot help but end after any newline we encounter, as the standard command-call only ends when it consumes a newline (allowing us to insert comments by having the comment consume its newline and prevent command-call matching it) and we cannot distinguish between a newline that was consumed by a command and a newline that was consumed by a comment. Put simply, this means that when a recursive command-call reaches a newline before its first standard command-call, the scope ends and the standard command-call on the next line loses the recursive command-call scope
+      patterns:
+      - include: '#command-call'
+      - match: (\\)\n
+        captures:
+          '1': {name: constant.character.escape}
+
+    - name: invalid.illegal.function.fish
+      comment: Search for illegal commands; these aren't valid outside of their use in blocks
+      begin: \b(?:case|else|end)\b|(?<=^|\(|;|&|\|\s)(?:%)
+      end: $\n?
+
+    - name: meta.function-call.standard.fish
+      comment: If the above match for recursive commands failed, try and match legal standard commands
+      begin: (?:\'(?:\\[\'\\]|[^\'\\])*\'|\"(?:\\[\"$\n\\]|[^\"$\n\\])*\"|(?:\\[abefnrtv $\\*?#(){}\[\]<>^&;|"']|(?<=^|\s)\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]|[^\s$\\*?~%#()<>&|;"']|\\(?=[^abefnrtv\s$\\*?#(){}\[\]<>^&;|"'xXuUc])|(?<=\S|\\ )\\\n|(?<=\S|\\ )[~%#])+)+
+      beginCaptures:
+        '0': {name: support.function.user.fish}
+      comment: In fish, commands can be called using any arbitrary combination of quoted and unquoted strings (with a modified set of characters that need to be escaped, pointless escapes expanded into two literal characters, the literal newline allowed if escaped provided it's not the sole character, the comment character allowed if it's not at the front, etc), so we must manually repeat all the definitions of single-quoted, double-quoted, and unquoted strings. Unfortunately, only a single instance of a non-zero `beginCapture` match can be assigned a scope, so it isn't possible to account for the fact that an arbitrary number of strings can be in the command name and give them all the appropriate string scopes. Furthermore, a `begin` match cannot check across multiple lines, so even though line breaks are permitted inside of double-quoted strings we cannot see to the next line and determine that such a command name would be valid
+      comment: If this were a *.sublime-syntax then the aformentioned problems could be avoided. We could push the `meta.function-call.standard.fish` and `support.function.user.fish` scopes onto the stack simultaneously, then use individual pattern matching on each type of string we find, and finally pop the `support.function.user.fish` scope when unescaped whitespace is encountered (hence marking the end of the command name in the command call)
+      end: (?=\)|;)|\n|(&|\|)
+      endCaptures:
+        '1': {name: keyword.control.fish punctuation.definition.keyword.fish}
+      comment: Command call ends before ')' or ';', and at a newline, '&', or '|'. Those last two control operators must be part of a command, so consume them here
+      patterns:
+      - include: '#argument'
+      - include: '#comment'
+      - include: '#comment-inline'
+
+  command-substitution:
+    patterns:
+    - begin: (?=\()
+      end: (?<=\))(?!\[)|(?<=\])
+      comment: Capture "(...)" or "(...)[...]"
+      patterns:
+      - name: meta.command-substitution.fish
+        comment: The inside of a command substitution is indistinguishable from a global scope
+        begin: \(
+        beginCaptures:
+          '0': {name: keyword.control.command-substitution.begin.fish punctuation.definition.keyword.fish}
+        end: \)
+        endCaptures:
+          '0': {name: keyword.control.command-substitution.end.fish punctuation.definition.keyword.fish}
+        patterns:
+        - include: '$self'
+
+      - name: meta.index-expansion.fish
+        begin: \[
+        beginCaptures:
+          '0': {name: keyword.control.index-expansion.begin.fish punctuation.definition.keyword.fish }
+        end: \]
+        endCaptures:
+          '0': {name: keyword.control.index-expansion.end.fish punctuation.definition.keyword.fish }
+        patterns:
+        - include: '#string'
+
   comment:
     patterns:
-    - name: comment.line.number-sign.fish
-      match: (?<!\S)(#)(?!\{).*$\n?
+    - name: comment.line.fish
+      comment: Consumes the remainder of a line after any character which marks the start of a scope with no commands in it. Consumes the newline, thus hiding the entire comment from any scope which seeks newlines
+      match: (?<=^|else|end|\(|;|&|\|)\s*(#).*$\n?
       captures:
         '1': {name: punctuation.definition.comment.fish}
 
-  function-definition:
+  comment-inline:
     patterns:
-    - name: meta.function.fish
-      begin: \b(function)\s+([^\s\\]+)(?:\s*(\(\)))?
-      beginCaptures:
-        '1': {name: storage.type.function.fish}
-        '2': {name: entity.name.function.fish}
-        '3': {name: punctuation.definition.arguments.fish}
-      end: ;|&|$
-      endCaptures:
-        '1': {name: punctuation.definition.function.fish}
-      patterns:
-      - include: $self
+    - name: comment.line.insert.fish
+      comment: Separate from comment as this is only valid inside of command-call. Does not consume the newline, thus allowing command-call to capture it and end
+      match: (#).*$
+      captures:
+        '1': {name: punctuation.definition.comment.fish}
 
-  interpolation:
+  control-operator:
     patterns:
-    - name: string.interpolated.dollar.fish
-      begin: \{\$
+    - name: keyword.control.fish punctuation.definition.keyword.fish
+      match: ;
+      comment: This is the only operator which is allowed to exist alone on a line. The other control operators are '&' and '|' however they must be preceded by a command, so command-call matches those
+    - name: invalid.illegal.control.fish
+      match: (?<=^|\(|;|&|\|)\s*(&|\|).*$\n?
+      comment: These two control operators, '&' and '|', must be preceded by a command, so command patterns match them when they are valid. If they are found in the global scope or first inside a command-substitution, that means they are dangling
+
+  escape-character:
+    patterns:
+    - name: constant.character.escape
+      match: \\(?=\n)
+      comment: This match should only be needed for an escaped newline which is not part of any command-call, like if it comes alone on a line. No need to consume the newline
+
+  loop-control-command:
+    patterns:
+    - begin: \b(break|continue)\b(?!\s+(-|\w))
+      comment: These commands only work as loop control when they are used without arguments
+      beginCaptures:
+        '1': {name: keyword.control.conditional.fish}
+      end: (?=;)|\n|(&)
+      endCaptures:
+        '1': {name: keyword.control.fish punctuation.definition.keyword.fish}
+      patterns:
+      - include: '#comment-inline'
+      - include: '#control-operator'
+      - include: '#escape-character'
+
+  string:
+    patterns:
+    - include: '#string-quoted'
+    - include: '#string-unquoted'
+
+  string-quoted:
+    patterns:
+    - name: string.quoted.single.fish
+      begin: \'
       beginCaptures:
         '0': {name: punctuation.definition.string.begin.fish}
-      end: \}
+      end: \'
       endCaptures:
         '0': {name: punctuation.definition.string.end.fish}
       patterns:
-      - include: $self
+      - name: constant.character.escape.fish
+        match: \\[\'\\]
+        comment: Only accepted escapes are \' and \\
 
-  keyword:
-    patterns:
-    - name: keyword.control.fish
-      match: \b(?:and|begin|break|case|continue|else|end|for|if|in|return|switch|while)\b
-    - name: storage.modifier.fish
-      match: (?<![-/])\b(?:set)\b
-
-  list:
-    patterns:
-    - name: keyword.operator.list.fish
-      match: ;|&&|&|\|\|
-
-  logical-expression:
-    patterns:
-    - comment: do we want a special rule for ( expr )?
-      name: keyword.operator.logical.fish
-      match: =[=~]?|!=?|<|>|&&|\|\|
-    # - name: keyword.operator.logical.fish
-    #   match: (?<!\S)-(nt|ot|ef|eq|ne|l[te]|g[te]|[a-hknoprstuwxzOGLSN])
-
-  loop:
-    patterns:
-    - name: meta.scope.for-loop.fish
-      begin: \b(for)\s+(?=\({2})
-      end: \b(end)\b
-      captures:
-        '1': {name: keyword.control.fish}
-      patterns:
-      - include: $self
-    - name: meta.scope.for-in-loop.fish
-      begin: \b(for)\s+((?:[^\s\\]|\\.)+)\b
+    - name: string.quoted.double.fish
+      begin: \"
       beginCaptures:
-        '1': {name: keyword.control.fish}
-        '2': {name: variable.other.loop.fish}
-      end: \b(end)\b
+        '0': {name: punctuation.definition.string.begin.fish}
+      end: \"
       endCaptures:
-        '1': {name: keyword.control.fish}
+        '0': {name: punctuation.definition.string.end.fish}
       patterns:
-      - include: $self
-    - name: meta.scope.while-loop.fish
-      begin: \b(while)\b
-      end: \b(end)\b
-      captures:
-        '1': {name: keyword.control.fish}
+      - name: constant.character.escape.fish
+        match: \\[\"$\n\\]
+        comment: Only accepted escapes are \", \$, \<newline>, and \\
+      - include: '#variable-expansion'
+        comment: Variable expansion is the only expansion permitted
+
+  string-unquoted:
+    patterns:
+    - name: string.unquoted.fish
+      begin: (?<=\'|\"|\[|\{|\%|^|\s)(?!\'|\"|\]|\}|\s)
+      comment: Begin string at a boundary. Before the boundary must be the end of a quoted string, the begin of an index/brace/process expansion, or anything that would initiate a function-call argument. After the boundary may be anything that isn't the begin of a quoted string, the end of an item-access argument list, the end of a brace expansion, or whitespace
+      end: (?<=.|\n)(?=\'|\"|\]|\}|\s|\)|;|&|\||$)
+      comment: End string if it precedes the begin of a quoted string, the end of an index/brace expansion (but not a process expansion as '%' is valid in names), or anything that would end an argument
       patterns:
-      - include: $self
-    - name: meta.scope.case-block.fish
-      match: \b(case)\b
-      captures:
-        '1': {name: keyword.control.fish}
+      - include: '#string-unquoted-patterns'
+
+  string-unquoted-patterns:
+    comment: Describes contents of an unquoted string separately for ease of recursion
+    patterns:
+    - name: constant.numeric.fish
+      match: (?<![0-9A-Za-z])[0-9]+(?![0-9A-Za-z])
+      comment: Treat integers as standalone constants if they aren't within strings of alphanumeric characters
+
+    - name: constant.character.escape.fish
+      match: \\\n|\\[abefnrtv $\\*?#(){}\[\]<>^&|;"']|(?<=^|\s)\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]
+      comment: This list follows the order given in official fish documentation, with the addition of an escaped newline match and additional checks made on the ~ and % characters which only need escaping if they appear at the front of an argument
+
+    - include: '#command-substitution'
+
+    - include: '#variable-expansion'
+
+    - name: meta.brace-expansion.fish
+      begin: \{
+      beginCaptures:
+        '0': {name: keyword.control.brace-expansion.begin.fish punctuation.definition.keyword.fish}
+      end: \}
+      endCaptures:
+        '0': {name: keyword.control.brace-expansion.end.fish punctuation.definition.keyword.fish}
       patterns:
-      - include: $self
-    - name: meta.scope.if-block.fish
-      begin: \b(if)\b
-      end: \b(end)\b
-      captures:
-        '1': {name: keyword.control.fish}
+      - name: keyword.control.brace-expansion.separator.fish
+        match: \,
+        comment: Explicitly treat ',' as a keyword
+      - include: '#string-quoted'
+      - name: string.unquoted.fish
+        comment: We could name this scope differently if we wished, as we know that it must be occurring inside of a brace expansion
+        begin: (?<=\,|\'|\"|\[|\{|^|\s)(?!\,|\'|\"|\]|\}|\s)
+        end: (?<=.|\n)(?=\,|\'|\"|\]|\}|\s|\)|;|&|\||$)
+        comment: Begin/end string at same boundaries as before, but ',' can also force a start/stop
+        patterns:
+        - name: constant.character.escape.fish
+          match: \\\,
+          comment: Explicitly allow a ',' to be escaped
+        - include: '#string-unquoted-patterns'
+
+    - name: constant.other.process.fish
+      comment: This is called a process expansion
+      begin: \%
+      beginCaptures:
+        '0': {name: punctuation.definition.process.fish}
+      end: (?<=.|\n)(?=\s|\)|;|&|\||$)
+      comment: Process expansion assumed to continue for the entire argument
       patterns:
-      - include: $self
+      - include: '#string'
+
+  variable-expansion:
+    patterns:
+    - name: invalid.illegal.variable-expansion.fish
+      match: \$(?:(?=[,'"\]}\s);&|])|[^\w\$][^$,'"\]}\s);&|]*)
+      comment: A lone '$' in a scope, or an attempt to expand a variable starting with a nonword character, is an error. These boundaries are the same as for string.unquoted
+
+    - begin: (?=\$)
+      end: (?<=[\$\w])(?=[^\$\w\[])|(?<=\])
+      comment: Capture "$foo" or "$foo[]"
+      patterns:
+      - name: variable.other.fish
+        begin: \$
+        beginCaptures:
+          '0': {name: punctuation.definition.variable.fish}
+        end: (?<=[\$\w\]])(?=[^\$\w])|(?<=\])(?=\[)
+        comment: Capture "foo"[ or "foo[...]"[
+        patterns:
+        - include: '#variable-expansion'
+      - name: meta.index-expansion.fish
+        comment: The number of index expansion argument lists `[...]` should always be less than or equal to the number of variable expansion operators `$`. Unfortunately, we can do nothing to moderate that with this syntax schema; with a *.sublime-syntax and a scope stack it could be done. As it stands, "$$foo[...]" is the deepest that we can accurately highlight
+        comment: In other words, the anonymous scope which contains the variable and the index expansion argument list should only be allowed to contain a single copy of each of those two things. We cannot enforce that without a scope stack
+        begin: \[
+        beginCaptures:
+          '0': {name: keyword.control.index-expansion.begin.fish punctuation.definition.keyword.fish }
+        end: \]
+        endCaptures:
+          '0': {name: keyword.control.index-expansion.end.fish punctuation.definition.keyword.fish }
+        patterns:
+        - include: '#string'
+
+  # Inherited constructs; to be rewritten
 
   math:
     patterns:
     - name: keyword.operator.arithmetic.fish
       match: (\+{1,2}|-{1,2}|!|~|\*{1,2}|/|%|<[<=]?|>[>=]?|==|!=|^|\|{1,2}|&{1,2}|\?|\:|,|=|[*/%+\-&^|]=|<<=|>>=)(?=(\s|$|\$|\())
-      comment: Only match an operator if the element to the right is whitespace/endline, a variable, or command substitution
+      comment: Only match an operator if the element to the right is whitespace/newline, a variable, or command substitution
     - name: constant.numeric.hex.fish
       match: 0[xX]\h+
     - name: constant.numeric.octal.fish
@@ -140,7 +432,6 @@ repository:
       match: \d{1,2}#[0-9a-zA-Z@_]+
     - name: constant.numeric.integer.fish
       match: \d+
-    - include: '#variable'
 
   pathname:
     patterns:
@@ -159,11 +450,6 @@ repository:
       patterns:
       - include: $self
 
-  pipeline:
-    patterns:
-    - name: keyword.operator.pipe.fish
-      match: '[|!]'
-
   redirection:
     patterns:
     - name: string.interpolated.process-substitution.fish
@@ -180,83 +466,7 @@ repository:
       name: keyword.operator.redirect.fish
       match: '&>|\d*>&\d*|\d*(>>|>|<)|\d*<&|\d*<>'
 
-  string:
-    patterns:
-    - name: constant.character.escape.fish
-      match: \\.
-    - name: string.quoted.single.fish
-      begin: ''''
-      beginCaptures:
-        '0': {name: punctuation.definition.string.begin.fish}
-      end: ''''
-      endCaptures:
-        '0': {name: punctuation.definition.string.end.fish}
-      patterns:
-      - name: constant.character.escape.fish
-        match: \\'
-    - name: string.quoted.double.fish
-      begin: '"'
-      beginCaptures:
-        '0': {name: punctuation.definition.string.begin.fish}
-      end: '"'
-      endCaptures:
-        '0': {name: punctuation.definition.string.end.fish}
-      patterns:
-      - name: constant.character.escape.fish
-        match: \\[\$`"\\\n]
-      - include: '#variable'
-      - include: '#interpolation'
-    - name: string.quoted.single.dollar.fish
-      begin: \$'
-      beginCaptures:
-        '0': {name: punctuation.definition.string.begin.fish}
-      end: ''''
-      endCaptures:
-        '0': {name: punctuation.definition.string.end.fish}
-      patterns:
-      - name: constant.character.escape.ansi-c.fish
-        match: \\(a|b|e|f|n|r|t|v|\\|')
-      - name: constant.character.escape.octal.fish
-        match: \\[0-9]{3}
-      - name: constant.character.escape.hex.fish
-        match: \\([xX][0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8})
-      - name: constant.character.escape.control-char.fish
-        match: \\c.
-
-  support:
-    patterns:
-    - comment: Matches literal . (alias for source, may be deprecated in future)
-      name: support.function.builtin.fish
-      match: (?<=^|\s)(?::|\.)(?=\s|;|&|$)
-    - name: support.function.builtin.fish
-      match: (?<![-/])\b(?:abbr|alias|bg|bind|block|breakpoint|builtin|cd|command|commandline|complete|contains|count|dirh|dirs|echo|emit|eval|exec|exit|false|fg|fish|fish_config|fish_indent|fish_prompt|fish_realpath|fish_right_prompt|fish_update_completions|fish_vi_mode|funced|funcsave|function|functions|help|history|isatty|jobs|math|nextd|not|open|popd|prevd|printf|prompt_pwd|psub|pushd|pwd|random|read|return|set|set_color|source|status|string|suspend|test|trap|true|type|ulimit|umask|vared)\b
-
-  variable:
-    patterns:
-    - name: variable.other.special.fish
-      match: (\$)[-*@#?$!0_](?![a-zA-Z0-9_])
-      captures:
-        '1': {name: punctuation.definition.variable.fish}
-    - name: variable.other.positional.fish
-      match: (\$)[1-9]
-      captures:
-        '1': {name: punctuation.definition.variable.fish}
-    - name: variable.other.normal.fish
-      match: (\$+)[a-zA-Z0-9_][a-zA-Z0-9_]*
-      captures:
-        '1': {name: punctuation.definition.variable.fish}
-    - name: variable.other.bracket.fish
-      begin: (?<!")(\{\$+)
-      end: (\})(?!")
-      captures:
-        '0': {name: punctuation.definition.variable.fish}
-      patterns:
-      - name: variable.other.normal.fish
-        match: '[a-zA-Z0-9_][a-zA-Z0-9_]*'
-        captures:
-          '1': {name: punctuation.definition.variable.fish}
-
 firstLineMatch: ^#!.*\b(fish)|^#\s*-\*-[^*]*mode:\s*shell-script[^*]*-\*-
-foldingStartMarker: \b(begin|for|if|else|function|switch|while)\b|(\{)$
-foldingStopMarker: ^\s*(\}|(else|end)\b)
+foldingStartMarker: \b(begin|case|for|if|else|function|switch|while)\b|(\{)$
+foldingStopMarker: ^\s*(\}|(case|else|end)\b)
 keyEquivalent: ^~S
