@@ -19,7 +19,7 @@ Contribution
 
 This package is built with [PackageDev](https://github.com/SublimeText/PackageDev).
 
-The source file for the syntax highlighting is `fish.json-tmLanguage`. When editing this file, "compile" it with the PackageDev build system to automatically generate the `fish.tmLanguage` file which is used by Sublime Text.
+The source file for the syntax highlighting is `fish.YAML-tmLanguage`. When editing this file, "compile" it with the PackageDev build system to automatically generate the `fish.tmLanguage` file which is used by Sublime Text.
 
 History
 -------
