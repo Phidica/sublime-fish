@@ -1,8 +1,8 @@
 # [PackageDev] target_format: plist, ext: tmLanguage
-name: Shell Script (fish)
+name: Shell Script Improved (fish)
 scopeName: source.fish
 fileTypes: [fish]
-uuid: a6b750ed-a12a-43c1-84e7-689ac7e2fbc9
+uuid: f9278d07-f7c1-4a9b-9581-ebcbc050fbfb
 
 patterns:
 - comment: These are the patterns which can appear in the base scope

@@ -1,18 +1,23 @@
-Sublime fish shell
-==================
+Sublime Shell Script Improved (fish)
+====================================
 
-Sublime Text 2/3 package for [fish-shell](https://github.com/fish-shell/fish-shell). Features syntax highlighting and snippets.
+A Sublime Text 2/3 package for [fish-shell](https://github.com/fish-shell/fish-shell). It features a robust syntax highlighting scheme that mimics the native highlighting behavior of fish.
 
+This package is currently under active development and, while complete enough for general use, is not yet fully implemented.
+
+To do:
+- Command piping
+- Output redirection
 
 Installation
 ------------
 
-Clone the repository to your [Sublime Text Packages directory](http://docs.sublimetext.info/en/latest/basic_concepts.html#the-packages-directory).
+Clone the repository to your [Packages directory](http://docs.sublimetext.info/en/latest/basic_concepts.html#the-packages-directory).
 
     cd /path/to/sublime/packages/directory
     git clone https://github.com/Phidica/sublime-fish-shell.git
 
-Open a `.fish` file and set the default syntax highlighting to "Shell Script (fish)".
+Open a `.fish` file and set the default syntax highlighting to "Shell Script Improved (fish)".
 
 Highlighting strings
 --------------------
