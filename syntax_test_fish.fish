@@ -1,4 +1,4 @@
-#! SYNTAX TEST "Packages/sublime-fish-shell/fish.tmLanguage"
+#! SYNTAX TEST "Packages/sublime-fish-shell-improved/fish.tmLanguage"
 
 # If using fish to test parsing of this file, all invalid illegal tokens and their tests must be temporarily removed
 
