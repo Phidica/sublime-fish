@@ -415,7 +415,6 @@ if --help; else;
 #!       ^ keyword.control
 #!         ^^^^ invalid.illegal.function
 
-<<<<<<< HEAD
 if \
 #! ^ constant.character.escape
   test foo; end & # comment
