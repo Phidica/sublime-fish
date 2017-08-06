@@ -3,11 +3,11 @@
 # If using fish to test parsing of this file, all invalid illegal tokens and their tests must be temporarily removed
 
 ;
-#! <- keyword.control
+#! <- keyword.operator
 &
-#! <- invalid.illegal.control
+#! <- invalid.illegal.operator
 |
-#! <- invalid.illegal.control
+#! <- invalid.illegal.operator
 \
 #! <- constant.character.escape
 
@@ -17,14 +17,14 @@ echo --arg -arg arg ; echo arg # comment
 #!   ^^^^^ meta.function-call.argument
 #!         ^^^^ meta.function-call.argument
 #!              ^^^ meta.function-call.argument
-#!                  ^ keyword.control
+#!                  ^ keyword.operator
 #!                    ^^^^ support.function.user
 #!                    ^^^^^^^^ meta.function-call
 #!                             ^ punctuation.definition.comment
 #!                             ^^^^^^^^^ comment.line.insert
 
 echo arg & # comment
-#!       ^ keyword.control
+#!       ^ keyword.operator
 #!         ^ comment.line
 
 echo 'single-quoted' "double-quoted" unquoted
@@ -148,13 +148,13 @@ echo seven
 echo ( \
 #!     ^ constant.character.escape
 ;  &
-#! <- keyword.control
-#! ^ invalid.illegal.control
+#! <- keyword.operator
+#! ^ invalid.illegal.operator
 echo &
 #! <- meta.function-call
 )  &  &
-#! ^ keyword.control
-#!    ^ invalid.illegal.control
+#! ^ keyword.operator
+#!    ^ invalid.illegal.operator
 
 echo ( # comment
 #!    ^^^^^^^^^^ comment.line
@@ -184,7 +184,7 @@ builtin echo arg ; and echo arg
 #! <- meta.function-call.recursive support.function.builtin
 #!      ^^^^ meta.function-call.recursive meta.function-call.standard support.function.user
 #!           ^^^ meta.function-call.recursive meta.function-call.standard meta.function-call.argument
-#!               ^ keyword.control
+#!               ^ keyword.operator
 #!                 ^^^ meta.function-call.recursive keyword.operator.word
 #!                     ^^^^ meta.function-call.recursive meta.function-call.standard support.function.user
 
@@ -209,7 +209,7 @@ echo arg1 ; and echo arg2 & not echo arg3 | cat
 #! <- meta.function-call support.function.user
 #!          ^^^ meta.function-call keyword.operator.word
 #!              ^^^^ meta.function-call meta.function-call support.function.user
-#!                        ^ keyword.control
+#!                        ^ keyword.operator
 #!                          ^^^ meta.function-call keyword.operator.word
 #!                              ^^^^ meta.function-call meta.function-call support.function.user
 
@@ -343,26 +343,26 @@ echo -n --switch=(echo "str;";);
 #!   ^^ meta.function-call.argument
 #!      ^^^^^^^^^^^^^^^^^^^^^^^ meta.function-call.argument
 #!                         ^ string.quoted
-#!                           ^ keyword.control
-#!                             ^ keyword.control
+#!                           ^ keyword.operator
+#!                             ^ keyword.operator
 
 echo --switch=(echo "str;";
 #!   ^^^^^^^^^^^^^^^^^^^^^^^ meta.function-call.argument
 #!                      ^ string.quoted
-#!                        ^ keyword.control
+#!                        ^ keyword.operator
   echo test \
 #!   ^^^^^^^^^ meta.function-call.argument
 #!          ^ constant.character.escape
     &
-#!  ^ keyword.control
+#!  ^ keyword.operator
 #!   ^ meta.function-call.argument
 )  ;
-#! ^ keyword.control
+#! ^ keyword.operator
 
 while --help; break& end
 #! <- meta.function-call.standard support.function.user
 #!    ^^^^^^ meta.function-call.argument
-#!          ^ keyword.control
+#!          ^ keyword.operator
 #!            ^^^^^ support.function.user
 #!                   ^^^ invalid.illegal.function
 
@@ -375,14 +375,14 @@ begin
 #   ^^^^^^^^ meta.function-call.standard
     break &
 #!  ^^^^^ keyword.control.conditional
-#!        ^ keyword.control
+#!        ^ keyword.operator
   end ;
 #! ^^ keyword.control.conditional
   break;
 #! ^^^^ support.function.user
 end &
 #! <- keyword.control.conditional
-#!  ^ keyword.control
+#!  ^ keyword.operator
 
 begin end
 #! <- meta.block.begin keyword.control.conditional
@@ -412,16 +412,16 @@ end # comment
 if --help; else;
 #! <- meta.function-call.standard support.function.user
 #! ^^^^^^ meta.function-call.argument
-#!       ^ keyword.control
+#!       ^ keyword.operator
 #!         ^^^^ invalid.illegal.function
 
 if \
 #! ^ constant.character.escape
   test foo; end & # comment
 #! ^^^ meta.block.if
-#!        ^ keyword.control
+#!        ^ keyword.operator
 #!          ^^^ keyword.control.conditional
-#!              ^ keyword.control
+#!              ^ keyword.operator
 #!                ^^^^^^^^^ comment.line
 
 for in in in in (seq 5) in in # comment
@@ -493,15 +493,15 @@ end
 #! <- keyword.control.conditional
 
 switch value; case wildcard; command echo foo; end # comment
-#!          ^ keyword.control
-#!                         ^ keyword.control
-#!                                           ^ keyword.control
+#!          ^ keyword.operator
+#!                         ^ keyword.operator
+#!                                           ^ keyword.operator
 #!                                                 ^ comment.line
 
 switch --help; case;
 #! <- meta.function-call.standard support.function.user
 #!     ^^^^^^ meta.function-call.argument
-#!           ^ keyword.control
+#!           ^ keyword.operator
 #!             ^^^^ invalid.illegal.function
 
 switch--help arg
@@ -537,5 +537,5 @@ end
 function inline; echo arg; end # comment
 #! <- meta.block.function. keyword.control.conditional
 #!       ^^^^^^ entity.name.function
-#!             ^ keyword.control
-#!                       ^ keyword.control
+#!             ^ keyword.operator
+#!                       ^ keyword.operator

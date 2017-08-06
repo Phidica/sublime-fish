@@ -13,7 +13,6 @@ patterns:
 - include: '#escape-character'
 
 # Style guide:
-# - keyword.control is applied to control operators such as ;, &, and | because although keyword.operator is suggested for symbols in general, these symbols are important to controlling program flow
 # - keyword.control.conditional is applied to all control keywords that are actually words (if, else, end, function, etc.)
 # - support.function is applied to standalone commands rather than variable.function because this is a scripting language and we can reliably act as though any command will be provided to the user as if it were part of a base framework
 # - constant.character.escape is used for the backslash at the end of a line which causes line continuation because technically that backslash is "escaping" the literal newline which appears in the unquoted string environment which the shell assumes you are in. In this sense, the backslash is indeed an escape character
@@ -51,7 +50,7 @@ repository:
       end: (end)(\s*(&))?
       endCaptures:
         '1': {name: keyword.control.conditional.fish}
-        '3': {name: keyword.control.fish punctuation.definition.keyword.fish}
+        '3': {name: keyword.operator.fish punctuation.definition.keyword.fish}
       patterns:
       - include: '$self'
 
@@ -62,7 +61,7 @@ repository:
       end: (end)(\s*(&))?
       endCaptures:
         '1': {name: keyword.control.conditional.fish}
-        '3': {name: keyword.control.fish punctuation.definition.keyword.fish}
+        '3': {name: keyword.operator.fish punctuation.definition.keyword.fish}
       patterns:
       - include: '#loop-control-command'
       - include: '$self'
@@ -74,7 +73,7 @@ repository:
       end: (end)(\s*(&))?
       endCaptures:
         '1': {name: keyword.control.conditional.fish}
-        '3': {name: keyword.control.fish punctuation.definition.keyword.fish}
+        '3': {name: keyword.operator.fish punctuation.definition.keyword.fish}
       patterns:
       - name: keyword.control.conditional.fish
         match: \b(else(\s*if)?)\b
@@ -88,7 +87,7 @@ repository:
       end: (end)(\s*(&))?
       endCaptures:
         '1': {name: keyword.control.conditional.fish}
-        '3': {name: keyword.control.fish punctuation.definition.keyword.fish}
+        '3': {name: keyword.operator.fish punctuation.definition.keyword.fish}
       patterns:
       - begin: (?<=for)
         end: (?<=\w)(?=\W)
@@ -115,7 +114,7 @@ repository:
       end: (end)(\s*(&))?
       endCaptures:
         '1': {name: keyword.control.conditional.fish}
-        '3': {name: keyword.control.fish punctuation.definition.keyword.fish}
+        '3': {name: keyword.operator.fish punctuation.definition.keyword.fish}
       patterns:
       - name: meta.block.switch.value.fish
         begin: (?<=switch)
@@ -151,7 +150,7 @@ repository:
       end: (end)(\s*(&))?
       endCaptures:
         '1': {name: keyword.control.conditional.fish}
-        '3': {name: keyword.control.fish punctuation.definition.keyword.fish}
+        '3': {name: keyword.operator.fish punctuation.definition.keyword.fish}
       patterns:
       - begin: (?<=function)
         end: (?=;)|\n
@@ -178,7 +177,7 @@ repository:
           '1': {name: keyword.control.conditional.fish}
         end: (?=\)|;)|\n|(&|\|)
         endCaptures:
-          '1': {name: keyword.control.fish punctuation.definition.keyword.fish}
+          '1': {name: keyword.operator.fish punctuation.definition.keyword.fish}
         comment: The `return` command can't accept flags
         patterns:
         - include: '#argument'
@@ -217,7 +216,7 @@ repository:
       comment: If this were a *.sublime-syntax then the aformentioned problems could be avoided. We could push the `meta.function-call.standard.fish` and `support.function.user.fish` scopes onto the stack simultaneously, then use individual pattern matching on each type of string we find, and finally pop the `support.function.user.fish` scope when unescaped whitespace is encountered (hence marking the end of the command name in the command call)
       end: (?=\)|;)|\n|(&|\|)
       endCaptures:
-        '1': {name: keyword.control.fish punctuation.definition.keyword.fish}
+        '1': {name: keyword.operator.fish punctuation.definition.keyword.fish}
       comment: Command call ends before ')' or ';', and at a newline, '&', or '|'. Those last two control operators must be part of a command, so consume them here
       patterns:
       - include: '#argument'
@@ -269,10 +268,10 @@ repository:
 
   control-operator:
     patterns:
-    - name: keyword.control.fish punctuation.definition.keyword.fish
+    - name: keyword.operator.fish punctuation.definition.keyword.fish
       match: ;
       comment: This is the only operator which is allowed to exist alone on a line. The other control operators are '&' and '|' however they must be preceded by a command, so command-call matches those
-    - name: invalid.illegal.control.fish
+    - name: invalid.illegal.operator.fish
       match: (?<=^|\(|;|&|\|)\s*(&|\|).*$\n?
       comment: These two control operators, '&' and '|', must be preceded by a command, so command patterns match them when they are valid. If they are found in the global scope or first inside a command-substitution, that means they are dangling
 
@@ -290,7 +289,7 @@ repository:
         '1': {name: keyword.control.conditional.fish}
       end: (?=;)|\n|(&)
       endCaptures:
-        '1': {name: keyword.control.fish punctuation.definition.keyword.fish}
+        '1': {name: keyword.operator.fish punctuation.definition.keyword.fish}
       patterns:
       - include: '#comment-inline'
       - include: '#control-operator'
