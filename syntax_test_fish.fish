@@ -162,9 +162,9 @@ echo ( # comment
 
 echo foo(echo -e nar\nbar)[2] f(echo oo)\[bar]
 #!      ^^^^^^^^^^^^^^^^^^ meta.command-substitution
-#!                        ^^^ meta.index-expansion
-#!                        ^ keyword.control.index-expansion.begin
-#!                          ^ keyword.control.index-expansion.end
+#!                        ^^^ meta.brackets.index-expansion
+#!                        ^ punctuation.section.brackets.index-expansion.begin
+#!                          ^ punctuation.section.brackets.index-expansion.end
 #!                                      ^^ constant.character.escape
 
 foo\  # comment
@@ -257,25 +257,25 @@ echo $var$ (echo $) $$!bad_var # comment
 
 echo $var[1..$foo]
 #!   ^^^^ variable.other
-#!       ^^^^^^^^^ meta.index-expansion
+#!       ^^^^^^^^^ meta.brackets.index-expansion
 #!        ^ constant.numeric
 #!           ^^^^ variable.other
 
 echo $var $var[$var[1 $var[1]] $var[1]] "str"
 #!   ^^^^ variable.other
 #!        ^^^^ variable.other
-#!                  ^ meta.index-expansion meta.index-expansion
-#!                    ^^^^ meta.index-expansion meta.index-expansion variable.other
+#!                  ^ meta.brackets.index-expansion meta.brackets.index-expansion
+#!                    ^^^^ meta.brackets.index-expansion meta.brackets.index-expansion variable.other
 #!                                      ^^^^^ string.quoted
 
 echo $$var[ 1 ][ 1 ]
 #!   ^^^^^^^^^ variable.other
 #!    ^^^^^^^^^ variable.other
-#!        ^^^^^ meta.index-expansion
+#!        ^^^^^ meta.brackets.index-expansion
 
 echo $var[(echo 1)] $var["2"] "str"
 #!   ^^^^ variable.other
-#!       ^^^^^^^^^^ meta.index-expansion
+#!       ^^^^^^^^^^ meta.brackets.index-expansion
 #!        ^^^^^^^^  meta.command-substitution
 #!                       ^^^ string.quoted
 #!                            ^^^^^ string.quoted

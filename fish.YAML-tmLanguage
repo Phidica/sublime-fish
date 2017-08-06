@@ -240,13 +240,13 @@ repository:
         patterns:
         - include: '$self'
 
-      - name: meta.index-expansion.fish
+      - name: meta.brackets.index-expansion.fish
         begin: \[
         beginCaptures:
-          '0': {name: keyword.control.index-expansion.begin.fish punctuation.definition.keyword.fish }
+          '0': {name: punctuation.section.brackets.index-expansion.begin.fish}
         end: \]
         endCaptures:
-          '0': {name: keyword.control.index-expansion.end.fish punctuation.definition.keyword.fish }
+          '0': {name: punctuation.section.brackets.index-expansion.end.fish}
         patterns:
         - include: '#string'
 
@@ -404,15 +404,15 @@ repository:
         comment: Capture "foo"[ or "foo[...]"[
         patterns:
         - include: '#variable-expansion'
-      - name: meta.index-expansion.fish
+      - name: meta.brackets.index-expansion.fish
         comment: The number of index expansion argument lists `[...]` should always be less than or equal to the number of variable expansion operators `$`. Unfortunately, we can do nothing to moderate that with this syntax schema; with a *.sublime-syntax and a scope stack it could be done. As it stands, "$$foo[...]" is the deepest that we can accurately highlight
         comment: In other words, the anonymous scope which contains the variable and the index expansion argument list should only be allowed to contain a single copy of each of those two things. We cannot enforce that without a scope stack
         begin: \[
         beginCaptures:
-          '0': {name: keyword.control.index-expansion.begin.fish punctuation.definition.keyword.fish }
+          '0': {name: punctuation.section.brackets.index-expansion.begin.fish}
         end: \]
         endCaptures:
-          '0': {name: keyword.control.index-expansion.end.fish punctuation.definition.keyword.fish }
+          '0': {name: punctuation.section.brackets.index-expansion.end.fish}
         patterns:
         - include: '#string'
 

@@ -691,7 +691,7 @@
 								<key>0</key>
 								<dict>
 									<key>name</key>
-									<string>keyword.control.index-expansion.begin.fish punctuation.definition.keyword.fish</string>
+									<string>punctuation.section.brackets.index-expansion.begin.fish</string>
 								</dict>
 							</dict>
 							<key>end</key>
@@ -701,11 +701,11 @@
 								<key>0</key>
 								<dict>
 									<key>name</key>
-									<string>keyword.control.index-expansion.end.fish punctuation.definition.keyword.fish</string>
+									<string>punctuation.section.brackets.index-expansion.end.fish</string>
 								</dict>
 							</dict>
 							<key>name</key>
-							<string>meta.index-expansion.fish</string>
+							<string>meta.brackets.index-expansion.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -1274,7 +1274,7 @@
 								<key>0</key>
 								<dict>
 									<key>name</key>
-									<string>keyword.control.index-expansion.begin.fish punctuation.definition.keyword.fish</string>
+									<string>punctuation.section.brackets.index-expansion.begin.fish</string>
 								</dict>
 							</dict>
 							<key>comment</key>
@@ -1286,11 +1286,11 @@
 								<key>0</key>
 								<dict>
 									<key>name</key>
-									<string>keyword.control.index-expansion.end.fish punctuation.definition.keyword.fish</string>
+									<string>punctuation.section.brackets.index-expansion.end.fish</string>
 								</dict>
 							</dict>
 							<key>name</key>
-							<string>meta.index-expansion.fish</string>
+							<string>meta.brackets.index-expansion.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
