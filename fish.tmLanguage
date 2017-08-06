@@ -550,7 +550,7 @@
 						<key>2</key>
 						<dict>
 							<key>name</key>
-							<string>support.function.builtin.fish</string>
+							<string>support.function.fish</string>
 						</dict>
 						<key>3</key>
 						<dict>
@@ -602,7 +602,7 @@
 						<key>0</key>
 						<dict>
 							<key>name</key>
-							<string>support.function.user.fish</string>
+							<string>variable.function.fish</string>
 						</dict>
 					</dict>
 					<key>comment</key>

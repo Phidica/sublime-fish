@@ -12,13 +12,13 @@
 #! <- constant.character.escape
 
 echo --arg -arg arg ; echo arg # comment
-#! <- support.function.user
+#! <- variable.function
 #! ^^^^^^^^^^^^^^^^^ meta.function-call
 #!   ^^^^^ meta.function-call.argument
 #!         ^^^^ meta.function-call.argument
 #!              ^^^ meta.function-call.argument
 #!                  ^ keyword.operator
-#!                    ^^^^ support.function.user
+#!                    ^^^^ variable.function
 #!                    ^^^^^^^^ meta.function-call
 #!                             ^ punctuation.definition.comment
 #!                             ^^^^^^^^^ comment.line.insert
@@ -78,7 +78,7 @@ echo str \ # not-comment \  # comment
 #!                          ^^^^^^^^^ comment.line.insert
 
 echo arg \ arg \
-#! <- support.function.user
+#! <- variable.function
 #! ^^^^^^^^^^^^^ meta.function-call
 #!   ^^^ meta.function-call.argument
 #!       ^ meta.function-call.argument
@@ -99,32 +99,32 @@ echo arg (echo "inner" arg) outer arg
 #!                          ^ meta.function-call
 
 foo\ bar arg
-#! ^^^^^ support.function.user
+#! ^^^^^ variable.function
 
 'foo bar' arg
-#! ^^^^^^ support.function.user
+#! ^^^^^^ variable.function
 
 "foo bar" arg
-#! ^^^^^^ support.function.user
+#! ^^^^^^ variable.function
 
 f''o"o"\ ''b""ar arg
-#! ^^^^^^^^^^^^^ support.function.user
+#! ^^^^^^^^^^^^^ variable.function
 
 f'\''o"\$\\"o\ \|\$\*b\?\%a\#\(r\) arg
-#! ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ support.function.user
+#! ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ variable.function
 
 \\foo arg
-#! <- support.function.user
-#! ^^ support.function.user
+#! <- variable.function
+#! ^^ variable.function
 
 # Some valid function names are very strange
 \ \
-#! <- support.function.user
+#! <- variable.function
   arg
 #! ^^ meta.function-call.argument
 
 '\'\\'"\"\$\\"\a\b\e\f\n\r\t\v\ \$\\\*\?~\~%\%#\#\(\)\{\}\[\]\<\>^\^\&\|\;\"\'\x0a\X1b\01\u3ccc\U4dddeeee\c?
-#! ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ support.function.user
+#! ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ variable.function
 
 %
 #! <- invalid.illegal.function
@@ -137,11 +137,11 @@ two three # comment
 # comment
 #! <- comment.line
 echo four \
-#! <- support.function.user
+#! <- variable.function
 #! ^^^^^^ meta.command-substitution
 five six # tricky comment \
 echo seven
-#! <- support.function.user
+#! <- variable.function
 )
 #! <- meta.command-substitution
 
@@ -168,50 +168,50 @@ echo foo(echo -e nar\nbar)[2] f(echo oo)\[bar]
 #!                                      ^^ constant.character.escape
 
 foo\  # comment
-#! ^^ support.function.user
+#! ^^ variable.function
 
 foo\ bar
-#! ^^^^^ support.function.user
+#! ^^^^^ variable.function
 
 exec echo \
-#! <- meta.function-call.recursive support.function.builtin
-#!   ^^^^ meta.function-call.recursive meta.function-call.standard support.function.user
+#! <- meta.function-call.recursive support.function
+#!   ^^^^ meta.function-call.recursive meta.function-call.standard variable.function
 arg
 #! <-meta.function-call.recursive meta.function-call.standard meta.function-call.argument
 #! ^ meta.function-call.recursive meta.function-call.standard
 
 builtin echo arg ; and echo arg
-#! <- meta.function-call.recursive support.function.builtin
-#!      ^^^^ meta.function-call.recursive meta.function-call.standard support.function.user
+#! <- meta.function-call.recursive support.function
+#!      ^^^^ meta.function-call.recursive meta.function-call.standard variable.function
 #!           ^^^ meta.function-call.recursive meta.function-call.standard meta.function-call.argument
 #!               ^ keyword.operator
 #!                 ^^^ meta.function-call.recursive keyword.operator.word
-#!                     ^^^^ meta.function-call.recursive meta.function-call.standard support.function.user
+#!                     ^^^^ meta.function-call.recursive meta.function-call.standard variable.function
 
 # See scope end match for meta.function-call.recursive
 command  \
-#! <- meta.function-call.recursive support.function.builtin
+#! <- meta.function-call.recursive support.function
 #!       ^ constant.character.escape
 echo  \
-#! <- meta.function-call.standard support.function.user
+#! <- meta.function-call.standard variable.function
 arg & # comment
 #! <-meta.function-call.standard meta.function-call.argument
 #!    ^ comment.line
 echo arg
-#! <- meta.function-call.standard support.function.user
+#! <- meta.function-call.standard variable.function
 
 command  &
-#! <- meta.function-call support.function.user
+#! <- meta.function-call variable.function
 echo arg &
 #! <-meta.function-call
 
 echo arg1 ; and echo arg2 & not echo arg3 | cat
-#! <- meta.function-call support.function.user
+#! <- meta.function-call variable.function
 #!          ^^^ meta.function-call keyword.operator.word
-#!              ^^^^ meta.function-call meta.function-call support.function.user
+#!              ^^^^ meta.function-call meta.function-call variable.function
 #!                        ^ keyword.operator
 #!                          ^^^ meta.function-call keyword.operator.word
-#!                              ^^^^ meta.function-call meta.function-call support.function.user
+#!                              ^^^^ meta.function-call meta.function-call variable.function
 
 # See scope end match for meta.function-call.recursive
 # Cannot nest recursive scopes across lines if line break occurs before recursion
@@ -360,10 +360,10 @@ echo --switch=(echo "str;";
 #! ^ keyword.operator
 
 while --help; break& end
-#! <- meta.function-call.standard support.function.user
+#! <- meta.function-call.standard variable.function
 #!    ^^^^^^ meta.function-call.argument
 #!          ^ keyword.operator
-#!            ^^^^^ support.function.user
+#!            ^^^^^ variable.function
 #!                   ^^^ invalid.illegal.function
 
 begin
@@ -379,7 +379,7 @@ begin
   end ;
 #! ^^ keyword.control.conditional
   break;
-#! ^^^^ support.function.user
+#! ^^^^ variable.function
 end &
 #! <- keyword.control.conditional
 #!  ^ keyword.operator
@@ -410,7 +410,7 @@ end # comment
 #!  ^^^^^^^^^ comment.line
 
 if --help; else;
-#! <- meta.function-call.standard support.function.user
+#! <- meta.function-call.standard variable.function
 #! ^^^^^^ meta.function-call.argument
 #!       ^ keyword.operator
 #!         ^^^^ invalid.illegal.function
@@ -499,14 +499,14 @@ switch value; case wildcard; command echo foo; end # comment
 #!                                                 ^ comment.line
 
 switch --help; case;
-#! <- meta.function-call.standard support.function.user
+#! <- meta.function-call.standard variable.function
 #!     ^^^^^^ meta.function-call.argument
 #!           ^ keyword.operator
 #!             ^^^^ invalid.illegal.function
 
 switch--help arg
-#! <- support.function.user
-#! ^^^^^^^^^ meta.function-call.standard support.function.user
+#! <- variable.function
+#! ^^^^^^^^^ meta.function-call.standard variable.function
 
 function foo --arg="bar"
 #! <- meta.block.function. keyword.control.conditional
