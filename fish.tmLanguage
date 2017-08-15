@@ -97,7 +97,7 @@
 						<key>3</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.operator.fish punctuation.definition.keyword.fish</string>
+							<string>keyword.operator.fish</string>
 						</dict>
 					</dict>
 					<key>name</key>
@@ -133,7 +133,7 @@
 						<key>3</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.operator.fish punctuation.definition.keyword.fish</string>
+							<string>keyword.operator.fish</string>
 						</dict>
 					</dict>
 					<key>name</key>
@@ -173,7 +173,7 @@
 						<key>3</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.operator.fish punctuation.definition.keyword.fish</string>
+							<string>keyword.operator.fish</string>
 						</dict>
 					</dict>
 					<key>name</key>
@@ -217,7 +217,7 @@
 						<key>3</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.operator.fish punctuation.definition.keyword.fish</string>
+							<string>keyword.operator.fish</string>
 						</dict>
 					</dict>
 					<key>name</key>
@@ -307,7 +307,7 @@
 						<key>3</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.operator.fish punctuation.definition.keyword.fish</string>
+							<string>keyword.operator.fish</string>
 						</dict>
 					</dict>
 					<key>name</key>
@@ -422,7 +422,7 @@
 						<key>3</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.operator.fish punctuation.definition.keyword.fish</string>
+							<string>keyword.operator.fish</string>
 						</dict>
 					</dict>
 					<key>name</key>
@@ -511,7 +511,7 @@
 								<key>1</key>
 								<dict>
 									<key>name</key>
-									<string>keyword.operator.fish punctuation.definition.keyword.fish</string>
+									<string>keyword.operator.fish</string>
 								</dict>
 							</dict>
 							<key>patterns</key>
@@ -618,7 +618,7 @@
 						<key>1</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.operator.fish punctuation.definition.keyword.fish</string>
+							<string>keyword.operator.fish</string>
 						</dict>
 					</dict>
 					<key>name</key>
@@ -776,7 +776,7 @@
 					<key>match</key>
 					<string>;</string>
 					<key>name</key>
-					<string>keyword.operator.fish punctuation.definition.keyword.fish</string>
+					<string>keyword.operator.fish</string>
 				</dict>
 				<dict>
 					<key>comment</key>
@@ -826,7 +826,7 @@
 						<key>1</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.operator.fish punctuation.definition.keyword.fish</string>
+							<string>keyword.operator.fish</string>
 						</dict>
 					</dict>
 					<key>patterns</key>
