@@ -568,6 +568,10 @@
 					<array>
 						<dict>
 							<key>include</key>
+							<string>#block</string>
+						</dict>
+						<dict>
+							<key>include</key>
 							<string>#command-call</string>
 						</dict>
 						<dict>

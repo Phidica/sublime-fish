@@ -388,6 +388,12 @@ begin end
 #! <- meta.block.begin keyword.control.conditional
 #!    ^^^ keyword.control.conditional
 
+begin
+end; or begin
+#!      ^^^^^ meta.block.begin keyword.control.conditional
+end
+#! <- keyword.control.conditional
+
 if echo arg
 #! <- meta.block.if keyword.control.conditional
   and echo arg

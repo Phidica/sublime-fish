@@ -21,9 +21,10 @@ patterns:
 
 #! \todo Bug: Keywords that only work in loops or functions (eg, "continue", "return", etc) will be treated like standard commands if they are located within if-statements within those outer valid blocks. Without a scope stack, we'll have to treat them as always being keywords rather than trying to parse them for the user
 #! \todo Known bug: if a command-call line ends in "end" then a comment following it on the line will not be of the insert type, causing the next line of text to be considered arguments. fixing may require a rethink of the two comment contexts and finding a way to merge them (the key difference is whether the newline is consumed and command-call either terminates or perpetuates based on that)
+#!  BETTER FIX?: Newlines are consumed at the end of command calls. create a pattern in the block group which begins just after the word 'end' when it has no newline after it, and ends at the next newline. everything in between can be any group that's valid (pipes, backgrounding, redirection). this would perhaps get us out of the special piped function group described below
 #! \todo add comment-inline to the recursive command-call. no point adding comment because recursive will /always/ have ended by the time a full line comment shows up
 #! \todo add special behaviour to parameter expansion arguments like ~
-#! \todo redirection
+#! \todo redirection. need to make [<^>] into control operators nearly everywhere (thus excluding them from the argument selection) (but don't make them function call terminators for instance) and add a redirection group that's included in function calls at the same level as argument
 #! \todo a specific version of command-call which is just `test` and the possible expressions all highlighted special, as well as the `[ ]` form
 #! \todo piping with | is more complicated than it seems, as fish expects a command to appear after the pipe. make a pattern match in command-call that is only valid inside of a command call that used the pipe, and matches from after a pipe until the end of the line, looking for command-call within it
 #!  Hm, because it is possible to pipe the output of an entire block by putting the pipe after `end`, a better approach may be to make a command that STARTS with a pipe, and is normal after that. then it can check inside itself to see if it is ONLY a pipe with no command following it, and mark that as invalid syntax. that would supersede the need for pipe to be matched invalid from in control-operator
@@ -197,6 +198,7 @@ repository:
       end: (?=\)|;)|(?<=\n|&|\|)
       comment: Recursive command-call ends before ')' or ';', and just after a newline, '&', or '|'. Standard command-call will have consumed the '&' or '|'. Unfortunately, we cannot help but end after any newline we encounter, as the standard command-call only ends when it consumes a newline (allowing us to insert comments by having the comment consume its newline and prevent command-call matching it) and we cannot distinguish between a newline that was consumed by a command and a newline that was consumed by a comment. Put simply, this means that when a recursive command-call reaches a newline before its first standard command-call, the scope ends and the standard command-call on the next line loses the recursive command-call scope
       patterns:
+      - include: '#block'
       - include: '#command-call'
       - match: (\\)\n
         captures:
