@@ -36,11 +36,11 @@ repository:
       comment: An argument is one of the fundamental units, however we define it by the very essence of not being any of the other fundamental units '#' and the control operators (';', '&', and '|'). All those have special treatment when they appear in command-calls, so we attend to them uniquely
       begin: (?<=^|\s)(?!\s|#|$)
       comment: Begin arg at a boundary. Before the boundary must be the begin of line (for when a command-call spans multiple lines) or whitespace. After the boundary may be anything but whitespace, a comment character, or a newline (to prevent blank lines being called args)
-      end: (?<=.|\n)(?=\s|\)|;|&|\||$)
-      comment: End arg if it precedes whitespace, unescaped control operators, or a newline
+      end: (?<=.|\n)(?=\s|\)|[;&|<>]|$)
+      comment: End arg if it precedes whitespace, unescaped control operators, or a newline. Note fish quirk; the stderr redirection operator '^' does not terminate an arg
       patterns:
       - include: '#string'
-        comment: Arguments are made of strings, either quoted or unquoted. The unquoted string handles numerics, character escapes, command substitutions, and brace/variable/process expansions
+        comment: Arguments are made of strings, either quoted or unquoted. The unquoted string rule handles numerics, character escapes, command substitutions, and brace/variable/process expansions
 
   block:
     patterns:
@@ -203,8 +203,11 @@ repository:
 
     - name: invalid.illegal.function.fish
       comment: Search for illegal commands; these aren't valid outside of their use in blocks
-      begin: \b(?:case|else|end)\b|(?<=^|\(|;|&|\|\s)(?:%)
-      end: $\n?
+      match: \b(?:case|else|end)\b.*$\n?
+
+    - name: invalid.illegal.operator.fish
+      comment: Search for illegal operators; these aren't allowed to start a command, but can appear unescaped later within it
+      match: (?<=^|[(;&|\s])[%^].*$\n?
 
     - name: meta.function-call.standard.fish
       comment: If the above match for recursive commands failed, try and match legal standard commands
@@ -218,6 +221,7 @@ repository:
         '1': {name: keyword.operator.fish}
       comment: Command call ends before ')' or ';', and at a newline, '&', or '|'. Those last two control operators must be part of a command, so consume them here
       patterns:
+      - include: '#redirection'
       - include: '#argument'
       - include: '#comment'
       - include: '#comment-inline'
@@ -271,8 +275,8 @@ repository:
       match: ;
       comment: This is the only operator which is allowed to exist alone on a line. The other control operators are '&' and '|' however they must be preceded by a command, so command-call matches those
     - name: invalid.illegal.operator.fish
-      match: (?<=^|\(|;|&|\|)\s*(&|\|).*$\n?
-      comment: These two control operators, '&' and '|', must be preceded by a command, so command patterns match them when they are valid. If they are found in the global scope or first inside a command-substitution, that means they are dangling
+      match: (?<=^|[(;&|])\s*([&|<>]).*$\n?
+      comment: These four control operators ('&', '|', '<', and '>') must be preceded by a command, so command patterns match them when they are valid. If they are found in the global scope or first inside a command-substitution, that means they are dangling. The control operator '^' is handled in the command-call rule because it is only forbidden from starting a command
 
   line-continuation:
     patterns:
@@ -293,6 +297,38 @@ repository:
       - include: '#comment-inline'
       - include: '#control-operator'
       - include: '#line-continuation'
+
+  redirection:
+    patterns:
+    - name: meta.function-call.redirection.fish
+      comment: This redirection pattern is from file descriptor (either explicit or implied) to file path
+      begin: (?:([0-9]+)(<|>|>>)|(>>|\^\^|[<>]|(?<=^|\s)\^))(\?)?
+      beginCaptures:
+        '1': {name: constant.numeric.file-descriptor.fish}
+        '2': {name: keyword.operator.redirection.fish}
+        '3': {name: keyword.operator.redirection.fish}
+        '4': {name: keyword.operator.redirection.clobber-test.fish}
+      comment: Begin at any of the redirections valid for a file path (main difference is that the '?' can be used to prevent clobber). Note that the stderr redirection operator '^' must be preceded by whitespace and cannot be preceded by a file descriptor
+      end: (?<=[^<>^?\s]|\n)(?=[\s);&|<>])
+      comment: End at anything that would end an argument, with the added condition that the character before the boundary cannot be the final character of the begin match or whitespace, thus allowing an arbitrary amount of whitespace between the begin match and the path found before the end match
+      patterns:
+      - include: '#line-continuation'
+      - include: '#comment'
+      - include: '#comment-inline'
+      - include: '#command-substitution'
+        comment: Evaluates to a string so path cannot begin with '('
+      - include: '#variable-expansion'
+        comment: Evaluates to a string so path cannot begin with '$'
+      - name: invalid.illegal.path.fish
+        comment: Check for characters which are associated with redirection, so path cannot begin with them
+        match: (\?|[0-9]*[<>^]).*$
+      - name: meta.path.fish
+        comment: Use the function call match to build a file path, as the syntax is fairly similar (possibly identical, with exceptions caught above)
+        match: (?:\'(?:\\[\'\\]|[^\'\\])*\'|\"(?:\\[\"$\n\\]|[^\"$\n\\])*\"|(?:\\[abefnrtv $\\*?#(){}\[\]<>^&;|"']|(?<=^|\s)\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]|[^\s$\\*?~%#()<>&|;"']|\\(?=[^abefnrtv\s$\\*?#(){}\[\]<>^&;|"'xXuUc])|(?<=\S|\\ )\\\n|(?<=\S|\\ )[~%#])+)+
+
+    # todo: add the redirection pattern from file descriptor (either explicit or implied) to file descriptor (uses only < or > followed by an ampersand, space, then an int or a hyphen)
+
+    # todo: remove the todos for redirection! (top of file, readme) but remember, there's still the special case redirection into a pipe which you should match wherever the pipe patterns go
 
   string:
     patterns:
@@ -334,8 +370,8 @@ repository:
     - name: string.unquoted.fish
       begin: (?<=\'|\"|\[|\{|\%|^|\s)(?!\'|\"|\]|\}|\s)
       comment: Begin string at a boundary. Before the boundary must be the end of a quoted string, the begin of an index/brace/process expansion, or anything that would initiate a function-call argument. After the boundary may be anything that isn't the begin of a quoted string, the end of an item-access argument list, the end of a brace expansion, or whitespace
-      end: (?<=.|\n)(?=\'|\"|\]|\}|\s|\)|;|&|\||$)
-      comment: End string if it precedes the begin of a quoted string, the end of an index/brace expansion (but not a process expansion as '%' is valid in names), or anything that would end an argument
+      end: (?<=.|\n)(?=\'|\"|\]|\}|\s|\)|[;&|<>]|$)
+      comment: End string if it precedes the begin of a quoted string, the end of an index/brace expansion (but not a process expansion or stderr redirection as '%' and '^' are valid within names), or anything that would end an argument
       patterns:
       - include: '#string-unquoted-patterns'
 
@@ -349,8 +385,8 @@ repository:
     - include: '#variable-expansion'
 
     - name: constant.numeric.fish
-      match: (?<![0-9A-Za-z])[0-9]+(?![0-9A-Za-z])
-      comment: Treat integers as standalone constants if they aren't within strings of alphanumeric characters
+      match: (?<![A-Za-z^])[0-9]+(?![A-Za-z^])
+      comment: Treat integers as standalone constants if they aren't within strings of alphabetic characters or other special characters permitted within arguments
 
     - name: constant.character.escape.fish
       match: \\[abefnrtv $\\*?#(){}\[\]<>^&|;"']|(?<=^|\s)\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]
@@ -451,22 +487,6 @@ repository:
         '1': {name: punctuation.definition.extglob.fish}
       patterns:
       - include: $self
-
-  redirection:
-    patterns:
-    - name: string.interpolated.process-substitution.fish
-      begin: '[><]\('
-      beginCaptures:
-        '0': {name: punctuation.definition.string.begin.fish}
-      end: \)
-      endCaptures:
-        '0': {name: punctuation.definition.string.end.fish}
-      patterns:
-      - include: $self
-    - comment: 'valid: &>word >&word >word [n]>&[n] [n]<word [n]>word [n]>>word [n]<&word
-        (last one is duplicate)'
-      name: keyword.operator.redirect.fish
-      match: '&>|\d*>&\d*|\d*(>>|>|<)|\d*<&|\d*<>'
 
 firstLineMatch: ^#!.*\b(fish)|^#\s*-\*-[^*]*mode:\s*shell-script[^*]*-\*-
 foldingStartMarker: \b(begin|case|for|if|else|function|switch|while)\b|(\{)$
