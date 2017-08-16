@@ -10,7 +10,7 @@ patterns:
 - include: '#command-call'
 - include: '#comment'
 - include: '#control-operator'
-- include: '#escape-character'
+- include: '#line-continuation'
 
 # Style guide:
 # - keyword.control.conditional is applied to all control keywords that are actually words (if, else, end, function, etc.)
@@ -166,8 +166,7 @@ repository:
             comment: The function name may be given using any means that is valid for a command call
           - include: '#comment'
           - include: '#comment-inline'
-          - name: constant.character.escape
-            match: \\\n
+          - include: '#line-continuation'
             comment: We can't read across lines, so this is needed to catch an escaped newline at the start of a defined function name
         - comment: The rest of the patterns are the typical elements of a standard command-call, which is what the `function` command adheres to
         - include: '#argument'
@@ -198,11 +197,9 @@ repository:
       end: (?=\)|;)|(?<=\n|&|\|)
       comment: Recursive command-call ends before ')' or ';', and just after a newline, '&', or '|'. Standard command-call will have consumed the '&' or '|'. Unfortunately, we cannot help but end after any newline we encounter, as the standard command-call only ends when it consumes a newline (allowing us to insert comments by having the comment consume its newline and prevent command-call matching it) and we cannot distinguish between a newline that was consumed by a command and a newline that was consumed by a comment. Put simply, this means that when a recursive command-call reaches a newline before its first standard command-call, the scope ends and the standard command-call on the next line loses the recursive command-call scope
       patterns:
+      - include: '#line-continuation'
       - include: '#block'
       - include: '#command-call'
-      - match: (\\)\n
-        captures:
-          '1': {name: constant.character.escape}
 
     - name: invalid.illegal.function.fish
       comment: Search for illegal commands; these aren't valid outside of their use in blocks
@@ -277,11 +274,11 @@ repository:
       match: (?<=^|\(|;|&|\|)\s*(&|\|).*$\n?
       comment: These two control operators, '&' and '|', must be preceded by a command, so command patterns match them when they are valid. If they are found in the global scope or first inside a command-substitution, that means they are dangling
 
-  escape-character:
+  line-continuation:
     patterns:
     - name: constant.character.escape
-      match: \\(?=\n)
-      comment: This match should only be needed for an escaped newline which is not part of any command-call, like if it comes alone on a line. No need to consume the newline
+      match: \\\n
+      comment: This match should be used anywhere line continuation is valid and the newline should be consumed, including cases where it comes alone on a line
 
   loop-control-command:
     patterns:
@@ -295,7 +292,7 @@ repository:
       patterns:
       - include: '#comment-inline'
       - include: '#control-operator'
-      - include: '#escape-character'
+      - include: '#line-continuation'
 
   string:
     patterns:
@@ -324,11 +321,13 @@ repository:
       endCaptures:
         '0': {name: punctuation.definition.string.end.fish}
       patterns:
+      - include: '#line-continuation'
+        comment: \<newline> is accepted
       - name: constant.character.escape.fish
-        match: \\[\"$\n\\]
-        comment: Only accepted escapes are \", \$, \<newline>, and \\
+        match: \\[\"\\$]
+        comment: Additional accepted escapes are \", \\, and \$
       - include: '#variable-expansion'
-        comment: Variable expansion is the only expansion permitted
+        comment: Variable expansion is the only expansion accepted
 
   string-unquoted:
     patterns:
@@ -343,17 +342,19 @@ repository:
   string-unquoted-patterns:
     comment: Describes contents of an unquoted string separately for ease of recursion
     patterns:
+    - include: '#line-continuation'
+
+    - include: '#command-substitution'
+
+    - include: '#variable-expansion'
+
     - name: constant.numeric.fish
       match: (?<![0-9A-Za-z])[0-9]+(?![0-9A-Za-z])
       comment: Treat integers as standalone constants if they aren't within strings of alphanumeric characters
 
     - name: constant.character.escape.fish
-      match: \\\n|\\[abefnrtv $\\*?#(){}\[\]<>^&|;"']|(?<=^|\s)\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]
-      comment: This list follows the order given in official fish documentation, with the addition of an escaped newline match and additional checks made on the ~ and % characters which only need escaping if they appear at the front of an argument
-
-    - include: '#command-substitution'
-
-    - include: '#variable-expansion'
+      match: \\[abefnrtv $\\*?#(){}\[\]<>^&|;"']|(?<=^|\s)\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]
+      comment: This list follows the order given in official fish documentation, with the addition of additional checks made on the ~ and % characters which only need escaping if they appear at the front of an argument
 
     - name: meta.brace-expansion.fish
       begin: \{
