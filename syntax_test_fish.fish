@@ -412,12 +412,12 @@ echo $var{,'brace',"expansion",he{e,$e}re\,}"str"
 #!                                          ^^^^^ string.quoted
 
 echo %self foo %(set foo "fi"; echo $foo)sh "bar"
-#!   ^^^^^ constant.other.process
+#!   ^^^^^ meta.process-expansion
 #!   ^ punctuation.definition.process
 #!         ^^^ string.unquoted
 #!             ^ punctuation.definition.process
 #!              ^^^^^^^^^^^^^^^^^^^^^^^^^ meta.command-substitution
-#!                                       ^^ constant.other.process
+#!                                       ^^ meta.process-expansion
 #!                                          ^^^^^ string.quoted
 
 echo $var(echo str{$arg}str "{$var}")$var"str"$var

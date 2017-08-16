@@ -415,13 +415,12 @@ repository:
           comment: Explicitly allow a ',' to be escaped
         - include: '#string-unquoted-patterns'
 
-    - name: constant.other.process.fish
-      comment: This is called a process expansion
+    - name: meta.process-expansion.fish
       begin: \%
       beginCaptures:
         '0': {name: punctuation.definition.process.fish}
-      end: (?<=.|\n)(?=\s|\)|;|&|\||$)
-      comment: Process expansion assumed to continue for the entire argument
+      end: (?<=.|\n)(?=[\s);&|]|$)
+      comment: Process expansion continues for the entire argument
       patterns:
       - include: '#string'
 
@@ -431,7 +430,8 @@ repository:
       match: \$(?:(?=[,'"\]}\s);&|])|[^\w\$][^$,'"\]}\s);&|]*)
       comment: A lone '$' in a scope, or an attempt to expand a variable starting with a nonword character, is an error. These boundaries are the same as for string.unquoted
 
-    - begin: (?=\$)
+    - name: meta.variable-expansion.fish
+      begin: (?=\$)
       end: (?<=[\$\w])(?=[^\$\w\[])|(?<=\])
       comment: Capture "$foo" or "$foo[]"
       patterns:

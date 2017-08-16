@@ -1256,11 +1256,11 @@
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>Process expansion assumed to continue for the entire argument</string>
+					<string>Process expansion continues for the entire argument</string>
 					<key>end</key>
-					<string>(?&lt;=.|\n)(?=\s|\)|;|&amp;|\||$)</string>
+					<string>(?&lt;=.|\n)(?=[\s);&amp;|]|$)</string>
 					<key>name</key>
-					<string>constant.other.process.fish</string>
+					<string>meta.process-expansion.fish</string>
 					<key>patterns</key>
 					<array>
 						<dict>
@@ -1290,6 +1290,8 @@
 					<string>Capture "$foo" or "$foo[]"</string>
 					<key>end</key>
 					<string>(?&lt;=[\$\w])(?=[^\$\w\[])|(?&lt;=\])</string>
+					<key>name</key>
+					<string>meta.variable-expansion.fish</string>
 					<key>patterns</key>
 					<array>
 						<dict>
