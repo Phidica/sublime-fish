@@ -7,7 +7,7 @@ This package is currently under active development and, while complete enough fo
 
 To do:
 - Command piping
-- Output redirection
+- Additional useful highlighting
 
 Installation
 ------------

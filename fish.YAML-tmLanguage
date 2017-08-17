@@ -19,14 +19,17 @@ patterns:
 # - constant.character.escape is used for \x?? and \0?? escape codes rather than constant.numeric.{hex,octal} because even though the user inputs a numeric value in hex or octal, the codes serve the purpose of making characters not numbers
 # - Individual arguments in function calls do not get the variable.parameter label because that swiftly becomes the overwhelming majority of all words in a program
 
-#! \todo Bug: Keywords that only work in loops or functions (eg, "continue", "return", etc) will be treated like standard commands if they are located within if-statements within those outer valid blocks. Without a scope stack, we'll have to treat them as always being keywords rather than trying to parse them for the user
-#! \todo Known bug: if a command-call line ends in "end" then a comment following it on the line will not be of the insert type, causing the next line of text to be considered arguments. fixing may require a rethink of the two comment contexts and finding a way to merge them (the key difference is whether the newline is consumed and command-call either terminates or perpetuates based on that)
-#!  BETTER FIX?: Newlines are consumed at the end of command calls. create a pattern in the block group which begins just after the word 'end' when it has no newline after it, and ends at the next newline. everything in between can be any group that's valid (pipes, backgrounding, redirection). this would perhaps get us out of the special piped function group described below
-#! \todo add comment-inline to the recursive command-call. no point adding comment because recursive will /always/ have ended by the time a full line comment shows up
-#! \todo add special behaviour to parameter expansion arguments like ~
-#! \todo a specific version of command-call which is just `test` and the possible expressions all highlighted special, as well as the `[ ]` form
-#! \todo piping with | is more complicated than it seems, as fish expects a command to appear after the pipe. make a pattern match in command-call that is only valid inside of a command call that used the pipe, and matches from after a pipe until the end of the line, looking for command-call within it
-#!  Hm, because it is possible to pipe the output of an entire block by putting the pipe after `end`, a better approach may be to make a command that STARTS with a pipe, and is normal after that. then it can check inside itself to see if it is ONLY a pipe with no command following it, and mark that as invalid syntax. that would supersede the need for pipe to be matched invalid from in control-operator
+# To-do list:
+#! - Bugfix: Keywords that only work in loops or functions (eg, "continue", "return", etc) will be treated like standard commands if they are located within if-statements within those outer valid blocks. Without a scope stack, we'll have to treat them as always being keywords rather than trying to parse them for the user
+#! - Bugfix: If a command-call line ends in "end" then a comment following it on the line will not be of the insert type, causing the next line of text to be considered arguments
+#!   Fixing may require a rethink of the two comment contexts and finding a way to merge them (the key difference is whether the newline is consumed and command-call either terminates or perpetuates based on that)
+#!   Better fix?: Newlines are consumed at the end of command calls, so create a pattern in the block group which begins just after the word 'end' when it has no newline after it, and ends at the next newline. everything in between can be any group that's valid (pipes, backgrounding, redirection). this would perhaps get us out of the special piped function group described below
+#! - Add comment-inline to the recursive command-call. no point adding comment because recursive will /always/ have ended by the time a full line comment shows up
+#! - Add special behaviour to parameter expansion arguments like ~
+#! - A specific version of command-call which is just `test` and the possible expressions all highlighted special, as well as the `[ ]` form
+#! - Piping with | is more complicated than it seems, as fish expects a command to appear after the pipe. make a pattern match in command-call that is only valid inside of a command call that used the pipe, and matches from after a pipe until the end of the line, looking for command-call within it
+#!   Hm, because it is possible to pipe the output of an entire block by putting the pipe after `end`, a better approach may be to make a command that STARTS with a pipe, and is normal after that. then it can check inside itself to see if it is ONLY a pipe with no command following it, and mark that as invalid syntax. that would supersede the need for pipe to be matched invalid from in control-operator
+#    Don't forget the special 2>| redirection-into-pipe syntax, which should be handled in the piping syntax
 
 repository:
   argument:
@@ -351,8 +354,6 @@ repository:
       - name: meta.path.fish
         comment: Use the function call match to build a file path, as the syntax is fairly similar (possibly identical, with exceptions caught above)
         match: (?:\'(?:\\[\'\\]|[^\'\\])*\'|\"(?:\\[\"$\n\\]|[^\"$\n\\])*\"|(?:\\[abefnrtv $\\*?#(){}\[\]<>^&;|"']|(?<=^|\s)\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]|[^\s$\\*?~%#()<>&|;"']|\\(?=[^abefnrtv\s$\\*?#(){}\[\]<>^&;|"'xXuUc])|(?<=\S|\\ )\\\n|(?<=\S|\\ )[~%#])+)+
-
-    # todo: remove the todos for redirection! (top of file, readme) but remember, there's still the special case redirection into a pipe which you should match wherever the pipe patterns go
 
   string:
     patterns:
