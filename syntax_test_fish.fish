@@ -155,7 +155,7 @@ echo one >out.log two < in.log three ^^err.log four4> out.log five
 #!                                                    ^^^^^^^ meta.path
 #!                                                            ^^^^ meta.function-call.argument
 
-echo one 1>err.log two 2^err.log three^four five^6 7>?out.log 8<? "in.log" nine
+echo one 1>err.log two 2^err.log three^four five^6 7>? \
 #!       ^^^^^^^^^ meta.function-call.redirection
 #!       ^ constant.numeric.file-descriptor
 #!        ^ keyword.operator
@@ -164,15 +164,16 @@ echo one 1>err.log two 2^err.log three^four five^6 7>?out.log 8<? "in.log" nine
 #!                     ^^^^^^^^^ meta.function-call.argument
 #!                               ^^^^^^^^^^ meta.function-call.argument
 #!                                          ^^^^^^ meta.function-call.argument
-#!                                                 ^^^^^^^^^^ meta.function-call.redirection
+#!                                                 ^^^^^^ meta.function-call.redirection
 #!                                                 ^ constant.numeric.file-descriptor
 #!                                                  ^^ keyword.operator
-#!                                                    ^^^^^^^ meta.path
-#!                                                            ^^^^^^^^^^^^ meta.function-call.redirection
-#!                                                            ^ constant.numeric.file-descriptor
-#!                                                             ^^ keyword.operator
-#!                                                                ^^^^^^^^ meta.path
-#!                                                                         ^^^^ meta.function-call.argument
+  out.log 8<? "in.log" nine
+#!^^^^^^^ meta.path
+#!        ^^^^^^^^^^^^ meta.function-call.redirection
+#!        ^ constant.numeric.file-descriptor
+#!         ^^ keyword.operator
+#!            ^^^^^^^^ meta.path
+#!                     ^^^^ meta.function-call.argument
 
 echo one ^err.log^'log' >out.log<in.log < \?in.log > ?out.log
 #!       ^^^^^^^^^^^^^^ meta.function-call.redirection
@@ -214,6 +215,46 @@ echo one > $file <? (echo in.log) >{a,b} ^ \
   "err.log"
 #! <- meta.function-call.redirection
 #! ^^^^^^^^ meta.path
+
+echo one ^&2 two three3>&4 four 5>& \
+#!       ^^^ meta.function-call.redirection
+#!       ^^ keyword.operator
+#!         ^ constant.numeric.file-descriptor
+#!               ^^^^^ meta.function-call.argument
+#!                     ^^^ meta.function-call.redirection
+#!                     ^^ keyword.operator
+#!                       ^ constant.numeric.file-descriptor
+#!                              ^^^^^ meta.function-call.redirection
+#!                              ^ constant.numeric.file-descriptor
+#!                               ^^ keyword.operator
+  - six 7<&->out.log 2> &1
+#!^ keyword.operator.redirection.close
+#!  ^^^ meta.function-call.argument
+#!      ^^^^ meta.function-call.redirection
+#!      ^ constant.numeric.file-descriptor
+#!       ^^ keyword.operator
+#!         ^ keyword.operator.redirection.close
+#!          ^^^^^^^^ meta.function-call.redirection
+#!          ^ keyword.operator
+#!           ^^^^^^^ meta.path
+#!                   ^^^^^ meta.function-call.redirection
+#!                   ^ constant.numeric.file-descriptor
+#!                    ^ keyword.operator
+#!                      ^^ invalid.illegal.path
+
+echo one >&1>?two<&2>&4five
+#!       ^^^ meta.function-call.redirection
+#!       ^^ keyword.operator
+#!         ^ constant.numeric.file-descriptor
+#!          ^^^^^ meta.function-call.redirection
+#!          ^^ keyword.operator
+#!            ^^^ meta.path
+#!               ^^^ meta.function-call.redirection
+#!               ^^ keyword.operator
+#!                 ^ constant.numeric.file-descriptor
+#!                  ^^^^^^^ meta.function-call.redirection
+#!                  ^^ keyword.operator
+#!                    ^^^^^ invalid.illegal.file-descriptor
 
 echo (echo one \
 #!   ^^^^^^^^^^^ meta.command-substitution

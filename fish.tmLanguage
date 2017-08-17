@@ -945,6 +945,86 @@
 			<array>
 				<dict>
 					<key>begin</key>
+					<string>(?:([0-9]+)(&lt;|&gt;|&gt;&gt;)|(&gt;&gt;|\^\^|[&lt;&gt;]|(?&lt;=^|\s)\^))(\&amp;)</string>
+					<key>beginCaptures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>constant.numeric.file-descriptor.fish</string>
+						</dict>
+						<key>2</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.operator.redirection.fish</string>
+						</dict>
+						<key>3</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.operator.redirection.fish</string>
+						</dict>
+						<key>4</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.operator.redirection.dereference.fish</string>
+						</dict>
+					</dict>
+					<key>comment</key>
+					<string>End at anything that would end an argument, with the added condition that the character before the boundary cannot be the final character of the begin match or whitespace, thus allowing an arbitrary amount of whitespace between the begin match and the integer found before the end match</string>
+					<key>end</key>
+					<string>(?&lt;=[^&amp;\s]|\n)(?=[\s);&amp;|&lt;&gt;])</string>
+					<key>name</key>
+					<string>meta.function-call.redirection.fish</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>include</key>
+							<string>#line-continuation</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#comment</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#comment-inline</string>
+						</dict>
+						<dict>
+							<key>comment</key>
+							<string>Evaluates to a string which may be an integer</string>
+							<key>include</key>
+							<string>#command-substitution</string>
+						</dict>
+						<dict>
+							<key>comment</key>
+							<string>Evaluates to a string which may be an integer</string>
+							<key>include</key>
+							<string>#variable-expansion</string>
+						</dict>
+						<dict>
+							<key>match</key>
+							<string>(?:[0-9]+)(?=[\s);&amp;|&lt;&gt;])</string>
+							<key>name</key>
+							<string>constant.numeric.file-descriptor.fish</string>
+						</dict>
+						<dict>
+							<key>match</key>
+							<string>(?:-)(?=[\s);&amp;|&lt;&gt;])</string>
+							<key>name</key>
+							<string>keyword.operator.redirection.close.fish</string>
+						</dict>
+						<dict>
+							<key>comment</key>
+							<string>Anything else is illegal</string>
+							<key>match</key>
+							<string>(?:\S+.*)$</string>
+							<key>name</key>
+							<string>invalid.illegal.file-descriptor.fish</string>
+						</dict>
+					</array>
+				</dict>
+				<dict>
+					<key>begin</key>
 					<string>(?:([0-9]+)(&lt;|&gt;|&gt;&gt;)|(&gt;&gt;|\^\^|[&lt;&gt;]|(?&lt;=^|\s)\^))(\?)?</string>
 					<key>beginCaptures</key>
 					<dict>
@@ -972,7 +1052,7 @@
 					<key>comment</key>
 					<string>End at anything that would end an argument, with the added condition that the character before the boundary cannot be the final character of the begin match or whitespace, thus allowing an arbitrary amount of whitespace between the begin match and the path found before the end match</string>
 					<key>end</key>
-					<string>(?&lt;=[^&lt;&gt;^?\s]|\n)(?=[\s);&amp;|&lt;&gt;])</string>
+					<string>(?&lt;=[^&lt;&gt;^?\s]|\n)(?=[\s);&amp;|&lt;&gt;])|(?=\n)</string>
 					<key>name</key>
 					<string>meta.function-call.redirection.fish</string>
 					<key>patterns</key>
@@ -1005,7 +1085,7 @@
 							<key>comment</key>
 							<string>Check for characters which are associated with redirection, so path cannot begin with them</string>
 							<key>match</key>
-							<string>(\?|[0-9]*[&lt;&gt;^]).*$</string>
+							<string>(?:(?:[&amp;?]|[0-9]*[&lt;&gt;^]).*)$</string>
 							<key>name</key>
 							<string>invalid.illegal.path.fish</string>
 						</dict>
