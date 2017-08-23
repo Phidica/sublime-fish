@@ -386,14 +386,15 @@ echo $var[1..$foo]
 #!   ^^^^ variable.other
 #!       ^^^^^^^^^ meta.brackets.index-expansion
 #!        ^ constant.numeric
+#!         ^^ keyword.operator
 #!           ^^^^ variable.other
 
-echo $var $var[$var[1 $var[1]] $var[1]] "str"
+echo $var $var[$var[1 $var[1]] $var[1..2]] "str"
 #!   ^^^^ variable.other
 #!        ^^^^ variable.other
 #!                  ^ meta.brackets.index-expansion meta.brackets.index-expansion
 #!                    ^^^^ meta.brackets.index-expansion meta.brackets.index-expansion variable.other
-#!                                      ^^^^^ string.quoted
+#!                                         ^^^^^ string.quoted
 
 echo $$var[ 1 ][ 1 ]
 #!   ^^^^^^^^^ variable.other

@@ -286,7 +286,16 @@ repository:
       endCaptures:
         '0': {name: punctuation.section.brackets.end.fish}
       patterns:
-      - include: '#string'
+      - name: keyword.operator.fish
+        match: \.\.
+      - comment: Manually recreate the #string rule, but add logic of breaking near ".." to unquoted strings
+      - include: '#string-quoted'
+      - name: meta.string.unquoted.fish
+        begin: (?<=\.\.|\'|\"|\[|\{|\%|^|\s)(?!\.\.|\'|\"|\]|\}|\s)
+        end: (?<=.|\n)(?=\.\.|\'|\"|\]|\}|\s|\)|[;&|<>]|$)
+        comment: Begin/end string at same boundaries as before with the addition of breaking at ".." so that the above match can be found multiple times
+        patterns:
+        - include: '#string-unquoted-patterns'
 
   line-continuation:
     patterns:
@@ -436,16 +445,15 @@ repository:
       - name: punctuation.section.braces.separator.fish
         match: \,
         comment: Explicitly treat ','
+      - comment: Now manually recreate the #string rule, with the addition of a "\," escape
       - include: '#string-quoted'
       - name: meta.string.unquoted.fish
-        comment: We could name this scope differently if we wished, as we know that it must be occurring inside of a brace expansion
         begin: (?<=\,|\'|\"|\[|\{|^|\s)(?!\,|\'|\"|\]|\}|\s)
         end: (?<=.|\n)(?=\,|\'|\"|\]|\}|\s|\)|;|&|\||$)
-        comment: Begin/end string at same boundaries as before, but ',' can also force a start/stop
+        comment: Begin/end string at same boundaries as before with the addition of breaking at ',' so that the above match can be found multiple times
         patterns:
         - name: constant.character.escape.fish
           match: \\\,
-          comment: Explicitly allow a ',' to be escaped
         - include: '#string-unquoted-patterns'
 
     - name: meta.process-expansion.fish
