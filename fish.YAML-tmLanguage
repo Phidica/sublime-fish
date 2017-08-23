@@ -21,6 +21,7 @@ patterns:
 
 # To-do list:
 #! - Bugfix: Keywords that only work in loops or functions (eg, "continue", "return", etc) will be treated like standard commands if they are located within if-statements within those outer valid blocks. Without a scope stack, we'll have to treat them as always being keywords rather than trying to parse them for the user
+#!   A solution would be to have a second if-block which is the same as the first, but named if-loop-block and which also includes the #loop-control-command rule. Ah, but then the $self which it includes would mean that an if inside /that/ if would be a non-loop if block again, unless the if-loop-block is also explicitly included above the $self. I think this would work all the way down? It gets very complicated if anything besides an if is wanted, but I don't see any use case for a loop control command keyword without an if statement
 #! - Bugfix: If a command-call line ends in "end" then a comment following it on the line will not be of the insert type, causing the next line of text to be considered arguments
 #!   Fixing may require a rethink of the two comment contexts and finding a way to merge them (the key difference is whether the newline is consumed and command-call either terminates or perpetuates based on that)
 #!   Better fix?: Newlines are consumed at the end of command calls, so create a pattern in the block group which begins just after the word 'end' when it has no newline after it, and ends at the next newline. everything in between can be any group that's valid (pipes, backgrounding, redirection). this would perhaps get us out of the special piped function group described below
@@ -392,7 +393,7 @@ repository:
 
   string-unquoted:
     patterns:
-    - name: string.unquoted.fish
+    - name: meta.string.unquoted.fish
       begin: (?<=\'|\"|\[|\{|\%|^|\s)(?!\'|\"|\]|\}|\s)
       comment: Begin string at a boundary. Before the boundary must be the end of a quoted string, the begin of an index/brace/process expansion, or anything that would initiate a function-call argument. After the boundary may be anything that isn't the begin of a quoted string, the end of an item-access argument list, the end of a brace expansion, or whitespace
       end: (?<=.|\n)(?=\'|\"|\]|\}|\s|\)|[;&|<>]|$)
@@ -429,7 +430,7 @@ repository:
         match: \,
         comment: Explicitly treat ',' as a keyword
       - include: '#string-quoted'
-      - name: string.unquoted.fish
+      - name: meta.string.unquoted.fish
         comment: We could name this scope differently if we wished, as we know that it must be occurring inside of a brace expansion
         begin: (?<=\,|\'|\"|\[|\{|^|\s)(?!\,|\'|\"|\]|\}|\s)
         end: (?<=.|\n)(?=\,|\'|\"|\]|\}|\s|\)|;|&|\||$)
@@ -453,7 +454,7 @@ repository:
     patterns:
     - name: invalid.illegal.variable-expansion.fish
       match: \$(?:(?=[,'"\]}\s);&|])|[^\w\$][^$,'"\]}\s);&|]*)
-      comment: A lone '$' in a scope, or an attempt to expand a variable starting with a nonword character, is an error. These boundaries are the same as for string.unquoted
+      comment: A lone '$' in a scope, or an attempt to expand a variable starting with a nonword character, is an error. These boundaries are the same as for meta.string.unquoted
 
     - name: meta.variable-expansion.fish
       begin: (?=\$)

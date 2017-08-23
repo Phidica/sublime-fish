@@ -30,51 +30,51 @@ echo arg & # comment
 echo 'single-quoted' "double-quoted" unquoted
 #!   ^^^^^^^^^^^^^^^ string.quoted.single
 #!                   ^^^^^^^^^^^^^^^ string.quoted.double
-#!                                   ^^^^^^^^ string.unquoted
+#!                                   ^^^^^^^^ meta.string.unquoted
 
 # The ~ and % are only special characters in need of escaping when at the front of arguments
 echo ~foo \~bar~\~ %foo \%bar%\%
-#!   ^^^^ string.unquoted
-#!        ^^^^^^^^ string.unquoted
+#!   ^^^^ meta.string.unquoted
+#!        ^^^^^^^^ meta.string.unquoted
 #!        ^^ constant.character.escape
-#!                 ^^^^ string.unquoted
-#!                      ^^^^^^^^ string.unquoted
+#!                 ^^^^ meta.string.unquoted
+#!                      ^^^^^^^^ meta.string.unquoted
 #!                      ^^ constant.character.escape
 
 echo str\a str\x12345 str\X12345 str\012345
-#!   ^^^^^ string.unquoted
+#!   ^^^^^ meta.string.unquoted
 #!      ^^ constant.character.escape
 #!            ^^^^ constant.character.escape
 #!                       ^^^^ constant.character.escape
 #!                                  ^^^^ constant.character.escape
 
 echo str\u01a2345 str\U01a2b3c45 str\cab
-#!   ^^^^^^^^^^^^ string.unquoted
+#!   ^^^^^^^^^^^^ meta.string.unquoted
 #!      ^^^^^^ constant.character.escape
 #!                   ^^^^^^^^^^ constant.character.escape
 #!                                  ^^^ constant.character.escape
 
 echo str\
-#!   ^^^^^ string.unquoted
+#!   ^^^^^ meta.string.unquoted
 #!      ^^ constant.character.escape
 ing # comment
-#! <- string.unquoted
+#! <- meta.string.unquoted
 #!  ^^^^^^^^^ comment.line.insert
 
 echo str1 2 3str -b="str" --num=2
-#!   ^^^^ string.unquoted
-#!        ^ string.unquoted constant.numeric
-#!          ^^^^ string.unquoted
-#!               ^^^ string.unquoted
+#!   ^^^^ meta.string.unquoted
+#!        ^ meta.string.unquoted constant.numeric
+#!          ^^^^ meta.string.unquoted
+#!               ^^^ meta.string.unquoted
 #!                  ^^^^^ string.quoted.double
-#!                        ^^^^^^ string.unquoted
-#!                              ^ string.unquoted constant.numeric
+#!                        ^^^^^^ meta.string.unquoted
+#!                              ^ meta.string.unquoted constant.numeric
 
 echo str \ # not-comment \  # comment
-#!   ^^^ string.unquoted
-#!       ^^^ string.unquoted
+#!   ^^^ meta.string.unquoted
+#!       ^^^ meta.string.unquoted
 #!       ^^ constant.character.escape
-#!                       ^^ string.unquoted constant.character.escape
+#!                       ^^ meta.string.unquoted constant.character.escape
 #!                          ^^^^^^^^^ comment.line.insert
 
 echo arg \ arg \
@@ -437,7 +437,7 @@ str
 #! <- string.quoted.double punctuation.definition.string.end
 
 echo $var{,'brace',"expansion",he{e,$e}re\,}"str"
-#!   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string.unquoted
+#!   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.string.unquoted
 #!   ^^^^ variable.other
 #!   ^ punctuation.definition.variable
 #!       ^ keyword.control.brace-expansion.begin
@@ -455,7 +455,7 @@ echo $var{,'brace',"expansion",he{e,$e}re\,}"str"
 echo %self foo %(set foo "fi"; echo $foo)sh "bar"
 #!   ^^^^^ meta.process-expansion
 #!   ^ punctuation.definition.process
-#!         ^^^ string.unquoted
+#!         ^^^ meta.string.unquoted
 #!             ^ punctuation.definition.process
 #!              ^^^^^^^^^^^^^^^^^^^^^^^^^ meta.command-substitution
 #!                                       ^^ meta.process-expansion

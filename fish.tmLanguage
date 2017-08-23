@@ -1215,7 +1215,7 @@
 					<key>end</key>
 					<string>(?&lt;=.|\n)(?=\'|\"|\]|\}|\s|\)|[;&amp;|&lt;&gt;]|$)</string>
 					<key>name</key>
-					<string>string.unquoted.fish</string>
+					<string>meta.string.unquoted.fish</string>
 					<key>patterns</key>
 					<array>
 						<dict>
@@ -1305,7 +1305,7 @@
 							<key>end</key>
 							<string>(?&lt;=.|\n)(?=\,|\'|\"|\]|\}|\s|\)|;|&amp;|\||$)</string>
 							<key>name</key>
-							<string>string.unquoted.fish</string>
+							<string>meta.string.unquoted.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -1357,7 +1357,7 @@
 			<array>
 				<dict>
 					<key>comment</key>
-					<string>A lone '$' in a scope, or an attempt to expand a variable starting with a nonword character, is an error. These boundaries are the same as for string.unquoted</string>
+					<string>A lone '$' in a scope, or an attempt to expand a variable starting with a nonword character, is an error. These boundaries are the same as for meta.string.unquoted</string>
 					<key>match</key>
 					<string>\$(?:(?=[,'"\]}\s);&amp;|])|[^\w\$][^$,'"\]}\s);&amp;|]*)</string>
 					<key>name</key>
