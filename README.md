@@ -30,7 +30,7 @@ Exposed scopes
 | Process expansion    | `meta.process-expansion` and `punctuation.definition.process`
 | Command substitution | `meta.parens.command-substitution` and `punctuation.section.parens.begin`/`end`
 | Index expansion      | `meta.brackets.index-expansion` and `punctuation.section.brackets.begin`/`end`
-
+| Brace expansion      | `meta.braces.brace-expansion` and `punctuation.section.braces.begin`/`separator`/`end`
 
 Contribution
 ------------

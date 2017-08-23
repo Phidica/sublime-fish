@@ -440,16 +440,16 @@ echo $var{,'brace',"expansion",he{e,$e}re\,}"str"
 #!   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.string.unquoted
 #!   ^^^^ variable.other
 #!   ^ punctuation.definition.variable
-#!       ^ keyword.control.brace-expansion.begin
-#!        ^ keyword.control.brace-expansion.separator
-#!                ^ keyword.control.brace-expansion.separator
-#!                            ^ keyword.control.brace-expansion.separator
-#!                               ^ keyword.control.brace-expansion.begin
-#!                                 ^ keyword.control.brace-expansion.separator
+#!       ^ punctuation.section.braces.begin
+#!        ^ punctuation.section.braces.separator
+#!                ^ punctuation.section.braces.separator
+#!                            ^ punctuation.section.braces.separator
+#!                               ^ punctuation.section.braces.begin
+#!                                 ^ punctuation.section.braces.separator
 #!                                  ^^ variable.other
-#!                                    ^ keyword.control.brace-expansion.end
+#!                                    ^ punctuation.section.braces.end
 #!                                       ^^ constant.character.escape
-#!                                         ^ keyword.control.brace-expansion.end
+#!                                         ^ punctuation.section.braces.end
 #!                                          ^^^^^ string.quoted
 
 echo %self foo %(set foo "fi"; echo $foo)sh "bar"

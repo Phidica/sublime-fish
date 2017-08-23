@@ -425,17 +425,17 @@ repository:
       match: \\[abefnrtv $\\*?#(){}\[\]<>^&|;"']|(?<=^|\s)\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]
       comment: This list follows the order given in official fish documentation, with the addition of additional checks made on the ~ and % characters which only need escaping if they appear at the front of an argument
 
-    - name: meta.brace-expansion.fish
+    - name: meta.braces.brace-expansion.fish
       begin: \{
       beginCaptures:
-        '0': {name: keyword.control.brace-expansion.begin.fish punctuation.definition.keyword.fish}
+        '0': {name: punctuation.section.braces.begin.fish}
       end: \}
       endCaptures:
-        '0': {name: keyword.control.brace-expansion.end.fish punctuation.definition.keyword.fish}
+        '0': {name: punctuation.section.braces.end.fish}
       patterns:
-      - name: keyword.control.brace-expansion.separator.fish
+      - name: punctuation.section.braces.separator.fish
         match: \,
-        comment: Explicitly treat ',' as a keyword
+        comment: Explicitly treat ','
       - include: '#string-quoted'
       - name: meta.string.unquoted.fish
         comment: We could name this scope differently if we wished, as we know that it must be occurring inside of a brace expansion

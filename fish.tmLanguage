@@ -1280,7 +1280,7 @@
 						<key>0</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.control.brace-expansion.begin.fish punctuation.definition.keyword.fish</string>
+							<string>punctuation.section.braces.begin.fish</string>
 						</dict>
 					</dict>
 					<key>end</key>
@@ -1290,20 +1290,20 @@
 						<key>0</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.control.brace-expansion.end.fish punctuation.definition.keyword.fish</string>
+							<string>punctuation.section.braces.end.fish</string>
 						</dict>
 					</dict>
 					<key>name</key>
-					<string>meta.brace-expansion.fish</string>
+					<string>meta.braces.brace-expansion.fish</string>
 					<key>patterns</key>
 					<array>
 						<dict>
 							<key>comment</key>
-							<string>Explicitly treat ',' as a keyword</string>
+							<string>Explicitly treat ','</string>
 							<key>match</key>
 							<string>\,</string>
 							<key>name</key>
-							<string>keyword.control.brace-expansion.separator.fish</string>
+							<string>punctuation.section.braces.separator.fish</string>
 						</dict>
 						<dict>
 							<key>include</key>
