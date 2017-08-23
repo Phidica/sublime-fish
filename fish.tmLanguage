@@ -688,35 +688,8 @@
 							</array>
 						</dict>
 						<dict>
-							<key>begin</key>
-							<string>\[</string>
-							<key>beginCaptures</key>
-							<dict>
-								<key>0</key>
-								<dict>
-									<key>name</key>
-									<string>punctuation.section.brackets.index-expansion.begin.fish</string>
-								</dict>
-							</dict>
-							<key>end</key>
-							<string>\]</string>
-							<key>endCaptures</key>
-							<dict>
-								<key>0</key>
-								<dict>
-									<key>name</key>
-									<string>punctuation.section.brackets.index-expansion.end.fish</string>
-								</dict>
-							</dict>
-							<key>name</key>
-							<string>meta.brackets.index-expansion.fish</string>
-							<key>patterns</key>
-							<array>
-								<dict>
-									<key>include</key>
-									<string>#string</string>
-								</dict>
-							</array>
+							<key>include</key>
+							<string>#index-expansion</string>
 						</dict>
 					</array>
 				</dict>
@@ -785,6 +758,45 @@
 					<string>(?&lt;=^|[(;&amp;|])\s*([&amp;|&lt;&gt;]).*$\n?</string>
 					<key>name</key>
 					<string>invalid.illegal.operator.fish</string>
+				</dict>
+			</array>
+		</dict>
+		<key>index-expansion</key>
+		<dict>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>begin</key>
+					<string>\[</string>
+					<key>beginCaptures</key>
+					<dict>
+						<key>0</key>
+						<dict>
+							<key>name</key>
+							<string>punctuation.section.brackets.begin.fish</string>
+						</dict>
+					</dict>
+					<key>comment</key>
+					<string>In other words, the anonymous scope which contains the variable and the index expansion argument list should only be allowed to contain a single copy of each of those two things. We cannot enforce that without a scope stack</string>
+					<key>end</key>
+					<string>\]</string>
+					<key>endCaptures</key>
+					<dict>
+						<key>0</key>
+						<dict>
+							<key>name</key>
+							<string>punctuation.section.brackets.end.fish</string>
+						</dict>
+					</dict>
+					<key>name</key>
+					<string>meta.brackets.index-expansion.fish</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>include</key>
+							<string>#string</string>
+						</dict>
+					</array>
 				</dict>
 			</array>
 		</dict>
@@ -1400,37 +1412,8 @@
 							</array>
 						</dict>
 						<dict>
-							<key>begin</key>
-							<string>\[</string>
-							<key>beginCaptures</key>
-							<dict>
-								<key>0</key>
-								<dict>
-									<key>name</key>
-									<string>punctuation.section.brackets.index-expansion.begin.fish</string>
-								</dict>
-							</dict>
-							<key>comment</key>
-							<string>In other words, the anonymous scope which contains the variable and the index expansion argument list should only be allowed to contain a single copy of each of those two things. We cannot enforce that without a scope stack</string>
-							<key>end</key>
-							<string>\]</string>
-							<key>endCaptures</key>
-							<dict>
-								<key>0</key>
-								<dict>
-									<key>name</key>
-									<string>punctuation.section.brackets.index-expansion.end.fish</string>
-								</dict>
-							</dict>
-							<key>name</key>
-							<string>meta.brackets.index-expansion.fish</string>
-							<key>patterns</key>
-							<array>
-								<dict>
-									<key>include</key>
-									<string>#string</string>
-								</dict>
-							</array>
+							<key>include</key>
+							<string>#index-expansion</string>
 						</dict>
 					</array>
 				</dict>

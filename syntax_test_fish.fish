@@ -290,8 +290,8 @@ echo ( # comment
 echo foo(echo -e nar\nbar)[2] f(echo oo)\[bar]
 #!      ^^^^^^^^^^^^^^^^^^ meta.command-substitution
 #!                        ^^^ meta.brackets.index-expansion
-#!                        ^ punctuation.section.brackets.index-expansion.begin
-#!                          ^ punctuation.section.brackets.index-expansion.end
+#!                        ^ punctuation.section.brackets.begin
+#!                          ^ punctuation.section.brackets.end
 #!                                      ^^ constant.character.escape
 
 foo\  # comment

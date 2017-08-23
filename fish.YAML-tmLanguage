@@ -31,6 +31,7 @@ patterns:
 #! - Piping with | is more complicated than it seems, as fish expects a command to appear after the pipe. make a pattern match in command-call that is only valid inside of a command call that used the pipe, and matches from after a pipe until the end of the line, looking for command-call within it
 #!   Hm, because it is possible to pipe the output of an entire block by putting the pipe after `end`, a better approach may be to make a command that STARTS with a pipe, and is normal after that. then it can check inside itself to see if it is ONLY a pipe with no command following it, and mark that as invalid syntax. that would supersede the need for pipe to be matched invalid from in control-operator
 #    Don't forget the special 2>| redirection-into-pipe syntax, which should be handled in the piping syntax
+#! - Allow index expansion of arbitrary length
 
 repository:
   argument:
@@ -246,15 +247,7 @@ repository:
         patterns:
         - include: '$self'
 
-      - name: meta.brackets.index-expansion.fish
-        begin: \[
-        beginCaptures:
-          '0': {name: punctuation.section.brackets.index-expansion.begin.fish}
-        end: \]
-        endCaptures:
-          '0': {name: punctuation.section.brackets.index-expansion.end.fish}
-        patterns:
-        - include: '#string'
+      - include: '#index-expansion'
 
   comment:
     patterns:
@@ -280,6 +273,20 @@ repository:
     - name: invalid.illegal.operator.fish
       match: (?<=^|[(;&|])\s*([&|<>]).*$\n?
       comment: These four control operators ('&', '|', '<', and '>') must be preceded by a command, so command patterns match them when they are valid. If they are found in the global scope or first inside a command-substitution, that means they are dangling. The control operator '^' is handled in the command-call rule because it is only forbidden from starting a command
+
+  index-expansion:
+    patterns:
+    - name: meta.brackets.index-expansion.fish
+      comment: The number of index expansion argument lists `[...]` should always be less than or equal to the number of variable expansion operators `$`. Unfortunately, we can do nothing to moderate that with this syntax schema; with a *.sublime-syntax and a scope stack it could be done. As it stands, "$$foo[...]" is the deepest that we can accurately highlight
+      comment: In other words, the anonymous scope which contains the variable and the index expansion argument list should only be allowed to contain a single copy of each of those two things. We cannot enforce that without a scope stack
+      begin: \[
+      beginCaptures:
+        '0': {name: punctuation.section.brackets.begin.fish}
+      end: \]
+      endCaptures:
+        '0': {name: punctuation.section.brackets.end.fish}
+      patterns:
+      - include: '#string'
 
   line-continuation:
     patterns:
@@ -469,17 +476,7 @@ repository:
         comment: Capture "foo"[ or "foo[...]"[
         patterns:
         - include: '#variable-expansion'
-      - name: meta.brackets.index-expansion.fish
-        comment: The number of index expansion argument lists `[...]` should always be less than or equal to the number of variable expansion operators `$`. Unfortunately, we can do nothing to moderate that with this syntax schema; with a *.sublime-syntax and a scope stack it could be done. As it stands, "$$foo[...]" is the deepest that we can accurately highlight
-        comment: In other words, the anonymous scope which contains the variable and the index expansion argument list should only be allowed to contain a single copy of each of those two things. We cannot enforce that without a scope stack
-        begin: \[
-        beginCaptures:
-          '0': {name: punctuation.section.brackets.index-expansion.begin.fish}
-        end: \]
-        endCaptures:
-          '0': {name: punctuation.section.brackets.index-expansion.end.fish}
-        patterns:
-        - include: '#string'
+      - include: '#index-expansion'
 
   # Inherited constructs; to be rewritten
 
