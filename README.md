@@ -19,26 +19,16 @@ Clone the repository to your [Packages directory](http://docs.sublimetext.info/e
 
 Open a `.fish` file and set the default syntax highlighting to "Shell Script Improved (fish)".
 
-Highlighting strings
---------------------
+Exposed scopes
+--------------
 
-As with any shell, a string in fish that isn't enclosed in quotes is considered an "unquoted string". If your Sublime Text color scheme highlights unquoted strings the same way it does quoted strings then you might find the result visually unappealing, as almost everything is a string. You may therefore wish to render unquoted strings in the default text color instead. To do so, edit your color scheme `.tmTheme` file and change
-
-    <key>name</key>
-    <string>String</string>
-    <key>scope</key>
-    <string>string</string>
-
-to
-
-    <key>name</key>
-    <string>String</string>
-    <key>scope</key>
-    <string>string.quoted, string - string.unquoted</string>
-
-This will exclude unquoted strings from receiving string highlighting, but it also explicitly enforces string highlighting on quoted strings to ensure that quoted strings embedded within unquoted strings (such as via a command substitution) receive the correct highlighting.
-
-This should have no negative effects on other syntaxes which use strings, provided they follow convention and correctly scope them as "string.quoted".
+| fish construct       | Scope name
+| :------------:       | :----------
+| Unquoted string      | `meta.string.unquoted`
+| File path            | `meta.path`
+| Variable expansion   | `meta.variable-expansion` and `punctuation.definition.variable`
+| Index expansion      | `meta.brackets.index-expansion` and `punctuation.section.brackets.index-expansion.begin`/`end`
+| Process expansion    | `meta.process-expansion` and `punctuation.definition.process`
 
 Contribution
 ------------
