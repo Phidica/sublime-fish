@@ -27,8 +27,10 @@ Exposed scopes
 | Unquoted string      | `meta.string.unquoted`
 | File path            | `meta.path`
 | Variable expansion   | `meta.variable-expansion` and `punctuation.definition.variable`
-| Index expansion      | `meta.brackets.index-expansion` and `punctuation.section.brackets.begin`/`end`
 | Process expansion    | `meta.process-expansion` and `punctuation.definition.process`
+| Command substitution | `meta.parens.command-substitution` and `punctuation.section.parens.begin`/`end`
+| Index expansion      | `meta.brackets.index-expansion` and `punctuation.section.brackets.begin`/`end`
+
 
 Contribution
 ------------

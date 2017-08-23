@@ -662,7 +662,7 @@
 								<key>0</key>
 								<dict>
 									<key>name</key>
-									<string>keyword.control.command-substitution.begin.fish punctuation.definition.keyword.fish</string>
+									<string>punctuation.section.parens.begin.fish</string>
 								</dict>
 							</dict>
 							<key>comment</key>
@@ -674,11 +674,11 @@
 								<key>0</key>
 								<dict>
 									<key>name</key>
-									<string>keyword.control.command-substitution.end.fish punctuation.definition.keyword.fish</string>
+									<string>punctuation.section.parens.end.fish</string>
 								</dict>
 							</dict>
 							<key>name</key>
-							<string>meta.command-substitution.fish</string>
+							<string>meta.parens.command-substitution.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>

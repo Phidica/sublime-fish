@@ -92,10 +92,10 @@ arg arg # comment
 #!      ^ comment.line.insert
 
 echo arg (echo "inner" arg) outer arg
-#!       ^^^^^^^^^^^^^^^^^^ meta.command-substitution
-#!       ^ keyword.control.command-substitution
+#!       ^^^^^^^^^^^^^^^^^^ meta.parens.command-substitution
+#!       ^ punctuation.section.parens.begin
 #!        ^^^^^^^^^^^^^^^^ meta.function-call
-#!                        ^ keyword.control.command-substitution
+#!                        ^ punctuation.section.parens.end
 #!                          ^ meta.function-call
 
 foo\ bar arg
@@ -205,7 +205,7 @@ echo one > $file <? (echo in.log) >{a,b} ^ \
 #!         ^^^^^ variable.other
 #!               ^^^^^^^^^^^^^^^^ meta.function-call.redirection
 #!               ^^ keyword.operator
-#!                  ^^^^^^^^^^^^^ meta.command-substitution
+#!                  ^^^^^^^^^^^^^ meta.parens.command-substitution
 #!                                ^^^^^^ meta.function-call.redirection
 #!                                ^ keyword.operator
 #!                                 ^^^^^ meta.path
@@ -257,7 +257,7 @@ echo one >&1>?two<&2>&4five
 #!                    ^^^^^ invalid.illegal.file-descriptor
 
 echo (echo one \
-#!   ^^^^^^^^^^^ meta.command-substitution
+#!   ^^^^^^^^^^^ meta.parens.command-substitution
 #!             ^ constant.character.escape
 two three # comment
 #!        ^ comment.line.insert
@@ -265,12 +265,12 @@ two three # comment
 #! <- comment.line
 echo four \
 #! <- variable.function
-#! ^^^^^^ meta.command-substitution
+#! ^^^^^^ meta.parens.command-substitution
 five six # tricky comment \
 echo seven
 #! <- variable.function
 )
-#! <- meta.command-substitution
+#! <- meta.parens.command-substitution
 
 echo ( \
 #!     ^ constant.character.escape
@@ -288,7 +288,7 @@ echo ( # comment
 )
 
 echo foo(echo -e nar\nbar)[2] f(echo oo)\[bar]
-#!      ^^^^^^^^^^^^^^^^^^ meta.command-substitution
+#!      ^^^^^^^^^^^^^^^^^^ meta.parens.command-substitution
 #!                        ^^^ meta.brackets.index-expansion
 #!                        ^ punctuation.section.brackets.begin
 #!                          ^ punctuation.section.brackets.end
@@ -357,7 +357,7 @@ arg \
 #! <- meta.function-call.standard
 
 echo "string"(echo "inner string")" outer string"
-#!           ^^^^^^^^^^^^^^^^^^^^^ meta.command-substitution
+#!           ^^^^^^^^^^^^^^^^^^^^^ meta.parens.command-substitution
 #!                                ^ string.quoted
 
 echo $var $ $$"str" $var $$var $
@@ -403,7 +403,7 @@ echo $$var[ 1 ][ 1 ]
 echo $var[(echo 1)] $var["2"] "str"
 #!   ^^^^ variable.other
 #!       ^^^^^^^^^^ meta.brackets.index-expansion
-#!        ^^^^^^^^  meta.command-substitution
+#!        ^^^^^^^^  meta.parens.command-substitution
 #!                       ^^^ string.quoted
 #!                            ^^^^^ string.quoted
 
@@ -457,7 +457,7 @@ echo %self foo %(set foo "fi"; echo $foo)sh "bar"
 #!   ^ punctuation.definition.process
 #!         ^^^ meta.string.unquoted
 #!             ^ punctuation.definition.process
-#!              ^^^^^^^^^^^^^^^^^^^^^^^^^ meta.command-substitution
+#!              ^^^^^^^^^^^^^^^^^^^^^^^^^ meta.parens.command-substitution
 #!                                       ^^ meta.process-expansion
 #!                                          ^^^^^ string.quoted
 
@@ -563,7 +563,7 @@ for in in in in (seq 5) in in # comment
 #!     ^^ keyword.control.conditional
 #!        ^^ meta.function-call.argument
 #!           ^^ meta.function-call.argument
-#!              ^^^^^^^ meta.function-call.argument meta.command-substitution
+#!              ^^^^^^^ meta.function-call.argument meta.parens.command-substitution
 #!                      ^^ meta.function-call.argument
 #!                         ^^ meta.function-call.argument
 #!                            ^^^^^^^^^ comment.line
@@ -584,13 +584,13 @@ for \
 #! ^ keyword.control.conditional
 #!   ^ constant.character.escape
     (
-#!  ^ meta.function-call.argument meta.command-substitution
+#!  ^ meta.function-call.argument meta.parens.command-substitution
   echo \
 #! ^^^ meta.function-call.standard
   one two \
   three
 )
-#! <- meta.function-call.argument meta.command-substitution
+#! <- meta.function-call.argument meta.parens.command-substitution
   echo arg arg
 #! ^^^ meta.function-call.standard
 end

@@ -236,14 +236,14 @@ repository:
       end: (?<=\))(?!\[)|(?<=\])
       comment: Capture "(...)" or "(...)[...]"
       patterns:
-      - name: meta.command-substitution.fish
+      - name: meta.parens.command-substitution.fish
         comment: The inside of a command substitution is indistinguishable from a global scope
         begin: \(
         beginCaptures:
-          '0': {name: keyword.control.command-substitution.begin.fish punctuation.definition.keyword.fish}
+          '0': {name: punctuation.section.parens.begin.fish}
         end: \)
         endCaptures:
-          '0': {name: keyword.control.command-substitution.end.fish punctuation.definition.keyword.fish}
+          '0': {name: punctuation.section.parens.end.fish}
         patterns:
         - include: '$self'
 
