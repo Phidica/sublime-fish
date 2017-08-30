@@ -26,7 +26,6 @@ patterns:
 #!   Fixing may require a rethink of the two comment contexts and finding a way to merge them (the key difference is whether the newline is consumed and command-call either terminates or perpetuates based on that)
 #!   Better fix?: Newlines are consumed at the end of command calls, so create a pattern in the block group which begins just after the word 'end' when it has no newline after it, and ends at the next newline. everything in between can be any group that's valid (pipes, backgrounding, redirection). this would perhaps get us out of the special piped function group described below
 #! - Add comment-inline to the recursive command-call. no point adding comment because recursive will /always/ have ended by the time a full line comment shows up
-#! - Add special behaviour to parameter expansion arguments like ~
 #! - A specific version of command-call which is just `test` and the possible expressions all highlighted special, as well as the `[ ]` form
 #! - Piping with | is more complicated than it seems, as fish expects a command to appear after the pipe. make a pattern match in command-call that is only valid inside of a command call that used the pipe, and matches from after a pipe until the end of the line, looking for command-call within it
 #!   Hm, because it is possible to pipe the output of an entire block by putting the pipe after `end`, a better approach may be to make a command that STARTS with a pipe, and is normal after that. then it can check inside itself to see if it is ONLY a pipe with no command following it, and mark that as invalid syntax. that would supersede the need for pipe to be matched invalid from in control-operator
@@ -468,6 +467,12 @@ repository:
         match: (self|last)(?=\'|\"|\]|\}|\s|\)|[;&|<>]|$)
         comment: Check if the unquoted string ends after either of these two words. They have special meaning, and though they aren't exactly variables, process expansion is fairly similar to variable expansion
       - include: '#string'
+
+    - name: meta.home-directory-expansion.fish
+      comment: Home directory expansion only occurs if the '~' is at the begin of the argument
+      match: (?<=\[|\{|^|\s)\~
+      captures:
+        '0': {name: keyword.operator.fish}
 
   variable-expansion:
     patterns:
