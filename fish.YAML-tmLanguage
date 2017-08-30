@@ -495,39 +495,6 @@ repository:
         - include: '#variable-expansion'
       - include: '#index-expansion'
 
-  # Inherited constructs; to be rewritten
-
-  math:
-    patterns:
-    - name: keyword.operator.arithmetic.fish
-      match: (\+{1,2}|-{1,2}|!|~|\*{1,2}|/|%|<[<=]?|>[>=]?|==|!=|^|\|{1,2}|&{1,2}|\?|\:|,|=|[*/%+\-&^|]=|<<=|>>=)(?=(\s|$|\$|\())
-      comment: Only match an operator if the element to the right is whitespace/newline, a variable, or command substitution
-    - name: constant.numeric.hex.fish
-      match: 0[xX]\h+
-    - name: constant.numeric.octal.fish
-      match: 0\d+
-    - name: constant.numeric.other.fish
-      match: \d{1,2}#[0-9a-zA-Z@_]+
-    - name: constant.numeric.integer.fish
-      match: \d+
-
-  pathname:
-    patterns:
-    - name: keyword.operator.tilde.fish
-      match: (?<=\s|:|=|^)~
-    - name: keyword.operator.glob.fish
-      match: \*|\?
-    - name: meta.structure.extglob.fish
-      begin: ([?*+@!])(\()
-      beginCaptures:
-        '1': {name: keyword.operator.extglob.fish}
-        '2': {name: punctuation.definition.extglob.fish}
-      end: (\))
-      endCaptures:
-        '1': {name: punctuation.definition.extglob.fish}
-      patterns:
-      - include: $self
-
 firstLineMatch: ^#!.*\b(fish)|^#\s*-\*-[^*]*mode:\s*shell-script[^*]*-\*-
 foldingStartMarker: \b(begin|case|for|if|else|function|switch|while)\b|(\{)$
 foldingStopMarker: ^\s*(\}|(case|else|end)\b)
