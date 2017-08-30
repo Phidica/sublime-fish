@@ -457,12 +457,16 @@ repository:
         - include: '#string-unquoted-patterns'
 
     - name: meta.process-expansion.fish
-      begin: \%
+      begin: (?<=\[|\{|^|\s)\%
       beginCaptures:
         '0': {name: punctuation.definition.process.fish}
+      comment: Process expansion only occurs if the '%' is at the begin of the argument
       end: (?<=.|\n)(?=[\s);&|]|$)
-      comment: Process expansion continues for the entire argument
+      comment: Process expansion continues for the entire argument and can include anything but another process expansion
       patterns:
+      - name: variable.language.fish
+        match: (self|last)(?=\'|\"|\]|\}|\s|\)|[;&|<>]|$)
+        comment: Check if the unquoted string ends after either of these two words. They have special meaning, and though they aren't exactly variables, process expansion is fairly similar to variable expansion
       - include: '#string'
 
   variable-expansion:

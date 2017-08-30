@@ -1367,7 +1367,7 @@
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>\%</string>
+					<string>(?&lt;=\[|\{|^|\s)\%</string>
 					<key>beginCaptures</key>
 					<dict>
 						<key>0</key>
@@ -1377,13 +1377,21 @@
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>Process expansion continues for the entire argument</string>
+					<string>Process expansion continues for the entire argument and can include anything but another process expansion</string>
 					<key>end</key>
 					<string>(?&lt;=.|\n)(?=[\s);&amp;|]|$)</string>
 					<key>name</key>
 					<string>meta.process-expansion.fish</string>
 					<key>patterns</key>
 					<array>
+						<dict>
+							<key>comment</key>
+							<string>Check if the unquoted string ends after either of these two words. They have special meaning, and though they aren't exactly variables, process expansion is fairly similar to variable expansion</string>
+							<key>match</key>
+							<string>(self|last)(?=\'|\"|\]|\}|\s|\)|[;&amp;|&lt;&gt;]|$)</string>
+							<key>name</key>
+							<string>variable.language.fish</string>
+						</dict>
 						<dict>
 							<key>include</key>
 							<string>#string</string>

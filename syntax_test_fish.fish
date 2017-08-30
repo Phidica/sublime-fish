@@ -453,6 +453,15 @@ echo $var{,'brace',"expansion",he{e,$e}re\,}"str"
 #!                                         ^ punctuation.section.braces.end
 #!                                          ^^^^^ string.quoted
 
+echo %"fish" one%two %%percent
+#!   ^^^^^^^ meta.process-expansion
+#!   ^ punctuation.definition.process
+#!    ^^^^^^ meta.string.unquoted
+#!           ^^^^^^^ meta.string.unquoted
+#!                   ^^^^^^^^^ meta.process-expansion
+#!                   ^ punctuation.definition.process
+#!                    ^^^^^^^^ meta.string.unquoted
+
 echo %self foo %(set foo "fi"; echo $foo)sh "bar"
 #!   ^^^^^ meta.process-expansion
 #!   ^ punctuation.definition.process
