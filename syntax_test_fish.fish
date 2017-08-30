@@ -398,9 +398,10 @@ echo $var $var[$var[1 $var[1]] $var[1..2]] "str"
 #!                                         ^^^^^ string.quoted
 
 echo $$var[ 1 ][ 1 ]
-#!   ^^^^^^^^^ variable.other
-#!    ^^^^^^^^^ variable.other
+#!   ^^^^^^^^^^^^^^^ meta.variable-expansion
+#!    ^^^^ variable.other
 #!        ^^^^^ meta.brackets.index-expansion
+#!             ^^^^^ meta.brackets.index-expansion
 
 echo $var[(echo 1)] $var["2"] "str"
 #!   ^^^^ variable.other
@@ -627,7 +628,7 @@ switch \
 #! <- meta.block.switch.value string.quoted.double
   case \
 #! ^^^ meta.block.switch.case keyword.control.conditional
-  (echo foo) bar one two
+  (echo foo)[] bar one two
 #! ^^^^^^^^^^^^^^^^^^^^^ meta.block.switch.case.wildcard
     echo bar
   case '*'

@@ -278,6 +278,7 @@ repository:
     - name: meta.brackets.index-expansion.fish
       comment: The number of index expansion argument lists `[...]` should always be less than or equal to the number of variable expansion operators `$`. Unfortunately, we can do nothing to moderate that with this syntax schema; with a *.sublime-syntax and a scope stack it could be done. As it stands, "$$foo[...]" is the deepest that we can accurately highlight
       comment: In other words, the anonymous scope which contains the variable and the index expansion argument list should only be allowed to contain a single copy of each of those two things. We cannot enforce that without a scope stack
+      comment: Note also that command substitution can only have a single index expansion
       begin: \[
       beginCaptures:
         '0': {name: punctuation.section.brackets.begin.fish}
@@ -287,7 +288,7 @@ repository:
       patterns:
       - name: keyword.operator.fish
         match: \.\.
-      - comment: Manually recreate the #string rule, but add logic of breaking near ".." to unquoted strings
+      - comment: Manually recreate the #string rule, but add logic to unquoted strings so we break at ".."
       - include: '#string-quoted'
       - name: meta.string.unquoted.fish
         begin: (?<=\.\.|\'|\"|\[|\{|\%|^|\s)(?!\.\.|\'|\"|\]|\}|\s)
@@ -417,7 +418,7 @@ repository:
       - include: '#string-unquoted-patterns'
 
   string-unquoted-patterns:
-    comment: Describes contents of an unquoted string separately for ease of recursion
+    comment: Describe contents of an unquoted string separately for ease of recursion
     patterns:
     - include: '#line-continuation'
 
@@ -476,24 +477,41 @@ repository:
 
   variable-expansion:
     patterns:
-    - name: invalid.illegal.variable-expansion.fish
-      match: \$(?:(?=[,'"\]}\s);&|])|[^\w\$][^$,'"\]}\s);&|]*)
-      comment: A lone '$' in a scope, or an attempt to expand a variable starting with a nonword character, is an error. These boundaries are the same as for meta.string.unquoted
+    - include: '#variable-expansion-illegal'
 
     - name: meta.variable-expansion.fish
       begin: (?=\$)
-      end: (?<=[\$\w])(?=[^\$\w\[])|(?<=\])
-      comment: Capture "$foo" or "$foo[]"
+      end: (?<=[\$\w])(?=[^\$\w\[])|(?<=\])(?!\[)
+      comment: Capture "$foo" or "$foo[]" or "$$foo[][]" etc
       patterns:
       - name: variable.other.fish
         begin: \$
         beginCaptures:
           '0': {name: punctuation.definition.variable.fish}
-        end: (?<=[\$\w\]])(?=[^\$\w])|(?<=\])(?=\[)
-        comment: Capture "foo"[ or "foo[...]"[
+        end: (?<=[\$\w])(?=[^\$\w])
         patterns:
-        - include: '#variable-expansion'
+        - include: '#variable-expansion-illegal'
+        - include: '#variable-expansion-simple'
       - include: '#index-expansion'
+
+  variable-expansion-simple:
+    comment: Describe variable expansion that has no index expansion separately
+    patterns:
+    - name: variable.other.fish
+      begin: \$
+      beginCaptures:
+        '0': {name: punctuation.definition.variable.fish}
+      end: (?<=[\$\w])(?=[^\$\w])
+      patterns:
+      - include: '#variable-expansion-illegal'
+      - include: '#variable-expansion-simple'
+
+  variable-expansion-illegal:
+    comment: Describe illegal variable expansions separately
+    patterns:
+    - name: invalid.illegal.variable-expansion.fish
+      match: \$(?:(?=[,'"\]}\s);&|])|[^\w\$][^$,'"\]}\s);&|]*)
+      comment: A lone '$' in a scope, or an attempt to expand a variable starting with a nonword character, is an error. These boundaries are the same as for meta.string.unquoted
 
 firstLineMatch: ^#!.*\b(fish)|^#\s*-\*-[^*]*mode:\s*shell-script[^*]*-\*-
 foldingStartMarker: \b(begin|case|for|if|else|function|switch|while)\b|(\{)$

@@ -777,7 +777,7 @@
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>In other words, the anonymous scope which contains the variable and the index expansion argument list should only be allowed to contain a single copy of each of those two things. We cannot enforce that without a scope stack</string>
+					<string>Note also that command substitution can only have a single index expansion</string>
 					<key>end</key>
 					<string>\]</string>
 					<key>endCaptures</key>
@@ -1176,7 +1176,7 @@
 		<key>string-unquoted-patterns</key>
 		<dict>
 			<key>comment</key>
-			<string>Describes contents of an unquoted string separately for ease of recursion</string>
+			<string>Describe contents of an unquoted string separately for ease of recursion</string>
 			<key>patterns</key>
 			<array>
 				<dict>
@@ -1329,20 +1329,16 @@
 			<key>patterns</key>
 			<array>
 				<dict>
-					<key>comment</key>
-					<string>A lone '$' in a scope, or an attempt to expand a variable starting with a nonword character, is an error. These boundaries are the same as for meta.string.unquoted</string>
-					<key>match</key>
-					<string>\$(?:(?=[,'"\]}\s);&amp;|])|[^\w\$][^$,'"\]}\s);&amp;|]*)</string>
-					<key>name</key>
-					<string>invalid.illegal.variable-expansion.fish</string>
+					<key>include</key>
+					<string>#variable-expansion-illegal</string>
 				</dict>
 				<dict>
 					<key>begin</key>
 					<string>(?=\$)</string>
 					<key>comment</key>
-					<string>Capture "$foo" or "$foo[]"</string>
+					<string>Capture "$foo" or "$foo[]" or "$$foo[][]" etc</string>
 					<key>end</key>
-					<string>(?&lt;=[\$\w])(?=[^\$\w\[])|(?&lt;=\])</string>
+					<string>(?&lt;=[\$\w])(?=[^\$\w\[])|(?&lt;=\])(?!\[)</string>
 					<key>name</key>
 					<string>meta.variable-expansion.fish</string>
 					<key>patterns</key>
@@ -1358,23 +1354,76 @@
 									<string>punctuation.definition.variable.fish</string>
 								</dict>
 							</dict>
-							<key>comment</key>
-							<string>Capture "foo"[ or "foo[...]"[</string>
 							<key>end</key>
-							<string>(?&lt;=[\$\w\]])(?=[^\$\w])|(?&lt;=\])(?=\[)</string>
+							<string>(?&lt;=[\$\w])(?=[^\$\w])</string>
 							<key>name</key>
 							<string>variable.other.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
 									<key>include</key>
-									<string>#variable-expansion</string>
+									<string>#variable-expansion-illegal</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#variable-expansion-simple</string>
 								</dict>
 							</array>
 						</dict>
 						<dict>
 							<key>include</key>
 							<string>#index-expansion</string>
+						</dict>
+					</array>
+				</dict>
+			</array>
+		</dict>
+		<key>variable-expansion-illegal</key>
+		<dict>
+			<key>comment</key>
+			<string>Describe illegal variable expansions separately</string>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>comment</key>
+					<string>A lone '$' in a scope, or an attempt to expand a variable starting with a nonword character, is an error. These boundaries are the same as for meta.string.unquoted</string>
+					<key>match</key>
+					<string>\$(?:(?=[,'"\]}\s);&amp;|])|[^\w\$][^$,'"\]}\s);&amp;|]*)</string>
+					<key>name</key>
+					<string>invalid.illegal.variable-expansion.fish</string>
+				</dict>
+			</array>
+		</dict>
+		<key>variable-expansion-simple</key>
+		<dict>
+			<key>comment</key>
+			<string>Describe variable expansion that has no index expansion separately</string>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>begin</key>
+					<string>\$</string>
+					<key>beginCaptures</key>
+					<dict>
+						<key>0</key>
+						<dict>
+							<key>name</key>
+							<string>punctuation.definition.variable.fish</string>
+						</dict>
+					</dict>
+					<key>end</key>
+					<string>(?&lt;=[\$\w])(?=[^\$\w])</string>
+					<key>name</key>
+					<string>variable.other.fish</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>include</key>
+							<string>#variable-expansion-illegal</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#variable-expansion-simple</string>
 						</dict>
 					</array>
 				</dict>
