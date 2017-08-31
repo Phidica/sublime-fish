@@ -473,7 +473,7 @@ repository:
       comment: Home directory expansion only occurs if the '~' is at the begin of the argument
       match: (?<=\[|\{|^|\s)\~
       captures:
-        '0': {name: keyword.operator.fish}
+        '0': {name: keyword.operator.tilde.fish}
 
   variable-expansion:
     patterns:

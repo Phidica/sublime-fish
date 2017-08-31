@@ -1312,7 +1312,7 @@
 						<key>0</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.operator.fish</string>
+							<string>keyword.operator.tilde.fish</string>
 						</dict>
 					</dict>
 					<key>comment</key>

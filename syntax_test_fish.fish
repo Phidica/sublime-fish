@@ -35,7 +35,7 @@ echo 'single-quoted' "double-quoted" unquoted
 # The ~ and % are only special characters in need of escaping when at the front of arguments
 echo ~foo \~bar~\~ %foo \%bar%\%
 #!   ^^^^ meta.string.unquoted
-#!   ^ keyword.operator
+#!   ^ keyword.operator.tilde
 #!        ^^^^^^^^ meta.string.unquoted
 #!        ^^ constant.character.escape
 #!                 ^^^^ meta.process-expansion
