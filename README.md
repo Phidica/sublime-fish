@@ -32,6 +32,7 @@ Exposed scopes
 | Index expansion          | `meta.brackets.index-expansion` and `punctuation.section.brackets.begin`/`end`
 | Brace expansion          | `meta.braces.brace-expansion` and `punctuation.section.braces.begin`/`separator`/`end`
 | Home directory expansion | `meta.home-directory-expansion` and `keyword.operator.tilde`
+| Wildcard expansion       | `meta.wildcard-expansion` and `keyword.operator.question-mark`/`single-star`/`double-star`
 
 Contribution
 ------------

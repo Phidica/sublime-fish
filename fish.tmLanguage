@@ -1322,6 +1322,30 @@
 					<key>name</key>
 					<string>meta.home-directory-expansion.fish</string>
 				</dict>
+				<dict>
+					<key>captures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.operator.double-star.fish</string>
+						</dict>
+						<key>2</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.operator.single-star.fish</string>
+						</dict>
+						<key>3</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.operator.question-mark.fish</string>
+						</dict>
+					</dict>
+					<key>match</key>
+					<string>(\*\*)|(\*)|(\?)</string>
+					<key>name</key>
+					<string>meta.wildcard-expansion.fish</string>
+				</dict>
 			</array>
 		</dict>
 		<key>variable-expansion</key>

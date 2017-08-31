@@ -30,7 +30,6 @@ patterns:
 #! - Piping with | is more complicated than it seems, as fish expects a command to appear after the pipe. make a pattern match in command-call that is only valid inside of a command call that used the pipe, and matches from after a pipe until the end of the line, looking for command-call within it
 #!   Hm, because it is possible to pipe the output of an entire block by putting the pipe after `end`, a better approach may be to make a command that STARTS with a pipe, and is normal after that. then it can check inside itself to see if it is ONLY a pipe with no command following it, and mark that as invalid syntax. that would supersede the need for pipe to be matched invalid from in control-operator
 #    Don't forget the special 2>| redirection-into-pipe syntax, which should be handled in the piping syntax
-#! - Allow index expansion of arbitrary length
 
 repository:
   argument:
@@ -474,6 +473,13 @@ repository:
       match: (?<=\[|\{|^|\s)\~
       captures:
         '0': {name: keyword.operator.tilde.fish}
+
+    - name: meta.wildcard-expansion.fish
+      match: (\*\*)|(\*)|(\?)
+      captures:
+        '1': {name: keyword.operator.double-star.fish}
+        '2': {name: keyword.operator.single-star.fish}
+        '3': {name: keyword.operator.question-mark.fish}
 
   variable-expansion:
     patterns:

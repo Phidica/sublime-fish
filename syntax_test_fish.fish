@@ -42,6 +42,23 @@ echo ~foo \~bar~\~ %foo \%bar%\%
 #!                      ^^^^^^^^ meta.string.unquoted
 #!                      ^^ constant.character.escape
 
+echo ~/foo/*.bar /**.bar foo.?\?r ***.bar foo/*\**
+#!   ^^^^^^^^^^^ meta.string.unquoted
+#!   ^ keyword.operator.tilde
+#!         ^ keyword.operator.single-star
+#!               ^^^^^^^ meta.string.unquoted
+#!                ^^ keyword.operator.double-star
+#!                       ^^^^^^^^ meta.string.unquoted
+#!                           ^ keyword.operator.question-mark
+#!                            ^^ constant.character.escape
+#!                                ^^^^^^^ meta.string.unquoted
+#!                                ^^ keyword.operator.double-star
+#!                                  ^ keyword.operator.single-star
+#!                                        ^^^^^^^^ meta.string.unquoted
+#!                                            ^ keyword.operator.single-star
+#!                                             ^^ constant.character.escape
+#!                                               ^ keyword.operator.single-star
+
 echo str\a str\x12345 str\X12345 str\012345
 #!   ^^^^^ meta.string.unquoted
 #!      ^^ constant.character.escape
