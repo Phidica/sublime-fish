@@ -606,11 +606,12 @@ begin
 #!      ^^^^^^^^^ meta.function-call.standard
     echo arg
 #   ^^^^^^^^ meta.function-call.standard
-    break &
+    break ;
 #!  ^^^^^ keyword.control.conditional
 #!        ^ keyword.operator
   end ;
 #! ^^ keyword.control.conditional
+#!    ^ keyword.operator
   break;
 #! ^^^^ variable.function
 end &
@@ -623,6 +624,7 @@ begin end
 
 begin
 end; or begin
+#! ^ keyword.operator
 #!      ^^^^^ meta.block.begin keyword.control.conditional
 end
 #! <- keyword.control.conditional
@@ -675,8 +677,9 @@ for in in in in (seq 5) in in # comment
 #!                            ^^^^^^^^^ comment.line
   echo arg
 #! ^^^ meta.function-call.standard
-  continue
+  continue ;
 #! ^^^^^^^ keyword.control.conditional
+#!         ^ keyword.operator
 end
 #! <- keyword.control.conditional
 
@@ -781,6 +784,7 @@ function inline; echo arg; end # comment
 
 function '$cmd$'; echo $argv; end; $cmd$ arg1 arg2
 #!       ^^^^^^ entity.name.function
+#!                               ^ keyword.operator
 #!                                 ^^^^^ variable.function
 
 
