@@ -436,7 +436,7 @@ repository:
 
   redirection:
     patterns:
-    - name: meta.function-call.redirection.fish
+    - name: meta.redirection.fish
       comment: This redirection pattern connects a file descriptor (either explicit or implied) and a file descriptor. As the '&' is necessary, this is a more strict pattern match and must be attended to first
       begin: (?:([0-9]+)(<|>|>>)|(>>|\^\^|[<>]|(?<=^|\s)\^))(\&)
       beginCaptures:
@@ -463,7 +463,7 @@ repository:
         comment: Anything else is illegal
         match: (?:\S+.*)$
 
-    - name: meta.function-call.redirection.fish
+    - name: meta.redirection.fish
       comment: This redirection pattern connects a file descriptor (either explicit or implied) and a file path
       begin: (?:([0-9]+)(<|>|>>)|(>>|\^\^|[<>]|(?<=^|\s)\^))(\?)?
       beginCaptures:

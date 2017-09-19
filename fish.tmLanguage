@@ -1273,7 +1273,7 @@
 					<key>end</key>
 					<string>(?&lt;=[^&amp;\s]|\n)(?=[\s);&amp;|&lt;&gt;])</string>
 					<key>name</key>
-					<string>meta.function-call.redirection.fish</string>
+					<string>meta.redirection.fish</string>
 					<key>patterns</key>
 					<array>
 						<dict>
@@ -1353,7 +1353,7 @@
 					<key>end</key>
 					<string>(?&lt;=[^&lt;&gt;^?\s]|\n)(?=[\s);&amp;|&lt;&gt;])|(?=\n)</string>
 					<key>name</key>
-					<string>meta.function-call.redirection.fish</string>
+					<string>meta.redirection.fish</string>
 					<key>patterns</key>
 					<array>
 						<dict>
