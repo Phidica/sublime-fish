@@ -24,10 +24,6 @@
 		</dict>
 		<dict>
 			<key>include</key>
-			<string>#block</string>
-		</dict>
-		<dict>
-			<key>include</key>
 			<string>#command-call</string>
 		</dict>
 		<dict>
@@ -57,7 +53,7 @@
 					<key>end</key>
 					<string>(?&lt;=.|\n)(?=\s|\)|[;&amp;|&lt;&gt;]|$)</string>
 					<key>name</key>
-					<string>meta.function-call.argument.fish</string>
+					<string>meta.argument.fish</string>
 					<key>patterns</key>
 					<array>
 						<dict>
@@ -401,7 +397,7 @@
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>\b(function)\b(?!\s+(-|&amp;|\|))</string>
+					<string>\b(function)\b(?!\s+(&amp;|\|))</string>
 					<key>beginCaptures</key>
 					<dict>
 						<key>0</key>
@@ -541,27 +537,88 @@
 			<key>patterns</key>
 			<array>
 				<dict>
+					<key>include</key>
+					<string>#block</string>
+				</dict>
+				<dict>
+					<key>include</key>
+					<string>#command-call-check-commands</string>
+				</dict>
+				<dict>
+					<key>include</key>
+					<string>#command-call-check-operators</string>
+				</dict>
+				<dict>
+					<key>include</key>
+					<string>#command-call-meta-terminating</string>
+				</dict>
+				<dict>
+					<key>include</key>
+					<string>#command-call-statement-terminating</string>
+				</dict>
+				<dict>
+					<key>include</key>
+					<string>#command-call-standard-terminating</string>
+				</dict>
+			</array>
+		</dict>
+		<key>command-call-check-commands</key>
+		<dict>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>comment</key>
+					<string>These commands aren't valid outside of their use in blocks</string>
+					<key>match</key>
+					<string>\b(?:case|else|end)\b.*$</string>
+					<key>name</key>
+					<string>invalid.illegal.function.fish</string>
+				</dict>
+				<dict>
+					<key>comment</key>
+					<string>A command can't start with a dash, probably because it is indistinguishable from an option in the function declaration</string>
+					<key>match</key>
+					<string>(?:-.*$)</string>
+					<key>name</key>
+					<string>invalid.illegal.function.fish</string>
+				</dict>
+			</array>
+		</dict>
+		<key>command-call-check-operators</key>
+		<dict>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>comment</key>
+					<string>These operators aren't allowed to start a command, but can appear unescaped later within it (note that '$' is the only major operator character which can start a command)</string>
+					<key>match</key>
+					<string>(?:[&amp;|&lt;&gt;^%].*$)</string>
+					<key>name</key>
+					<string>invalid.illegal.operator.fish</string>
+				</dict>
+			</array>
+		</dict>
+		<key>command-call-meta-nonterminating</key>
+		<dict>
+			<key>comment</key>
+			<string>This scope ends just before a control operator</string>
+			<key>patterns</key>
+			<array>
+				<dict>
 					<key>begin</key>
-					<string>\b((builtin|command|exec)|(and|not|or))\b(?!\s+(-|&amp;|\|))</string>
+					<string>\b(builtin|command|exec)\b(?!\s+[-&amp;|])</string>
 					<key>beginCaptures</key>
 					<dict>
-						<key>2</key>
+						<key>1</key>
 						<dict>
 							<key>name</key>
 							<string>support.function.fish</string>
 						</dict>
-						<key>3</key>
-						<dict>
-							<key>name</key>
-							<string>keyword.operator.word.fish</string>
-						</dict>
 					</dict>
 					<key>comment</key>
-					<string>Recursive command-call ends before ')' or ';', and just after a newline, '&amp;', or '|'. Standard command-call will have consumed the '&amp;' or '|'. Unfortunately, we cannot help but end after any newline we encounter, as the standard command-call only ends when it consumes a newline (allowing us to insert comments by having the comment consume its newline and prevent command-call matching it) and we cannot distinguish between a newline that was consumed by a command and a newline that was consumed by a comment. Put simply, this means that when a recursive command-call reaches a newline before its first standard command-call, the scope ends and the standard command-call on the next line loses the recursive command-call scope</string>
+					<string>This is the same as the terminating version, but doesn't consume the end match</string>
 					<key>end</key>
-					<string>(?=\)|;)|(?&lt;=\n|&amp;|\|)</string>
-					<key>name</key>
-					<string>meta.function-call.recursive.fish</string>
+					<string>(?=\s*[);\n&amp;])</string>
 					<key>patterns</key>
 					<array>
 						<dict>
@@ -570,33 +627,159 @@
 						</dict>
 						<dict>
 							<key>include</key>
+							<string>#comment</string>
+						</dict>
+						<dict>
+							<key>include</key>
 							<string>#block</string>
 						</dict>
 						<dict>
 							<key>include</key>
-							<string>#command-call</string>
+							<string>#command-call-standard-nonterminating</string>
 						</dict>
 					</array>
 				</dict>
+			</array>
+		</dict>
+		<key>command-call-meta-terminating</key>
+		<dict>
+			<key>comment</key>
+			<string>This scope consumes a control operator to end</string>
+			<key>patterns</key>
+			<array>
 				<dict>
+					<key>begin</key>
+					<string>\b(builtin|command|exec)\b(?!\s+[-&amp;|])</string>
+					<key>beginCaptures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>support.function.fish</string>
+						</dict>
+					</dict>
 					<key>comment</key>
-					<string>Search for illegal commands; these aren't valid outside of their use in blocks</string>
-					<key>match</key>
-					<string>\b(?:case|else|end)\b.*$\n?</string>
+					<string>Ends before ')' or ';' (which terminate commands), or on consumption of a newline or '&amp;'</string>
+					<key>end</key>
+					<string>(?=\s*[);])|\n|(&amp;)</string>
+					<key>endCaptures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.operator.fish</string>
+						</dict>
+					</dict>
 					<key>name</key>
-					<string>invalid.illegal.function.fish</string>
+					<string>meta.function-call.meta.fish</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>include</key>
+							<string>#line-continuation</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#comment</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#block</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#command-call-check-operators</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#command-call-standard-nonterminating</string>
+						</dict>
+					</array>
 				</dict>
+			</array>
+		</dict>
+		<key>command-call-pipe</key>
+		<dict>
+			<key>patterns</key>
+			<array>
 				<dict>
 					<key>comment</key>
-					<string>Search for illegal operators; these aren't allowed to start a command, but can appear unescaped later within it</string>
+					<string>An invalid '|' operator only has whitespace characters in the command scope it would open</string>
 					<key>match</key>
-					<string>(?&lt;=^|[(;&amp;|\s])[%^].*$\n?</string>
+					<string>\|(?=\s*[);\n&amp;])</string>
 					<key>name</key>
 					<string>invalid.illegal.operator.fish</string>
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>(?:\'(?:\\[\'\\]|[^\'\\])*\'|\"(?:\\[\"$\n\\]|[^\"$\n\\])*\"|(?:\\[abefnrtv $\\*?#(){}\[\]&lt;&gt;^&amp;;|"']|(?&lt;=^|\s)\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]|[^\s$\\*?~%#()&lt;&gt;&amp;|;"']|\\(?=[^abefnrtv\s$\\*?#(){}\[\]&lt;&gt;^&amp;;|"'xXuUc])|(?&lt;=\S|\\ )\\\n|(?&lt;=\S|\\ )[~%#])+)+</string>
+					<string>\|</string>
+					<key>beginCaptures</key>
+					<dict>
+						<key>0</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.operator.fish</string>
+						</dict>
+					</dict>
+					<key>comment</key>
+					<string>Anonymous scope - Matches from a '|' until the explicit end of the command call scope</string>
+					<key>end</key>
+					<string>(?=[);\n&amp;])</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>include</key>
+							<string>#line-continuation</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#comment</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#block</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#command-call-check-commands</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#command-call-check-operators</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#command-call-meta-nonterminating</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#command-call-statement-nonterminating</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#command-call-standard-nonterminating</string>
+						</dict>
+						<dict>
+							<key>comment</key>
+							<string>Anything left over must be invalid</string>
+							<key>match</key>
+							<string>(?!\s).*$</string>
+							<key>name</key>
+							<string>invalid.illegal.function.fish</string>
+						</dict>
+					</array>
+				</dict>
+			</array>
+		</dict>
+		<key>command-call-standard-nonterminating</key>
+		<dict>
+			<key>comment</key>
+			<string>This scope ends just before a control operator</string>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>begin</key>
+					<string>(?:\'(?:\\[\'\\]|[^\'\\])*\'|\"(?:\\[\"$\n\\]|[^\"$\n\\])*\"|(?:\\[abefnrtv $\\*?#(){}\[\]&lt;&gt;^&amp;;|"']|(?&lt;=^|\s)\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]|[^\s\\*?~%#()&lt;&gt;&amp;|;"']|\\(?=[^abefnrtv\s$\\*?#(){}\[\]&lt;&gt;^&amp;;|"'xXuUc])|(?&lt;=\S|\\ )\\\n|(?&lt;=\S|\\ )[~%#])+)+</string>
 					<key>beginCaptures</key>
 					<dict>
 						<key>0</key>
@@ -606,9 +789,56 @@
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>Command call ends before ')' or ';', and at a newline, '&amp;', or '|'. Those last two control operators must be part of a command, so consume them here</string>
+					<string>This is the same as the terminating version, but doesn't consume the end match</string>
 					<key>end</key>
-					<string>(?=\)|;)|\n|(&amp;|\|)</string>
+					<string>(?=\s*[);\n&amp;])</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>include</key>
+							<string>#comment</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#comment-inline</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#redirection</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#command-call-pipe</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#argument</string>
+						</dict>
+					</array>
+				</dict>
+			</array>
+		</dict>
+		<key>command-call-standard-terminating</key>
+		<dict>
+			<key>comment</key>
+			<string>This scope consumes a control operator to end</string>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>begin</key>
+					<string>(?:\'(?:\\[\'\\]|[^\'\\])*\'|\"(?:\\[\"$\n\\]|[^\"$\n\\])*\"|(?:\\[abefnrtv $\\*?#(){}\[\]&lt;&gt;^&amp;;|"']|(?&lt;=^|\s)\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]|[^\s\\*?~%#()&lt;&gt;&amp;|;"']|\\(?=[^abefnrtv\s$\\*?#(){}\[\]&lt;&gt;^&amp;;|"'xXuUc])|(?&lt;=\S|\\ )\\\n|(?&lt;=\S|\\ )[~%#])+)+</string>
+					<key>beginCaptures</key>
+					<dict>
+						<key>0</key>
+						<dict>
+							<key>name</key>
+							<string>variable.function.fish</string>
+						</dict>
+					</dict>
+					<key>comment</key>
+					<string>Ends before ')' or ';' (which terminate commands), or on consumption of a newline or '&amp;'</string>
+					<key>end</key>
+					<string>(?=\s*[);])|\n|(&amp;)</string>
 					<key>endCaptures</key>
 					<dict>
 						<key>1</key>
@@ -623,11 +853,54 @@
 					<array>
 						<dict>
 							<key>include</key>
+							<string>#comment</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#comment-inline</string>
+						</dict>
+						<dict>
+							<key>include</key>
 							<string>#redirection</string>
 						</dict>
 						<dict>
 							<key>include</key>
+							<string>#command-call-pipe</string>
+						</dict>
+						<dict>
+							<key>include</key>
 							<string>#argument</string>
+						</dict>
+					</array>
+				</dict>
+			</array>
+		</dict>
+		<key>command-call-statement-nonterminating</key>
+		<dict>
+			<key>comment</key>
+			<string>This scope ends just before a control operator</string>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>begin</key>
+					<string>\b(and|not|or)\b(?!\s+[-])</string>
+					<key>beginCaptures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.operator.word.fish</string>
+						</dict>
+					</dict>
+					<key>comment</key>
+					<string>This is the same as the terminating version, but doesn't consume the end match</string>
+					<key>end</key>
+					<string>(?=\s*[);\n&amp;])</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>include</key>
+							<string>#line-continuation</string>
 						</dict>
 						<dict>
 							<key>include</key>
@@ -635,7 +908,88 @@
 						</dict>
 						<dict>
 							<key>include</key>
-							<string>#comment-inline</string>
+							<string>#block</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#command-call-check-operators</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#command-call-meta-nonterminating</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#command-call-statement-nonterminating</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#command-call-standard-nonterminating</string>
+						</dict>
+					</array>
+				</dict>
+			</array>
+		</dict>
+		<key>command-call-statement-terminating</key>
+		<dict>
+			<key>comment</key>
+			<string>This scope consumes a control operator to end</string>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>begin</key>
+					<string>\b(and|not|or)\b(?!\s+[-])</string>
+					<key>beginCaptures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.operator.word.fish</string>
+						</dict>
+					</dict>
+					<key>comment</key>
+					<string>Ends before ')' or ';' (which terminate commands), or on consumption of a newline or '&amp;'</string>
+					<key>end</key>
+					<string>(?=\s*[);])|\n|(&amp;)</string>
+					<key>endCaptures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.operator.fish</string>
+						</dict>
+					</dict>
+					<key>name</key>
+					<string>meta.function-call.statement.fish</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>include</key>
+							<string>#line-continuation</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#comment</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#block</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#command-call-check-operators</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#command-call-meta-nonterminating</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#command-call-statement-nonterminating</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#command-call-standard-nonterminating</string>
 						</dict>
 					</array>
 				</dict>
@@ -711,7 +1065,7 @@
 					<key>comment</key>
 					<string>Consumes the remainder of a line after any character which marks the start of a scope with no commands in it. Consumes the newline, thus hiding the entire comment from any scope which seeks newlines</string>
 					<key>match</key>
-					<string>(?&lt;=^|else|end|\(|;|&amp;|\|)\s*(#).*$\n?</string>
+					<string>(?&lt;=^|else|end|\(|;|&amp;)\s*(#).*$\n?</string>
 					<key>name</key>
 					<string>comment.line.fish</string>
 				</dict>
@@ -750,14 +1104,6 @@
 					<string>;</string>
 					<key>name</key>
 					<string>keyword.operator.fish</string>
-				</dict>
-				<dict>
-					<key>comment</key>
-					<string>These four control operators ('&amp;', '|', '&lt;', and '&gt;') must be preceded by a command, so command patterns match them when they are valid. If they are found in the global scope or first inside a command-substitution, that means they are dangling. The control operator '^' is handled in the command-call rule because it is only forbidden from starting a command</string>
-					<key>match</key>
-					<string>(?&lt;=^|[(;&amp;|])\s*([&amp;|&lt;&gt;]).*$\n?</string>
-					<key>name</key>
-					<string>invalid.illegal.operator.fish</string>
 				</dict>
 			</array>
 		</dict>

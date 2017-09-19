@@ -13,10 +13,10 @@
 
 echo --arg -arg arg ; echo arg # comment
 #! <- variable.function
-#! ^^^^^^^^^^^^^^^^^ meta.function-call
-#!   ^^^^^ meta.function-call.argument
-#!         ^^^^ meta.function-call.argument
-#!              ^^^ meta.function-call.argument
+#! ^^^^^^^^^^^^^^^^  meta.function-call
+#!   ^^^^^ meta.argument
+#!         ^^^^ meta.argument
+#!              ^^^ meta.argument
 #!                  ^ keyword.operator
 #!                    ^^^^ variable.function
 #!                    ^^^^^^^^ meta.function-call
@@ -98,15 +98,15 @@ echo str \ # not-comment \  # comment
 echo arg \ arg \
 #! <- variable.function
 #! ^^^^^^^^^^^^^ meta.function-call
-#!   ^^^ meta.function-call.argument
-#!       ^ meta.function-call.argument
+#!   ^^^ meta.argument
+#!       ^ meta.argument
 #!             ^ constant.character.escape
   # comment
 #! <- comment.line
 arg arg # comment
-#! <- meta.function-call meta.function-call.argument
+#! <- meta.function-call meta.argument
 #! ^^^^ meta.function-call
-#!  ^^^ meta.function-call meta.function-call.argument
+#!  ^^^ meta.function-call meta.argument
 #!      ^ comment.line.insert
 
 echo arg (echo "inner" arg) outer arg
@@ -139,7 +139,7 @@ f'\''o"\$\\"o\ \|\$\*b\?\%a\#\(r\) arg
 \ \
 #! <- variable.function
   arg
-#! ^^ meta.function-call.argument
+#! ^^ meta.argument
 
 '\'\\'"\"\$\\"\a\b\e\f\n\r\t\v\ \$\\\*\?~\~%\%#\#\(\)\{\}\[\]\<\>^\^\&\|\;\"\'\x0a\X1b\01\u3ccc\U4dddeeee\c?
 #! ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ variable.function
@@ -156,32 +156,35 @@ f'\''o"\$\\"o\ \|\$\*b\?\%a\#\(r\) arg
 ^err.log
 #! <- invalid.illegal.operator
 
+-option
+#! <- invalid.illegal.function
+
 echo one >out.log two < in.log three ^^err.log four4> out.log five
 #!       ^^^^^^^^ meta.function-call.redirection
 #!       ^ keyword.operator
 #!        ^^^^^^^ meta.path
-#!                ^^^ meta.function-call.argument
+#!                ^^^ meta.argument
 #!                    ^^^^^^^^ meta.function-call.redirection
 #!                    ^ keyword.operator
 #!                      ^^^^^^ meta.path
 #!                                   ^^^^^^^^^ meta.function-call.redirection
 #!                                   ^^ keyword.operator
 #!                                     ^^^^^^^ meta.path
-#!                                             ^^^^^ meta.function-call.argument
+#!                                             ^^^^^ meta.argument
 #!                                                  ^^^^^^^^^ meta.function-call.redirection
 #!                                                  ^ keyword.operator
 #!                                                    ^^^^^^^ meta.path
-#!                                                            ^^^^ meta.function-call.argument
+#!                                                            ^^^^ meta.argument
 
 echo one 1>err.log two 2^err.log three^four five^6 7>? \
 #!       ^^^^^^^^^ meta.function-call.redirection
 #!       ^ constant.numeric.file-descriptor
 #!        ^ keyword.operator
 #!         ^^^^^^^ meta.path
-#!                 ^^^ meta.function-call.argument
-#!                     ^^^^^^^^^ meta.function-call.argument
-#!                               ^^^^^^^^^^ meta.function-call.argument
-#!                                          ^^^^^^ meta.function-call.argument
+#!                 ^^^ meta.argument
+#!                     ^^^^^^^^^ meta.argument
+#!                               ^^^^^^^^^^ meta.argument
+#!                                          ^^^^^^ meta.argument
 #!                                                 ^^^^^^ meta.function-call.redirection
 #!                                                 ^ constant.numeric.file-descriptor
 #!                                                  ^^ keyword.operator
@@ -191,7 +194,7 @@ echo one 1>err.log two 2^err.log three^four five^6 7>? \
 #!        ^ constant.numeric.file-descriptor
 #!         ^^ keyword.operator
 #!            ^^^^^^^^ meta.path
-#!                     ^^^^ meta.function-call.argument
+#!                     ^^^^ meta.argument
 
 echo one ^err.log^'log' >out.log<in.log < \?in.log > ?out.log
 #!       ^^^^^^^^^^^^^^ meta.function-call.redirection
@@ -238,7 +241,7 @@ echo one ^&2 two three3>&4 four 5>& \
 #!       ^^^ meta.function-call.redirection
 #!       ^^ keyword.operator
 #!         ^ constant.numeric.file-descriptor
-#!               ^^^^^ meta.function-call.argument
+#!               ^^^^^ meta.argument
 #!                     ^^^ meta.function-call.redirection
 #!                     ^^ keyword.operator
 #!                       ^ constant.numeric.file-descriptor
@@ -247,7 +250,7 @@ echo one ^&2 two three3>&4 four 5>& \
 #!                               ^^ keyword.operator
   - six 7<&->out.log 2> &1
 #!^ keyword.operator.redirection.close
-#!  ^^^ meta.function-call.argument
+#!  ^^^ meta.argument
 #!      ^^^^ meta.function-call.redirection
 #!      ^ constant.numeric.file-descriptor
 #!       ^^ keyword.operator
@@ -297,7 +300,7 @@ echo ( \
 #! ^ invalid.illegal.operator
 echo &
 #! <- meta.function-call
-)  &  &
+)  &  & hmm
 #! ^ keyword.operator
 #!    ^ invalid.illegal.operator
 
@@ -319,60 +322,134 @@ foo\ bar
 #! ^^^^^ variable.function
 
 exec echo \
-#! <- meta.function-call.recursive support.function
-#!   ^^^^ meta.function-call.recursive meta.function-call.standard variable.function
+#! <- meta.function-call.meta support.function
+#!   ^^^^ meta.function-call.meta variable.function
 arg
-#! <-meta.function-call.recursive meta.function-call.standard meta.function-call.argument
-#! ^ meta.function-call.recursive meta.function-call.standard
+#! <-meta.function-call.meta meta.argument
+#! ^ meta.function-call.meta
+
+builtin echo &
+#! <- meta.function-call.meta support.function
+#!      ^^^^ meta.function-call.meta variable.function
+#!           ^ keyword.operator
 
 builtin echo arg ; and echo arg
-#! <- meta.function-call.recursive support.function
-#!      ^^^^ meta.function-call.recursive meta.function-call.standard variable.function
-#!           ^^^ meta.function-call.recursive meta.function-call.standard meta.function-call.argument
+#! <- meta.function-call.meta support.function
+#!      ^^^^ meta.function-call.meta variable.function
+#!           ^^^ meta.function-call.meta meta.argument
 #!               ^ keyword.operator
-#!                 ^^^ meta.function-call.recursive keyword.operator.word
-#!                     ^^^^ meta.function-call.recursive meta.function-call.standard variable.function
+#!                 ^^^ meta.function-call.statement keyword.operator.word
+#!                     ^^^^ meta.function-call.statement variable.function
+#!                          ^^^ meta.argument
 
-# See scope end match for meta.function-call.recursive
 command  \
-#! <- meta.function-call.recursive support.function
+#! <- meta.function-call.meta support.function
 #!       ^ constant.character.escape
 echo  \
-#! <- meta.function-call.standard variable.function
+#! <- meta.function-call.meta variable.function
 arg & # comment
-#! <-meta.function-call.standard meta.function-call.argument
+#! <-meta.function-call.meta meta.argument
 #!    ^ comment.line
 echo arg
 #! <- meta.function-call.standard variable.function
 
 command  &
-#! <- meta.function-call variable.function
+#! <- meta.function-call.standard variable.function
 echo arg &
-#! <-meta.function-call
+#! <-meta.function-call.standard variable.function
+
+not \
+#! <- meta.function-call.statement keyword.operator.word
+command \
+#! <- meta.function-call.statement support.function
+echo \
+#! <- meta.function-call.statement variable.function
+arg \
+#! <- meta.function-call.statement meta.argument
+&
+#! <- meta.function-call.statement keyword.operator
+
+not builtin case 1>/dev/null
+#! <- meta.function-call.statement keyword.operator.word
+#!  ^^^^^^^ meta.function-call.statement support.function
+#!          ^^^^ meta.function-call.statement variable.function
+#!               ^^^^^^^^^^^ meta.function-call.redirection
+
+exec %fish
+#! <- meta.function-call.meta support.function
+#!   ^^^^^ meta.function-call.meta invalid.illegal.operator
+
+and case; or %fish
+#! <- meta.function-call.statement keyword.operator.word
+#!  ^^^^ meta.function-call.statement variable.function
+#!      ^ keyword.operator
+#!        ^^ meta.function-call.statement keyword.operator.word
+#!           ^^^^^ meta.function-call.statement invalid.illegal.operator
+
+echo arg | cat
+#! <- meta.function-call.standard variable.function
+#!       ^ meta.function-call.standard keyword.operator
+#!         ^^^ meta.function-call.standard variable.function
+
+echo \
+#! <- meta.function-call.standard variable.function
+arg \
+# comment
+| \
+#! <- meta.function-call.standard keyword.operator
+cat \
+#! <- meta.function-call.standard variable.function
+| \
+#! <- meta.function-call.standard keyword.operator
+cat \
+#! <- meta.function-call.standard variable.function
+arg
+#! <- meta.function-call.standard meta.argument
+
+echo (echo arg |) | cat
+#!             ^ meta.function-call.standard meta.function-call.standard invalid.illegal.operator
+#!                ^ meta.function-call.standard keyword.operator
+
+echo arg | # bad text
+#!       ^ meta.function-call.standard keyword.operator
+#!         ^^^^^^^^^^ meta.function-call.standard invalid.illegal.function
+
+and echo arg | %fish
+#!           ^ meta.function-call.statement keyword.operator
+#!             ^^^^^ meta.function-call.statement invalid.illegal.operator
+
+not echo arg | | arg ; # comment
+#!           ^ meta.function-call.statement keyword.operator
+#!             ^^^^^^^^^^^^^^^^^ meta.function-call.statement invalid.illegal.operator
+
+and and | cat
+#! <- meta.function-call.statement keyword.operator.word
+#!  ^^^ meta.function-call.statement keyword.operator.word
+#!      ^^^^^ meta.function-call.statement invalid.illegal.operator
 
 echo arg1 ; and echo arg2 & not echo arg3 | cat
-#! <- meta.function-call variable.function
-#!          ^^^ meta.function-call keyword.operator.word
-#!              ^^^^ meta.function-call meta.function-call variable.function
+#! <- meta.function-call.standard variable.function
+#!          ^^^ meta.function-call.statement keyword.operator.word
+#!              ^^^^ meta.function-call.statement variable.function
 #!                        ^ keyword.operator
-#!                          ^^^ meta.function-call keyword.operator.word
-#!                              ^^^^ meta.function-call meta.function-call variable.function
+#!                          ^^^ meta.function-call.statement keyword.operator.word
+#!                              ^^^^ meta.function-call.statement variable.function
+#!                                        ^ keyword.operator
+#!                                          ^^^ meta.function-call.statement variable.function
 
-# See scope end match for meta.function-call.recursive
-# Cannot nest recursive scopes across lines if line break occurs before recursion
+or echo arg1 | command cat
+#! <- meta.function-call.statement keyword.operator.word
+#! ^^^^ meta.function-call.statement variable.function
+#!           ^ keyword.operator
+#!             ^^^^^^^ meta.function-call.statement support.function
+#!                     ^^^ meta.function-call.statement variable.function
 
 builtin \
-#! <- meta.function-call.recursive
-not \
-#! <- meta.function-call.recursive
-command \
-#! <- meta.function-call.recursive
-echo \
-#! <- meta.function-call.standard
-arg \
-#! <- meta.function-call.standard meta.function-call.argument
-&
-#! <- meta.function-call.standard
+#! <- meta.function-call.meta support.function
+true | cat
+#! <- meta.function-call.meta variable.function
+#!   ^ meta.function-call.meta keyword.operator
+#!     ^^^ meta.function-call.meta variable.function
 
 echo "string"(echo "inner string")" outer string"
 #!           ^^^^^^^^^^^^^^^^^^^^^ meta.parens.command-substitution
@@ -496,28 +573,28 @@ echo $var(echo str{$arg}str "{$var}")$var"str"$var
 #!                          ^^^^^^^^ string.quoted
 
 echo -n --switch=(echo "str;";);
-#!   ^^ meta.function-call.argument
-#!      ^^^^^^^^^^^^^^^^^^^^^^^ meta.function-call.argument
+#!   ^^ meta.argument
+#!      ^^^^^^^^^^^^^^^^^^^^^^^ meta.argument
 #!                         ^ string.quoted
 #!                           ^ keyword.operator
 #!                             ^ keyword.operator
 
 echo --switch=(echo "str;";
-#!   ^^^^^^^^^^^^^^^^^^^^^^^ meta.function-call.argument
+#!   ^^^^^^^^^^^^^^^^^^^^^^^ meta.argument
 #!                      ^ string.quoted
 #!                        ^ keyword.operator
   echo test \
-#!   ^^^^^^^^^ meta.function-call.argument
+#!   ^^^^^^^^^ meta.argument
 #!          ^ constant.character.escape
     &
 #!  ^ keyword.operator
-#!   ^ meta.function-call.argument
+#!   ^ meta.argument
 )  ;
 #! ^ keyword.operator
 
 while --help; break& end
 #! <- meta.function-call.standard variable.function
-#!    ^^^^^^ meta.function-call.argument
+#!    ^^^^^^ meta.argument
 #!          ^ keyword.operator
 #!            ^^^^^ variable.function
 #!                   ^^^ invalid.illegal.function
@@ -573,7 +650,7 @@ end # comment
 
 if --help; else;
 #! <- meta.function-call.standard variable.function
-#! ^^^^^^ meta.function-call.argument
+#! ^^^^^^ meta.argument
 #!       ^ keyword.operator
 #!         ^^^^ invalid.illegal.function
 
@@ -588,13 +665,13 @@ if \
 
 for in in in in (seq 5) in in # comment
 #! <- meta.block.for-in keyword.control.conditional
-#!  ^^ meta.function-call.argument
+#!  ^^ meta.argument
 #!     ^^ keyword.control.conditional
-#!        ^^ meta.function-call.argument
-#!           ^^ meta.function-call.argument
-#!              ^^^^^^^ meta.function-call.argument meta.parens.command-substitution
-#!                      ^^ meta.function-call.argument
-#!                         ^^ meta.function-call.argument
+#!        ^^ meta.argument
+#!           ^^ meta.argument
+#!              ^^^^^^^ meta.argument meta.parens.command-substitution
+#!                      ^^ meta.argument
+#!                         ^^ meta.argument
 #!                            ^^^^^^^^^ comment.line
   echo arg
 #! ^^^ meta.function-call.standard
@@ -607,19 +684,19 @@ for \
 #! <- meta.block.for-in keyword.control.conditional
 #!  ^ constant.character.escape
   varname \
-#! ^^^^^^ meta.function-call.argument
+#! ^^^^^^ meta.argument
 #!        ^ constant.character.escape
   in \
 #! ^ keyword.control.conditional
 #!   ^ constant.character.escape
     (
-#!  ^ meta.function-call.argument meta.parens.command-substitution
+#!  ^ meta.argument meta.parens.command-substitution
   echo \
 #! ^^^ meta.function-call.standard
   one two \
   three
 )
-#! <- meta.function-call.argument meta.parens.command-substitution
+#! <- meta.argument meta.parens.command-substitution
   echo arg arg
 #! ^^^ meta.function-call.standard
 end
@@ -662,7 +739,7 @@ switch value; case wildcard; command echo foo; end # comment
 
 switch --help; case;
 #! <- meta.function-call.standard variable.function
-#!     ^^^^^^ meta.function-call.argument
+#!     ^^^^^^ meta.argument
 #!           ^ keyword.operator
 #!             ^^^^ invalid.illegal.function
 
@@ -673,7 +750,7 @@ switch--help arg
 function foo --arg="bar"
 #! <- meta.block.function. keyword.control.conditional
 #!       ^^^ entity.name.function
-#!           ^^^^^^^^^^^ meta.function-call.argument
+#!           ^^^^^^^^^^^ meta.argument
   return 1
 #! ^^^^^ keyword.control.conditional
   echo arg
@@ -688,9 +765,9 @@ foo\ bar \
 #! <- entity.name.function
 #!       ^ constant.character.escape
   arg1 \
-#! ^^^ meta.function-call.argument
+#! ^^^ meta.argument
   arg2 # comment
-#! ^^^ meta.function-call.argument
+#! ^^^ meta.argument
   echo arg
 #! ^^^^^^^ meta.function-call.standard
 end
@@ -701,3 +778,31 @@ function inline; echo arg; end # comment
 #!       ^^^^^^ entity.name.function
 #!             ^ keyword.operator
 #!                       ^ keyword.operator
+
+function '$cmd$'; echo $argv; end; $cmd$ arg1 arg2
+#!       ^^^^^^ entity.name.function
+#!                                 ^^^^^ variable.function
+
+
+
+# Tests in progress
+#
+
+
+
+test echoend # hm
+oh dear
+
+echo one | begin; cat; end
+
+begin; echo out; end | echo
+
+
+
+
+
+
+
+
+
+
