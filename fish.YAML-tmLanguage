@@ -5,10 +5,10 @@ fileTypes: [fish]
 uuid: f9278d07-f7c1-4a9b-9581-ebcbc050fbfb
 
 patterns:
-- comment: These are the patterns which can appear in the base scope
-- include: '#command-call'
-- include: '#comment'
+- comment: Base scope - Pick up '#' and "\\\n" before command-call sees them
+- include: '#comment-external'
 - include: '#line-continuation'
+- include: '#command-call'
 
 # Style guide:
 # - keyword.control.conditional is applied to all control keywords that are actually words (if, else, end, function, etc.)
@@ -21,10 +21,7 @@ patterns:
 # To-do list:
 #! - Bugfix: Keywords that only work in loops or functions (eg, "continue", "return", etc) will be treated like standard commands if they are located within if-statements within those outer valid blocks. Without a scope stack, we'll have to treat them as always being keywords rather than trying to parse them for the user
 #!   A solution would be to have a second if-block which is the same as the first, but named if-loop-block and which also includes the #loop-control-command rule. Ah, but then the $self which it includes would mean that an if inside /that/ if would be a non-loop if block again, unless the if-loop-block is also explicitly included above the $self. I think this would work all the way down? It gets very complicated if anything besides an if is wanted, but I don't see any use case for a loop control command keyword without an if statement
-#! - Bugfix: If a command-call line ends in "end" then a comment following it on the line will not be of the insert type, causing the next line of text to be considered arguments
-#!   Fixing may require a rethink of the two comment contexts and finding a way to merge them (the key difference is whether the newline is consumed and command-call either terminates or perpetuates based on that)
-#!   Better fix?: Newlines are consumed at the end of command calls, so create a pattern in the block group which begins just after the word 'end' when it has no newline after it, and ends at the next newline. everything in between can be any group that's valid (pipes, backgrounding, redirection). this would perhaps get us out of the special piped function group described below
-#! - Add comment-inline to the recursive command-call. no point adding comment because recursive will /always/ have ended by the time a full line comment shows up
+#! - Newlines are consumed at the end of command calls, so create a pattern in the block group which begins just after the word 'end' when it has no newline after it, and ends at the next newline. everything in between can be any group that's valid (pipes, backgrounding, redirection). this would perhaps get us out of the special piped function group described below
 #! - A special match in the standard command call which is the `[ ]` form of test
 #! - Don't forget the special 2>| redirection-into-pipe syntax, which should be handled in the piping syntax
 
@@ -70,10 +67,9 @@ repository:
       begin: \b(if)\b(?!\s*(-|&|\|))
       beginCaptures:
         '0': {name: keyword.control.conditional.fish}
-      end: (end)(\s*([;&]))?
+      end: (end)
       endCaptures:
         '1': {name: keyword.control.conditional.fish}
-        '3': {name: keyword.operator.fish}
       patterns:
       - name: keyword.control.conditional.fish
         match: \b(else(\s*if)?)\b
@@ -94,7 +90,7 @@ repository:
         patterns:
         - include: '#argument'
           comment: Treat the varname like an argument
-        - include: '#comment'
+        - include: '#comment-internal-full'
       - begin: \b(in)\b
         beginCaptures:
           '0': {name: keyword.control.conditional.fish}
@@ -102,8 +98,8 @@ repository:
         patterns:
         - include: '#argument'
           comment: Treat the list as arguments
-        - include: '#comment'
-        - include: '#comment-inline'
+        - include: '#comment-internal-full'
+        - include: '#comment-internal-end'
       - include: '#loop-control-command'
       - include: '$self'
 
@@ -124,8 +120,8 @@ repository:
         comment: Value ends at a newline or ';'
         patterns:
         - include: '#argument'
-        - include: '#comment'
-        - include: '#comment-inline'
+        - include: '#comment-internal-full'
+        - include: '#comment-internal-end'
       - name: meta.block.switch.case.fish
         begin: \b(case)\b
         beginCaptures:
@@ -141,10 +137,10 @@ repository:
           comment: Wildcard ends at a newline or ';'
           patterns:
           - include: '#argument'
-          - include: '#comment'
-          - include: '#comment-inline'
+          - include: '#comment-internal-full'
+          - include: '#comment-internal-end'
         - include: '$self'
-      - include: '#comment'
+      - include: '#comment-internal-full'
 
     - name: meta.block.function.fish
       begin: \b(function)\b(?!\s+(&|\|))
@@ -168,14 +164,14 @@ repository:
           - match: (?:\'(?:\\[\'\\]|[^\'\\])*\'|\"(?:\\[\"$\n\\]|[^\"$\n\\])*\"|(?:\\[abefnrtv $\\*?#(){}\[\]<>^&;|"']|(?<=^|\s)\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]|[^\s$\\*?~%#()<>&|;"']|\\(?=[^abefnrtv\s$\\*?#(){}\[\]<>^&;|"'xXuUc])|(?<=\S|\\ )\\\n|(?<=\S|\\ )[~%#])+)+
             name: entity.name.function.fish
             comment: The function name may be given using any means that is valid for a command call
-          - include: '#comment'
-          - include: '#comment-inline'
+          - include: '#comment-internal-full'
+          - include: '#comment-internal-end'
           - include: '#line-continuation'
-            comment: We can't read across lines, so this is needed to catch an escaped newline at the start of a defined function name
+            comment: We can't read across lines, so this is needed to catch an escaped newline at the begin of a defined function name
         - comment: The rest of the patterns are the typical elements of a standard command-call, which is what the `function` command adheres to
         - include: '#argument'
-        - include: '#comment'
-        - include: '#comment-inline'
+        - include: '#comment-internal-full'
+        - include: '#comment-internal-end'
       - begin: \b(return)\b(?!\s+(-))
         beginCaptures:
           '1': {name: keyword.control.conditional.fish}
@@ -185,149 +181,87 @@ repository:
         comment: The `return` command can't accept flags
         patterns:
         - include: '#argument'
-        - include: '#comment'
-        - include: '#comment-inline'
+        - include: '#comment-internal-full'
+        - include: '#comment-internal-end'
       - include: '$self'
-
-    # - name: meta.block.end.fish
-    #   begin: (?<=end)
-    #   end: (?<=\n)
-    #   patterns:
-    #   - include: '#command-call'
-    #   - include: '#comment'
 
   command-call:
     patterns:
-    - name: keyword.operator.fish
-      match: ;
-      comment: This, ';', is the only control operator which is allowed to exist alone on a line. Other control operators must be preceded and/or succeeded by commands, so they are checked when valid
-
-    - include: '#block'
+    - comment: Check for bad commands before assuming we have a good one
     - include: '#command-call-check-commands'
     - include: '#command-call-check-operators'
-    - include: '#command-call-meta-terminating'
-    - include: '#command-call-statement-terminating'
-    - include: '#command-call-standard-terminating'
+
+    - name: meta.function-call.fish
+      comment: This scope controls consumption of the control operator to end the command call, so each command call rule we include must end when the next character would be one which would end this scope
+      begin: (?=[^\s])
+      end: \n|([;&])|(?=\))
+      endCaptures:
+        '1': {name: keyword.operator.fish}
+      patterns:
+      - include: '#comment-internal-end' # Only necessary until block is fixed
+      - include: '#block'
+      - include: '#command-call-meta'
+      - include: '#command-call-statement'
+      - include: '#command-call-standard'
 
   command-call-check-commands:
     patterns:
     - name: invalid.illegal.function.fish
       comment: These commands aren't valid outside of their use in blocks
-      match: \b(?:case|else|end)\b.*$
+      match: (?:case|else|end)\b.*$
 
     - name: invalid.illegal.function.fish
-      comment: A command can't start with a dash, probably because it is indistinguishable from an option in the function declaration
+      comment: A command can't begin with a dash, probably because it is indistinguishable from an option in the function declaration
       match: (?:-.*$)
 
   command-call-check-operators:
     patterns:
     - name: invalid.illegal.operator.fish
-      comment: These operators aren't allowed to start a command, but can appear unescaped later within it (note that '$' is the only major operator character which can start a command)
-      match: (?:[&|<>^%].*$)
+      comment: These operators aren't allowed to begin a command, but can appear unescaped later within it. Note that ';' and '$' are the major operator characters absent here, because ';' will immediately end an empty command and '$' is allowed to begin a command for some reason
+      match: (?:[&|()<>^%].*$)
 
-  command-call-meta-terminating:
-    comment: This scope consumes a control operator to end
+  command-call-meta:
     patterns:
-    - name: meta.function-call.meta.fish
-      comment: Check if the command is a builtin which takes another command as arguments, ie, a meta command. Because these commands could take options or be backgrounded/piped -- in which case they do not behave as meta commands -- look ahead to ensure that no options or control operators are found. Note also that a meta command forces its argument to behave as a standard command
+    - comment: Check if the command is a builtin which takes another command as arguments, ie, a meta command. Because these commands could take options or be backgrounded/piped -- in which case they do not behave as meta commands -- look ahead to ensure that no options or control operators are found. Note also that a meta command forces its argument to behave as a standard command
       begin: \b(builtin|command|exec)\b(?!\s+[-&|])
       beginCaptures:
         '1': {name: support.function.fish}
-      end: \n|([;&])|(?=\s*\))
-      endCaptures:
-        '1': {name: keyword.operator.fish}
-      comment: Ends before ')' or ';' (which terminate commands), or on consumption of a newline or '&'
+      end: (?=[\n;&)])
       patterns:
       - include: '#line-continuation'
-      - include: '#comment'
+      - include: '#comment-internal-full'
       - include: '#block'
       - include: '#command-call-check-operators'
-      - include: '#command-call-standard-nonterminating'
+      - include: '#command-call-standard'
 
-  command-call-meta-nonterminating:
-    comment: This scope ends just before a control operator
+  command-call-statement:
     patterns:
-    - comment: This is the same as the terminating version, but doesn't consume the end match
-      begin: \b(builtin|command|exec)\b(?!\s+[-&|])
-      beginCaptures:
-        '1': {name: support.function.fish}
-      end: (?=\s*[\n;&)])
-      patterns:
-      - include: '#line-continuation'
-      - include: '#comment'
-      - include: '#block'
-      - include: '#command-call-standard-nonterminating'
-
-  command-call-statement-terminating:
-    comment: This scope consumes a control operator to end
-    patterns:
-    - name: meta.function-call.statement.fish
-      comment: Check if the command is a builtin which precedes other commands and operates on them conditionally, ie, a statement command. Because these commands could take options -- in which case they do not behave as statement commands -- look ahead to ensure that no options are found. Note also that statement commands require there to be a command after them (any control operator found is illegal) and are indefinitely recursive
+    - comment: Check if the command is a builtin which precedes other commands and operates on them conditionally, ie, a statement command. Because these commands could take options -- in which case they do not behave as statement commands -- look ahead to ensure that no options are found. Note also that statement commands require there to be a command after them (any control operator besides ';' is illegal) and are indefinitely recursive
       begin: \b(and|not|or)\b(?!\s+[-])
       beginCaptures:
         '1': {name: keyword.operator.word.fish}
-      end: \n|([;&])|(?=\s*\))
-      endCaptures:
-        '1': {name: keyword.operator.fish}
-      comment: Ends before ')' or ';' (which terminate commands), or on consumption of a newline or '&'
+      end: (?=[\n;&)])
       patterns:
       - include: '#line-continuation'
-      - include: '#comment'
+      - include: '#comment-internal-full'
       - include: '#block'
       - include: '#command-call-check-operators'
-      - include: '#command-call-meta-nonterminating'
-      - include: '#command-call-statement-nonterminating'
-      - include: '#command-call-standard-nonterminating'
+      - include: '#command-call-meta'
+      - include: '#command-call-statement'
+      - include: '#command-call-standard'
 
-  command-call-statement-nonterminating:
-    comment: This scope ends just before a control operator
+  command-call-standard:
     patterns:
-    - comment: This is the same as the terminating version, but doesn't consume the end match
-      begin: \b(and|not|or)\b(?!\s+[-])
-      beginCaptures:
-        '1': {name: keyword.operator.word.fish}
-      end: (?=\s*[\n;&)])
-      patterns:
-      - include: '#line-continuation'
-      - include: '#comment'
-      - include: '#block'
-      - include: '#command-call-check-operators'
-      - include: '#command-call-meta-nonterminating'
-      - include: '#command-call-statement-nonterminating'
-      - include: '#command-call-standard-nonterminating'
-
-  command-call-standard-terminating:
-    comment: This scope consumes a control operator to end
-    patterns:
-    - name: meta.function-call.standard.fish
-      comment: Check if the command is any other legal command, ie, a standard command
+    - comment: Check if the command is any other legal command, ie, a standard command
       begin: (?:\'(?:\\[\'\\]|[^\'\\])*\'|\"(?:\\[\"$\n\\]|[^\"$\n\\])*\"|(?:\\[abefnrtv $\\*?#(){}\[\]<>^&;|"']|(?<=^|\s)\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]|[^\s\\*?~%#()<>&|;"']|\\(?=[^abefnrtv\s$\\*?#(){}\[\]<>^&;|"'xXuUc])|(?<=\S|\\ )\\\n|(?<=\S|\\ )[~%#])+)+
       beginCaptures:
         '0': {name: variable.function.fish}
       comment: In fish, commands can be called using any arbitrary combination of quoted and unquoted strings (with a modified set of characters that need to be escaped, pointless escapes expanded into two literal characters, the literal newline allowed if escaped provided it's not the sole character, the comment character allowed if it's not at the front, etc), so we must manually repeat all the definitions of single-quoted, double-quoted, and unquoted strings. Unfortunately, only a single instance of a non-zero `beginCapture` match can be assigned a scope, so it isn't possible to account for the fact that an arbitrary number of strings can be in the command name and give them all the appropriate string scopes. Furthermore, a `begin` match cannot check across multiple lines, so even though line breaks are permitted inside of double-quoted strings we cannot see to the next line and determine that such a command name would be valid
       comment: If this were a *.sublime-syntax then the aformentioned problems could be avoided. We could push the `meta.function-call.standard.fish` and `variable.function.fish` scopes onto the stack simultaneously, then use individual pattern matching on each type of string we find, and finally pop the `variable.function.fish` scope when unescaped whitespace is encountered (hence marking the end of the command name in the command call)
-      end: \n|([;&])|(?=\s*\))
-      endCaptures:
-        '1': {name: keyword.operator.fish}
-      comment: Ends before ')' or ';' (which terminate commands), or on consumption of a newline or '&'
+      end: (?=[\n;&)])
       patterns:
-      - include: '#comment'
-      - include: '#comment-inline'
-      - include: '#redirection'
-      - include: '#command-call-pipe'
-      - include: '#argument'
-
-  command-call-standard-nonterminating:
-    comment: This scope ends just before a control operator
-    patterns:
-    - comment: This is the same as the terminating version, but doesn't consume the end match
-      begin: (?:\'(?:\\[\'\\]|[^\'\\])*\'|\"(?:\\[\"$\n\\]|[^\"$\n\\])*\"|(?:\\[abefnrtv $\\*?#(){}\[\]<>^&;|"']|(?<=^|\s)\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]|[^\s\\*?~%#()<>&|;"']|\\(?=[^abefnrtv\s$\\*?#(){}\[\]<>^&;|"'xXuUc])|(?<=\S|\\ )\\\n|(?<=\S|\\ )[~%#])+)+
-      beginCaptures:
-        '0': {name: variable.function.fish}
-      end: (?=\s*[\n;&)])
-      patterns:
-      - include: '#comment'
-      - include: '#comment-inline'
+      - include: '#comment-internal-full'
+      - include: '#comment-internal-end'
       - include: '#redirection'
       - include: '#command-call-pipe'
       - include: '#argument'
@@ -345,13 +279,13 @@ repository:
       end: (?=[\n;&)])
       patterns:
       - include: '#line-continuation'
-      - include: '#comment'
+      - include: '#comment-internal-full'
       - include: '#block'
       - include: '#command-call-check-commands'
       - include: '#command-call-check-operators'
-      - include: '#command-call-meta-nonterminating'
-      - include: '#command-call-statement-nonterminating'
-      - include: '#command-call-standard-nonterminating'
+      - include: '#command-call-meta'
+      - include: '#command-call-statement'
+      - include: '#command-call-standard'
       - name: invalid.illegal.function.fish
         match: (?!\s).*$
         comment: Anything left over must be invalid
@@ -375,21 +309,32 @@ repository:
 
       - include: '#index-expansion'
 
-  comment:
+  comment-external:
     patterns:
     - name: comment.line.fish
-      comment: Consumes the remainder of a line after any character which marks the start of a scope with no commands in it. Consumes the newline, thus hiding the entire comment from any scope which seeks newlines
-      match: (?<=^|else|end|\(|;|&)\s*(#).*$\n?
-      captures:
-        '1': {name: punctuation.definition.comment.fish}
+      comment: A full or inline comment outside of any command call
+      begin: \#
+      beginCaptures:
+        '0': {name: punctuation.definition.comment.fish}
+      end: \n
 
-  comment-inline:
+  comment-internal-full:
     patterns:
-    - name: comment.line.insert.fish
-      comment: Separate from comment as this is only valid inside of command-call. Does not consume the newline, thus allowing command-call to capture it and end
-      match: (#).*$
-      captures:
-        '1': {name: punctuation.definition.comment.fish}
+    - name: comment.line.fish
+      comment: A full line comment inside of a command call extending over multiple lines. Consumes the newline, thus hiding the entire comment from the command call scope
+      begin: ^\s*\#
+      beginCaptures:
+        '0': {name: punctuation.definition.comment.fish}
+      end: \n
+
+  comment-internal-end:
+    patterns:
+    - name: comment.line.fish
+      comment: An inline comment at the end of a command call. Does not consume the newline, thus allowing the command call to capture it and end
+      begin: \#
+      beginCaptures:
+        '0': {name: punctuation.definition.comment.fish}
+      end: (?=\n)
 
   index-expansion:
     patterns:
@@ -432,7 +377,7 @@ repository:
         '1': {name: keyword.operator.fish}
       patterns:
       - include: '#line-continuation'
-      - include: '#comment-inline'
+      - include: '#comment-internal-end'
 
   redirection:
     patterns:
@@ -449,8 +394,8 @@ repository:
       comment: End at anything that would end an argument, with the added condition that the character before the boundary cannot be the final character of the begin match or whitespace, thus allowing an arbitrary amount of whitespace between the begin match and the integer found before the end match
       patterns:
       - include: '#line-continuation'
-      - include: '#comment'
-      - include: '#comment-inline'
+      - include: '#comment-internal-full'
+      - include: '#comment-internal-end'
       - include: '#command-substitution'
         comment: Evaluates to a string which may be an integer
       - include: '#variable-expansion'
@@ -476,8 +421,8 @@ repository:
       comment: End at anything that would end an argument, with the added condition that the character before the boundary cannot be the final character of the begin match or whitespace, thus allowing an arbitrary amount of whitespace between the begin match and the path found before the end match
       patterns:
       - include: '#line-continuation'
-      - include: '#comment'
-      - include: '#comment-inline'
+      - include: '#comment-internal-full'
+      - include: '#comment-internal-end'
       - include: '#command-substitution'
         comment: Evaluates to a string so path cannot begin with '('
       - include: '#variable-expansion'
@@ -529,9 +474,11 @@ repository:
     - name: meta.string.unquoted.fish
       begin: (?<=\'|\"|\[|\{|\%|^|\s)(?!\'|\"|\]|\}|\s)
       comment: Begin string at a boundary. Before the boundary must be the end of a quoted string, the begin of an index/brace/process expansion, or anything that would initiate a function-call argument. After the boundary may be anything that isn't the begin of a quoted string, the end of an item-access argument list, the end of a brace expansion, or whitespace
+      # end: (?=[ \n])
       end: (?<=.|\n)(?=\'|\"|\]|\}|\s|\)|[;&|<>]|$)
       comment: End string if it precedes the begin of a quoted string, the end of an index/brace expansion (but not a process expansion or stderr redirection as '%' and '^' are valid within names), or anything that would end an argument
       patterns:
+      - include: '#comment-internal-full'
       - include: '#string-unquoted-patterns'
 
   string-unquoted-patterns:
