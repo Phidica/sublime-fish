@@ -45,7 +45,7 @@
 					<key>begin</key>
 					<string>(?![\s;&amp;|)])</string>
 					<key>comment</key>
-					<string>End arg if it precedes whitespace or unescaped control operators, or a newline. Note fish quirk; the stderr redirection operator '^' does not terminate an arg</string>
+					<string>End arg if it precedes whitespace or control operators (including stdin/stdout redirection but not stderr due to a fish quirk)</string>
 					<key>end</key>
 					<string>(?=[\s;&amp;|)&lt;&gt;])</string>
 					<key>name</key>
@@ -258,6 +258,8 @@
 								<dict>
 									<key>comment</key>
 									<string>Treat the varname like an argument</string>
+								</dict>
+								<dict>
 									<key>include</key>
 									<string>#argument</string>
 								</dict>
@@ -289,6 +291,8 @@
 								<dict>
 									<key>comment</key>
 									<string>Treat the list as arguments</string>
+								</dict>
+								<dict>
 									<key>include</key>
 									<string>#argument</string>
 								</dict>
@@ -496,18 +500,20 @@
 											<string>entity.name.function.fish</string>
 										</dict>
 										<dict>
+											<key>comment</key>
+											<string>We can't read across lines, so this is needed to catch an escaped newline at the begin of a defined function name</string>
+										</dict>
+										<dict>
+											<key>include</key>
+											<string>#line-continuation</string>
+										</dict>
+										<dict>
 											<key>include</key>
 											<string>#comment-internal-full</string>
 										</dict>
 										<dict>
 											<key>include</key>
 											<string>#comment-internal-end</string>
-										</dict>
-										<dict>
-											<key>comment</key>
-											<string>We can't read across lines, so this is needed to catch an escaped newline at the begin of a defined function name</string>
-											<key>include</key>
-											<string>#line-continuation</string>
 										</dict>
 									</array>
 								</dict>
@@ -723,8 +729,6 @@
 				<dict>
 					<key>comment</key>
 					<string>Match an operator which cannot start a command chain (because they are consumed by the command chain when they appear further within it)</string>
-				</dict>
-				<dict>
 					<key>match</key>
 					<string>(?:[&amp;|])</string>
 					<key>name</key>
@@ -820,8 +824,6 @@
 								<dict>
 									<key>comment</key>
 									<string>Match an operator which cannot start a command call but does not stop the next characters from being interpreted as a command</string>
-								</dict>
-								<dict>
 									<key>match</key>
 									<string>(?:[&lt;&gt;^])</string>
 									<key>name</key>
@@ -881,8 +883,6 @@
 									<string>punctuation.section.parens.begin.fish</string>
 								</dict>
 							</dict>
-							<key>comment</key>
-							<string>The inside of a command substitution is indistinguishable from a global scope</string>
 							<key>end</key>
 							<string>\)</string>
 							<key>endCaptures</key>
@@ -898,6 +898,8 @@
 							<key>patterns</key>
 							<array>
 								<dict>
+									<key>comment</key>
+									<string>The inside of a command substitution is indistinguishable from a global scope</string>
 									<key>include</key>
 									<string>$self</string>
 								</dict>
@@ -999,7 +1001,7 @@
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>Note also that command substitution can only have a single index expansion</string>
+					<string>In other words, the anonymous scope which contains the variable and the index expansion argument list should only be allowed to contain a single copy of each of those two things. We cannot enforce that without a scope stack. Our workaround is to allow an infinite number of these and hope the user can keep track of when there are too many</string>
 					<key>end</key>
 					<string>\]</string>
 					<key>endCaptures</key>
@@ -1594,6 +1596,10 @@
 					<key>patterns</key>
 					<array>
 						<dict>
+							<key>comment</key>
+							<string>Match any depth of recursive variable expansions</string>
+						</dict>
+						<dict>
 							<key>begin</key>
 							<string>\$</string>
 							<key>beginCaptures</key>
@@ -1619,6 +1625,10 @@
 									<string>#variable-expansion-simple</string>
 								</dict>
 							</array>
+						</dict>
+						<dict>
+							<key>comment</key>
+							<string>Match any number of consecutive index expansions</string>
 						</dict>
 						<dict>
 							<key>include</key>
