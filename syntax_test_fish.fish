@@ -98,7 +98,6 @@ echo str1 2 3str -b="str" --num=2
 #!               ^^^ meta.string.unquoted
 #!                  ^^^^^ string.quoted.double
 #!                        ^^^^^^ meta.string.unquoted
-#!                              ^ meta.string.unquoted constant.numeric
 
 echo str \ # not-comment \  # comment
 #!   ^^^ meta.string.unquoted
@@ -530,12 +529,14 @@ echo $var$ (echo $) $$!bad_var # comment
 #!                   ^^^^^^^^^ invalid.illegal.variable-expansion
 #!                             ^^^^^^^^^ comment.line
 
-echo $var[1..$foo]
+echo $var[1..2] $var[1..$foo]
 #!   ^^^^ variable.other
-#!       ^^^^^^^^^ meta.brackets.index-expansion
+#!       ^^^^^^  meta.brackets.index-expansion
 #!        ^ constant.numeric
 #!         ^^ keyword.operator
-#!           ^^^^ variable.other
+#!           ^ constant.numeric
+#!                  ^^^^^^^^^ meta.brackets.index-expansion
+#!                      ^^^^ variable.other
 
 echo $var $var[$var[1 $var[1]] $var[1..2]] "str"
 #!   ^^^^ variable.other

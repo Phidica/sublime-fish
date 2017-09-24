@@ -1070,6 +1070,12 @@
 							<string>#string-quoted</string>
 						</dict>
 						<dict>
+							<key>match</key>
+							<string>(?:[0-9]+)(?=[\s;&amp;|)&lt;&gt;'"]|\]|\.\.)</string>
+							<key>name</key>
+							<string>meta.string.unquoted.fish constant.numeric.fish</string>
+						</dict>
+						<dict>
 							<key>begin</key>
 							<string>(?!['"]|\.\.)</string>
 							<key>comment</key>
@@ -1414,6 +1420,14 @@
 			<key>patterns</key>
 			<array>
 				<dict>
+					<key>comment</key>
+					<string>Treat a sequence of integers (with possible decimal separator) as a standalone constant</string>
+					<key>match</key>
+					<string>(?:[0-9\.]+)(?=[\s;&amp;|)&lt;&gt;'"])</string>
+					<key>name</key>
+					<string>meta.string.unquoted.fish constant.numeric.fish</string>
+				</dict>
+				<dict>
 					<key>begin</key>
 					<string>(?!['"])</string>
 					<key>comment</key>
@@ -1457,14 +1471,6 @@
 				<dict>
 					<key>include</key>
 					<string>#variable-expansion</string>
-				</dict>
-				<dict>
-					<key>comment</key>
-					<string>Treat integers as standalone constants if they aren't within strings of alphabetic characters or other special characters permitted within arguments</string>
-					<key>match</key>
-					<string>(?&lt;![A-Za-z^])[0-9]+(?![A-Za-z^])</string>
-					<key>name</key>
-					<string>constant.numeric.fish</string>
 				</dict>
 				<dict>
 					<key>comment</key>
@@ -1512,6 +1518,12 @@
 						<dict>
 							<key>include</key>
 							<string>#string-quoted</string>
+						</dict>
+						<dict>
+							<key>match</key>
+							<string>(?:[0-9\.]+)(?=[\s;&amp;|)&lt;&gt;'"]|\}|\,)</string>
+							<key>name</key>
+							<string>meta.string.unquoted.fish constant.numeric.fish</string>
 						</dict>
 						<dict>
 							<key>begin</key>
