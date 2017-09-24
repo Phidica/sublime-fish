@@ -378,14 +378,14 @@ repository:
           - name: keyword.operator.fish
             match: \.\.
 
-          - comment: Manually recreate the #string rule, but add logic to unquoted strings so we break at ".."
+          - comment: Manually recreate the #string rule with extra logic in unquoted strings
           - include: '#string-quoted'
           - name: meta.string.unquoted.fish
-            begin: (?<=\.\.|\'|\"|\[|\{|\%|^|\s)(?!\.\.|\'|\"|\]|\}|\s)
-            end: (?<=.|\n)(?=\.\.|\'|\"|\]|\}|\s|\)|[;&|<>]|$)
-            comment: Begin/end string at same boundaries as before with the addition of breaking at ".." so that the above match can be found multiple times
+            begin: (?!['"]|\.\.)
+            end: (?=[\s;&|)<>'"]|\]|\.\.)
+            comment: Begin/end string as before with the addition of breaking at a ']' or ".."
             patterns:
-            - include: '#string-unquoted-patterns'
+              - include: '#string-unquoted-patterns'
 
   line-continuation:
     patterns:
@@ -543,16 +543,15 @@ repository:
         endCaptures:
           '0': {name: punctuation.section.braces.end.fish}
         patterns:
-          - comment: Explicitly treat ','
-            name: punctuation.section.braces.separator.fish
+          - name: punctuation.section.braces.separator.fish
             match: \,
 
-          - comment: Now manually recreate the #string rule, with the addition of a "\," escape
+          - comment: Manually recreate the #string rule with extra logic in unquoted strings
           - include: '#string-quoted'
           - name: meta.string.unquoted.fish
-            begin: (?<=\,|\'|\"|\[|\{|^|\s)(?!\,|\'|\"|\]|\}|\s)
-            end: (?<=.|\n)(?=\,|\'|\"|\]|\}|\s|\)|;|&|\||$)
-            comment: Begin/end string at same boundaries as before with the addition of breaking at ',' so that the above match can be found multiple times
+            begin: (?!['"])
+            end: (?=[\s;&|)<>'"]|\}|\,)
+            comment: Begin/end string as before with the addition of breaking at a '}' or ','
             patterns:
               - name: constant.character.escape.fish
                 match: \\\,

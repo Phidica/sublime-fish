@@ -1032,11 +1032,11 @@
 						</dict>
 						<dict>
 							<key>begin</key>
-							<string>(?&lt;=\.\.|\'|\"|\[|\{|\%|^|\s)(?!\.\.|\'|\"|\]|\}|\s)</string>
+							<string>(?!['"]|\.\.)</string>
 							<key>comment</key>
-							<string>Begin/end string at same boundaries as before with the addition of breaking at ".." so that the above match can be found multiple times</string>
+							<string>Begin/end string as before with the addition of breaking at a ']' or ".."</string>
 							<key>end</key>
-							<string>(?&lt;=.|\n)(?=\.\.|\'|\"|\]|\}|\s|\)|[;&amp;|&lt;&gt;]|$)</string>
+							<string>(?=[\s;&amp;|)&lt;&gt;'"]|\]|\.\.)</string>
 							<key>name</key>
 							<string>meta.string.unquoted.fish</string>
 							<key>patterns</key>
@@ -1461,8 +1461,6 @@
 					<key>patterns</key>
 					<array>
 						<dict>
-							<key>comment</key>
-							<string>Explicitly treat ','</string>
 							<key>match</key>
 							<string>\,</string>
 							<key>name</key>
@@ -1470,7 +1468,7 @@
 						</dict>
 						<dict>
 							<key>comment</key>
-							<string>Now manually recreate the</string>
+							<string>Manually recreate the</string>
 						</dict>
 						<dict>
 							<key>include</key>
@@ -1478,11 +1476,11 @@
 						</dict>
 						<dict>
 							<key>begin</key>
-							<string>(?&lt;=\,|\'|\"|\[|\{|^|\s)(?!\,|\'|\"|\]|\}|\s)</string>
+							<string>(?!['"])</string>
 							<key>comment</key>
-							<string>Begin/end string at same boundaries as before with the addition of breaking at ',' so that the above match can be found multiple times</string>
+							<string>Begin/end string as before with the addition of breaking at a '}' or ','</string>
 							<key>end</key>
-							<string>(?&lt;=.|\n)(?=\,|\'|\"|\]|\}|\s|\)|;|&amp;|\||$)</string>
+							<string>(?=[\s;&amp;|)&lt;&gt;'"]|\}|\,)</string>
 							<key>name</key>
 							<string>meta.string.unquoted.fish</string>
 							<key>patterns</key>
