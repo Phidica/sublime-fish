@@ -30,14 +30,14 @@ repository:
   argument:
     patterns:
     - name: meta.argument.fish
-      comment: An argument is one of the fundamental units, however we define it by the very essence of not being any of the other fundamental units '#' and the control operators (';', '&', and '|'). All those have special treatment when they appear in command calls, so we attend to them uniquely
-      begin: (?<=^|\s)(?!\s|#|$)
-      comment: Begin arg at a boundary. Before the boundary must be the begin of line (for when a command call spans multiple lines) or whitespace. After the boundary may be anything but whitespace, a comment character, or a newline (to prevent blank lines being called args)
-      end: (?<=.|\n)(?=\s|\)|[;&|<>]|$)
-      comment: End arg if it precedes whitespace, unescaped control operators, or a newline. Note fish quirk; the stderr redirection operator '^' does not terminate an arg
+      comment: An argument is a fundamental unit of a command call, defined as a sequence of non-control-operator characters separated by unescaped and unscoped whitespace
+      begin: (?![\s;&|)])
+      comment: Begin arg if it does not precede whitespace or a control operator (we assume that operators for comments or redirection are handled before this rule)
+      end: (?=[\s;&|)<>])
+      comment: End arg if it precedes whitespace or control operators (including stdin/stdout redirection but not stderr due to a fish quirk)
       patterns:
+      - comment: Arguments are made of strings, either quoted or unquoted. The unquoted string rule handles numerics, character escapes, command substitutions, and brace/variable/process expansions
       - include: '#string'
-        comment: Arguments are made of strings, either quoted or unquoted. The unquoted string rule handles numerics, character escapes, command substitutions, and brace/variable/process expansions
 
   command-chain:
     patterns:
@@ -194,18 +194,18 @@ repository:
       - begin: (?<=for)
         end: (?<=\w)(?=\W)
         patterns:
+        - include: '#comment-internal-full'
         - include: '#argument'
           comment: Treat the varname like an argument
-        - include: '#comment-internal-full'
       - begin: \b(in)\b
         beginCaptures:
           '0': {name: keyword.control.conditional.fish}
         end: (?=;)|\n
         patterns:
-        - include: '#argument'
-          comment: Treat the list as arguments
         - include: '#comment-internal-full'
         - include: '#comment-internal-end'
+        - include: '#argument'
+          comment: Treat the list as arguments
       - include: '#loop-control-command'
       - include: '$self'
 
@@ -225,9 +225,9 @@ repository:
           '1': {name: keyword.operator.fish}
         comment: Value ends at a newline or ';'
         patterns:
-        - include: '#argument'
         - include: '#comment-internal-full'
         - include: '#comment-internal-end'
+        - include: '#argument'
       - name: meta.block.switch.case.fish
         begin: \b(case)\b
         beginCaptures:
@@ -242,9 +242,9 @@ repository:
             '1': {name: keyword.operator.fish}
           comment: Wildcard ends at a newline or ';'
           patterns:
-          - include: '#argument'
           - include: '#comment-internal-full'
           - include: '#comment-internal-end'
+          - include: '#argument'
         - include: '$self'
       - include: '#comment-internal-full'
 
@@ -275,9 +275,9 @@ repository:
           - include: '#line-continuation'
             comment: We can't read across lines, so this is needed to catch an escaped newline at the begin of a defined function name
         - comment: The rest of the patterns are the typical elements of a standard command-call, which is what the `function` command adheres to
-        - include: '#argument'
         - include: '#comment-internal-full'
         - include: '#comment-internal-end'
+        - include: '#argument'
       - begin: \b(return)\b(?!\s+(-))
         beginCaptures:
           '1': {name: keyword.control.conditional.fish}
@@ -286,9 +286,9 @@ repository:
           '1': {name: keyword.operator.fish}
         comment: The `return` command can't accept flags
         patterns:
-        - include: '#argument'
         - include: '#comment-internal-full'
         - include: '#comment-internal-end'
+        - include: '#argument'
       - include: '$self'
 
   command-call-standard:
@@ -488,19 +488,19 @@ repository:
   string-unquoted:
     patterns:
     - name: meta.string.unquoted.fish
-      begin: (?<=\'|\"|\[|\{|\%|^|\s)(?!\'|\"|\]|\}|\s)
-      comment: Begin string at a boundary. Before the boundary must be the end of a quoted string, the begin of an index/brace/process expansion, or anything that would initiate a function-call argument. After the boundary may be anything that isn't the begin of a quoted string, the end of an item-access argument list, the end of a brace expansion, or whitespace
-      # end: (?=[ \n])
-      end: (?<=.|\n)(?=\'|\"|\]|\}|\s|\)|[;&|<>]|$)
-      comment: End string if it precedes the begin of a quoted string, the end of an index/brace expansion (but not a process expansion or stderr redirection as '%' and '^' are valid within names), or anything that would end an argument
+      begin: (?!['"])
+      comment: Begin unquoted string if there are no quotes present
+      end: (?=[\s;&|)<>'"])
+      comment: End unquoted string at whitespace, control operators, or quoted strings
       patterns:
-      # - include: '#comment-internal-full' # Why the hell was this in here?
       - include: '#string-unquoted-patterns'
 
   string-unquoted-patterns:
     comment: Describe contents of an unquoted string separately for ease of recursion
     patterns:
+    - comment: Allow an escaped newline partway through an unquoted string, and let full line comments follow it. It is very difficult to make the unquoted string scope and immediately after an escaped newline without using a lookbehind, so we settle instead for the odd concept of scoping such a comment as if it was part of the unquoted string
     - include: '#line-continuation'
+    - include: '#comment-internal-full'
 
     - include: '#command-substitution'
 

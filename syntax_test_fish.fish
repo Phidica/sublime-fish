@@ -501,16 +501,6 @@ echo out | >echo
 #!         ^ invalid.illegal.operator
 #!          ^^^^ variable.function
 
-
-
-
-echo out | ()bar hm
-
-cat (echo out | )bar hm
-
-
-
-
 echo "string"(echo "inner string")" outer string"
 #!           ^^^^^^^^^^^^^^^^^^^^^ meta.parens.command-substitution
 #!                                ^ string.quoted
@@ -894,6 +884,8 @@ begin % fish
 end
 
 begin --option
+
+begin -h
 
 begin
   echo arg
