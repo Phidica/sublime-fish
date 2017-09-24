@@ -154,22 +154,37 @@ f'\''o"\$\\"o\ \|\$\*b\?\%a\#\(r\) arg
 #! ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ variable.function
 
 %process
-#! <- invalid.illegal.operator
+#! <- invalid.illegal.function-call
+#! ^^^^^ invalid.illegal.function-call
 
 <in.log
 #! <- invalid.illegal.operator
+#! ^^^^ variable.function
 
 >out.log
 #! <- invalid.illegal.operator
+#! ^^^^^ variable.function
 
 ^err.log
 #! <- invalid.illegal.operator
+#! ^^^^^ variable.function
 
 (echo out)
-#! <- invalid.illegal.operator
+#! <- invalid.illegal.function-call
+#! ^^^^^^^ invalid.illegal.function-call
 
--option
-#! <- invalid.illegal.function
+()foo bar
+#! <- invalid.illegal.function-call
+#! ^^ invalid.illegal.function-call
+#!   ^^^^ - invalid.illegal.function-call
+
+cat ((echo out) echo out) out
+#!   ^^^^^^^^^^ invalid.illegal.function-call
+#!             ^^^^^^^^^^ - invalid.illegal.function-call
+
+)option
+#! <- invalid.illegal.function-call
+#! ^^^^ invalid.illegal.function-call
 
 echo one >out.log two < in.log three ^^err.log four4> out.log five
 #!       ^^^^^^^^ meta.redirection
@@ -342,7 +357,6 @@ exec echo \
 #!   ^^^^ meta.function-call variable.function
 arg
 #! <-meta.function-call meta.argument
-#! ^ meta.function-call
 
 builtin echo &
 #! <- meta.function-call support.function
@@ -393,14 +407,14 @@ not builtin case 1>/dev/null
 
 exec %fish
 #! <- meta.function-call support.function
-#!   ^^^^^ meta.function-call invalid.illegal.operator
+#!   ^^^^^ meta.function-call invalid.illegal.function-call
 
-and case; or %fish
+and end; or %fish okay
 #! <- meta.function-call keyword.operator.word
-#!  ^^^^ meta.function-call variable.function
-#!      ^ keyword.operator
-#!        ^^ meta.function-call keyword.operator.word
-#!           ^^^^^ meta.function-call invalid.illegal.operator
+#!  ^^^ invalid.illegal.function-call
+#!     ^ keyword.operator
+#!       ^^ meta.function-call keyword.operator.word
+#!          ^^^^^ invalid.illegal.function-call
 
 echo arg | cat
 #! <- meta.function-call variable.function
@@ -422,26 +436,41 @@ cat \
 arg
 #! <- meta.function-call meta.argument
 
+| cat
+#! <- invalid.illegal.operator
+
 echo (echo arg |) | cat
-#!             ^ meta.function-call meta.function-call invalid.illegal.operator
+#!             ^ meta.function-call meta.function-call keyword.operator
 #!                ^ meta.function-call keyword.operator
 
 echo arg | # bad text
 #!       ^ meta.function-call keyword.operator
-#!         ^^^^^^^^^^ meta.function-call invalid.illegal.function
+#!         ^^^^^^^^^^ meta.function-call invalid.illegal.function-call
+
+echo arg | )paren
+#!       ^ meta.function-call keyword.operator
+#!         ^^^^^^ meta.function-call invalid.illegal.function-call
 
 and echo arg | %fish
 #!           ^ meta.function-call keyword.operator
-#!             ^^^^^ meta.function-call invalid.illegal.operator
+#!             ^^^^^ meta.function-call invalid.illegal.function-call
 
 not echo arg | | arg ; # comment
 #!           ^ meta.function-call keyword.operator
-#!             ^^^^^^^^^^^^^^^^^ meta.function-call invalid.illegal.operator
+#!             ^^^^^^^^^^^^^^^^^ meta.function-call invalid.illegal.function-call
 
 and and | cat
 #! <- meta.function-call keyword.operator.word
 #!  ^^^ meta.function-call keyword.operator.word
-#!      ^^^^^ meta.function-call invalid.illegal.operator
+#!      ^ invalid.illegal.operator
+
+and|cat
+#! <- meta.function-call keyword.operator.word
+#! ^ invalid.illegal.operator
+#!  ^^^ meta.function-call variable.function
+
+and -h
+#! <- meta.function-call variable.function
 
 echo arg1 ; and echo arg2 & not echo arg3 | cat
 #! <- meta.function-call variable.function
@@ -466,6 +495,21 @@ true | cat
 #! <- meta.function-call variable.function
 #!   ^ meta.function-call keyword.operator
 #!     ^^^ meta.function-call variable.function
+
+echo out | >echo
+#!       ^ keyword.operator
+#!         ^ invalid.illegal.operator
+#!          ^^^^ variable.function
+
+
+
+
+echo out | ()bar hm
+
+cat (echo out | )bar hm
+
+
+
 
 echo "string"(echo "inner string")" outer string"
 #!           ^^^^^^^^^^^^^^^^^^^^^ meta.parens.command-substitution
@@ -613,7 +657,7 @@ while --help; break& end
 #!    ^^^^^^ meta.argument
 #!          ^ keyword.operator
 #!            ^^^^^ variable.function
-#!                   ^^^ invalid.illegal.function
+#!                   ^^^ invalid.illegal.function-call
 
 echo end
 echo arg
@@ -667,14 +711,23 @@ else # comment
   end
 #! ^^ keyword.control.conditional
 end # comment
-#! <- keyword.control.conditional
-#!  ^^^^^^^^^ comment.line
+
+
+
+
+
+# TEMP DISABLE
+# <- keyword.control.conditional
+#  ^^^^^^^^^ comment.line
+
+
+
 
 if --help; else;
 #! <- meta.function-call variable.function
 #! ^^^^^^ meta.argument
 #!       ^ keyword.operator
-#!         ^^^^ invalid.illegal.function
+#!         ^^^^ invalid.illegal.function-call
 
 if \
 #! ^ constant.character.escape
@@ -754,17 +807,23 @@ switch \
 end
 #! <- keyword.control.conditional
 
-switch value; case wildcard; command echo foo; end # comment
-#!          ^ keyword.operator
-#!                         ^ keyword.operator
-#!                                           ^ keyword.operator
-#!                                                 ^ comment.line
+
+
+# TEMP DISABLE
+# switch value; case wildcard; command echo foo; end # comment
+#          ^ keyword.operator
+#                         ^ keyword.operator
+#                                           ^ keyword.operator
+#                                                 ^ comment.line
+
+
+
 
 switch --help; case;
 #! <- meta.function-call variable.function
 #!     ^^^^^^ meta.argument
 #!           ^ keyword.operator
-#!             ^^^^ invalid.illegal.function
+#!             ^^^^ invalid.illegal.function-call
 
 switch--help arg
 #! <- variable.function
@@ -809,8 +868,36 @@ function '$cmd$'; echo $argv; end; $cmd$ arg1 arg2
 
 
 
+
+
+
 # Tests in progress
 #
+
+
+
+
+
+begin
+  echo arg end
+end 2>&1 | cat
+
+begin; echo yes end | end ;
+end
+
+begin; end
+begin -h;
+
+begin echo; end
+
+begin % fish
+end
+
+begin --option
+
+begin
+  echo arg
+end & nicely done | cat | echo out
 
 
 

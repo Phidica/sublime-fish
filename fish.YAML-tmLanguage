@@ -8,7 +8,7 @@ patterns:
 - comment: Base scope - Pick up '#' and "\\\n" before command-call sees them
 - include: '#comment-external'
 - include: '#line-continuation'
-- include: '#command-call'
+- include: '#command-chain'
 
 # Style guide:
 # - keyword.control.conditional is applied to all control keywords that are actually words (if, else, end, function, etc.)
@@ -21,35 +21,141 @@ patterns:
 # To-do list:
 #! - Bugfix: Keywords that only work in loops or functions (eg, "continue", "return", etc) will be treated like standard commands if they are located within if-statements within those outer valid blocks. Without a scope stack, we'll have to treat them as always being keywords rather than trying to parse them for the user
 #!   A solution would be to have a second if-block which is the same as the first, but named if-loop-block and which also includes the #loop-control-command rule. Ah, but then the $self which it includes would mean that an if inside /that/ if would be a non-loop if block again, unless the if-loop-block is also explicitly included above the $self. I think this would work all the way down? It gets very complicated if anything besides an if is wanted, but I don't see any use case for a loop control command keyword without an if statement
-#! - Newlines are consumed at the end of command calls, so create a pattern in the block group which begins just after the word 'end' when it has no newline after it, and ends at the next newline. everything in between can be any group that's valid (pipes, backgrounding, redirection). this would perhaps get us out of the special piped function group described below
+#! - Newlines are consumed at the end of command calls, so create a pattern in the block group which begins just after the word 'end' when it has no newline after it, and ends at the next newline. everything in between can be any group that's valid (pipes, backgrounding, redirection)
 #! - A special match in the standard command call which is the `[ ]` form of test
 #! - Don't forget the special 2>| redirection-into-pipe syntax, which should be handled in the piping syntax
+#! - Overhaul command-call-standard and make it find command names which are invalid (like %fish) and highlight those as invalid, but let everything after them look like a normal argument. This would replace most of the work that command-call-check-commands is doing
 
 repository:
   argument:
     patterns:
     - name: meta.argument.fish
-      comment: An argument is one of the fundamental units, however we define it by the very essence of not being any of the other fundamental units '#' and the control operators (';', '&', and '|'). All those have special treatment when they appear in command-calls, so we attend to them uniquely
+      comment: An argument is one of the fundamental units, however we define it by the very essence of not being any of the other fundamental units '#' and the control operators (';', '&', and '|'). All those have special treatment when they appear in command calls, so we attend to them uniquely
       begin: (?<=^|\s)(?!\s|#|$)
-      comment: Begin arg at a boundary. Before the boundary must be the begin of line (for when a command-call spans multiple lines) or whitespace. After the boundary may be anything but whitespace, a comment character, or a newline (to prevent blank lines being called args)
+      comment: Begin arg at a boundary. Before the boundary must be the begin of line (for when a command call spans multiple lines) or whitespace. After the boundary may be anything but whitespace, a comment character, or a newline (to prevent blank lines being called args)
       end: (?<=.|\n)(?=\s|\)|[;&|<>]|$)
       comment: End arg if it precedes whitespace, unescaped control operators, or a newline. Note fish quirk; the stderr redirection operator '^' does not terminate an arg
       patterns:
       - include: '#string'
         comment: Arguments are made of strings, either quoted or unquoted. The unquoted string rule handles numerics, character escapes, command substitutions, and brace/variable/process expansions
 
-  block:
+  command-chain:
     patterns:
-    - name: meta.block.begin.fish
-      begin: \b(begin)\b(?!\s*(-|&|\|))
-      beginCaptures:
-        '0': {name: keyword.control.conditional.fish}
-      end: (end)(\s*([;&]))?
+    - comment: Match an operator which cannot start a command chain (because they are consumed by the command chain when they appear further within it)
+    - name: invalid.illegal.operator.fish
+      match: (?:[&|])
+
+    - comment: Match a command which acts as a unary operator on the command to the right. Neglect the match if it is taking the one valid option argument these commands accept
+      name: meta.function-call.fish keyword.operator.word.fish
+      match: (?:and|not|or)(?:(?!\s+(?:-h|--help))|(?=[;&|)]))
+
+    - comment: Match a command which is illegal in the base scope
+      name: invalid.illegal.function-call.fish
+      match: (?:case|else|end)(?=[\s;&|)])
+
+    - comment: Anonymous scope - Command chain. Define a command chain as either one command call, or multiple command calls linked by pipes '|'. The chain terminates at the first encounter of any other control operator (newline, ';', '&') or the implied newline of the closing parenthesis of a command substitution
+      # name: command-chain
+      begin: (?=\S)
+      end: \n|([;&])|(?=\))
       endCaptures:
-        '1': {name: keyword.control.conditional.fish}
-        '3': {name: keyword.operator.fish}
+        '1': {name: meta.function-call.fish keyword.operator.fish}
       patterns:
-      - include: '$self'
+
+      - comment: A command can't begin with a close parenthesis. We have to try and match this immediately because the command chain scope will end if the close parenthesis is found by the lookahead
+        name: meta.function-call.fish invalid.illegal.function-call.fish
+        begin: \)
+        end: (?=[\s;&|)])
+
+      - comment: Match one command, which may start with a pipe. If it does, perform checks to ensure it is valid. A command call ends at any control operator with the addition of the pipe '|'
+        name: meta.function-call.fish
+        begin: (?=\S)
+        end: (?=\s*[\n;&|)])
+        patterns:
+
+        - comment: If there's no command call after the pipe and the command chain would end quietly, then mark the pipe invalid. We can't lookahead to find a close parenthesis because we want that close parenthesis to be caught and marked invalid. The downside is that this means a pipe at the end of the inside of a command substitution will not be marked invalid, but it turns out the fish parser doesn't do that either!
+          name: invalid.illegal.operator.fish
+          match: \|(?=\s*\n)
+
+        - comment: If there's no command call after the pipe and the command chain would end with an operator, then mark the next control operator (and beyond) as invalid
+          match: (\|)\s*(?=[;&|])(.*)$
+          captures:
+            '1': {name: keyword.operator.fish}
+            '2': {name: invalid.illegal.function-call.fish}
+
+        - name: keyword.operator.fish
+          match: \|
+
+        - comment: Match an operator which cannot start a command call but does not stop the next characters from being interpreted as a command
+        - name: invalid.illegal.operator.fish
+          match: (?:[<>^])
+
+        - include: '#line-continuation'
+        - include: '#comment-internal-full'
+        - include: '#command-call-check-commands'
+        - include: '#command-call-meta'
+        - include: '#command-call-block'
+        - include: '#command-call-standard'
+
+  command-call-check-commands:
+    comment: The first two should really be handled by command-call-standard, because the strings after the failed command name are highlighted as args by fish. Then, the third could be standalone in command-chain
+    patterns:
+    - comment: A command can't begin with a process expansion operator (however the variable expansion operator '$' is allowed)
+      name: invalid.illegal.function-call.fish
+      begin: \%
+      end: (?=[\s;&|)])
+      patterns:
+      - include: '#string'
+
+    - comment: A command can't begin with an open parenthesis (command substitution). We make sure to match all the way to [\n;&|)] unless a close parenthesis is found, in which case we can stop at [\s;&|)]
+      name: invalid.illegal.function-call.fish
+      begin: (?=\()
+      end: (?=[\s;&|)])
+      patterns:
+      - begin: \(
+        end: \)|(?=[\n;&|)])
+
+    - comment: A command can't be a comment, but this match should only be met when the command is first after a pipe
+      name: invalid.illegal.function-call.fish
+      begin: \#
+      end: (?=[\n)])
+
+  command-call-meta:
+    patterns:
+    - comment: Check if the command is a builtin which takes another command as arguments, ie, a meta command. Because these commands could take options or be backgrounded/piped -- in which case they do not behave as meta commands -- look ahead to ensure that no options or control operators are found. Note also that a meta command forces its argument to behave as a standard command
+      begin: (builtin|command|exec)\b(?!\s+[-&|])
+      beginCaptures:
+        '1': {name: support.function.fish}
+      end: (?=[\n;&|)])
+      patterns:
+      - include: '#line-continuation'
+      - include: '#comment-internal-full'
+      - include: '#command-call-block'
+      - include: '#command-call-check-commands'
+      - include: '#command-call-standard'
+
+  command-call-block:
+    patterns:
+    - begin: (?=begin(?!\s+-)[\s;])
+      comment: The block begin command can be immediately followed by any legal command, however it could also take an option in which case it should be treated as a standard command
+      end: (?=[\n;&|)])
+      patterns:
+      - name: meta.block.begin.fish
+        begin: (begin)(?=[\s;])\s*
+        beginCaptures:
+          '1': {name: keyword.control.conditional.fish}
+        end: (?=end[\s;&|)])
+        patterns:
+        - include: $self
+
+      - begin: (end)(?=[\s;&|)])
+        beginCaptures:
+          '1': {name: meta.block.begin.fish keyword.control.conditional.fish}
+        end: (?=[\n;&|)])
+        patterns: # Everything from command-call-standard
+        - include: '#comment-internal-full'
+        - include: '#comment-internal-end'
+        - include: '#redirection'
+        - include: '#argument'
 
     - name: meta.block.while.fish
       begin: \b(while)\b(?!\s*(-|&|\|))
@@ -185,71 +291,6 @@ repository:
         - include: '#comment-internal-end'
       - include: '$self'
 
-  command-call:
-    patterns:
-    - comment: Check for bad commands before assuming we have a good one
-    - include: '#command-call-check-commands'
-    - include: '#command-call-check-operators'
-
-    - name: meta.function-call.fish
-      comment: This scope controls consumption of the control operator to end the command call, so each command call rule we include must end when the next character would be one which would end this scope
-      begin: (?=[^\s])
-      end: \n|([;&])|(?=\))
-      endCaptures:
-        '1': {name: keyword.operator.fish}
-      patterns:
-      - include: '#comment-internal-end' # Only necessary until block is fixed
-      - include: '#block'
-      - include: '#command-call-meta'
-      - include: '#command-call-statement'
-      - include: '#command-call-standard'
-
-  command-call-check-commands:
-    patterns:
-    - name: invalid.illegal.function.fish
-      comment: These commands aren't valid outside of their use in blocks
-      match: (?:case|else|end)\b.*$
-
-    - name: invalid.illegal.function.fish
-      comment: A command can't begin with a dash, probably because it is indistinguishable from an option in the function declaration
-      match: (?:-.*$)
-
-  command-call-check-operators:
-    patterns:
-    - name: invalid.illegal.operator.fish
-      comment: These operators aren't allowed to begin a command, but can appear unescaped later within it. Note that ';' and '$' are the major operator characters absent here, because ';' will immediately end an empty command and '$' is allowed to begin a command for some reason
-      match: (?:[&|()<>^%].*$)
-
-  command-call-meta:
-    patterns:
-    - comment: Check if the command is a builtin which takes another command as arguments, ie, a meta command. Because these commands could take options or be backgrounded/piped -- in which case they do not behave as meta commands -- look ahead to ensure that no options or control operators are found. Note also that a meta command forces its argument to behave as a standard command
-      begin: \b(builtin|command|exec)\b(?!\s+[-&|])
-      beginCaptures:
-        '1': {name: support.function.fish}
-      end: (?=[\n;&)])
-      patterns:
-      - include: '#line-continuation'
-      - include: '#comment-internal-full'
-      - include: '#block'
-      - include: '#command-call-check-operators'
-      - include: '#command-call-standard'
-
-  command-call-statement:
-    patterns:
-    - comment: Check if the command is a builtin which precedes other commands and operates on them conditionally, ie, a statement command. Because these commands could take options -- in which case they do not behave as statement commands -- look ahead to ensure that no options are found. Note also that statement commands require there to be a command after them (any control operator besides ';' is illegal) and are indefinitely recursive
-      begin: \b(and|not|or)\b(?!\s+[-])
-      beginCaptures:
-        '1': {name: keyword.operator.word.fish}
-      end: (?=[\n;&)])
-      patterns:
-      - include: '#line-continuation'
-      - include: '#comment-internal-full'
-      - include: '#block'
-      - include: '#command-call-check-operators'
-      - include: '#command-call-meta'
-      - include: '#command-call-statement'
-      - include: '#command-call-standard'
-
   command-call-standard:
     patterns:
     - comment: Check if the command is any other legal command, ie, a standard command
@@ -258,37 +299,12 @@ repository:
         '0': {name: variable.function.fish}
       comment: In fish, commands can be called using any arbitrary combination of quoted and unquoted strings (with a modified set of characters that need to be escaped, pointless escapes expanded into two literal characters, the literal newline allowed if escaped provided it's not the sole character, the comment character allowed if it's not at the front, etc), so we must manually repeat all the definitions of single-quoted, double-quoted, and unquoted strings. Unfortunately, only a single instance of a non-zero `beginCapture` match can be assigned a scope, so it isn't possible to account for the fact that an arbitrary number of strings can be in the command name and give them all the appropriate string scopes. Furthermore, a `begin` match cannot check across multiple lines, so even though line breaks are permitted inside of double-quoted strings we cannot see to the next line and determine that such a command name would be valid
       comment: If this were a *.sublime-syntax then the aformentioned problems could be avoided. We could push the `meta.function-call.standard.fish` and `variable.function.fish` scopes onto the stack simultaneously, then use individual pattern matching on each type of string we find, and finally pop the `variable.function.fish` scope when unescaped whitespace is encountered (hence marking the end of the command name in the command call)
-      end: (?=[\n;&)])
+      end: (?=\s*[\n;&|)])
       patterns:
       - include: '#comment-internal-full'
       - include: '#comment-internal-end'
       - include: '#redirection'
-      - include: '#command-call-pipe'
       - include: '#argument'
-
-  command-call-pipe:
-    patterns:
-    - name: invalid.illegal.operator.fish
-      comment: An invalid '|' operator only has whitespace characters in the command scope it would open
-      match: \|(?=\s*[\n;&)])
-
-    - comment: Anonymous scope - Matches from a '|' until the explicit end of the command call scope
-      begin: \|
-      beginCaptures:
-        '0': {name: keyword.operator.fish}
-      end: (?=[\n;&)])
-      patterns:
-      - include: '#line-continuation'
-      - include: '#comment-internal-full'
-      - include: '#block'
-      - include: '#command-call-check-commands'
-      - include: '#command-call-check-operators'
-      - include: '#command-call-meta'
-      - include: '#command-call-statement'
-      - include: '#command-call-standard'
-      - name: invalid.illegal.function.fish
-        match: (?!\s).*$
-        comment: Anything left over must be invalid
 
   command-substitution:
     patterns:
@@ -321,7 +337,7 @@ repository:
   comment-internal-full:
     patterns:
     - name: comment.line.fish
-      comment: A full line comment inside of a command call extending over multiple lines. Consumes the newline, thus hiding the entire comment from the command call scope
+      comment: A full line comment inside of a command call that used a line continuation. Consumes the newline, thus hiding the entire comment from the command call scope
       begin: ^\s*\#
       beginCaptures:
         '0': {name: punctuation.definition.comment.fish}
@@ -478,7 +494,7 @@ repository:
       end: (?<=.|\n)(?=\'|\"|\]|\}|\s|\)|[;&|<>]|$)
       comment: End string if it precedes the begin of a quoted string, the end of an index/brace expansion (but not a process expansion or stderr redirection as '%' and '^' are valid within names), or anything that would end an argument
       patterns:
-      - include: '#comment-internal-full'
+      # - include: '#comment-internal-full' # Why the hell was this in here?
       - include: '#string-unquoted-patterns'
 
   string-unquoted-patterns:
