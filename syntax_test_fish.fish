@@ -37,10 +37,13 @@ echo ~foo \~bar~\~ %foo \%bar%\%
 #!   ^^^^ meta.string.unquoted
 #!   ^ keyword.operator.tilde
 #!        ^^^^^^^^ meta.string.unquoted
+#!             ^ - keyword.operator.tilde
 #!        ^^ constant.character.escape
 #!                 ^^^^ meta.process-expansion
+#!                 ^ punctuation.definition.process
 #!                      ^^^^^^^^ meta.string.unquoted
 #!                      ^^ constant.character.escape
+#!                           ^ - punctuation.definition.process
 
 echo ~/foo/*.bar /**.bar foo.?\?r ***.bar foo/*\**
 #!   ^^^^^^^^^^^ meta.string.unquoted
@@ -602,7 +605,7 @@ echo $var{,'brace',"expansion",he{e,$e}re\,}"str"
 echo %"fish" one%two %%percent
 #!   ^^^^^^^ meta.process-expansion
 #!   ^ punctuation.definition.process
-#!    ^^^^^^ meta.string.unquoted
+#!    ^^^^^^ string.quoted
 #!           ^^^^^^^ meta.string.unquoted
 #!                   ^^^^^^^^^ meta.process-expansion
 #!                   ^ punctuation.definition.process

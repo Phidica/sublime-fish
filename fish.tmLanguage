@@ -54,9 +54,48 @@
 					<array>
 						<dict>
 							<key>comment</key>
-							<string>Arguments are made of strings, either quoted or unquoted. The unquoted string rule handles numerics, character escapes, command substitutions, and brace/variable/process expansions</string>
+							<string>Home directory expansion only occurs if the '~' is at the front of the argument</string>
+							<key>match</key>
+							<string>\~</string>
+							<key>name</key>
+							<string>meta.string.unquoted.fish meta.home-directory-expansion.fish keyword.operator.tilde.fish</string>
 						</dict>
 						<dict>
+							<key>begin</key>
+							<string>\%</string>
+							<key>beginCaptures</key>
+							<dict>
+								<key>0</key>
+								<dict>
+									<key>name</key>
+									<string>meta.string.unquoted.fish punctuation.definition.process.fish</string>
+								</dict>
+							</dict>
+							<key>comment</key>
+							<string>Process expansion only occurs if the '%' is at the front of the argument, and continues for the entire argument</string>
+							<key>end</key>
+							<string>(?=[\s;&amp;|)])</string>
+							<key>name</key>
+							<string>meta.process-expansion.fish</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>comment</key>
+									<string>Match special process names. By a convention that I'm making up, scope them as a type of variable</string>
+									<key>match</key>
+									<string>(?:self|last)(?=[\s;&amp;|)])</string>
+									<key>name</key>
+									<string>meta.string.unquoted.fish variable.language.fish</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#string</string>
+								</dict>
+							</array>
+						</dict>
+						<dict>
+							<key>comment</key>
+							<string>Arguments are otherwise made of strings, either quoted or unquoted. The unquoted string rule handles numerics, character escapes, command substitutions, and brace/variable/process expansions</string>
 							<key>include</key>
 							<string>#string</string>
 						</dict>
@@ -1498,55 +1537,6 @@
 							</array>
 						</dict>
 					</array>
-				</dict>
-				<dict>
-					<key>begin</key>
-					<string>(?&lt;=\[|\{|^|\s)\%</string>
-					<key>beginCaptures</key>
-					<dict>
-						<key>0</key>
-						<dict>
-							<key>name</key>
-							<string>punctuation.definition.process.fish</string>
-						</dict>
-					</dict>
-					<key>comment</key>
-					<string>Process expansion continues for the entire argument and can include anything but another process expansion</string>
-					<key>end</key>
-					<string>(?&lt;=.|\n)(?=[\s);&amp;|]|$)</string>
-					<key>name</key>
-					<string>meta.process-expansion.fish</string>
-					<key>patterns</key>
-					<array>
-						<dict>
-							<key>comment</key>
-							<string>Check if the unquoted string ends after either of these two words. They have special meaning, and though they aren't exactly variables, process expansion is fairly similar to variable expansion</string>
-							<key>match</key>
-							<string>(self|last)(?=\'|\"|\]|\}|\s|\)|[;&amp;|&lt;&gt;]|$)</string>
-							<key>name</key>
-							<string>variable.language.fish</string>
-						</dict>
-						<dict>
-							<key>include</key>
-							<string>#string</string>
-						</dict>
-					</array>
-				</dict>
-				<dict>
-					<key>captures</key>
-					<dict>
-						<key>0</key>
-						<dict>
-							<key>name</key>
-							<string>keyword.operator.tilde.fish</string>
-						</dict>
-					</dict>
-					<key>comment</key>
-					<string>Home directory expansion only occurs if the '~' is at the begin of the argument</string>
-					<key>match</key>
-					<string>(?&lt;=\[|\{|^|\s)\~</string>
-					<key>name</key>
-					<string>meta.home-directory-expansion.fish</string>
 				</dict>
 				<dict>
 					<key>captures</key>

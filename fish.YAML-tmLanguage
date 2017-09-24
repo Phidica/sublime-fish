@@ -17,6 +17,7 @@ patterns:
 # - constant.character.escape is used for \x?? and \0?? escape codes rather than constant.numeric.{hex,octal} because even though the user inputs a numeric value in hex or octal, the codes serve the purpose of making characters not numbers
 # - Individual arguments in function calls do not get the variable.parameter label because that swiftly becomes the overwhelming majority of all words in a program
 # - By analogy to the recommendation that `meta.function.php meta.function.parameters.php` should never occur, we use a single `meta.function-call` scope and name the argument scope `meta.argument` not `meta.function-call.argument`. Furthermore, a single `meta.function-call` scope continues from the first command name until the consumption of a ';', '&', or '\n'. The same scope continues through '|' because we have no other way to ensure that a command follows a '|'
+# - Every character outside of comments should be scoped as `meta.string.unquoted`, `string.quoted.single`, or `string.quoted.double`. Furthermore, there is no concept of an unquoted string inside a quoted string or vice-versa
 
 # To-do list:
 #! - Bugfix: Keywords that only work in loops or functions (eg, "continue", "return", etc) will be treated like standard commands if they are located within if-statements within those outer valid blocks. Without a scope stack, we'll have to treat them as always being keywords rather than trying to parse them for the user
@@ -29,15 +30,32 @@ patterns:
 repository:
   argument:
     patterns:
-      - name: meta.argument.fish
-        comment: An argument is a fundamental unit of a command call, defined as a sequence of non-control-operator characters separated by unescaped and unscoped whitespace
+      - comment: An argument is a fundamental unit of a command call, defined as a sequence of non-control-operator characters separated by unescaped and unscoped whitespace
+        name: meta.argument.fish
         begin: (?![\s;&|)])
         comment: Begin arg if it does not precede whitespace or a control operator (we assume that operators for comments or redirection are handled before this rule)
         end: (?=[\s;&|)<>])
         comment: End arg if it precedes whitespace or control operators (including stdin/stdout redirection but not stderr due to a fish quirk)
         patterns:
-          - comment: Arguments are made of strings, either quoted or unquoted. The unquoted string rule handles numerics, character escapes, command substitutions, and brace/variable/process expansions
-          - include: '#string'
+          - comment: Home directory expansion only occurs if the '~' is at the front of the argument
+            name: meta.string.unquoted.fish meta.home-directory-expansion.fish keyword.operator.tilde.fish
+            match: \~
+
+          - comment: Process expansion only occurs if the '%' is at the front of the argument, and continues for the entire argument
+            name: meta.process-expansion.fish
+            begin: \%
+            beginCaptures:
+              '0': {name: meta.string.unquoted.fish punctuation.definition.process.fish}
+            end: (?=[\s;&|)])
+            patterns:
+              - comment: Match special process names. By a convention that I'm making up, scope them as a type of variable
+                name: meta.string.unquoted.fish variable.language.fish
+                match: (?:self|last)(?=[\s;&|)])
+
+              - include: '#string'
+
+          - comment: Arguments are otherwise made of strings, either quoted or unquoted. The unquoted string rule handles numerics, character escapes, command substitutions, and brace/variable/process expansions
+            include: '#string'
 
   command-chain:
     patterns:
@@ -556,26 +574,6 @@ repository:
               - name: constant.character.escape.fish
                 match: \\\,
               - include: '#string-unquoted-patterns'
-
-      - name: meta.process-expansion.fish
-        begin: (?<=\[|\{|^|\s)\%
-        beginCaptures:
-          '0': {name: punctuation.definition.process.fish}
-        comment: Process expansion only occurs if the '%' is at the begin of the argument
-        end: (?<=.|\n)(?=[\s);&|]|$)
-        comment: Process expansion continues for the entire argument and can include anything but another process expansion
-        patterns:
-          - comment: Check if the unquoted string ends after either of these two words. They have special meaning, and though they aren't exactly variables, process expansion is fairly similar to variable expansion
-            name: variable.language.fish
-            match: (self|last)(?=\'|\"|\]|\}|\s|\)|[;&|<>]|$)
-
-          - include: '#string'
-
-      - name: meta.home-directory-expansion.fish
-        comment: Home directory expansion only occurs if the '~' is at the begin of the argument
-        match: (?<=\[|\{|^|\s)\~
-        captures:
-          '0': {name: keyword.operator.tilde.fish}
 
       - name: meta.wildcard-expansion.fish
         match: (\*\*)|(\*)|(\?)
