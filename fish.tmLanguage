@@ -43,11 +43,11 @@
 			<array>
 				<dict>
 					<key>begin</key>
-					<string>(?![\s;&amp;|)])</string>
+					<string>(?![\s;&amp;)|])</string>
 					<key>comment</key>
 					<string>End arg if it precedes whitespace or control operators (including stdin/stdout redirection but not stderr due to a fish quirk)</string>
 					<key>end</key>
-					<string>(?=[\s;&amp;|)&lt;&gt;])</string>
+					<string>(?=[\s;&amp;)|&lt;&gt;])</string>
 					<key>name</key>
 					<string>meta.argument.fish</string>
 					<key>patterns</key>
@@ -74,7 +74,7 @@
 							<key>comment</key>
 							<string>Process expansion only occurs if the '%' is at the front of the argument, and continues for the entire argument</string>
 							<key>end</key>
-							<string>(?=[\s;&amp;|)])</string>
+							<string>(?=[\s;&amp;)|])</string>
 							<key>name</key>
 							<string>meta.process-expansion.fish</string>
 							<key>patterns</key>
@@ -83,7 +83,7 @@
 									<key>comment</key>
 									<string>Match special process names. By a convention that I'm making up, scope them as a type of variable</string>
 									<key>match</key>
-									<string>(?:self|last)(?=[\s;&amp;|)])</string>
+									<string>(?:self|last)(?=[\s;&amp;)|])</string>
 									<key>name</key>
 									<string>meta.string.unquoted.fish variable.language.fish</string>
 								</dict>
@@ -113,7 +113,7 @@
 					<key>comment</key>
 					<string>The block begin command can be immediately followed by any legal command, however it could also take an option in which case it should be treated as a standard command</string>
 					<key>end</key>
-					<string>(?=[\n;&amp;|)])</string>
+					<string>(?=[\n;&amp;)|])</string>
 					<key>patterns</key>
 					<array>
 						<dict>
@@ -128,7 +128,7 @@
 								</dict>
 							</dict>
 							<key>end</key>
-							<string>(?=end[\s;&amp;|)])</string>
+							<string>(?=end[\s;&amp;)|])</string>
 							<key>name</key>
 							<string>meta.block.begin.fish</string>
 							<key>patterns</key>
@@ -141,7 +141,7 @@
 						</dict>
 						<dict>
 							<key>begin</key>
-							<string>(end)(?=[\s;&amp;|)])</string>
+							<string>(end)(?=[\s;&amp;)|])</string>
 							<key>beginCaptures</key>
 							<dict>
 								<key>1</key>
@@ -151,7 +151,7 @@
 								</dict>
 							</dict>
 							<key>end</key>
-							<string>(?=[\n;&amp;|)])</string>
+							<string>(?=[\n;&amp;)|])</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -633,7 +633,7 @@
 					<key>comment</key>
 					<string>A command can't begin with a process expansion operator (however the variable expansion operator '$' is allowed)</string>
 					<key>end</key>
-					<string>(?=[\s;&amp;|)])</string>
+					<string>(?=[\s;&amp;)|])</string>
 					<key>name</key>
 					<string>invalid.illegal.function-call.fish</string>
 					<key>patterns</key>
@@ -648,9 +648,9 @@
 					<key>begin</key>
 					<string>(?=\()</string>
 					<key>comment</key>
-					<string>A command can't begin with an open parenthesis (command substitution). We make sure to match all the way to [\n;&amp;|)] unless a close parenthesis is found, in which case we can stop at [\s;&amp;|)]</string>
+					<string>A command can't begin with an open parenthesis (command substitution). We make sure to match all the way to [\n;&amp;)|] unless a close parenthesis is found, in which case we can stop at [\s;&amp;)|]</string>
 					<key>end</key>
-					<string>(?=[\s;&amp;|)])</string>
+					<string>(?=[\s;&amp;)|])</string>
 					<key>name</key>
 					<string>invalid.illegal.function-call.fish</string>
 					<key>patterns</key>
@@ -659,7 +659,7 @@
 							<key>begin</key>
 							<string>\(</string>
 							<key>end</key>
-							<string>\)|(?=[\n;&amp;|)])</string>
+							<string>\)|(?=[\n;&amp;)|])</string>
 						</dict>
 					</array>
 				</dict>
@@ -693,7 +693,7 @@
 					<key>comment</key>
 					<string>Check if the command is a builtin which takes another command as arguments, ie, a meta command. Because these commands could take options or be backgrounded/piped -- in which case they do not behave as meta commands -- look ahead to ensure that no options or control operators are found. Note also that a meta command forces its argument to behave as a standard command</string>
 					<key>end</key>
-					<string>(?=[\n;&amp;|)])</string>
+					<string>(?=[\n;&amp;)|])</string>
 					<key>patterns</key>
 					<array>
 						<dict>
@@ -738,7 +738,17 @@
 					<key>comment</key>
 					<string>If this were a *.sublime-syntax then the aformentioned problems could be avoided. We could push the `meta.function-call.standard.fish` and `variable.function.fish` scopes onto the stack simultaneously, then use individual pattern matching on each type of string we find, and finally pop the `variable.function.fish` scope when unescaped whitespace is encountered (hence marking the end of the command name in the command call)</string>
 					<key>end</key>
-					<string>(?=\s*[\n;&amp;|)])</string>
+					<string>(?x)
+(?# Look ahead for control operations after whitespace)
+(?=\s*
+  (?:
+    (?# Find simple control operations)
+    [\n;&amp;)]
+  |
+    (?# Find piping)
+    (?:(?:[0-9]+)?(?:&lt;|&gt;|&gt;&gt;))?\|
+  )
+)</string>
 					<key>patterns</key>
 					<array>
 						<dict>
@@ -767,17 +777,17 @@
 			<array>
 				<dict>
 					<key>comment</key>
-					<string>Match an operator which cannot start a command chain (because they are consumed by the command chain when they appear further within it)</string>
+					<string>Match an operation which cannot start a command chain (because it is consumed by the command chain when it appears further within it). These are simple control operators and redirections (which conveniently also matches redirection-into-pipe)</string>
 					<key>match</key>
-					<string>(?:[&amp;|])</string>
+					<string>(?:[&amp;|]|(?:[0-9]+)?(?:&lt;|&gt;|&gt;&gt;))</string>
 					<key>name</key>
 					<string>invalid.illegal.operator.fish</string>
 				</dict>
 				<dict>
 					<key>comment</key>
-					<string>Match a command which acts as a unary operator on the command to the right. Neglect the match if it is taking the one valid option argument these commands accept</string>
+					<string>Match a command which acts as a unary operator on the command to the right. Neglect the match if it is taking the one valid option argument these commands accept. Allow the match if there is a scope-ending operation after the command name</string>
 					<key>match</key>
-					<string>(?:and|not|or)(?:(?!\s+(?:-h|--help))|(?=[;&amp;|)]))</string>
+					<string>(and|not|or)(?=\s+(?!-h|--help)|[;&amp;)|&lt;&gt;])</string>
 					<key>name</key>
 					<string>meta.function-call.fish keyword.operator.word.fish</string>
 				</dict>
@@ -785,7 +795,7 @@
 					<key>comment</key>
 					<string>Match a command which is illegal in the base scope</string>
 					<key>match</key>
-					<string>(?:case|else|end)(?=[\s;&amp;|)])</string>
+					<string>(?:case|else|end)(?=[\s;&amp;)|&lt;&gt;])</string>
 					<key>name</key>
 					<string>invalid.illegal.function-call.fish</string>
 				</dict>
@@ -793,15 +803,20 @@
 					<key>begin</key>
 					<string>(?=\S)</string>
 					<key>comment</key>
-					<string>Anonymous scope - Command chain. Define a command chain as either one command call, or multiple command calls linked by pipes '|'. The chain terminates at the first encounter of any other control operator (newline, ';', '&amp;') or the implied newline of the closing parenthesis of a command substitution</string>
+					<string>Anonymous scope - Command chain. Define a command chain as either one command call, or multiple command calls linked by piping ('|', '2&gt;|', etc). The chain terminates at the first encounter of any other control operator (newline, ';', '&amp;') or the implied newline of the closing parenthesis of a command substitution</string>
 					<key>end</key>
-					<string>\n|([;&amp;])|(?=\))</string>
+					<string>(\s*)(?:\n|([;&amp;])|(?=\)))</string>
 					<key>endCaptures</key>
 					<dict>
 						<key>1</key>
 						<dict>
 							<key>name</key>
-							<string>meta.function-call.fish keyword.operator.fish</string>
+							<string>meta.function-call.fish</string>
+						</dict>
+						<key>2</key>
+						<dict>
+							<key>name</key>
+							<string>meta.function-call.operator.fish keyword.operator.fish</string>
 						</dict>
 					</dict>
 					<key>patterns</key>
@@ -810,9 +825,9 @@
 							<key>begin</key>
 							<string>\)</string>
 							<key>comment</key>
-							<string>A command can't begin with a close parenthesis. We have to try and match this immediately because the command chain scope will end if the close parenthesis is found by the lookahead</string>
+							<string>A command can't begin with a close parenthesis. We have to try and match this immediately because the command chain scope will end if the close parenthesis is found by the lookahead. Ideally command-call-standard would take care of this because the strings which follow are scoped as arguments</string>
 							<key>end</key>
-							<string>(?=[\s;&amp;|)])</string>
+							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
 							<key>name</key>
 							<string>meta.function-call.fish invalid.illegal.function-call.fish</string>
 						</dict>
@@ -820,18 +835,28 @@
 							<key>begin</key>
 							<string>(?=\S)</string>
 							<key>comment</key>
-							<string>Match one command, which may start with a pipe. If it does, perform checks to ensure it is valid. A command call ends at any control operator with the addition of the pipe '|'</string>
+							<string>Match one command, which may start with any non-whitespace character. If it starts with piping however, perform checks to ensure it is valid. A command call ends at any control operation including piping</string>
 							<key>end</key>
-							<string>(?=\s*[\n;&amp;|)])</string>
+							<string>(?x)
+(?# Look ahead for control operations after whitespace)
+(?=\s*
+  (?:
+    (?# Find simple control operations)
+    [\n;&amp;)]
+  |
+    (?# Find piping)
+    (?:(?:[0-9]+)?(?:&lt;|&gt;|&gt;&gt;))?\|
+  )
+)</string>
 							<key>name</key>
 							<string>meta.function-call.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
 									<key>comment</key>
-									<string>If there's no command call after the pipe and the command chain would end quietly, then mark the pipe invalid. We can't lookahead to find a close parenthesis because we want that close parenthesis to be caught and marked invalid. The downside is that this means a pipe at the end of the inside of a command substitution will not be marked invalid, but it turns out the fish parser doesn't do that either!</string>
+									<string>We can't lookahead to find a close parenthesis because we want that close parenthesis to be caught and marked invalid. The downside is that this means a pipe at the end of the inside of a command substitution will not be marked invalid, but it turns out the fish parser doesn't do that either!</string>
 									<key>match</key>
-									<string>\|(?=\s*\n)</string>
+									<string>(?:(?:[0-9]+)?(?:&lt;|&gt;|&gt;&gt;))?\|(?=\s*\n)</string>
 									<key>name</key>
 									<string>invalid.illegal.operator.fish</string>
 								</dict>
@@ -841,9 +866,19 @@
 										<key>1</key>
 										<dict>
 											<key>name</key>
-											<string>keyword.operator.fish</string>
+											<string>meta.pipe.fish constant.numeric.file-descriptor.fish</string>
 										</dict>
 										<key>2</key>
+										<dict>
+											<key>name</key>
+											<string>meta.pipe.fish keyword.operator.redirect.fish</string>
+										</dict>
+										<key>3</key>
+										<dict>
+											<key>name</key>
+											<string>meta.pipe.fish keyword.operator.pipe.fish</string>
+										</dict>
+										<key>4</key>
 										<dict>
 											<key>name</key>
 											<string>invalid.illegal.function-call.fish</string>
@@ -852,13 +887,47 @@
 									<key>comment</key>
 									<string>If there's no command call after the pipe and the command chain would end with an operator, then mark the next control operator (and beyond) as invalid</string>
 									<key>match</key>
-									<string>(\|)\s*(?=[;&amp;|])(.*)$</string>
+									<string>(?x)
+(?# Consume valid piping; groups 1 2 3)
+(?:([0-9]+)?(&lt;|&gt;|&gt;&gt;))?(\|)
+(?# Consume whitespace)
+\s*
+(?# Look ahead for control operations)
+(?=
+  (?:
+    (?# Find simple control operations)
+    [;&amp;]
+  |
+    (?# Find piping)
+    (?:(?:[0-9]+)?(?:&lt;|&gt;|&gt;&gt;))?\|
+  )
+)
+(?# Consume control operations and beyond; group 4)
+(.*)$</string>
 								</dict>
 								<dict>
+									<key>captures</key>
+									<dict>
+										<key>1</key>
+										<dict>
+											<key>name</key>
+											<string>constant.numeric.file-descriptor.fish</string>
+										</dict>
+										<key>2</key>
+										<dict>
+											<key>name</key>
+											<string>keyword.operator.redirect.fish</string>
+										</dict>
+										<key>3</key>
+										<dict>
+											<key>name</key>
+											<string>keyword.operator.pipe.fish</string>
+										</dict>
+									</dict>
 									<key>match</key>
-									<string>\|</string>
+									<string>(?:([0-9]+)?(&lt;|&gt;|&gt;&gt;))?(\|)</string>
 									<key>name</key>
-									<string>keyword.operator.fish</string>
+									<string>meta.pipe.fish</string>
 								</dict>
 								<dict>
 									<key>comment</key>
@@ -1071,7 +1140,7 @@
 						</dict>
 						<dict>
 							<key>match</key>
-							<string>(?:[0-9]+)(?=[\s;&amp;|)&lt;&gt;'"]|\]|\.\.)</string>
+							<string>(?:[0-9]+)(?=[\s;&amp;)|&lt;&gt;'"]|\]|\.\.)</string>
 							<key>name</key>
 							<string>meta.string.unquoted.fish constant.numeric.fish</string>
 						</dict>
@@ -1081,7 +1150,7 @@
 							<key>comment</key>
 							<string>Begin/end string as before with the addition of breaking at a ']' or ".."</string>
 							<key>end</key>
-							<string>(?=[\s;&amp;|)&lt;&gt;'"]|\]|\.\.)</string>
+							<string>(?=[\s;&amp;)|&lt;&gt;'"]|\]|\.\.)</string>
 							<key>name</key>
 							<string>meta.string.unquoted.fish</string>
 							<key>patterns</key>
@@ -1168,17 +1237,17 @@
 						<key>2</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.operator.redirection.fish</string>
+							<string>keyword.operator.redirect.fish</string>
 						</dict>
 						<key>3</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.operator.redirection.fish</string>
+							<string>keyword.operator.redirect.fish</string>
 						</dict>
 						<key>4</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.operator.redirection.dereference.fish</string>
+							<string>keyword.operator.redirect.dereference.fish</string>
 						</dict>
 					</dict>
 					<key>comment</key>
@@ -1223,7 +1292,7 @@
 							<key>match</key>
 							<string>(?:-)(?=[\s);&amp;|&lt;&gt;])</string>
 							<key>name</key>
-							<string>keyword.operator.redirection.close.fish</string>
+							<string>keyword.operator.redirect.close.fish</string>
 						</dict>
 						<dict>
 							<key>comment</key>
@@ -1248,17 +1317,17 @@
 						<key>2</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.operator.redirection.fish</string>
+							<string>keyword.operator.redirect.fish</string>
 						</dict>
 						<key>3</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.operator.redirection.fish</string>
+							<string>keyword.operator.redirect.fish</string>
 						</dict>
 						<key>4</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.operator.redirection.clobber-test.fish</string>
+							<string>keyword.operator.redirect.clobber-test.fish</string>
 						</dict>
 					</dict>
 					<key>comment</key>
@@ -1423,7 +1492,7 @@
 					<key>comment</key>
 					<string>Treat a sequence of integers (with possible decimal separator) as a standalone constant</string>
 					<key>match</key>
-					<string>(?:[0-9\.]+)(?=[\s;&amp;|)&lt;&gt;'"])</string>
+					<string>(?:[0-9\.]+)(?=[\s;&amp;)|&lt;&gt;'"])</string>
 					<key>name</key>
 					<string>meta.string.unquoted.fish constant.numeric.fish</string>
 				</dict>
@@ -1433,7 +1502,7 @@
 					<key>comment</key>
 					<string>End unquoted string at whitespace, control operators, or quoted strings</string>
 					<key>end</key>
-					<string>(?=[\s;&amp;|)&lt;&gt;'"])</string>
+					<string>(?=[\s;&amp;)|&lt;&gt;'"])</string>
 					<key>name</key>
 					<string>meta.string.unquoted.fish</string>
 					<key>patterns</key>
@@ -1521,7 +1590,7 @@
 						</dict>
 						<dict>
 							<key>match</key>
-							<string>(?:[0-9\.]+)(?=[\s;&amp;|)&lt;&gt;'"]|\}|\,)</string>
+							<string>(?:[0-9\.]+)(?=[\s;&amp;)|&lt;&gt;'"]|\}|\,)</string>
 							<key>name</key>
 							<string>meta.string.unquoted.fish constant.numeric.fish</string>
 						</dict>
@@ -1531,7 +1600,7 @@
 							<key>comment</key>
 							<string>Begin/end string as before with the addition of breaking at a '}' or ','</string>
 							<key>end</key>
-							<string>(?=[\s;&amp;|)&lt;&gt;'"]|\}|\,)</string>
+							<string>(?=[\s;&amp;)|&lt;&gt;'"]|\}|\,)</string>
 							<key>name</key>
 							<string>meta.string.unquoted.fish</string>
 							<key>patterns</key>

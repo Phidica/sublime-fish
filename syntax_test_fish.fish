@@ -278,12 +278,12 @@ echo one ^&2 two three3>&4 four 5>& \
 #!                              ^ constant.numeric.file-descriptor
 #!                               ^^ keyword.operator
   - six 7<&->out.log 2> &1
-#!^ keyword.operator.redirection.close
+#!^ keyword.operator.redirect.close
 #!  ^^^ meta.argument
 #!      ^^^^ meta.redirection
 #!      ^ constant.numeric.file-descriptor
 #!       ^^ keyword.operator
-#!         ^ keyword.operator.redirection.close
+#!         ^ keyword.operator.redirect.close
 #!          ^^^^^^^^ meta.redirection
 #!          ^ keyword.operator
 #!           ^^^^^^^ meta.path
@@ -440,6 +440,20 @@ arg
 
 | cat
 #! <- invalid.illegal.operator
+#! ^^ variable.function
+
+2>echo; 2>&>&|>&>|echo
+#! <- invalid.illegal.operator
+#! ^^^ variable.function
+#!      ^^^^^^^^^^ invalid.illegal.operator
+#!                ^^^^ variable.function
+
+make fish 2>| less
+#!        ^^^ meta.pipe
+#!        ^ constant.numeric.file-descriptor
+#!         ^ keyword.operator.redirect
+#!          ^ keyword.operator.pipe
+#!            ^^^^ variable.function
 
 echo (echo arg |) | cat
 #!             ^ meta.function-call meta.function-call keyword.operator
@@ -461,12 +475,19 @@ not echo arg | | arg ; # comment
 #!           ^ meta.function-call keyword.operator
 #!             ^^^^^^^^^^^^^^^^^ meta.function-call invalid.illegal.function-call
 
+echo out 1>|
+#!       ^^^ invalid.illegal.operator
+
+echo out >| 9>|
+#!       ^^ meta.pipe
+#!          ^^^ invalid.illegal.function-call
+
 and and | cat
 #! <- meta.function-call keyword.operator.word
 #!  ^^^ meta.function-call keyword.operator.word
 #!      ^ invalid.illegal.operator
 
-and|cat
+and>cat
 #! <- meta.function-call keyword.operator.word
 #! ^ invalid.illegal.operator
 #!  ^^^ meta.function-call variable.function
@@ -620,7 +641,8 @@ echo %self foo %(set foo "fi"; echo $foo)sh "bar"
 #!              ^^^^^^^^^^^^^^^^^^^^^^^^^ meta.parens.command-substitution
 #!                                       ^^ meta.process-expansion
 #!                                          ^^^^^ string.quoted
-
+echo "ec\
+ho"
 echo $var(echo str{$arg}str "{$var}")$var"str"$var
 #!   ^^^^ variable.other
 #!                 ^^^^ variable.other
