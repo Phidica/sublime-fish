@@ -43,11 +43,11 @@
 			<array>
 				<dict>
 					<key>begin</key>
-					<string>(?![\s;&amp;)|])</string>
+					<string>(?![\s;&amp;)|&lt;&gt;])</string>
 					<key>comment</key>
-					<string>End arg if it precedes whitespace or control operators (including stdin/stdout redirection but not stderr due to a fish quirk)</string>
+					<string>End arg if it precedes whitespace or control operators (including stdin/stdout redirection but not stderr due to a fish quirk), or an escaped newline (which line-continuation should take care of)</string>
 					<key>end</key>
-					<string>(?=[\s;&amp;)|&lt;&gt;])</string>
+					<string>(?=[\s;&amp;)|&lt;&gt;])|(?=\\\n)</string>
 					<key>name</key>
 					<string>meta.argument.fish</string>
 					<key>patterns</key>
@@ -156,7 +156,7 @@
 							<array>
 								<dict>
 									<key>include</key>
-									<string>#comment-internal-full</string>
+									<string>#line-continuation</string>
 								</dict>
 								<dict>
 									<key>include</key>
@@ -291,12 +291,12 @@
 							<key>patterns</key>
 							<array>
 								<dict>
-									<key>include</key>
-									<string>#comment-internal-full</string>
-								</dict>
-								<dict>
 									<key>comment</key>
 									<string>Treat the varname like an argument</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#line-continuation</string>
 								</dict>
 								<dict>
 									<key>include</key>
@@ -321,7 +321,7 @@
 							<array>
 								<dict>
 									<key>include</key>
-									<string>#comment-internal-full</string>
+									<string>#line-continuation</string>
 								</dict>
 								<dict>
 									<key>include</key>
@@ -398,7 +398,7 @@
 							<array>
 								<dict>
 									<key>include</key>
-									<string>#comment-internal-full</string>
+									<string>#line-continuation</string>
 								</dict>
 								<dict>
 									<key>include</key>
@@ -450,7 +450,7 @@
 									<array>
 										<dict>
 											<key>include</key>
-											<string>#comment-internal-full</string>
+											<string>#line-continuation</string>
 										</dict>
 										<dict>
 											<key>include</key>
@@ -470,7 +470,7 @@
 						</dict>
 						<dict>
 							<key>include</key>
-							<string>#comment-internal-full</string>
+							<string>#comment-external</string>
 						</dict>
 					</array>
 				</dict>
@@ -548,10 +548,6 @@
 										</dict>
 										<dict>
 											<key>include</key>
-											<string>#comment-internal-full</string>
-										</dict>
-										<dict>
-											<key>include</key>
 											<string>#comment-internal-end</string>
 										</dict>
 									</array>
@@ -562,7 +558,7 @@
 								</dict>
 								<dict>
 									<key>include</key>
-									<string>#comment-internal-full</string>
+									<string>#line-continuation</string>
 								</dict>
 								<dict>
 									<key>include</key>
@@ -601,7 +597,7 @@
 							<array>
 								<dict>
 									<key>include</key>
-									<string>#comment-internal-full</string>
+									<string>#line-continuation</string>
 								</dict>
 								<dict>
 									<key>include</key>
@@ -702,10 +698,6 @@
 						</dict>
 						<dict>
 							<key>include</key>
-							<string>#comment-internal-full</string>
-						</dict>
-						<dict>
-							<key>include</key>
 							<string>#command-call-block</string>
 						</dict>
 						<dict>
@@ -726,23 +718,15 @@
 			<array>
 				<dict>
 					<key>begin</key>
-					<string>(?:\'(?:\\[\'\\]|[^\'\\])*\'|\"(?:\\[\"$\n\\]|[^\"$\n\\])*\"|(?:\\[abefnrtv $\\*?#(){}\[\]&lt;&gt;^&amp;;|"']|(?&lt;=^|\s)\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]|[^\s\\*?~%#()&lt;&gt;&amp;|;"']|\\(?=[^abefnrtv\s$\\*?#(){}\[\]&lt;&gt;^&amp;;|"'xXuUc])|(?&lt;=\S|\\ )\\\n|(?&lt;=\S|\\ )[~%#])+)+</string>
-					<key>beginCaptures</key>
-					<dict>
-						<key>0</key>
-						<dict>
-							<key>name</key>
-							<string>variable.function.fish</string>
-						</dict>
-					</dict>
+					<string>(?=\S)</string>
 					<key>comment</key>
-					<string>If this were a *.sublime-syntax then the aformentioned problems could be avoided. We could push the `meta.function-call.standard.fish` and `variable.function.fish` scopes onto the stack simultaneously, then use individual pattern matching on each type of string we find, and finally pop the `variable.function.fish` scope when unescaped whitespace is encountered (hence marking the end of the command name in the command call)</string>
+					<string>Anonymous scope - A complete command comprising a name element and optional argument, redirection, and comment elements</string>
 					<key>end</key>
 					<string>(?x)
-(?# Look ahead for control operations after whitespace)
-(?=\s*
+(?# Look ahead for control operations)
+(?=
   (?:
-    (?# Find simple control operations)
+    (?# Find control operations)
     [\n;&amp;)]
   |
     (?# Find piping)
@@ -752,20 +736,70 @@
 					<key>patterns</key>
 					<array>
 						<dict>
-							<key>include</key>
-							<string>#comment-internal-full</string>
+							<key>begin</key>
+							<string>(?=\S)</string>
+							<key>comment</key>
+							<string>Anonymous scope - A name element</string>
+							<key>end</key>
+							<string>(?x)
+(?# Look ahead for whitespace or control operations)
+(?=
+  (?:
+    (?# Find whitespace or simple control operations)
+    [\s;&amp;)]
+  |
+    (?# Find piping)
+    (?:(?:[0-9]+)?(?:&lt;|&gt;|&gt;&gt;))?\|
+  )
+)</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>comment</key>
+									<string>If this were a *.sublime-syntax then the aformentioned problems could be avoided. We could push the `meta.function-call.standard.fish` and `variable.function.fish` scopes onto the stack simultaneously, then use individual pattern matching on each type of string we find, and finally pop the `variable.function.fish` scope when unescaped whitespace is encountered (hence marking the end of the command name in the command call)</string>
+									<key>match</key>
+									<string>(?:\'(?:\\[\'\\]|[^\'\\])*\'|\"(?:\\[\"$\n\\]|[^\"$\n\\])*\"|(?:\\[abefnrtv $\\*?#(){}\[\]&lt;&gt;^&amp;;|"']|(?&lt;=^|\s)\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]|[^\s\\*?~%#()&lt;&gt;&amp;|;"']|\\(?=[^abefnrtv\s$\\*?#(){}\[\]&lt;&gt;^&amp;;|"'xXuUc])|(?&lt;=\S|\\ )\\\n|(?&lt;=\S|\\ )[~%#])+)+</string>
+									<key>name</key>
+									<string>variable.function.fish</string>
+								</dict>
+							</array>
 						</dict>
 						<dict>
-							<key>include</key>
-							<string>#comment-internal-end</string>
-						</dict>
-						<dict>
-							<key>include</key>
-							<string>#redirection</string>
-						</dict>
-						<dict>
-							<key>include</key>
-							<string>#argument</string>
+							<key>begin</key>
+							<string>\s+</string>
+							<key>comment</key>
+							<string>Anonymous scope - An argument, redirection, or comment element</string>
+							<key>end</key>
+							<string>(?x)
+(?# Look ahead for control operations)
+(?=\s*
+  (?:
+    (?# Find control operations)
+    [\n;&amp;)]
+  |
+    (?# Find piping)
+    (?:(?:[0-9]+)?(?:&lt;|&gt;|&gt;&gt;))?\|
+  )
+)</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>#line-continuation</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#comment-internal-end</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#redirection</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#argument</string>
+								</dict>
+							</array>
 						</dict>
 					</array>
 				</dict>
@@ -943,10 +977,6 @@
 								</dict>
 								<dict>
 									<key>include</key>
-									<string>#comment-internal-full</string>
-								</dict>
-								<dict>
-									<key>include</key>
 									<string>#command-call-check-commands</string>
 								</dict>
 								<dict>
@@ -1041,7 +1071,7 @@
 					<key>end</key>
 					<string>\n</string>
 					<key>name</key>
-					<string>comment.line.fish</string>
+					<string>comment.line.external.fish</string>
 				</dict>
 			</array>
 		</dict>
@@ -1065,31 +1095,7 @@
 					<key>end</key>
 					<string>(?=\n)</string>
 					<key>name</key>
-					<string>comment.line.fish</string>
-				</dict>
-			</array>
-		</dict>
-		<key>comment-internal-full</key>
-		<dict>
-			<key>patterns</key>
-			<array>
-				<dict>
-					<key>begin</key>
-					<string>^\s*\#</string>
-					<key>beginCaptures</key>
-					<dict>
-						<key>0</key>
-						<dict>
-							<key>name</key>
-							<string>punctuation.definition.comment.fish</string>
-						</dict>
-					</dict>
-					<key>comment</key>
-					<string>A full line comment inside of a command call that used a line continuation. Consumes the newline, thus hiding the entire comment from the command call scope</string>
-					<key>end</key>
-					<string>\n</string>
-					<key>name</key>
-					<string>comment.line.fish</string>
+					<string>comment.line.internal.end.fish</string>
 				</dict>
 			</array>
 		</dict>
@@ -1142,17 +1148,15 @@
 							<key>match</key>
 							<string>(?:[0-9]+)(?=[\s;&amp;)|&lt;&gt;'"]|\]|\.\.)</string>
 							<key>name</key>
-							<string>meta.string.unquoted.fish constant.numeric.fish</string>
+							<string>constant.numeric.fish</string>
 						</dict>
 						<dict>
 							<key>begin</key>
-							<string>(?!['"]|\.\.)</string>
+							<string>(?![\s'"]|\.\.)</string>
 							<key>comment</key>
 							<string>Begin/end string as before with the addition of breaking at a ']' or ".."</string>
 							<key>end</key>
 							<string>(?=[\s;&amp;)|&lt;&gt;'"]|\]|\.\.)</string>
-							<key>name</key>
-							<string>meta.string.unquoted.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -1167,15 +1171,42 @@
 		</dict>
 		<key>line-continuation</key>
 		<dict>
+			<key>comment</key>
+			<string>This rule should be included anywhere that escaping a newline and adding an arbitrary number of comment lines is permitted (which is pretty much everywhere in fish)</string>
 			<key>patterns</key>
 			<array>
 				<dict>
+					<key>begin</key>
+					<string>(?=\\\n)</string>
 					<key>comment</key>
-					<string>This match should be used anywhere line continuation is valid and the newline should be consumed, including cases where it comes alone on a line</string>
-					<key>match</key>
-					<string>\\\n</string>
-					<key>name</key>
-					<string>constant.character.escape</string>
+					<string>End when the first character of a line isn't whitespace or a comment character, or if the next character after some consumed whitespace isn't more whitespace or a comment character</string>
+					<key>end</key>
+					<string>^(?![\s\#])|\s(?![\s\#])</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>match</key>
+							<string>\\\n</string>
+							<key>name</key>
+							<string>constant.character.escape</string>
+						</dict>
+						<dict>
+							<key>begin</key>
+							<string>\#</string>
+							<key>beginCaptures</key>
+							<dict>
+								<key>0</key>
+								<dict>
+									<key>name</key>
+									<string>punctuation.definition.comment.fish</string>
+								</dict>
+							</dict>
+							<key>end</key>
+							<string>\n</string>
+							<key>name</key>
+							<string>comment.line.continuation.fish</string>
+						</dict>
+					</array>
 				</dict>
 			</array>
 		</dict>
@@ -1263,14 +1294,6 @@
 							<string>#line-continuation</string>
 						</dict>
 						<dict>
-							<key>include</key>
-							<string>#comment-internal-full</string>
-						</dict>
-						<dict>
-							<key>include</key>
-							<string>#comment-internal-end</string>
-						</dict>
-						<dict>
 							<key>comment</key>
 							<string>Evaluates to a string which may be an integer</string>
 							<key>include</key>
@@ -1341,14 +1364,6 @@
 						<dict>
 							<key>include</key>
 							<string>#line-continuation</string>
-						</dict>
-						<dict>
-							<key>include</key>
-							<string>#comment-internal-full</string>
-						</dict>
-						<dict>
-							<key>include</key>
-							<string>#comment-internal-end</string>
 						</dict>
 						<dict>
 							<key>comment</key>
@@ -1462,15 +1477,9 @@
 					<array>
 						<dict>
 							<key>comment</key>
-							<string>\&lt;newline&gt; is accepted</string>
-							<key>include</key>
-							<string>#line-continuation</string>
-						</dict>
-						<dict>
-							<key>comment</key>
-							<string>Additional accepted escapes are \", \\, and \$</string>
+							<string>Additional accepted escapes are \\\n, \", \\, and \$</string>
 							<key>match</key>
-							<string>\\[\"\\$]</string>
+							<string>\\[\n\"\\$]</string>
 							<key>name</key>
 							<string>constant.character.escape.fish</string>
 						</dict>
@@ -1490,7 +1499,7 @@
 			<array>
 				<dict>
 					<key>comment</key>
-					<string>Treat a sequence of integers (with possible decimal separator) as a standalone constant</string>
+					<string>Treat a sequence of integers (with possible decimal separator) as a standalone constant. Do this separate to string-unquoted-pattens so we can ensure it is a string solely of numbers</string>
 					<key>match</key>
 					<string>(?:[0-9\.]+)(?=[\s;&amp;)|&lt;&gt;'"])</string>
 					<key>name</key>
@@ -1500,9 +1509,9 @@
 					<key>begin</key>
 					<string>(?!['"])</string>
 					<key>comment</key>
-					<string>End unquoted string at whitespace, control operators, or quoted strings</string>
+					<string>End unquoted string at whitespace, control operators, quoted strings, an upcoming escaped newline, or if it has reached the start of a new line which is commented (see complimentary check in the end match of the argument rule)</string>
 					<key>end</key>
-					<string>(?=[\s;&amp;)|&lt;&gt;'"])</string>
+					<string>(?=[\s;&amp;)|&lt;&gt;'"])|(?=\\\n)</string>
 					<key>name</key>
 					<string>meta.string.unquoted.fish</string>
 					<key>patterns</key>
@@ -1521,18 +1530,6 @@
 			<string>Describe contents of an unquoted string separately for ease of recursion</string>
 			<key>patterns</key>
 			<array>
-				<dict>
-					<key>comment</key>
-					<string>Allow an escaped newline partway through an unquoted string, and let full line comments follow it. It is very difficult to make the unquoted string scope and immediately after an escaped newline without using a lookbehind, so we settle instead for the odd concept of scoping such a comment as if it was part of the unquoted string</string>
-				</dict>
-				<dict>
-					<key>include</key>
-					<string>#line-continuation</string>
-				</dict>
-				<dict>
-					<key>include</key>
-					<string>#comment-internal-full</string>
-				</dict>
 				<dict>
 					<key>include</key>
 					<string>#command-substitution</string>
@@ -1592,17 +1589,15 @@
 							<key>match</key>
 							<string>(?:[0-9\.]+)(?=[\s;&amp;)|&lt;&gt;'"]|\}|\,)</string>
 							<key>name</key>
-							<string>meta.string.unquoted.fish constant.numeric.fish</string>
+							<string>constant.numeric.fish</string>
 						</dict>
 						<dict>
 							<key>begin</key>
-							<string>(?!['"])</string>
+							<string>(?![\s'"])</string>
 							<key>comment</key>
 							<string>Begin/end string as before with the addition of breaking at a '}' or ','</string>
 							<key>end</key>
 							<string>(?=[\s;&amp;)|&lt;&gt;'"]|\}|\,)</string>
-							<key>name</key>
-							<string>meta.string.unquoted.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>

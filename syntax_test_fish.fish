@@ -81,11 +81,13 @@ echo arg
 
 echo ar\
 # comment
+ # comment
+  # comment
 g
 #! <- meta.string.unquoted
 
 echo str\
-#!   ^^^^^ meta.string.unquoted
+#!   ^^^ meta.string.unquoted
 #!      ^^ constant.character.escape
 ing # comment
 #! <- meta.string.unquoted
@@ -120,6 +122,13 @@ arg arg # comment
 #!  ^^^ meta.function-call meta.argument
 #!      ^ comment.line
 
+echo arg \
+  # comment
+#! ^^^^^^^^ comment.line
+  arg # comment
+#! ^^ meta.argument
+#!    ^^^^^^^^^ comment.line
+
 echo arg (echo "inner" arg) outer arg
 #!       ^^^^^^^^^^^^^^^^^^ meta.parens.command-substitution
 #!       ^ punctuation.section.parens.begin
@@ -147,10 +156,10 @@ f'\''o"\$\\"o\ \|\$\*b\?\%a\#\(r\) arg
 #! ^^ variable.function
 
 # Some valid function names are very strange
-\ \
+\ \  arg
 #! <- variable.function
-  arg
-#! ^^ meta.argument
+#! ^ variable.function
+#!   ^^^ meta.argument
 
 '\'\\'"\"\$\\"\a\b\e\f\n\r\t\v\ \$\\\*\?~\~%\%#\#\(\)\{\}\[\]\<\>^\^\&\|\;\"\'\x0a\X1b\01\u3ccc\U4dddeeee\c?
 #! ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ variable.function
@@ -336,10 +345,6 @@ echo &
 echo ( # comment
 #!     ^^^^^^^^^ comment.line
 )
-
-echo arg \
-# comment
-a
 
 echo foo(echo -e nar\nbar)[2] f(echo oo)\[bar]
 #!      ^^^^^^^^^^^^^^^^^^ meta.parens.command-substitution
@@ -896,7 +901,7 @@ function '$cmd$'; echo $argv; end; $cmd$ arg1 arg2
 
 begin
   echo arg end
-end 2>&1 | cat
+end >&1 | cat
 
 begin; echo yes end | end ;
 end
