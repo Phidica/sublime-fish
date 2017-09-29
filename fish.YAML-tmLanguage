@@ -32,7 +32,7 @@ repository:
     patterns:
       - comment: An argument is a fundamental unit of a command call, defined as a sequence of non-control-operator characters separated by unescaped and unscoped whitespace
         name: meta.argument.fish
-        begin: (?![\s;&)|<>])
+        begin: (?![\s;&)|<>^])
         comment: Begin arg if it does not precede whitespace or a control operator
         end: (?=[\s;&)|<>])|(?=\\\n)
         comment: End arg if it precedes whitespace or control operators (including stdin/stdout redirection but not stderr due to a fish quirk), or an escaped newline (which line-continuation should take care of)
@@ -54,7 +54,7 @@ repository:
 
               - include: '#string'
 
-          - comment: Arguments are otherwise made of strings, either quoted or unquoted. The unquoted string rule handles numerics, character escapes, command substitutions, and brace/variable/process expansions
+          - comment: Arguments are otherwise made of strings, either quoted or unquoted. The unquoted string rule handles numerics, character escapes, command substitutions, and brace/variable/process expansions. These scopes consume the remainder of the argument
             include: '#string'
 
   command-chain:
@@ -72,7 +72,7 @@ repository:
         match: (?:case|else|end)(?=[\s;&)|<>])
 
       - comment: Anonymous scope - Command chain. Define a command chain as either one command call, or multiple command calls linked by piping ('|', '2>|', etc). The chain terminates at the first encounter of any other control operator (newline, ';', '&') or the implied newline of the closing parenthesis of a command substitution
-        # name: command-chain
+        # name: anon-command-chain
         begin: (?=\S)
         end: (\s*)(?:\n|([;&])|(?=\)))
         endCaptures:
@@ -99,7 +99,6 @@ repository:
                   (?:(?:[0-9]+)?(?:<|>|>>))?\|
                 )
               )
-
             patterns:
               - comment: If there's no command call after the pipe and the command chain would end quietly, then mark the pipe invalid
                 comment: We can't lookahead to find a close parenthesis because we want that close parenthesis to be caught and marked invalid. The downside is that this means a pipe at the end of the inside of a command substitution will not be marked invalid, but it turns out the fish parser doesn't do that either!
@@ -143,33 +142,9 @@ repository:
                 match: (?:[<>^])
 
               - include: '#line-continuation'
-              - include: '#command-call-check-commands'
               - include: '#command-call-meta'
               - include: '#command-call-block'
               - include: '#command-call-standard'
-
-  command-call-check-commands:
-    comment: The first two should really be handled by command-call-standard, because the strings after the failed command name are highlighted as args by fish. Then, the third could be standalone in command-chain
-    patterns:
-      - comment: A command can't begin with a process expansion operator (however the variable expansion operator '$' is allowed)
-        name: invalid.illegal.function-call.fish
-        begin: \%
-        end: (?=[\s;&)|])
-        patterns:
-          - include: '#string'
-
-      - comment: A command can't begin with an open parenthesis (command substitution). We make sure to match all the way to [\n;&)|] unless a close parenthesis is found, in which case we can stop at [\s;&)|]
-        name: invalid.illegal.function-call.fish
-        begin: (?=\()
-        end: (?=[\s;&)|])
-        patterns:
-          - begin: \(
-            end: \)|(?=[\n;&)|])
-
-      - comment: A command can't be a comment, but this match should only be met when the command is first after a pipe
-        name: invalid.illegal.function-call.fish
-        begin: \#
-        end: (?=[\n)])
 
   command-call-meta:
     patterns:
@@ -181,7 +156,6 @@ repository:
         patterns:
           - include: '#line-continuation'
           - include: '#command-call-block'
-          - include: '#command-call-check-commands'
           - include: '#command-call-standard'
 
   command-call-block:
@@ -353,7 +327,13 @@ repository:
           - include: '$self'
 
   command-call-standard:
+    comment: Check if the command is any other legal command, ie, a standard command
     patterns:
+      - comment: A command call can't be a comment, but this match will only be satisfied if the command is first after a pipe because comments are otherwise consumed earlier
+        name: invalid.illegal.function-call.fish
+        begin: \#
+        end: (?=[\n)])
+
       - comment: Anonymous scope - A complete command comprising a name element and optional argument, redirection, and comment elements
         begin: (?=\S)
         end: |-
@@ -370,35 +350,52 @@ repository:
           )
         patterns:
           - comment: Anonymous scope - A name element
-            begin: (?=\S)
+            begin: (?![\s()<>^%])
+            end: (?=[\s;&)|<>])
+            patterns:
+              - comment: Match an escaped newline in the command name but don't use line-continuation because comments aren't allowed
+                name: constant.character.escape.fish
+                match: \\\n
+
+              - name: variable.function.fish
+                begin: (?!\s)
+                end: (?=[\s;&)|<>]|\\\n)
+                patterns:
+                  - comment: In fish, commands can be called using any arbitrary combination of quoted and unquoted strings. All string matches are valid in command names, even the wildcard expansion!
+                  - include: '#string'
+
+          - comment: A command name can't contain a command substitution. We match the whole line if no closing parenthesis is found, or until the end of the command name if the command substitution gets closed
+            name: invalid.illegal.function-call.fish
+            begin: (?=\()
+            end: (?=[\s;&)|<>])
+            patterns:
+              - begin: \(
+                end: \)|(?=[\n;&)|<>])
+
+          - comment: A command name can't begin with a process expansion operator (however the variable expansion operator '$' is allowed)
+            name: invalid.illegal.function-call.fish
+            begin: \%
+            end: (?=[\s;&)|<>])
+            patterns:
+              - include: '#string'
+
+          - comment: Redirection can immediately follow the command name, without whitespace separation
+          - include: '#redirection'
+
+          - comment: Anonymous scope - An argument or comment element. We rely on these elements needing to be separated by whitespace
+            # name: anon-argument
+            begin: (?:[^\n\S]+)
+            # beginCaptures:
+            #   '0': {name: anon.space}
+            comment: Match any whitespace character that isn't the newline
+            end: (?=[\s;&)|])
             end: |-
               (?x)
-              (?# Look ahead for whitespace or control operations)
+              (?# Look ahead for control operations)
               (?=
                 (?:
                   (?# Find whitespace or simple control operations)
                   [\s;&)]
-                |
-                  (?# Find piping)
-                  (?:(?:[0-9]+)?(?:<|>|>>))?\|
-                )
-              )
-            patterns:
-              - comment: Check if the command is any other legal command, ie, a standard command
-                name: variable.function.fish
-                match: (?:\'(?:\\[\'\\]|[^\'\\])*\'|\"(?:\\[\"$\n\\]|[^\"$\n\\])*\"|(?:\\[abefnrtv $\\*?#(){}\[\]<>^&;|"']|(?<=^|\s)\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]|[^\s\\*?~%#()<>&|;"']|\\(?=[^abefnrtv\s$\\*?#(){}\[\]<>^&;|"'xXuUc])|(?<=\S|\\ )\\\n|(?<=\S|\\ )[~%#])+)+
-                comment: In fish, commands can be called using any arbitrary combination of quoted and unquoted strings (with a modified set of characters that need to be escaped, pointless escapes expanded into two literal characters, the literal newline allowed if escaped provided it's not the sole character, the comment character allowed if it's not at the front, etc), so we must manually repeat all the definitions of single-quoted, double-quoted, and unquoted strings. Unfortunately, only a single instance of a non-zero `beginCapture` match can be assigned a scope, so it isn't possible to account for the fact that an arbitrary number of strings can be in the command name and give them all the appropriate string scopes. Furthermore, a `begin` match cannot check across multiple lines, so even though line breaks are permitted inside of double-quoted strings we cannot see to the next line and determine that such a command name would be valid
-                comment: If this were a *.sublime-syntax then the aformentioned problems could be avoided. We could push the `meta.function-call.standard.fish` and `variable.function.fish` scopes onto the stack simultaneously, then use individual pattern matching on each type of string we find, and finally pop the `variable.function.fish` scope when unescaped whitespace is encountered (hence marking the end of the command name in the command call)
-
-          - comment: Anonymous scope - An argument, redirection, or comment element
-            begin: \s+
-            end: |-
-              (?x)
-              (?# Look ahead for control operations)
-              (?=\s*
-                (?:
-                  (?# Find control operations)
-                  [\n;&)]
                 |
                   (?# Find piping)
                   (?:(?:[0-9]+)?(?:<|>|>>))?\|
@@ -590,7 +587,7 @@ repository:
         endCaptures:
           '0': {name: punctuation.definition.string.end.fish}
         patterns:
-          - comment: Additional accepted escapes are \\\n, \", \\, and \$
+          - comment: Only accepted escapes are \<newline>, \", \\, and \$
             name: constant.character.escape.fish
             match: \\[\n\"\\$]
 
@@ -607,7 +604,7 @@ repository:
         begin: (?!['"])
         comment: Begin unquoted string if there are no quotes present
         end: (?=[\s;&)|<>'"])|(?=\\\n)
-        comment: End unquoted string at whitespace, control operators, quoted strings, an upcoming escaped newline, or if it has reached the start of a new line which is commented (see complimentary check in the end match of the argument rule)
+        comment: End unquoted string at whitespace, control operators, quoted strings, or an upcoming escaped newline
         patterns:
           - include: '#string-unquoted-patterns'
 
@@ -620,7 +617,21 @@ repository:
 
       - comment: This list follows the order given in official fish documentation, with the addition of additional checks made on the ~ and % characters which only need escaping if they appear at the front of an argument
         name: constant.character.escape.fish
-        match: \\[abefnrtv $\\*?#(){}\[\]<>^&|;"']|(?<=^|\s)\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]
+        match: |-
+          (?x)
+          \\[abefnrtv $\\*?#(){}\[\]<>^&|;"']
+          |
+          (?<=^|\s)\\[~%]
+          |
+          \\[xX][0-9A-Fa-f]{1,2}
+          |
+          \\[0-7]{1,3}
+          |
+          \\u[0-9A-Fa-f]{1,4}
+          |
+          \\U[0-9A-Fa-f]{1,8}
+          |
+          \\c[?-~]
 
       - name: meta.braces.brace-expansion.fish
         begin: \{

@@ -161,41 +161,57 @@ f'\''o"\$\\"o\ \|\$\*b\?\%a\#\(r\) arg
 #! ^ variable.function
 #!   ^^^ meta.argument
 
+foo\
+%bar arg
+#! <- variable.function
+#!   ^^^ meta.argument
+
+~
+#! <- variable.function
+
 '\'\\'"\"\$\\"\a\b\e\f\n\r\t\v\ \$\\\*\?~\~%\%#\#\(\)\{\}\[\]\<\>^\^\&\|\;\"\'\x0a\X1b\01\u3ccc\U4dddeeee\c?
 #! ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ variable.function
 
-%process
+%process arg
 #! <- invalid.illegal.function-call
 #! ^^^^^ invalid.illegal.function-call
+#!       ^^^ meta.argument
 
-<in.log
+<in.log arg
 #! <- invalid.illegal.operator
 #! ^^^^ variable.function
+#!      ^^^ meta.argument
 
->out.log
+>out.log arg
 #! <- invalid.illegal.operator
 #! ^^^^^ variable.function
+#!       ^^^ meta.argument
 
-^err.log
+^err.log arg
 #! <- invalid.illegal.operator
 #! ^^^^^ variable.function
+#!       ^^^ meta.argument
 
-(echo out)
+(echo out) arg
 #! <- invalid.illegal.function-call
 #! ^^^^^^^ invalid.illegal.function-call
+#!         ^^^ meta.argument
 
 ()foo bar
 #! <- invalid.illegal.function-call
 #! ^^ invalid.illegal.function-call
-#!   ^^^^ - invalid.illegal.function-call
+#!   ^ - invalid.illegal.function-call
+#!    ^^^ meta.argument
 
 cat ((echo out) echo out) out
 #!   ^^^^^^^^^^ invalid.illegal.function-call
 #!             ^^^^^^^^^^ - invalid.illegal.function-call
+#!                        ^^^ meta.argument
 
-)option
+)option arg
 #! <- invalid.illegal.function-call
 #! ^^^^ invalid.illegal.function-call
+##      ^^^ meta.argument # Not possible due to technical limitations
 
 echo one >out.log two < in.log three ^^err.log four4> out.log five
 #!       ^^^^^^^^ meta.redirection
@@ -314,6 +330,10 @@ echo one >&1>?two<&2>&4five
 #!                  ^^^^^^^ meta.redirection
 #!                  ^^ keyword.operator
 #!                    ^^^^^ invalid.illegal.file-descriptor
+
+foo>bar
+#! <- meta.function-call variable.function
+#! ^^^^ meta.redirection
 
 echo (echo one \
 #!   ^^^^^^^^^^^ meta.parens.command-substitution
@@ -896,7 +916,7 @@ function '$cmd$'; echo $argv; end; $cmd$ arg1 arg2
 #
 
 
-
+ec"h"o\  out
 
 
 begin
