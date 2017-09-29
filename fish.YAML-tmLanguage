@@ -25,7 +25,6 @@ patterns:
 #!   A solution would be to have a second if-block which is the same as the first, but named if-loop-block and which also includes the #loop-control-command rule. Ah, but then the $self which it includes would mean that an if inside /that/ if would be a non-loop if block again, unless the if-loop-block is also explicitly included above the $self. I think this would work all the way down? It gets very complicated if anything besides an if is wanted, but I don't see any use case for a loop control command keyword without an if statement
 #! - Newlines are consumed at the end of command calls, so create a pattern in the block group which begins just after the word 'end' when it has no newline after it, and ends at the next newline. everything in between can be any group that's valid (pipes, backgrounding, redirection)
 #! - A special match in the standard command call which is the `[ ]` form of test
-#! - Overhaul command-call-standard and make it find command names which are invalid (like %fish) and highlight those as invalid, but let everything after them look like a normal argument. This would replace most of the work that command-call-check-commands is doing
 
 repository:
   argument:
@@ -46,16 +45,34 @@ repository:
             begin: \%
             beginCaptures:
               '0': {name: meta.string.unquoted.fish punctuation.definition.process.fish}
-            end: (?=[\s;&)|])
+            end: (?=[\s;&)|<>])
             patterns:
               - comment: Match special process names. By a convention that I'm making up, scope them as a type of variable
                 name: meta.string.unquoted.fish variable.language.fish
                 match: (?:self|last)(?=[\s;&)|])
 
+              - comment: An escaped newline during a process expansion cannot be used to insert comments so consume it and let the process expansion continue on the next line
+                name: constant.character.escape.fish
+                match: \\\n
+
+              - include: '#command-substitution'
+              - include: '#variable-expansion'
               - include: '#string'
 
           - comment: Arguments are otherwise made of strings, either quoted or unquoted. The unquoted string rule handles numerics, character escapes, command substitutions, and brace/variable/process expansions. These scopes consume the remainder of the argument
-            include: '#string'
+            begin: (?!\s)
+            end: (?=[\s;&)|<>])|(?=\\\n)
+            patterns:
+              - include: '#command-substitution'
+
+              - comment: Give the variable expansion the unquoted string scope
+                name: meta.string.unquoted.fish
+                begin: (?=\$)
+                end: (?!\$)
+                patterns:
+                  - include: '#variable-expansion'
+
+              - include: '#string'
 
   command-chain:
     patterns:
@@ -350,27 +367,28 @@ repository:
           )
         patterns:
           - comment: Anonymous scope - A name element
-            begin: (?![\s()<>^%])
+            begin: (?![\s<>^%])
             end: (?=[\s;&)|<>])
             patterns:
               - comment: Match an escaped newline in the command name but don't use line-continuation because comments aren't allowed
                 name: constant.character.escape.fish
                 match: \\\n
 
+              - comment: A command name can't contain a command substitution. We match the whole line if no closing parenthesis is found, or until the end of the command name if the command substitution gets closed
+                comment: fish would match the whole command name invalid if there was a command substitution anywhere in it, but we can't look ahead that effectively
+                name: invalid.illegal.function-call.fish
+                begin: (?=\()
+                end: (?=[\s;&)|<>])
+                patterns:
+                  - begin: \(
+                    end: \)|(?=[\n;&)|<>])
+
               - name: variable.function.fish
                 begin: (?!\s)
-                end: (?=[\s;&)|<>]|\\\n)
+                end: (?=[\s;&()|<>]|\\\n)
                 patterns:
                   - comment: In fish, commands can be called using any arbitrary combination of quoted and unquoted strings. All string matches are valid in command names, even the wildcard expansion!
                   - include: '#string'
-
-          - comment: A command name can't contain a command substitution. We match the whole line if no closing parenthesis is found, or until the end of the command name if the command substitution gets closed
-            name: invalid.illegal.function-call.fish
-            begin: (?=\()
-            end: (?=[\s;&)|<>])
-            patterns:
-              - begin: \(
-                end: \)|(?=[\n;&)|<>])
 
           - comment: A command name can't begin with a process expansion operator (however the variable expansion operator '$' is allowed)
             name: invalid.illegal.function-call.fish
@@ -459,6 +477,10 @@ repository:
         patterns:
           - name: keyword.operator.fish
             match: \.\.
+
+          - include: '#command-substitution'
+
+          - include: '#variable-expansion'
 
           - comment: Manually recreate the #string rule with extra logic in unquoted strings, and don't repeat the meta.string.unquoted scope
           - include: '#string-quoted'
@@ -603,18 +625,14 @@ repository:
       - name: meta.string.unquoted.fish
         begin: (?!['"])
         comment: Begin unquoted string if there are no quotes present
-        end: (?=[\s;&)|<>'"])|(?=\\\n)
-        comment: End unquoted string at whitespace, control operators, quoted strings, or an upcoming escaped newline
+        end: (?=[\s;&()|<>'"$])|(?=\\\n)
+        comment: End unquoted string at whitespace, control operators, quoted strings, a variable expansion, or an upcoming escaped newline
         patterns:
           - include: '#string-unquoted-patterns'
 
   string-unquoted-patterns:
     comment: Describe contents of an unquoted string separately for ease of recursion
     patterns:
-      - include: '#command-substitution'
-
-      - include: '#variable-expansion'
-
       - comment: This list follows the order given in official fish documentation, with the addition of additional checks made on the ~ and % characters which only need escaping if they appear at the front of an argument
         name: constant.character.escape.fish
         match: |-
@@ -643,6 +661,10 @@ repository:
         patterns:
           - name: punctuation.section.braces.separator.fish
             match: \,
+
+          - include: '#command-substitution'
+
+          - include: '#variable-expansion'
 
           - comment: Manually recreate the #string rule with extra logic in unquoted strings, and don't repeat the meta.string.unquoted scope
           - include: '#string-quoted'

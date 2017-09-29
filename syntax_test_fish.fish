@@ -197,11 +197,11 @@ foo\
 #! ^^^^^^^ invalid.illegal.function-call
 #!         ^^^ meta.argument
 
-()foo bar
-#! <- invalid.illegal.function-call
-#! ^^ invalid.illegal.function-call
-#!   ^ - invalid.illegal.function-call
-#!    ^^^ meta.argument
+foo()foo bar
+#! ^^^^^ invalid.illegal.function-call
+#!      ^ - invalid.illegal.function-call
+#!       ^^^ meta.argument
+## <- invalid.illegal.function-call # Not possible due to technical limitations
 
 cat ((echo out) echo out) out
 #!   ^^^^^^^^^^ invalid.illegal.function-call
@@ -658,6 +658,11 @@ echo %"fish" one%two %%percent
 #!                   ^ punctuation.definition.process
 #!                    ^^^^^^^^ meta.string.unquoted
 
+echo %fi\
+sh>out
+#! <- meta.process-expansion
+#! ^^^ meta.redirection
+
 echo %self foo %(set foo "fi"; echo $foo)sh "bar"
 #!   ^^^^^ meta.process-expansion
 #!   ^ punctuation.definition.process
@@ -666,8 +671,7 @@ echo %self foo %(set foo "fi"; echo $foo)sh "bar"
 #!              ^^^^^^^^^^^^^^^^^^^^^^^^^ meta.parens.command-substitution
 #!                                       ^^ meta.process-expansion
 #!                                          ^^^^^ string.quoted
-echo "ec\
-ho"
+
 echo $var(echo str{$arg}str "{$var}")$var"str"$var
 #!   ^^^^ variable.other
 #!                 ^^^^ variable.other

@@ -74,7 +74,7 @@
 							<key>comment</key>
 							<string>Process expansion only occurs if the '%' is at the front of the argument, and continues for the entire argument</string>
 							<key>end</key>
-							<string>(?=[\s;&amp;)|])</string>
+							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
 							<key>name</key>
 							<string>meta.process-expansion.fish</string>
 							<key>patterns</key>
@@ -88,16 +88,62 @@
 									<string>meta.string.unquoted.fish variable.language.fish</string>
 								</dict>
 								<dict>
+									<key>comment</key>
+									<string>An escaped newline during a process expansion cannot be used to insert comments so consume it and let the process expansion continue on the next line</string>
+									<key>match</key>
+									<string>\\\n</string>
+									<key>name</key>
+									<string>constant.character.escape.fish</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#command-substitution</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#variable-expansion</string>
+								</dict>
+								<dict>
 									<key>include</key>
 									<string>#string</string>
 								</dict>
 							</array>
 						</dict>
 						<dict>
+							<key>begin</key>
+							<string>(?!\s)</string>
 							<key>comment</key>
 							<string>Arguments are otherwise made of strings, either quoted or unquoted. The unquoted string rule handles numerics, character escapes, command substitutions, and brace/variable/process expansions. These scopes consume the remainder of the argument</string>
-							<key>include</key>
-							<string>#string</string>
+							<key>end</key>
+							<string>(?=[\s;&amp;)|&lt;&gt;])|(?=\\\n)</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>#command-substitution</string>
+								</dict>
+								<dict>
+									<key>begin</key>
+									<string>(?=\$)</string>
+									<key>comment</key>
+									<string>Give the variable expansion the unquoted string scope</string>
+									<key>end</key>
+									<string>(?!\$)</string>
+									<key>name</key>
+									<string>meta.string.unquoted.fish</string>
+									<key>patterns</key>
+									<array>
+										<dict>
+											<key>include</key>
+											<string>#variable-expansion</string>
+										</dict>
+									</array>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#string</string>
+								</dict>
+							</array>
 						</dict>
 					</array>
 				</dict>
@@ -691,7 +737,7 @@
 					<array>
 						<dict>
 							<key>begin</key>
-							<string>(?![\s()&lt;&gt;^%])</string>
+							<string>(?![\s&lt;&gt;^%])</string>
 							<key>comment</key>
 							<string>Anonymous scope - A name element</string>
 							<key>end</key>
@@ -708,9 +754,28 @@
 								</dict>
 								<dict>
 									<key>begin</key>
+									<string>(?=\()</string>
+									<key>comment</key>
+									<string>fish would match the whole command name invalid if there was a command substitution anywhere in it, but we can't look ahead that effectively</string>
+									<key>end</key>
+									<string>(?=[\s;&amp;)|&lt;&gt;])</string>
+									<key>name</key>
+									<string>invalid.illegal.function-call.fish</string>
+									<key>patterns</key>
+									<array>
+										<dict>
+											<key>begin</key>
+											<string>\(</string>
+											<key>end</key>
+											<string>\)|(?=[\n;&amp;)|&lt;&gt;])</string>
+										</dict>
+									</array>
+								</dict>
+								<dict>
+									<key>begin</key>
 									<string>(?!\s)</string>
 									<key>end</key>
-									<string>(?=[\s;&amp;)|&lt;&gt;]|\\\n)</string>
+									<string>(?=[\s;&amp;()|&lt;&gt;]|\\\n)</string>
 									<key>name</key>
 									<string>variable.function.fish</string>
 									<key>patterns</key>
@@ -724,25 +789,6 @@
 											<string>#string</string>
 										</dict>
 									</array>
-								</dict>
-							</array>
-						</dict>
-						<dict>
-							<key>begin</key>
-							<string>(?=\()</string>
-							<key>comment</key>
-							<string>A command name can't contain a command substitution. We match the whole line if no closing parenthesis is found, or until the end of the command name if the command substitution gets closed</string>
-							<key>end</key>
-							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
-							<key>name</key>
-							<string>invalid.illegal.function-call.fish</string>
-							<key>patterns</key>
-							<array>
-								<dict>
-									<key>begin</key>
-									<string>\(</string>
-									<key>end</key>
-									<string>\)|(?=[\n;&amp;)|&lt;&gt;])</string>
 								</dict>
 							</array>
 						</dict>
@@ -1140,6 +1186,14 @@
 							<string>keyword.operator.fish</string>
 						</dict>
 						<dict>
+							<key>include</key>
+							<string>#command-substitution</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#variable-expansion</string>
+						</dict>
+						<dict>
 							<key>comment</key>
 							<string>Manually recreate the</string>
 						</dict>
@@ -1512,9 +1566,9 @@
 					<key>begin</key>
 					<string>(?!['"])</string>
 					<key>comment</key>
-					<string>End unquoted string at whitespace, control operators, quoted strings, or an upcoming escaped newline</string>
+					<string>End unquoted string at whitespace, control operators, quoted strings, a variable expansion, or an upcoming escaped newline</string>
 					<key>end</key>
-					<string>(?=[\s;&amp;)|&lt;&gt;'"])|(?=\\\n)</string>
+					<string>(?=[\s;&amp;()|&lt;&gt;'"$])|(?=\\\n)</string>
 					<key>name</key>
 					<string>meta.string.unquoted.fish</string>
 					<key>patterns</key>
@@ -1533,14 +1587,6 @@
 			<string>Describe contents of an unquoted string separately for ease of recursion</string>
 			<key>patterns</key>
 			<array>
-				<dict>
-					<key>include</key>
-					<string>#command-substitution</string>
-				</dict>
-				<dict>
-					<key>include</key>
-					<string>#variable-expansion</string>
-				</dict>
 				<dict>
 					<key>comment</key>
 					<string>This list follows the order given in official fish documentation, with the addition of additional checks made on the ~ and % characters which only need escaping if they appear at the front of an argument</string>
@@ -1592,6 +1638,14 @@
 							<string>\,</string>
 							<key>name</key>
 							<string>punctuation.section.braces.separator.fish</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#command-substitution</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#variable-expansion</string>
 						</dict>
 						<dict>
 							<key>comment</key>
