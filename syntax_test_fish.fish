@@ -701,16 +701,20 @@ echo end
 echo arg
 #! <- meta.function-call variable.function
 
-begin --help; break& end
+begin --help; end
 #! <- meta.function-call variable.function
 #!    ^^^^^^ meta.argument
 #!          ^ keyword.operator
-#!            ^^^^^ variable.function
-#!                   ^^^ invalid.illegal.function-call
+#!            ^^^ invalid.illegal.function-call
 
-sbegin; end
+foobegin; end
 #! <- meta.function-call variable.function
-#!      ^^^ invalid.illegal.function-call
+#!        ^^^ invalid.illegal.function-call
+
+foo\
+begin; end
+#! <- variable.function
+#!     ^^^ invalid.illegal.function-call
 
 begin >echo arg; end >out | cat
 #! <- meta.block.begin keyword.control.conditional
@@ -731,6 +735,14 @@ end; or begin
 end
 #! <- keyword.control.conditional
 
+while true; break ; end
+#! <- meta.block.while keyword.control.conditional
+#!    ^^^^ meta.block.while variable.function
+#!                  ^^^ meta.block.while keyword.control.conditional
+
+break arg
+#! <- variable.function
+
 begin
 #! <- meta.block.begin keyword.control.conditional
   while echo arg
@@ -744,8 +756,6 @@ begin
   end ;
 #! ^^ keyword.control.conditional
 #!    ^ keyword.operator
-  break;
-#! ^^^^ variable.function
 end &
 #! <- keyword.control.conditional
 #!  ^ keyword.operator

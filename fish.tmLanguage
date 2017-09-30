@@ -155,46 +155,6 @@
 			<array>
 				<dict>
 					<key>begin</key>
-					<string>\b(while)\b(?!\s*(-|&amp;|\|))</string>
-					<key>beginCaptures</key>
-					<dict>
-						<key>0</key>
-						<dict>
-							<key>name</key>
-							<string>keyword.control.conditional.fish</string>
-						</dict>
-					</dict>
-					<key>end</key>
-					<string>(end)(\s*([;&amp;]))?</string>
-					<key>endCaptures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>keyword.control.conditional.fish</string>
-						</dict>
-						<key>3</key>
-						<dict>
-							<key>name</key>
-							<string>keyword.operator.fish</string>
-						</dict>
-					</dict>
-					<key>name</key>
-					<string>meta.block.while.fish</string>
-					<key>patterns</key>
-					<array>
-						<dict>
-							<key>include</key>
-							<string>#loop-control-command</string>
-						</dict>
-						<dict>
-							<key>include</key>
-							<string>$self</string>
-						</dict>
-					</array>
-				</dict>
-				<dict>
-					<key>begin</key>
 					<string>\b(if)\b(?!\s*(-|&amp;|\|))</string>
 					<key>beginCaptures</key>
 					<dict>
@@ -633,6 +593,37 @@
 						</dict>
 					</array>
 				</dict>
+				<dict>
+					<key>begin</key>
+					<string>while(?=\s+[^\s-]|[\n;&amp;)|&lt;&gt;])</string>
+					<key>beginCaptures</key>
+					<dict>
+						<key>0</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.conditional.fish</string>
+						</dict>
+					</dict>
+					<key>end</key>
+					<string>end(?=[\s;&amp;)|&lt;&gt;])</string>
+					<key>endCaptures</key>
+					<dict>
+						<key>0</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.conditional.fish</string>
+						</dict>
+					</dict>
+					<key>name</key>
+					<string>meta.block.while.fish</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>include</key>
+							<string>$self</string>
+						</dict>
+					</array>
+				</dict>
 			</array>
 		</dict>
 		<key>command-call-meta</key>
@@ -747,7 +738,7 @@
 									<key>begin</key>
 									<string>(?!\s)</string>
 									<key>comment</key>
-									<string>Anonymous scope - A fraction of a name element (up until an escaped newline) or a block element</string>
+									<string>Anonymous scope - A fraction of a name element (up until an escaped newline), a special name, or a block element</string>
 									<key>end</key>
 									<string>(?=[\s;&amp;()|&lt;&gt;]|\\\n)</string>
 									<key>patterns</key>
@@ -757,6 +748,20 @@
 											<string>Look for block structures</string>
 											<key>include</key>
 											<string>#command-call-block-rewrite</string>
+										</dict>
+										<dict>
+											<key>captures</key>
+											<dict>
+												<key>0</key>
+												<dict>
+													<key>name</key>
+													<string>keyword.control.conditional.fish</string>
+												</dict>
+											</dict>
+											<key>comment</key>
+											<string>Look for loop control commands, which cannot take arguments. Unfortunately, without an effective scope stack we cannot restrict them to only be valid inside of loop constructs</string>
+											<key>match</key>
+											<string>(?:break|continue)(?=\s+[^\s-\w]|[\n;&amp;)|&lt;&gt;])</string>
 										</dict>
 										<dict>
 											<key>begin</key>
@@ -1249,47 +1254,6 @@
 							<string>\n</string>
 							<key>name</key>
 							<string>comment.line.continuation.fish</string>
-						</dict>
-					</array>
-				</dict>
-			</array>
-		</dict>
-		<key>loop-control-command</key>
-		<dict>
-			<key>patterns</key>
-			<array>
-				<dict>
-					<key>begin</key>
-					<string>\b(break|continue)\b(?!\s+(-|\w))</string>
-					<key>beginCaptures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>keyword.control.conditional.fish</string>
-						</dict>
-					</dict>
-					<key>comment</key>
-					<string>These commands only work as loop control when they are used without arguments</string>
-					<key>end</key>
-					<string>\n|([;&amp;])</string>
-					<key>endCaptures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>keyword.operator.fish</string>
-						</dict>
-					</dict>
-					<key>patterns</key>
-					<array>
-						<dict>
-							<key>include</key>
-							<string>#line-continuation</string>
-						</dict>
-						<dict>
-							<key>include</key>
-							<string>#comment-internal-end</string>
 						</dict>
 					</array>
 				</dict>

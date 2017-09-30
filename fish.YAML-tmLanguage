@@ -20,12 +20,6 @@ patterns:
 # - Every character outside of comments should be scoped as `meta.string.unquoted`, `string.quoted.single`, or `string.quoted.double`. Furthermore, there is no concept of an unquoted string inside a quoted string or vice-versa
 # - The order of operators in expressions is (by invented convention): newline '\n', whitespace '\s' (includes newline), ';', '&', '(', ')', '|', '<', '>', '^'
 
-# To-do list:
-#! - Bugfix: Keywords that only work in loops or functions (eg, "continue", "return", etc) will be treated like standard commands if they are located within if-statements within those outer valid blocks. Without a scope stack, we'll have to treat them as always being keywords rather than trying to parse them for the user
-#!   A solution would be to have a second if-block which is the same as the first, but named if-loop-block and which also includes the #loop-control-command rule. Ah, but then the $self which it includes would mean that an if inside /that/ if would be a non-loop if block again, unless the if-loop-block is also explicitly included above the $self. I think this would work all the way down? It gets very complicated if anything besides an if is wanted, but I don't see any use case for a loop control command keyword without an if statement
-#! - Newlines are consumed at the end of command calls, so create a pattern in the block group which begins just after the word 'end' when it has no newline after it, and ends at the next newline. everything in between can be any group that's valid (pipes, backgrounding, redirection)
-#! - A special match in the standard command call which is the `[ ]` form of test
-
 repository:
   argument:
     patterns:
@@ -188,20 +182,18 @@ repository:
         patterns:
           - include: $self
 
-  command-call-block:
-    patterns:
       - name: meta.block.while.fish
-        begin: \b(while)\b(?!\s*(-|&|\|))
+        begin: while(?=\s+[^\s-]|[\n;&)|<>])
         beginCaptures:
           '0': {name: keyword.control.conditional.fish}
-        end: (end)(\s*([;&]))?
+        end: end(?=[\s;&)|<>])
         endCaptures:
-          '1': {name: keyword.control.conditional.fish}
-          '3': {name: keyword.operator.fish}
+          '0': {name: keyword.control.conditional.fish}
         patterns:
-          - include: '#loop-control-command'
-          - include: '$self'
+          - include: $self
 
+  command-call-block:
+    patterns:
       - name: meta.block.if.fish
         begin: \b(if)\b(?!\s*(-|&|\|))
         beginCaptures:
@@ -374,12 +366,17 @@ repository:
                   - begin: \(
                     end: \)|(?=[\n;&)|<>])
 
-              - comment: Anonymous scope - A fraction of a name element (up until an escaped newline) or a block element
+              - comment: Anonymous scope - A fraction of a name element (up until an escaped newline), a special name, or a block element
                 begin: (?!\s)
                 end: (?=[\s;&()|<>]|\\\n)
                 patterns:
                   - comment: Look for block structures
                     include: '#command-call-block-rewrite'
+
+                  - comment: Look for loop control commands, which cannot take arguments. Unfortunately, without an effective scope stack we cannot restrict them to only be valid inside of loop constructs
+                    match: (?:break|continue)(?=\s+[^\s-\w]|[\n;&)|<>])
+                    captures:
+                      '0': {name: keyword.control.conditional.fish}
 
                   - comment: Otherwise, treat the element as a name made of arbitrary strings
                     name: variable.function.fish
@@ -507,19 +504,6 @@ repository:
             beginCaptures:
               '0': {name: punctuation.definition.comment.fish}
             end: \n
-
-  loop-control-command:
-    patterns:
-      - comment: These commands only work as loop control when they are used without arguments
-        begin: \b(break|continue)\b(?!\s+(-|\w))
-        beginCaptures:
-          '1': {name: keyword.control.conditional.fish}
-        end: \n|([;&])
-        endCaptures:
-          '1': {name: keyword.operator.fish}
-        patterns:
-          - include: '#line-continuation'
-          - include: '#comment-internal-end'
 
   redirection:
     patterns:
