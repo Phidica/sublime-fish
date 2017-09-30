@@ -697,35 +697,28 @@ echo --switch=(echo "str;";
 )  ;
 #! ^ keyword.operator
 
-while --help; break& end
+echo end
+echo arg
+#! <- meta.function-call variable.function
+
+begin --help; break& end
 #! <- meta.function-call variable.function
 #!    ^^^^^^ meta.argument
 #!          ^ keyword.operator
 #!            ^^^^^ variable.function
 #!                   ^^^ invalid.illegal.function-call
 
-echo end
-echo arg
+sbegin; end
 #! <- meta.function-call variable.function
+#!      ^^^ invalid.illegal.function-call
 
-begin
+begin >echo arg; end >out | cat
 #! <- meta.block.begin keyword.control.conditional
-  while echo arg
-#! ^^^^ meta.block.while keyword.control.conditional
-#!      ^^^^^^^^^ meta.function-call
-    echo arg
-#   ^^^^^^^^ meta.function-call
-    break ;
-#!  ^^^^^ keyword.control.conditional
-#!        ^ keyword.operator
-  end ;
-#! ^^ keyword.control.conditional
-#!    ^ keyword.operator
-  break;
-#! ^^^^ variable.function
-end &
-#! <- keyword.control.conditional
-#!  ^ keyword.operator
+#!    ^ meta.block.begin invalid.illegal.operator
+#!               ^^^ meta.block.begin keyword.control.conditional
+#!                   ^^^^ meta.redirection
+#!                        ^ meta.pipe keyword.operator.pipe
+#!                          ^^^ variable.function
 
 begin end
 #! <- meta.block.begin keyword.control.conditional
@@ -737,6 +730,25 @@ end; or begin
 #!      ^^^^^ meta.block.begin keyword.control.conditional
 end
 #! <- keyword.control.conditional
+
+begin
+#! <- meta.block.begin keyword.control.conditional
+  while echo arg
+#! ^^^^ meta.block.while keyword.control.conditional
+#!      ^^^^^^^^^ meta.function-call
+    echo arg
+#!  ^^^^^^^^ meta.function-call
+    break ;
+#!  ^^^^^ keyword.control.conditional
+#!        ^ keyword.operator
+  end ;
+#! ^^ keyword.control.conditional
+#!    ^ keyword.operator
+  break;
+#! ^^^^ variable.function
+end &
+#! <- keyword.control.conditional
+#!  ^ keyword.operator
 
 if echo arg
 #! <- meta.block.if keyword.control.conditional

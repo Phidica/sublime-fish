@@ -155,73 +155,6 @@
 			<array>
 				<dict>
 					<key>begin</key>
-					<string>(?=begin(?!\s+-)[\s;])</string>
-					<key>comment</key>
-					<string>The block begin command can be immediately followed by any legal command, however it could also take an option in which case it should be treated as a standard command</string>
-					<key>end</key>
-					<string>(?=[\n;&amp;)|])</string>
-					<key>patterns</key>
-					<array>
-						<dict>
-							<key>begin</key>
-							<string>(begin)(?=[\s;])\s*</string>
-							<key>beginCaptures</key>
-							<dict>
-								<key>1</key>
-								<dict>
-									<key>name</key>
-									<string>keyword.control.conditional.fish</string>
-								</dict>
-							</dict>
-							<key>end</key>
-							<string>(?=end[\s;&amp;)|])</string>
-							<key>name</key>
-							<string>meta.block.begin.fish</string>
-							<key>patterns</key>
-							<array>
-								<dict>
-									<key>include</key>
-									<string>$self</string>
-								</dict>
-							</array>
-						</dict>
-						<dict>
-							<key>begin</key>
-							<string>(end)(?=[\s;&amp;)|])</string>
-							<key>beginCaptures</key>
-							<dict>
-								<key>1</key>
-								<dict>
-									<key>name</key>
-									<string>meta.block.begin.fish keyword.control.conditional.fish</string>
-								</dict>
-							</dict>
-							<key>end</key>
-							<string>(?=[\n;&amp;)|])</string>
-							<key>patterns</key>
-							<array>
-								<dict>
-									<key>include</key>
-									<string>#line-continuation</string>
-								</dict>
-								<dict>
-									<key>include</key>
-									<string>#comment-internal-end</string>
-								</dict>
-								<dict>
-									<key>include</key>
-									<string>#redirection</string>
-								</dict>
-								<dict>
-									<key>include</key>
-									<string>#argument</string>
-								</dict>
-							</array>
-						</dict>
-					</array>
-				</dict>
-				<dict>
-					<key>begin</key>
 					<string>\b(while)\b(?!\s*(-|&amp;|\|))</string>
 					<key>beginCaptures</key>
 					<dict>
@@ -663,6 +596,45 @@
 				</dict>
 			</array>
 		</dict>
+		<key>command-call-block-rewrite</key>
+		<dict>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>begin</key>
+					<string>begin(?=\s+[^\s-]|[\n;&amp;)|&lt;&gt;])</string>
+					<key>beginCaptures</key>
+					<dict>
+						<key>0</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.conditional.fish</string>
+						</dict>
+					</dict>
+					<key>comment</key>
+					<string>The begin command can be immediately followed by any legal command, however it could also take an option in which case it shouldn't be treated as a block but rather as a standard command</string>
+					<key>end</key>
+					<string>end(?=[\s;&amp;)|&lt;&gt;])</string>
+					<key>endCaptures</key>
+					<dict>
+						<key>0</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.conditional.fish</string>
+						</dict>
+					</dict>
+					<key>name</key>
+					<string>meta.block.begin.fish</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>include</key>
+							<string>$self</string>
+						</dict>
+					</array>
+				</dict>
+			</array>
+		</dict>
 		<key>command-call-meta</key>
 		<dict>
 			<key>patterns</key>
@@ -739,14 +711,14 @@
 							<key>begin</key>
 							<string>(?![\s&lt;&gt;^%])</string>
 							<key>comment</key>
-							<string>Anonymous scope - A name element</string>
+							<string>Anonymous scope - A name or block element. If a block is found, everything up to the `end` command is captured here</string>
 							<key>end</key>
 							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
 							<key>patterns</key>
 							<array>
 								<dict>
 									<key>comment</key>
-									<string>Match an escaped newline in the command name but don't use line-continuation because comments aren't allowed</string>
+									<string>Match an escaped newline in the command name, but don't use line-continuation because comments aren't allowed</string>
 									<key>match</key>
 									<string>\\\n</string>
 									<key>name</key>
@@ -774,19 +746,34 @@
 								<dict>
 									<key>begin</key>
 									<string>(?!\s)</string>
+									<key>comment</key>
+									<string>Anonymous scope - A fraction of a name element (up until an escaped newline) or a block element</string>
 									<key>end</key>
 									<string>(?=[\s;&amp;()|&lt;&gt;]|\\\n)</string>
-									<key>name</key>
-									<string>variable.function.fish</string>
 									<key>patterns</key>
 									<array>
 										<dict>
 											<key>comment</key>
-											<string>In fish, commands can be called using any arbitrary combination of quoted and unquoted strings. All string matches are valid in command names, even the wildcard expansion!</string>
+											<string>Look for block structures</string>
+											<key>include</key>
+											<string>#command-call-block-rewrite</string>
 										</dict>
 										<dict>
-											<key>include</key>
-											<string>#string</string>
+											<key>begin</key>
+											<string>(?!\s)</string>
+											<key>comment</key>
+											<string>Otherwise, treat the element as a name made of arbitrary strings</string>
+											<key>end</key>
+											<string>(?=[\s;&amp;()|&lt;&gt;]|\\\n)</string>
+											<key>name</key>
+											<string>variable.function.fish</string>
+											<key>patterns</key>
+											<array>
+												<dict>
+													<key>include</key>
+													<string>#string</string>
+												</dict>
+											</array>
 										</dict>
 									</array>
 								</dict>

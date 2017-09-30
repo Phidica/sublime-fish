@@ -175,30 +175,21 @@ repository:
           - include: '#command-call-block'
           - include: '#command-call-standard'
 
+  command-call-block-rewrite:
+    patterns:
+      - comment: The begin command can be immediately followed by any legal command, however it could also take an option in which case it shouldn't be treated as a block but rather as a standard command
+        name: meta.block.begin.fish
+        begin: begin(?=\s+[^\s-]|[\n;&)|<>])
+        beginCaptures:
+          '0': {name: keyword.control.conditional.fish}
+        end: end(?=[\s;&)|<>])
+        endCaptures:
+          '0': {name: keyword.control.conditional.fish}
+        patterns:
+          - include: $self
+
   command-call-block:
     patterns:
-      - comment: The block begin command can be immediately followed by any legal command, however it could also take an option in which case it should be treated as a standard command
-        begin: (?=begin(?!\s+-)[\s;])
-        end: (?=[\n;&)|])
-        patterns:
-          - name: meta.block.begin.fish
-            begin: (begin)(?=[\s;])\s*
-            beginCaptures:
-              '1': {name: keyword.control.conditional.fish}
-            end: (?=end[\s;&)|])
-            patterns:
-              - include: $self
-
-          - begin: (end)(?=[\s;&)|])
-            beginCaptures:
-              '1': {name: meta.block.begin.fish keyword.control.conditional.fish}
-            end: (?=[\n;&)|])
-            patterns: # Everything from command-call-standard
-              - include: '#line-continuation'
-              - include: '#comment-internal-end'
-              - include: '#redirection'
-              - include: '#argument'
-
       - name: meta.block.while.fish
         begin: \b(while)\b(?!\s*(-|&|\|))
         beginCaptures:
@@ -366,11 +357,11 @@ repository:
             )
           )
         patterns:
-          - comment: Anonymous scope - A name element
+          - comment: Anonymous scope - A name or block element. If a block is found, everything up to the `end` command is captured here
             begin: (?![\s<>^%])
             end: (?=[\s;&)|<>])
             patterns:
-              - comment: Match an escaped newline in the command name but don't use line-continuation because comments aren't allowed
+              - comment: Match an escaped newline in the command name, but don't use line-continuation because comments aren't allowed
                 name: constant.character.escape.fish
                 match: \\\n
 
@@ -383,12 +374,19 @@ repository:
                   - begin: \(
                     end: \)|(?=[\n;&)|<>])
 
-              - name: variable.function.fish
+              - comment: Anonymous scope - A fraction of a name element (up until an escaped newline) or a block element
                 begin: (?!\s)
                 end: (?=[\s;&()|<>]|\\\n)
                 patterns:
-                  - comment: In fish, commands can be called using any arbitrary combination of quoted and unquoted strings. All string matches are valid in command names, even the wildcard expansion!
-                  - include: '#string'
+                  - comment: Look for block structures
+                    include: '#command-call-block-rewrite'
+
+                  - comment: Otherwise, treat the element as a name made of arbitrary strings
+                    name: variable.function.fish
+                    begin: (?!\s)
+                    end: (?=[\s;&()|<>]|\\\n)
+                    patterns:
+                      - include: '#string'
 
           - comment: A command name can't begin with a process expansion operator (however the variable expansion operator '$' is allowed)
             name: invalid.illegal.function-call.fish
