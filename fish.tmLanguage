@@ -702,72 +702,72 @@
 							<key>begin</key>
 							<string>(?![\s&lt;&gt;^%])</string>
 							<key>comment</key>
-							<string>Anonymous scope - A name or block element. If a block is found, everything up to the `end` command is captured here</string>
+							<string>Anonymous scope - A name or block element. If a block is found, everything up to the `end` command is captured here. Note that redirection and process expansion can't start the element</string>
 							<key>end</key>
 							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
 							<key>patterns</key>
 							<array>
 								<dict>
 									<key>comment</key>
-									<string>Match an escaped newline in the command name, but don't use line-continuation because comments aren't allowed</string>
-									<key>match</key>
-									<string>\\\n</string>
-									<key>name</key>
-									<string>constant.character.escape.fish</string>
+									<string>Look for block structures</string>
+									<key>include</key>
+									<string>#command-call-block-rewrite</string>
 								</dict>
 								<dict>
-									<key>begin</key>
-									<string>(?=\()</string>
-									<key>comment</key>
-									<string>fish would match the whole command name invalid if there was a command substitution anywhere in it, but we can't look ahead that effectively</string>
-									<key>end</key>
-									<string>(?=[\s;&amp;)|&lt;&gt;])</string>
-									<key>name</key>
-									<string>invalid.illegal.function-call.fish</string>
-									<key>patterns</key>
-									<array>
+									<key>captures</key>
+									<dict>
+										<key>0</key>
 										<dict>
-											<key>begin</key>
-											<string>\(</string>
-											<key>end</key>
-											<string>\)|(?=[\n;&amp;)|&lt;&gt;])</string>
+											<key>name</key>
+											<string>keyword.control.conditional.fish</string>
 										</dict>
-									</array>
+									</dict>
+									<key>comment</key>
+									<string>Look for loop control commands, which cannot take arguments. Unfortunately, without an effective scope stack we cannot restrict them to only be valid inside of loop constructs</string>
+									<key>match</key>
+									<string>(?:break|continue)(?=\s+[^\s-\w]|[\n;&amp;)|&lt;&gt;])</string>
 								</dict>
 								<dict>
 									<key>begin</key>
 									<string>(?!\s)</string>
 									<key>comment</key>
-									<string>Anonymous scope - A fraction of a name element (up until an escaped newline), a special name, or a block element</string>
+									<string>Anonymous scope - A generic name element</string>
 									<key>end</key>
-									<string>(?=[\s;&amp;()|&lt;&gt;]|\\\n)</string>
+									<string>(?=[\s;&amp;)|&lt;&gt;])</string>
 									<key>patterns</key>
 									<array>
 										<dict>
+											<key>begin</key>
+											<string>(?=\()</string>
 											<key>comment</key>
-											<string>Look for block structures</string>
-											<key>include</key>
-											<string>#command-call-block-rewrite</string>
+											<string>fish would match the whole command name invalid if there was a command substitution anywhere in it, but we can't look ahead that effectively</string>
+											<key>end</key>
+											<string>(?=[\s;&amp;)|&lt;&gt;])</string>
+											<key>name</key>
+											<string>invalid.illegal.function-call.fish</string>
+											<key>patterns</key>
+											<array>
+												<dict>
+													<key>begin</key>
+													<string>\(</string>
+													<key>end</key>
+													<string>\)|(?=[\n;&amp;)|&lt;&gt;])</string>
+												</dict>
+											</array>
 										</dict>
 										<dict>
-											<key>captures</key>
-											<dict>
-												<key>0</key>
-												<dict>
-													<key>name</key>
-													<string>keyword.control.conditional.fish</string>
-												</dict>
-											</dict>
 											<key>comment</key>
-											<string>Look for loop control commands, which cannot take arguments. Unfortunately, without an effective scope stack we cannot restrict them to only be valid inside of loop constructs</string>
+											<string>Match an escaped newline in the command name, but don't use line-continuation because comments aren't allowed</string>
 											<key>match</key>
-											<string>(?:break|continue)(?=\s+[^\s-\w]|[\n;&amp;)|&lt;&gt;])</string>
+											<string>\\\n</string>
+											<key>name</key>
+											<string>constant.character.escape.fish</string>
 										</dict>
 										<dict>
 											<key>begin</key>
 											<string>(?!\s)</string>
 											<key>comment</key>
-											<string>Otherwise, treat the element as a name made of arbitrary strings</string>
+											<string>Otherwise, treat the element as a fraction of a name made of arbitrary strings (which breaks at an escaped newline)</string>
 											<key>end</key>
 											<string>(?=[\s;&amp;()|&lt;&gt;]|\\\n)</string>
 											<key>name</key>

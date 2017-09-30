@@ -349,36 +349,36 @@ repository:
             )
           )
         patterns:
-          - comment: Anonymous scope - A name or block element. If a block is found, everything up to the `end` command is captured here
+          - comment: Anonymous scope - A name or block element. If a block is found, everything up to the `end` command is captured here. Note that redirection and process expansion can't start the element
             begin: (?![\s<>^%])
             end: (?=[\s;&)|<>])
             patterns:
-              - comment: Match an escaped newline in the command name, but don't use line-continuation because comments aren't allowed
-                name: constant.character.escape.fish
-                match: \\\n
+              - comment: Look for block structures
+                include: '#command-call-block-rewrite'
 
-              - comment: A command name can't contain a command substitution. We match the whole line if no closing parenthesis is found, or until the end of the command name if the command substitution gets closed
-                comment: fish would match the whole command name invalid if there was a command substitution anywhere in it, but we can't look ahead that effectively
-                name: invalid.illegal.function-call.fish
-                begin: (?=\()
+              - comment: Look for loop control commands, which cannot take arguments. Unfortunately, without an effective scope stack we cannot restrict them to only be valid inside of loop constructs
+                match: (?:break|continue)(?=\s+[^\s-\w]|[\n;&)|<>])
+                captures:
+                  '0': {name: keyword.control.conditional.fish}
+
+              - comment: Anonymous scope - A generic name element
+                begin: (?!\s)
                 end: (?=[\s;&)|<>])
                 patterns:
-                  - begin: \(
-                    end: \)|(?=[\n;&)|<>])
+                  - comment: A command name can't contain a command substitution. We match the whole line if no closing parenthesis is found, or until the end of the command name if the command substitution gets closed
+                    comment: fish would match the whole command name invalid if there was a command substitution anywhere in it, but we can't look ahead that effectively
+                    name: invalid.illegal.function-call.fish
+                    begin: (?=\()
+                    end: (?=[\s;&)|<>])
+                    patterns:
+                      - begin: \(
+                        end: \)|(?=[\n;&)|<>])
 
-              - comment: Anonymous scope - A fraction of a name element (up until an escaped newline), a special name, or a block element
-                begin: (?!\s)
-                end: (?=[\s;&()|<>]|\\\n)
-                patterns:
-                  - comment: Look for block structures
-                    include: '#command-call-block-rewrite'
+                  - comment: Match an escaped newline in the command name, but don't use line-continuation because comments aren't allowed
+                    name: constant.character.escape.fish
+                    match: \\\n
 
-                  - comment: Look for loop control commands, which cannot take arguments. Unfortunately, without an effective scope stack we cannot restrict them to only be valid inside of loop constructs
-                    match: (?:break|continue)(?=\s+[^\s-\w]|[\n;&)|<>])
-                    captures:
-                      '0': {name: keyword.control.conditional.fish}
-
-                  - comment: Otherwise, treat the element as a name made of arbitrary strings
+                  - comment: Otherwise, treat the element as a fraction of a name made of arbitrary strings (which breaks at an escaped newline)
                     name: variable.function.fish
                     begin: (?!\s)
                     end: (?=[\s;&()|<>]|\\\n)

@@ -724,9 +724,10 @@ begin >echo arg; end >out | cat
 #!                        ^ meta.pipe keyword.operator.pipe
 #!                          ^^^ variable.function
 
-begin end
+begin end # comment
 #! <- meta.block.begin keyword.control.conditional
 #!    ^^^ keyword.control.conditional
+#!        ^^^^^^^^^ comment.line
 
 begin
 end; or begin
