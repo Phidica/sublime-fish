@@ -507,10 +507,9 @@ echo out >| 9>|
 #!       ^^ meta.pipe
 #!          ^^^ invalid.illegal.function-call
 
-and and | cat
+and | cat
 #! <- meta.function-call keyword.operator.word
-#!  ^^^ meta.function-call keyword.operator.word
-#!      ^ invalid.illegal.operator
+#!  ^ invalid.illegal.operator
 
 and>cat
 #! <- meta.function-call keyword.operator.word
@@ -716,11 +715,14 @@ begin; end
 #! <- variable.function
 #!     ^^^ invalid.illegal.function-call
 
+begin &
+#!    ^ invalid.illegal.operator
+
 begin >echo arg; end >out | cat
-#! <- meta.block.begin keyword.control.conditional
-#!    ^ meta.block.begin invalid.illegal.operator
-#!               ^^^ meta.block.begin keyword.control.conditional
-#!                   ^^^^ meta.redirection
+#! <- variable.function
+#!    ^ invalid.illegal.operator
+#!               ^^^ invalid.illegal.function-call
+#!                   ^ invalid.illegal.operator
 #!                        ^ meta.pipe keyword.operator.pipe
 #!                          ^^^ variable.function
 
@@ -729,17 +731,132 @@ begin end # comment
 #!    ^^^ keyword.control.conditional
 #!        ^^^^^^^^^ comment.line
 
-begin
+begin echo out; echo
 end; or begin
 #! ^ keyword.operator
 #!      ^^^^^ meta.block.begin keyword.control.conditional
 end
 #! <- keyword.control.conditional
 
+begin   # comment
+#! ^^ keyword.control.conditional
+  begin   # comment
+  end end   # comment
+#! ^^ keyword.control.conditional
+#!    ^^^ meta.argument
+end
+#! <- keyword.control.conditional
+
+echo one | begin
+#!         ^^^^^ meta.block.begin keyword.control.conditional
+  cat
+  echo two
+end >&1 | cat
+#! <- meta.block.begin keyword.control.conditional
+#!  ^^^ meta.redirection
+#!      ^ meta.pipe keyword.operator.pipe
+#!        ^^^ variable.function
+
+begin; echo yes end | end ;
+end
+#! <- keyword.control.conditional
+
+begin
+  echo arg
+end & echo next | cat
+#!  ^ keyword.operator
+
+# "echo (begin)" will error
+# The second ')' and "end" are to catch the runaway scopes if needed
+echo (begin) end)
+#!    ^^^^^ variable.function
+#!         ^ invalid.illegal.operator
+#!            ^^^ meta.argument
+
+while-cmd
+#! ^^^^^^ variable.function
+
 while true; break ; end
 #! <- meta.block.while keyword.control.conditional
 #!    ^^^^ meta.block.while variable.function
 #!                  ^^^ meta.block.while keyword.control.conditional
+
+while ; true ; end
+#! ^^ variable.function
+#!             ^^^ invalid.illegal.function-call
+
+while --true; end
+#!    ^^^^^^ meta.argument
+#!            ^^^ invalid.illegal.function-call
+
+while &
+# comment
+#! <- comment.line
+
+while || true ; end
+#! ^^ variable.function
+#!    ^ invalid.illegal.operator
+#!       ^^^^ variable.function
+#!              ^^^ invalid.illegal.function-call
+
+while>out arg;end
+#! ^^ variable.function
+#!   ^ invalid.illegal.operator
+#!    ^^^ variable.function
+#!            ^^^ invalid.illegal.function-call
+
+while while; # comment end
+#! <- keyword.control.conditional
+#!    ^^^^^ variable.function
+#!           ^ comment.line
+end
+#! <- keyword.control.conditional
+
+while
+#! ^^ variable.function
+  true
+end
+#! <- invalid.illegal.function-call
+
+while \
+#! <- keyword.control.conditional
+  true;
+  echo
+end
+
+while while while while false; end ; end ; end ; end
+#!                ^^^^^ meta.block.while meta.block.while  meta.block.while meta.block.while keyword.control.conditional
+#!                                               ^^^ meta.block.while keyword.control.conditional
+
+while test
+while &
+#! <- variable.function
+#!    ^ invalid.illegal.operator
+end
+
+while true ; cmd arg ; end &
+#!         ^ keyword.operator
+#!                     ^^^ keyword.control.conditional
+#!                         ^ keyword.operator
+
+while true & cmd arg ; end ;
+#!         ^ invalid.illegal.operator
+#!                     ^^^ keyword.control.conditional
+#!                         ^ keyword.operator
+
+while false ))arg; end
+#!          ^ invalid.illegal.operator
+#!           ^^^^ invalid.illegal.function-call
+
+while cmd )end arg end; end
+#!        ^ invalid.illegal.operator
+#!         ^^^ keyword.control.conditional
+#!                      ^^^ invalid.illegal.function-call
+
+# This executes without error
+echo (while)
+#!    ^^^^^ variable.function
+#!         ^ punctuation.section.parens.end
 
 break arg
 #! <- variable.function
@@ -933,54 +1050,3 @@ function '$cmd$'; echo $argv; end; $cmd$ arg1 arg2
 #!       ^^^^^^ entity.name.function
 #!                               ^ keyword.operator
 #!                                 ^^^^^ variable.function
-
-
-
-
-
-
-# Tests in progress
-#
-
-
-ec"h"o\  out
-
-
-begin
-  echo arg end
-end >&1 | cat
-
-begin; echo yes end | end ;
-end
-
-begin; end
-begin -h;
-
-begin echo; end
-
-begin % fish
-end
-
-begin --option
-
-begin -h
-
-begin
-  echo arg
-end & nicely done | cat | echo out
-
-
-
-echo one | begin; cat; end
-
-begin; echo out; end | echo
-
-
-
-
-
-
-
-
-
-

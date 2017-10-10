@@ -31,8 +31,64 @@
 			<string>#line-continuation</string>
 		</dict>
 		<dict>
-			<key>include</key>
-			<string>#command-chain</string>
+			<key>begin</key>
+			<string>\)</string>
+			<key>comment</key>
+			<string>In an ideal world, command-call-standard would be performing this match because fish highlights the strings which follow as arguments. But we can't do that</string>
+			<key>end</key>
+			<string>(?=[\s;&amp;)|&lt;&gt;])</string>
+			<key>name</key>
+			<string>meta.function-call.fish invalid.illegal.function-call.fish</string>
+		</dict>
+		<dict>
+			<key>begin</key>
+			<string>(?=\S)</string>
+			<key>comment</key>
+			<string>Anonymous scope - Base scope command chain (up until a newline or ';')</string>
+			<key>end</key>
+			<string>\n|(;)|(?=\))</string>
+			<key>endCaptures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>meta.function-call.operator.fish keyword.operator.fish</string>
+				</dict>
+			</dict>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>comment</key>
+					<string>Match an operation which cannot start a command chain (because it is consumed by the command chain when it appears further within it). These are simple control operators and redirections (which conveniently also matches redirection-into-pipe)</string>
+					<key>match</key>
+					<string>(?:[&amp;|]|(?:[0-9]+)?(?:&lt;|&gt;|&gt;&gt;))</string>
+					<key>name</key>
+					<string>invalid.illegal.operator.fish</string>
+				</dict>
+				<dict>
+					<key>begin</key>
+					<string>(?=\S)</string>
+					<key>comment</key>
+					<string>The reason we match the '&amp;' in a different way is the ';' can be alone on a line, while we must explicitly require that the '&amp;' comes after a command</string>
+					<key>end</key>
+					<string>(?=[\n;)])|(&amp;)</string>
+					<key>endCaptures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>meta.function-call.operator.fish keyword.operator.fish</string>
+						</dict>
+					</dict>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>include</key>
+							<string>#command-chain</string>
+						</dict>
+					</array>
+				</dict>
+			</array>
 		</dict>
 	</array>
 	<key>repository</key>
@@ -561,8 +617,46 @@
 			<key>patterns</key>
 			<array>
 				<dict>
+					<key>captures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>variable.function.fish</string>
+						</dict>
+						<key>2</key>
+						<dict>
+							<key>name</key>
+							<string>invalid.illegal.operator.fish</string>
+						</dict>
+					</dict>
+					<key>comment</key>
+					<string>Block commands cannot be backgrounded, piped, or redirected</string>
+					<key>match</key>
+					<string>(begin|while)\s*([&amp;|&lt;&gt;])</string>
+				</dict>
+				<dict>
+					<key>captures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>variable.function.fish</string>
+						</dict>
+						<key>2</key>
+						<dict>
+							<key>name</key>
+							<string>invalid.illegal.operator.fish</string>
+						</dict>
+					</dict>
+					<key>comment</key>
+					<string>The begin command uniquely cannot be the last command in a command substitution</string>
+					<key>match</key>
+					<string>(begin)\s*(\))</string>
+				</dict>
+				<dict>
 					<key>begin</key>
-					<string>begin(?=\s+[^\s-]|[\n;&amp;)|&lt;&gt;])</string>
+					<string>begin(?=\s*[\n;]|\s+[^\s-])</string>
 					<key>beginCaptures</key>
 					<dict>
 						<key>0</key>
@@ -572,7 +666,7 @@
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>The begin command can be immediately followed by any legal command, however it could also take an option in which case it shouldn't be treated as a block but rather as a standard command</string>
+					<string>The begin command can be alone on a line or followed by any command that doesn't start with a '-'. If a '-' is seen it shouldn't be treated as a block</string>
 					<key>end</key>
 					<string>end(?=[\s;&amp;)|&lt;&gt;])</string>
 					<key>endCaptures</key>
@@ -595,15 +689,9 @@
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>while(?=\s+[^\s-]|[\n;&amp;)|&lt;&gt;])</string>
-					<key>beginCaptures</key>
-					<dict>
-						<key>0</key>
-						<dict>
-							<key>name</key>
-							<string>keyword.control.conditional.fish</string>
-						</dict>
-					</dict>
+					<string>(?=while\s+[^\s;)-])</string>
+					<key>comment</key>
+					<string>If the command name is followed by a valid command (not anything that closes the scope or a command starting with a '-') then open the scope</string>
 					<key>end</key>
 					<string>end(?=[\s;&amp;)|&lt;&gt;])</string>
 					<key>endCaptures</key>
@@ -619,8 +707,59 @@
 					<key>patterns</key>
 					<array>
 						<dict>
-							<key>include</key>
-							<string>$self</string>
+							<key>begin</key>
+							<string>while</string>
+							<key>beginCaptures</key>
+							<dict>
+								<key>0</key>
+								<dict>
+									<key>name</key>
+									<string>keyword.control.conditional.fish</string>
+								</dict>
+							</dict>
+							<key>comment</key>
+							<string>Capture the command name we know is there, include a single instance of a command chain, and end when an operator is seen</string>
+							<key>end</key>
+							<string>\s*(?=[\n;&amp;)])</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>#line-continuation</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#command-chain</string>
+								</dict>
+							</array>
+						</dict>
+						<dict>
+							<key>begin</key>
+							<string>\n|(;)|([&amp;)])</string>
+							<key>beginCaptures</key>
+							<dict>
+								<key>1</key>
+								<dict>
+									<key>name</key>
+									<string>keyword.operator.fish</string>
+								</dict>
+								<key>2</key>
+								<dict>
+									<key>name</key>
+									<string>invalid.illegal.operator.fish</string>
+								</dict>
+							</dict>
+							<key>comment</key>
+							<string>Capture the operator we know is there, include the base scope, and end when an `end` command is seen</string>
+							<key>end</key>
+							<string>(?=end[\s;&amp;)|&lt;&gt;])</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>$self</string>
+								</dict>
+							</array>
 						</dict>
 					</array>
 				</dict>
@@ -680,6 +819,14 @@
 					<string>invalid.illegal.function-call.fish</string>
 				</dict>
 				<dict>
+					<key>comment</key>
+					<string>Match an operator which cannot start a command call but does not stop the next characters from being interpreted as a command</string>
+					<key>match</key>
+					<string>(?:[&amp;|&lt;&gt;^])</string>
+					<key>name</key>
+					<string>invalid.illegal.operator.fish</string>
+				</dict>
+				<dict>
 					<key>begin</key>
 					<string>(?=\S)</string>
 					<key>comment</key>
@@ -725,7 +872,7 @@
 									<key>comment</key>
 									<string>Look for loop control commands, which cannot take arguments. Unfortunately, without an effective scope stack we cannot restrict them to only be valid inside of loop constructs</string>
 									<key>match</key>
-									<string>(?:break|continue)(?=\s+[^\s-\w]|[\n;&amp;)|&lt;&gt;])</string>
+									<string>(?:break|continue)(?=\s+[^\s-\w]|\s*[\n;&amp;)|&lt;&gt;])</string>
 								</dict>
 								<dict>
 									<key>begin</key>
@@ -852,11 +999,13 @@
 		</dict>
 		<key>command-chain</key>
 		<dict>
+			<key>comment</key>
+			<string>The command-chain rule is nonterminating, meaning that it will not consume a newline, ';', or '&amp;'</string>
 			<key>patterns</key>
 			<array>
 				<dict>
 					<key>comment</key>
-					<string>Match an operation which cannot start a command chain (because it is consumed by the command chain when it appears further within it). These are simple control operators and redirections (which conveniently also matches redirection-into-pipe)</string>
+					<string>Todo - Restructure command-chain so that this match isn't duplicated from the base scope. Might require the unary operator commands to become an explicit recursive match (though we tried this once and it was more complicated than anything should be)</string>
 					<key>match</key>
 					<string>(?:[&amp;|]|(?:[0-9]+)?(?:&lt;|&gt;|&gt;&gt;))</string>
 					<key>name</key>
@@ -880,11 +1029,11 @@
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>(?=\S)</string>
+					<string>(?=[^\s#])</string>
 					<key>comment</key>
 					<string>Anonymous scope - Command chain. Define a command chain as either one command call, or multiple command calls linked by piping ('|', '2&gt;|', etc). The chain terminates at the first encounter of any other control operator (newline, ';', '&amp;') or the implied newline of the closing parenthesis of a command substitution</string>
 					<key>end</key>
-					<string>(\s*)(?:\n|([;&amp;])|(?=\)))</string>
+					<string>(\s*)(?=[\n;&amp;)])</string>
 					<key>endCaptures</key>
 					<dict>
 						<key>1</key>
@@ -892,24 +1041,9 @@
 							<key>name</key>
 							<string>meta.function-call.fish</string>
 						</dict>
-						<key>2</key>
-						<dict>
-							<key>name</key>
-							<string>meta.function-call.operator.fish keyword.operator.fish</string>
-						</dict>
 					</dict>
 					<key>patterns</key>
 					<array>
-						<dict>
-							<key>begin</key>
-							<string>\)</string>
-							<key>comment</key>
-							<string>A command can't begin with a close parenthesis. We have to try and match this immediately because the command chain scope will end if the close parenthesis is found by the lookahead. Ideally command-call-standard would take care of this because the strings which follow are scoped as arguments</string>
-							<key>end</key>
-							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
-							<key>name</key>
-							<string>meta.function-call.fish invalid.illegal.function-call.fish</string>
-						</dict>
 						<dict>
 							<key>begin</key>
 							<string>(?=\S)</string>
@@ -1009,14 +1143,6 @@
 									<string>meta.pipe.fish</string>
 								</dict>
 								<dict>
-									<key>comment</key>
-									<string>Match an operator which cannot start a command call but does not stop the next characters from being interpreted as a command</string>
-									<key>match</key>
-									<string>(?:[&lt;&gt;^])</string>
-									<key>name</key>
-									<string>invalid.illegal.operator.fish</string>
-								</dict>
-								<dict>
 									<key>include</key>
 									<string>#line-continuation</string>
 								</dict>
@@ -1035,6 +1161,12 @@
 							</array>
 						</dict>
 					</array>
+				</dict>
+				<dict>
+					<key>comment</key>
+					<string>Pick up a comment that comes after an '&amp;' or otherwise sneaks into the scope</string>
+					<key>include</key>
+					<string>#comment-internal-end</string>
 				</dict>
 			</array>
 		</dict>

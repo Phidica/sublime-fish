@@ -4,12 +4,6 @@ scopeName: source.fish
 fileTypes: [fish]
 uuid: f9278d07-f7c1-4a9b-9581-ebcbc050fbfb
 
-patterns:
-- comment: Base scope - Pick up '#' and "\\\n" before command-call sees them
-- include: '#comment-external'
-- include: '#line-continuation'
-- include: '#command-chain'
-
 # Style guide:
 # - keyword.control.conditional is applied to all control keywords that are actually words (if, else, end, function, etc.)
 # - support.function is applied to any fish builtins that we have to treat uniquely, however variable.function is used for everything else including other shell builtins
@@ -19,6 +13,36 @@ patterns:
 # - By analogy to the recommendation that `meta.function.php meta.function.parameters.php` should never occur, we use a single `meta.function-call` scope and name the argument scope `meta.argument` not `meta.function-call.argument`. Furthermore, a single `meta.function-call` scope continues from the first command name until the consumption of a ';', '&', or '\n'. The same scope continues through '|' because we have no other way to ensure that a command follows a '|'
 # - Every character outside of comments should be scoped as `meta.string.unquoted`, `string.quoted.single`, or `string.quoted.double`. Furthermore, there is no concept of an unquoted string inside a quoted string or vice-versa
 # - The order of operators in expressions is (by invented convention): newline '\n', whitespace '\s' (includes newline), ';', '&', '(', ')', '|', '<', '>', '^'
+
+patterns:
+  - comment: Base scope - Pick up '#' and "\\\n" before command-call sees them
+  - include: '#comment-external'
+  - include: '#line-continuation'
+
+  - comment: A command can't begin with a close parenthesis. We match this so exclusively early because the command chain scope will end immediately if the close parenthesis is seen by its lookahead
+    comment: In an ideal world, command-call-standard would be performing this match because fish highlights the strings which follow as arguments. But we can't do that
+    name: meta.function-call.fish invalid.illegal.function-call.fish
+    begin: \)
+    end: (?=[\s;&)|<>])
+
+  - comment: Anonymous scope - Base scope command chain (up until a newline or ';')
+    begin: (?=\S)
+    end: \n|(;)|(?=\))
+    endCaptures:
+      '1': {name: meta.function-call.operator.fish keyword.operator.fish}
+    patterns:
+      - comment: Match an operation which cannot start a command chain (because it is consumed by the command chain when it appears further within it). These are simple control operators and redirections (which conveniently also matches redirection-into-pipe)
+        name: invalid.illegal.operator.fish
+        match: (?:[&|]|(?:[0-9]+)?(?:<|>|>>))
+
+      - comment: Anonymous scope - Base scope command chain (up until an '&')
+        comment: The reason we match the '&' in a different way is the ';' can be alone on a line, while we must explicitly require that the '&' comes after a command
+        begin: (?=\S)
+        end: (?=[\n;)])|(&)
+        endCaptures:
+          '1': {name: meta.function-call.operator.fish keyword.operator.fish}
+        patterns:
+          - include: '#command-chain'
 
 repository:
   argument:
@@ -69,14 +93,16 @@ repository:
               - include: '#string'
 
   command-chain:
+    comment: The command-chain rule is nonterminating, meaning that it will not consume a newline, ';', or '&'
     patterns:
       - comment: Match an operation which cannot start a command chain (because it is consumed by the command chain when it appears further within it). These are simple control operators and redirections (which conveniently also matches redirection-into-pipe)
+        comment: Todo - Restructure command-chain so that this match isn't duplicated from the base scope. Might require the unary operator commands to become an explicit recursive match (though we tried this once and it was more complicated than anything should be)
         name: invalid.illegal.operator.fish
         match: (?:[&|]|(?:[0-9]+)?(?:<|>|>>))
 
       - comment: Match a command which acts as a unary operator on the command to the right. Neglect the match if it is taking the one valid option argument these commands accept. Allow the match if there is a scope-ending operation after the command name
-        match: (and|not|or)(?=\s+(?!-h|--help)|[;&)|<>])
         name: meta.function-call.fish keyword.operator.word.fish
+        match: (and|not|or)(?=\s+(?!-h|--help)|[;&)|<>])
 
       - comment: Match a command which is illegal in the base scope
         name: invalid.illegal.function-call.fish
@@ -84,17 +110,11 @@ repository:
 
       - comment: Anonymous scope - Command chain. Define a command chain as either one command call, or multiple command calls linked by piping ('|', '2>|', etc). The chain terminates at the first encounter of any other control operator (newline, ';', '&') or the implied newline of the closing parenthesis of a command substitution
         # name: anon-command-chain
-        begin: (?=\S)
-        end: (\s*)(?:\n|([;&])|(?=\)))
+        begin: (?=[^\s#])
+        end: (\s*)(?=[\n;&)])
         endCaptures:
           '1': {name: meta.function-call.fish}
-          '2': {name: meta.function-call.operator.fish keyword.operator.fish}
         patterns:
-          - comment: A command can't begin with a close parenthesis. We have to try and match this immediately because the command chain scope will end if the close parenthesis is found by the lookahead. Ideally command-call-standard would take care of this because the strings which follow are scoped as arguments
-            name: meta.function-call.fish invalid.illegal.function-call.fish
-            begin: \)
-            end: (?=[\s;&)|<>])
-
           - comment: Match one command, which may start with any non-whitespace character. If it starts with piping however, perform checks to ensure it is valid. A command call ends at any control operation including piping
             name: meta.function-call.fish
             begin: (?=\S)
@@ -148,14 +168,13 @@ repository:
                   '2': {name: keyword.operator.redirect.fish}
                   '3': {name: keyword.operator.pipe.fish}
 
-              - comment: Match an operator which cannot start a command call but does not stop the next characters from being interpreted as a command
-                name: invalid.illegal.operator.fish
-                match: (?:[<>^])
-
               - include: '#line-continuation'
               - include: '#command-call-meta'
               - include: '#command-call-block'
               - include: '#command-call-standard'
+
+      - comment: Pick up a comment that comes after an '&' or otherwise sneaks into the scope
+        include: '#comment-internal-end'
 
   command-call-meta:
     patterns:
@@ -171,9 +190,21 @@ repository:
 
   command-call-block-rewrite:
     patterns:
-      - comment: The begin command can be immediately followed by any legal command, however it could also take an option in which case it shouldn't be treated as a block but rather as a standard command
+      - comment: Block commands cannot be backgrounded, piped, or redirected
+        match: (begin|while)\s*([&|<>])
+        captures:
+          '1': {name: variable.function.fish}
+          '2': {name: invalid.illegal.operator.fish}
+
+      - comment: The begin command uniquely cannot be the last command in a command substitution
+        match: (begin)\s*(\))
+        captures:
+          '1': {name: variable.function.fish}
+          '2': {name: invalid.illegal.operator.fish}
+
+      - comment: The begin command can be alone on a line or followed by any command that doesn't start with a '-'. If a '-' is seen it shouldn't be treated as a block
         name: meta.block.begin.fish
-        begin: begin(?=\s+[^\s-]|[\n;&)|<>])
+        begin: begin(?=\s*[\n;]|\s+[^\s-])
         beginCaptures:
           '0': {name: keyword.control.conditional.fish}
         end: end(?=[\s;&)|<>])
@@ -183,14 +214,29 @@ repository:
           - include: $self
 
       - name: meta.block.while.fish
-        begin: while(?=\s+[^\s-]|[\n;&)|<>])
-        beginCaptures:
-          '0': {name: keyword.control.conditional.fish}
+        begin: (?=while\s+[^\s;)-])
+        comment: If the command name is followed by a valid command (not anything that closes the scope or a command starting with a '-') then open the scope
         end: end(?=[\s;&)|<>])
         endCaptures:
           '0': {name: keyword.control.conditional.fish}
         patterns:
-          - include: $self
+          - comment: Capture the command name we know is there, include a single instance of a command chain, and end when an operator is seen
+            begin: while
+            beginCaptures:
+              '0': {name: keyword.control.conditional.fish}
+            end: \s*(?=[\n;&)])
+            patterns:
+              - include: '#line-continuation'
+              - include: '#command-chain'
+
+          - comment: Capture the operator we know is there, include the base scope, and end when an `end` command is seen
+            begin: \n|(;)|([&)])
+            beginCaptures:
+              '1': {name: keyword.operator.fish}
+              '2': {name: invalid.illegal.operator.fish}
+            end: (?=end[\s;&)|<>])
+            patterns:
+              - include: $self
 
   command-call-block:
     patterns:
@@ -334,6 +380,10 @@ repository:
         begin: \#
         end: (?=[\n)])
 
+      - comment: Match an operator which cannot start a command call but does not stop the next characters from being interpreted as a command
+        name: invalid.illegal.operator.fish
+        match: (?:[&|<>^])
+
       - comment: Anonymous scope - A complete command comprising a name element and optional argument, redirection, and comment elements
         begin: (?=\S)
         end: |-
@@ -357,7 +407,7 @@ repository:
                 include: '#command-call-block-rewrite'
 
               - comment: Look for loop control commands, which cannot take arguments. Unfortunately, without an effective scope stack we cannot restrict them to only be valid inside of loop constructs
-                match: (?:break|continue)(?=\s+[^\s-\w]|[\n;&)|<>])
+                match: (?:break|continue)(?=\s+[^\s-\w]|\s*[\n;&)|<>])
                 captures:
                   '0': {name: keyword.control.conditional.fish}
 
