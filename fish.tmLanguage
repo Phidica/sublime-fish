@@ -1081,6 +1081,14 @@
 											<key>patterns</key>
 											<array>
 												<dict>
+													<key>comment</key>
+													<string>The string scope explicitly forbids '$' so that the argument rule can pick it up as a variable expansion, but '$' is treated as a literal in command names, so we have to match it separately</string>
+													<key>match</key>
+													<string>\$</string>
+													<key>name</key>
+													<string>meta.string.unquoted.fish</string>
+												</dict>
+												<dict>
 													<key>include</key>
 													<string>#string</string>
 												</dict>

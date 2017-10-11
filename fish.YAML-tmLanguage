@@ -487,6 +487,10 @@ repository:
                     begin: (?!\s)
                     end: (?=[\s;&()|<>]|\\\n)
                     patterns:
+                      - comment: The string scope explicitly forbids '$' so that the argument rule can pick it up as a variable expansion, but '$' is treated as a literal in command names, so we have to match it separately
+                        name: meta.string.unquoted.fish
+                        match: \$
+
                       - include: '#string'
 
           - comment: A command name can't begin with a process expansion operator (however the variable expansion operator '$' is allowed)

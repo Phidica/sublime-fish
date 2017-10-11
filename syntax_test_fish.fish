@@ -1072,3 +1072,4 @@ function '$cmd$'; echo $argv; end; $cmd$ arg1 arg2
 #!       ^^^^^^ entity.name.function
 #!                               ^ keyword.operator
 #!                                 ^^^^^ variable.function
+#!                                       ^^^^ meta.argument
