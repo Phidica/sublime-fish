@@ -191,7 +191,7 @@ repository:
   command-call-block-rewrite:
     patterns:
       - comment: Block commands cannot be backgrounded, piped, or redirected
-        match: (begin|while)\s*([&|<>])
+        match: (begin|while|if)\s*([&|<>])
         captures:
           '1': {name: variable.function.fish}
           '2': {name: invalid.illegal.operator.fish}
@@ -238,21 +238,54 @@ repository:
             patterns:
               - include: $self
 
-  command-call-block:
-    patterns:
       - name: meta.block.if.fish
-        begin: \b(if)\b(?!\s*(-|&|\|))
+        begin: (?=if\s+[^\s;)-])
+        comment: If the command name is followed by a valid command (not anything that closes the scope or a command starting with a '-') then open the scope
+        end: end(?=[\s;&)|<>])
+        endCaptures:
+          '0': {name: keyword.control.conditional.fish}
+        patterns:
+          - comment: Capture the command we know is there
+          - include: '#command-call-block-if'
+
+          - comment: Capture the operator we know is there, include the base scope, and end when an `end` command is seen
+            begin: \n|(;)|([&)])
+            beginCaptures:
+              '1': {name: keyword.operator.fish}
+              '2': {name: invalid.illegal.operator.fish}
+            end: (?=end[\s;&)|<>])
+            patterns:
+              - comment: Treat `else` like the `begin` keyword in that it can be followed by a command, but that command is only valid if it is `if`
+                begin: else(?=\s*[\s;])
+                beginCaptures:
+                  '0': {name: keyword.control.conditional.fish}
+                end: \n|(;)|(&)
+                endCaptures:
+                  '1': {name: keyword.operator.fish}
+                  '2': {name: invalid.illegal.operator.fish}
+                patterns:
+                  - include: '#command-call-block-if'
+                  - include: '#comment-internal-end'
+
+                  - comment: Anything else is illegal
+                    name: invalid.illegal.function-call.fish
+                    match: (?:[^\s;&]*(?=[\s;&]))
+
+              - include: $self
+
+  command-call-block-if:
+    patterns:
+      - comment: Capture the command name we know is there, include a single instance of a command chain, and end when an operator is seen
+        begin: if
         beginCaptures:
           '0': {name: keyword.control.conditional.fish}
-        end: (end)
-        endCaptures:
-          '1': {name: keyword.control.conditional.fish}
+        end: \s*(?=[\n;&)])
         patterns:
-          - comment: Having a meta scope just for the condition command is complicated and ultimately useless, so treat `else if` and `else` as standalone keywords and let the conditions scope like normal instances of command-call
-            name: keyword.control.conditional.fish
-            match: \b(else(\s*if)?)\b
-          - include: '$self'
+          - include: '#line-continuation'
+          - include: '#command-chain'
 
+  command-call-block:
+    patterns:
       - name: meta.block.for-in.fish
         begin: \b(for)\b(?!\s*(-|&|\|))
         beginCaptures:

@@ -896,17 +896,18 @@ else # comment
   end
 #! ^^ keyword.control.conditional
 end # comment
+#! <- keyword.control.conditional
+#!  ^^^^^^^^^ comment.line
 
-
-
-
-
-# TEMP DISABLE
-# <- keyword.control.conditional
-#  ^^^^^^^^^ comment.line
-
-
-
+if test
+  else if and true
+#!        ^^^ keyword.operator.word
+#!            ^^^^ variable.function
+  else cmd arg; echo &
+#!     ^^^ invalid.illegal.function-call
+#!         ^^^ invalid.illegal.function-call
+#!              ^^^^ variable.function
+end
 
 if --help; else;
 #! <- meta.function-call variable.function

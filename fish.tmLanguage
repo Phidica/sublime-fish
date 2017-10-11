@@ -211,45 +211,6 @@
 			<array>
 				<dict>
 					<key>begin</key>
-					<string>\b(if)\b(?!\s*(-|&amp;|\|))</string>
-					<key>beginCaptures</key>
-					<dict>
-						<key>0</key>
-						<dict>
-							<key>name</key>
-							<string>keyword.control.conditional.fish</string>
-						</dict>
-					</dict>
-					<key>end</key>
-					<string>(end)</string>
-					<key>endCaptures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>keyword.control.conditional.fish</string>
-						</dict>
-					</dict>
-					<key>name</key>
-					<string>meta.block.if.fish</string>
-					<key>patterns</key>
-					<array>
-						<dict>
-							<key>comment</key>
-							<string>Having a meta scope just for the condition command is complicated and ultimately useless, so treat `else if` and `else` as standalone keywords and let the conditions scope like normal instances of command-call</string>
-							<key>match</key>
-							<string>\b(else(\s*if)?)\b</string>
-							<key>name</key>
-							<string>keyword.control.conditional.fish</string>
-						</dict>
-						<dict>
-							<key>include</key>
-							<string>$self</string>
-						</dict>
-					</array>
-				</dict>
-				<dict>
-					<key>begin</key>
 					<string>\b(for)\b(?!\s*(-|&amp;|\|))</string>
 					<key>beginCaptures</key>
 					<dict>
@@ -612,6 +573,39 @@
 				</dict>
 			</array>
 		</dict>
+		<key>command-call-block-if</key>
+		<dict>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>begin</key>
+					<string>if</string>
+					<key>beginCaptures</key>
+					<dict>
+						<key>0</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.conditional.fish</string>
+						</dict>
+					</dict>
+					<key>comment</key>
+					<string>Capture the command name we know is there, include a single instance of a command chain, and end when an operator is seen</string>
+					<key>end</key>
+					<string>\s*(?=[\n;&amp;)])</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>include</key>
+							<string>#line-continuation</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#command-chain</string>
+						</dict>
+					</array>
+				</dict>
+			</array>
+		</dict>
 		<key>command-call-block-rewrite</key>
 		<dict>
 			<key>patterns</key>
@@ -633,7 +627,7 @@
 					<key>comment</key>
 					<string>Block commands cannot be backgrounded, piped, or redirected</string>
 					<key>match</key>
-					<string>(begin|while)\s*([&amp;|&lt;&gt;])</string>
+					<string>(begin|while|if)\s*([&amp;|&lt;&gt;])</string>
 				</dict>
 				<dict>
 					<key>captures</key>
@@ -755,6 +749,111 @@
 							<string>(?=end[\s;&amp;)|&lt;&gt;])</string>
 							<key>patterns</key>
 							<array>
+								<dict>
+									<key>include</key>
+									<string>$self</string>
+								</dict>
+							</array>
+						</dict>
+					</array>
+				</dict>
+				<dict>
+					<key>begin</key>
+					<string>(?=if\s+[^\s;)-])</string>
+					<key>comment</key>
+					<string>If the command name is followed by a valid command (not anything that closes the scope or a command starting with a '-') then open the scope</string>
+					<key>end</key>
+					<string>end(?=[\s;&amp;)|&lt;&gt;])</string>
+					<key>endCaptures</key>
+					<dict>
+						<key>0</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.conditional.fish</string>
+						</dict>
+					</dict>
+					<key>name</key>
+					<string>meta.block.if.fish</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>comment</key>
+							<string>Capture the command we know is there</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#command-call-block-if</string>
+						</dict>
+						<dict>
+							<key>begin</key>
+							<string>\n|(;)|([&amp;)])</string>
+							<key>beginCaptures</key>
+							<dict>
+								<key>1</key>
+								<dict>
+									<key>name</key>
+									<string>keyword.operator.fish</string>
+								</dict>
+								<key>2</key>
+								<dict>
+									<key>name</key>
+									<string>invalid.illegal.operator.fish</string>
+								</dict>
+							</dict>
+							<key>comment</key>
+							<string>Capture the operator we know is there, include the base scope, and end when an `end` command is seen</string>
+							<key>end</key>
+							<string>(?=end[\s;&amp;)|&lt;&gt;])</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>begin</key>
+									<string>else(?=\s*[\s;])</string>
+									<key>beginCaptures</key>
+									<dict>
+										<key>0</key>
+										<dict>
+											<key>name</key>
+											<string>keyword.control.conditional.fish</string>
+										</dict>
+									</dict>
+									<key>comment</key>
+									<string>Treat `else` like the `begin` keyword in that it can be followed by a command, but that command is only valid if it is `if`</string>
+									<key>end</key>
+									<string>\n|(;)|(&amp;)</string>
+									<key>endCaptures</key>
+									<dict>
+										<key>1</key>
+										<dict>
+											<key>name</key>
+											<string>keyword.operator.fish</string>
+										</dict>
+										<key>2</key>
+										<dict>
+											<key>name</key>
+											<string>invalid.illegal.operator.fish</string>
+										</dict>
+									</dict>
+									<key>patterns</key>
+									<array>
+										<dict>
+											<key>include</key>
+											<string>#command-call-block-if</string>
+										</dict>
+										<dict>
+											<key>include</key>
+											<string>#comment-internal-end</string>
+										</dict>
+										<dict>
+											<key>comment</key>
+											<string>Anything else is illegal</string>
+											<key>match</key>
+											<string>(?:[^\s;&amp;]*(?=[\s;&amp;]))</string>
+											<key>name</key>
+											<string>invalid.illegal.function-call.fish</string>
+										</dict>
+									</array>
+								</dict>
 								<dict>
 									<key>include</key>
 									<string>$self</string>
