@@ -895,25 +895,41 @@ else # comment
     # comment
   end
 #! ^^ keyword.control.conditional
+else
+#! <- invalid.illegal.function-call
 end # comment
 #! <- keyword.control.conditional
 #!  ^^^^^^^^^ comment.line
 
 if test
-  else if and true
-#!        ^^^ keyword.operator.word
+else if and true
+#!      ^^^ keyword.operator.word
+#!          ^^^^ variable.function
+else \
+#!   ^^ constant.character.escape
+  if false
+else if test &
+#!           ^ invalid.illegal.operator
+  and test &# comment
+#!         ^ keyword.operator
+  echo arg
+else cmd arg; echo &
+#!   ^^^ invalid.illegal.function-call
+#!       ^^^ invalid.illegal.function-call
 #!            ^^^^ variable.function
-  else cmd arg; echo &
-#!     ^^^ invalid.illegal.function-call
-#!         ^^^ invalid.illegal.function-call
-#!              ^^^^ variable.function
 end
 
-if --help; else;
+if --foobar; else;
 #! <- meta.function-call variable.function
-#! ^^^^^^ meta.argument
-#!       ^ keyword.operator
-#!         ^^^^ invalid.illegal.function-call
+#! ^^^^^^^^ meta.argument
+#!         ^ keyword.operator
+#!           ^^^^ invalid.illegal.function-call
+
+# This really works in fish!
+if test
+  else if --foobar
+#!        ^^^^^^^^ variable.function
+end
 
 if \
 #! ^ constant.character.escape
@@ -923,6 +939,11 @@ if \
 #!          ^^^ keyword.control.conditional
 #!              ^ keyword.operator
 #!                ^^^^^^^^^ comment.line
+
+# This executes without error
+echo (if)
+#!    ^^ variable.function
+#!      ^ punctuation.section.parens.end
 
 for in in in in (seq 5) in in # comment
 #! <- meta.block.for-in keyword.control.conditional

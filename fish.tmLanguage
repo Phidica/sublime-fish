@@ -573,34 +573,170 @@
 				</dict>
 			</array>
 		</dict>
-		<key>command-call-block-if</key>
+		<key>command-call-block-if-internal</key>
 		<dict>
+			<key>comment</key>
+			<string>The acceptable structure internal to an if-end block can be represented recursively because anonymous scopes nest silently. If an `else` without a following `if` is seen, then further `else` commands will be correctly marked as invalid. This is a lot of work just to get that extra little bit of functionality :)</string>
 			<key>patterns</key>
 			<array>
 				<dict>
 					<key>begin</key>
-					<string>if</string>
-					<key>beginCaptures</key>
-					<dict>
-						<key>0</key>
-						<dict>
-							<key>name</key>
-							<string>keyword.control.conditional.fish</string>
-						</dict>
-					</dict>
+					<string>(?=if\s+[^\s;])</string>
 					<key>comment</key>
-					<string>Capture the command name we know is there, include a single instance of a command chain, and end when an operator is seen</string>
+					<string>Anonymous scope - Capture an `if` and the command up to the end-of-scope operator, then capture from the end-of-scope operator indefinitely</string>
 					<key>end</key>
-					<string>\s*(?=[\n;&amp;)])</string>
+					<string>(?=end[\s;&amp;)|&lt;&gt;])</string>
 					<key>patterns</key>
 					<array>
 						<dict>
-							<key>include</key>
-							<string>#line-continuation</string>
+							<key>begin</key>
+							<string>if</string>
+							<key>beginCaptures</key>
+							<dict>
+								<key>0</key>
+								<dict>
+									<key>name</key>
+									<string>keyword.control.conditional.fish</string>
+								</dict>
+							</dict>
+							<key>comment</key>
+							<string>Anonymous scope - Match the command name we know is there, include a single instance of a command chain, and end when an operator is seen</string>
+							<key>end</key>
+							<string>\s*(?=[\n;&amp;])</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>#line-continuation</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#command-chain</string>
+								</dict>
+							</array>
 						</dict>
 						<dict>
-							<key>include</key>
-							<string>#command-chain</string>
+							<key>begin</key>
+							<string>\n|(;)|(&amp;)</string>
+							<key>beginCaptures</key>
+							<dict>
+								<key>1</key>
+								<dict>
+									<key>name</key>
+									<string>keyword.operator.fish</string>
+								</dict>
+								<key>2</key>
+								<dict>
+									<key>name</key>
+									<string>invalid.illegal.operator.fish</string>
+								</dict>
+							</dict>
+							<key>comment</key>
+							<string>Anonymous scope - Match the operator we know is there, then include the base scope or an `else` structure</string>
+							<key>end</key>
+							<string>(?=end[\s;&amp;)|&lt;&gt;])</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>begin</key>
+									<string>(?=else\s*[\s;])</string>
+									<key>comment</key>
+									<string>Anonymous scope - Capture an `else` up to the end-of-scope operator or the start of an `if` structure, then match from the end-of-scope operator indefinitely or match an `if` structure</string>
+									<key>end</key>
+									<string>(?=end[\s;&amp;)|&lt;&gt;])</string>
+									<key>patterns</key>
+									<array>
+										<dict>
+											<key>begin</key>
+											<string>else(?=\s*[\s;])</string>
+											<key>beginCaptures</key>
+											<dict>
+												<key>0</key>
+												<dict>
+													<key>name</key>
+													<string>keyword.control.conditional.fish</string>
+												</dict>
+											</dict>
+											<key>comment</key>
+											<string>Anonymous scope - Match the `else` we know is there and any comment, and mark anything besides an `if` as illegal</string>
+											<key>end</key>
+											<string>\s*(?=[\n;&amp;]|if\s+[^\s;])</string>
+											<key>endCaptures</key>
+											<dict>
+												<key>1</key>
+												<dict>
+													<key>name</key>
+													<string>keyword.operator.fish</string>
+												</dict>
+												<key>2</key>
+												<dict>
+													<key>name</key>
+													<string>invalid.illegal.operator.fish</string>
+												</dict>
+											</dict>
+											<key>patterns</key>
+											<array>
+												<dict>
+													<key>include</key>
+													<string>#line-continuation</string>
+												</dict>
+												<dict>
+													<key>include</key>
+													<string>#comment-internal-end</string>
+												</dict>
+												<dict>
+													<key>comment</key>
+													<string>Anything else is illegal</string>
+													<key>match</key>
+													<string>(?:[^\s;&amp;]*(?=[\s;&amp;]))</string>
+													<key>name</key>
+													<string>invalid.illegal.function-call.fish</string>
+												</dict>
+											</array>
+										</dict>
+										<dict>
+											<key>begin</key>
+											<string>\n|(;)|(&amp;)</string>
+											<key>beginCaptures</key>
+											<dict>
+												<key>1</key>
+												<dict>
+													<key>name</key>
+													<string>keyword.operator.fish</string>
+												</dict>
+												<key>2</key>
+												<dict>
+													<key>name</key>
+													<string>invalid.illegal.operator.fish</string>
+												</dict>
+											</dict>
+											<key>comment</key>
+											<string>Anonymous scope - Match the operator which will be there if no `if` was seen, then include the base scope which marks further `else` commands as invalid</string>
+											<key>end</key>
+											<string>(?=end[\s;&amp;)|&lt;&gt;])</string>
+											<key>patterns</key>
+											<array>
+												<dict>
+													<key>include</key>
+													<string>$self</string>
+												</dict>
+											</array>
+										</dict>
+										<dict>
+											<key>comment</key>
+											<string>Match the `if` structure which will be there if no operator was seen</string>
+										</dict>
+										<dict>
+											<key>include</key>
+											<string>#command-call-block-if-internal</string>
+										</dict>
+									</array>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>$self</string>
+								</dict>
+							</array>
 						</dict>
 					</array>
 				</dict>
@@ -778,87 +914,11 @@
 					<array>
 						<dict>
 							<key>comment</key>
-							<string>Capture the command we know is there</string>
+							<string>Note that this internal scope does not treat the closing parenthesis as an operator, because a command substitution can't end in the middle of a block</string>
 						</dict>
 						<dict>
 							<key>include</key>
-							<string>#command-call-block-if</string>
-						</dict>
-						<dict>
-							<key>begin</key>
-							<string>\n|(;)|([&amp;)])</string>
-							<key>beginCaptures</key>
-							<dict>
-								<key>1</key>
-								<dict>
-									<key>name</key>
-									<string>keyword.operator.fish</string>
-								</dict>
-								<key>2</key>
-								<dict>
-									<key>name</key>
-									<string>invalid.illegal.operator.fish</string>
-								</dict>
-							</dict>
-							<key>comment</key>
-							<string>Capture the operator we know is there, include the base scope, and end when an `end` command is seen</string>
-							<key>end</key>
-							<string>(?=end[\s;&amp;)|&lt;&gt;])</string>
-							<key>patterns</key>
-							<array>
-								<dict>
-									<key>begin</key>
-									<string>else(?=\s*[\s;])</string>
-									<key>beginCaptures</key>
-									<dict>
-										<key>0</key>
-										<dict>
-											<key>name</key>
-											<string>keyword.control.conditional.fish</string>
-										</dict>
-									</dict>
-									<key>comment</key>
-									<string>Treat `else` like the `begin` keyword in that it can be followed by a command, but that command is only valid if it is `if`</string>
-									<key>end</key>
-									<string>\n|(;)|(&amp;)</string>
-									<key>endCaptures</key>
-									<dict>
-										<key>1</key>
-										<dict>
-											<key>name</key>
-											<string>keyword.operator.fish</string>
-										</dict>
-										<key>2</key>
-										<dict>
-											<key>name</key>
-											<string>invalid.illegal.operator.fish</string>
-										</dict>
-									</dict>
-									<key>patterns</key>
-									<array>
-										<dict>
-											<key>include</key>
-											<string>#command-call-block-if</string>
-										</dict>
-										<dict>
-											<key>include</key>
-											<string>#comment-internal-end</string>
-										</dict>
-										<dict>
-											<key>comment</key>
-											<string>Anything else is illegal</string>
-											<key>match</key>
-											<string>(?:[^\s;&amp;]*(?=[\s;&amp;]))</string>
-											<key>name</key>
-											<string>invalid.illegal.function-call.fish</string>
-										</dict>
-									</array>
-								</dict>
-								<dict>
-									<key>include</key>
-									<string>$self</string>
-								</dict>
-							</array>
+							<string>#command-call-block-if-internal</string>
 						</dict>
 					</array>
 				</dict>

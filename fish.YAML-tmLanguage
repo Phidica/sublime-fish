@@ -245,44 +245,65 @@ repository:
         endCaptures:
           '0': {name: keyword.control.conditional.fish}
         patterns:
-          - comment: Capture the command we know is there
-          - include: '#command-call-block-if'
+          - comment: Note that this internal scope does not treat the closing parenthesis as an operator, because a command substitution can't end in the middle of a block
+          - include: '#command-call-block-if-internal'
 
-          - comment: Capture the operator we know is there, include the base scope, and end when an `end` command is seen
-            begin: \n|(;)|([&)])
+  command-call-block-if-internal:
+    comment: The acceptable structure internal to an if-end block can be represented recursively because anonymous scopes nest silently. If an `else` without a following `if` is seen, then further `else` commands will be correctly marked as invalid. This is a lot of work just to get that extra little bit of functionality :)
+    patterns:
+      - comment: Anonymous scope - Capture an `if` and the command up to the end-of-scope operator, then capture from the end-of-scope operator indefinitely
+        begin: (?=if\s+[^\s;])
+        end: (?=end[\s;&)|<>])
+        patterns:
+          - comment: Anonymous scope - Match the command name we know is there, include a single instance of a command chain, and end when an operator is seen
+            begin: if
+            beginCaptures:
+              '0': {name: keyword.control.conditional.fish}
+            end: \s*(?=[\n;&])
+            patterns:
+              - include: '#line-continuation'
+              - include: '#command-chain'
+
+          - comment: Anonymous scope - Match the operator we know is there, then include the base scope or an `else` structure
+            begin: \n|(;)|(&)
             beginCaptures:
               '1': {name: keyword.operator.fish}
               '2': {name: invalid.illegal.operator.fish}
             end: (?=end[\s;&)|<>])
             patterns:
-              - comment: Treat `else` like the `begin` keyword in that it can be followed by a command, but that command is only valid if it is `if`
-                begin: else(?=\s*[\s;])
-                beginCaptures:
-                  '0': {name: keyword.control.conditional.fish}
-                end: \n|(;)|(&)
-                endCaptures:
-                  '1': {name: keyword.operator.fish}
-                  '2': {name: invalid.illegal.operator.fish}
+              - comment: Anonymous scope - Capture an `else` up to the end-of-scope operator or the start of an `if` structure, then match from the end-of-scope operator indefinitely or match an `if` structure
+                begin: (?=else\s*[\s;])
+                end: (?=end[\s;&)|<>])
                 patterns:
-                  - include: '#command-call-block-if'
-                  - include: '#comment-internal-end'
+                  - comment: Anonymous scope - Match the `else` we know is there and any comment, and mark anything besides an `if` as illegal
+                    begin: else(?=\s*[\s;])
+                    beginCaptures:
+                      '0': {name: keyword.control.conditional.fish}
+                    end: \s*(?=[\n;&]|if\s+[^\s;])
+                    endCaptures:
+                      '1': {name: keyword.operator.fish}
+                      '2': {name: invalid.illegal.operator.fish}
+                    patterns:
+                      - include: '#line-continuation'
+                      - include: '#comment-internal-end'
 
-                  - comment: Anything else is illegal
-                    name: invalid.illegal.function-call.fish
-                    match: (?:[^\s;&]*(?=[\s;&]))
+                      - comment: Anything else is illegal
+                        name: invalid.illegal.function-call.fish
+                        match: (?:[^\s;&]*(?=[\s;&]))
+
+                  - comment: Anonymous scope - Match the operator which will be there if no `if` was seen, then include the base scope which marks further `else` commands as invalid
+                    begin: \n|(;)|(&)
+                    beginCaptures:
+                      '1': {name: keyword.operator.fish}
+                      '2': {name: invalid.illegal.operator.fish}
+                    end: (?=end[\s;&)|<>])
+                    patterns:
+                      - include: $self
+
+                  - comment: Match the `if` structure which will be there if no operator was seen
+                  - include: '#command-call-block-if-internal'
 
               - include: $self
-
-  command-call-block-if:
-    patterns:
-      - comment: Capture the command name we know is there, include a single instance of a command chain, and end when an operator is seen
-        begin: if
-        beginCaptures:
-          '0': {name: keyword.control.conditional.fish}
-        end: \s*(?=[\n;&)])
-        patterns:
-          - include: '#line-continuation'
-          - include: '#command-chain'
 
   command-call-block:
     patterns:
