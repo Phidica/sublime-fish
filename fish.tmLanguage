@@ -211,100 +211,6 @@
 			<array>
 				<dict>
 					<key>begin</key>
-					<string>\b(for)\b(?!\s*(-|&amp;|\|))</string>
-					<key>beginCaptures</key>
-					<dict>
-						<key>0</key>
-						<dict>
-							<key>name</key>
-							<string>keyword.control.conditional.fish</string>
-						</dict>
-					</dict>
-					<key>end</key>
-					<string>(end)(\s*([;&amp;]))?</string>
-					<key>endCaptures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>keyword.control.conditional.fish</string>
-						</dict>
-						<key>3</key>
-						<dict>
-							<key>name</key>
-							<string>keyword.operator.fish</string>
-						</dict>
-					</dict>
-					<key>name</key>
-					<string>meta.block.for-in.fish</string>
-					<key>patterns</key>
-					<array>
-						<dict>
-							<key>begin</key>
-							<string>(?&lt;=for)</string>
-							<key>end</key>
-							<string>(?&lt;=\w)(?=\W)</string>
-							<key>patterns</key>
-							<array>
-								<dict>
-									<key>comment</key>
-									<string>Treat the varname like an argument</string>
-								</dict>
-								<dict>
-									<key>include</key>
-									<string>#line-continuation</string>
-								</dict>
-								<dict>
-									<key>include</key>
-									<string>#argument</string>
-								</dict>
-							</array>
-						</dict>
-						<dict>
-							<key>begin</key>
-							<string>\b(in)\b</string>
-							<key>beginCaptures</key>
-							<dict>
-								<key>0</key>
-								<dict>
-									<key>name</key>
-									<string>keyword.control.conditional.fish</string>
-								</dict>
-							</dict>
-							<key>end</key>
-							<string>(?=;)|\n</string>
-							<key>patterns</key>
-							<array>
-								<dict>
-									<key>include</key>
-									<string>#line-continuation</string>
-								</dict>
-								<dict>
-									<key>include</key>
-									<string>#comment-internal-end</string>
-								</dict>
-								<dict>
-									<key>comment</key>
-									<string>Treat the list as arguments</string>
-								</dict>
-								<dict>
-									<key>include</key>
-									<string>#argument</string>
-								</dict>
-							</array>
-						</dict>
-						<dict>
-							<key>include</key>
-							<string>#loop-control-command</string>
-						</dict>
-						<dict>
-							<key>include</key>
-							<string>$self</string>
-						</dict>
-					</array>
-				</dict>
-				<dict>
-					<key>begin</key>
 					<string>\b(switch)\b(?!\s*(-|&amp;|\|))</string>
 					<key>beginCaptures</key>
 					<dict>
@@ -688,7 +594,7 @@
 													<key>comment</key>
 													<string>Anything else is illegal</string>
 													<key>match</key>
-													<string>(?:[^\s;&amp;]*(?=[\s;&amp;]))</string>
+													<string>(?:\S+?(?=[\s;&amp;]))</string>
 													<key>name</key>
 													<string>invalid.illegal.function-call.fish</string>
 												</dict>
@@ -763,7 +669,7 @@
 					<key>comment</key>
 					<string>Block commands cannot be backgrounded, piped, or redirected</string>
 					<key>match</key>
-					<string>(begin|while|if)\s*([&amp;|&lt;&gt;])</string>
+					<string>(begin|while|if|for)\s*([&amp;|&lt;&gt;])</string>
 				</dict>
 				<dict>
 					<key>captures</key>
@@ -821,7 +727,7 @@
 					<key>begin</key>
 					<string>(?=while\s+[^\s;)-])</string>
 					<key>comment</key>
-					<string>If the command name is followed by a valid command (not anything that closes the scope or a command starting with a '-') then open the scope</string>
+					<string>If the command name is followed by a valid string (not anything that closes the scope or a string starting with a '-') then open the scope</string>
 					<key>end</key>
 					<string>end(?=[\s;&amp;)|&lt;&gt;])</string>
 					<key>endCaptures</key>
@@ -848,7 +754,7 @@
 								</dict>
 							</dict>
 							<key>comment</key>
-							<string>Capture the command name we know is there, include a single instance of a command chain, and end when an operator is seen</string>
+							<string>Anonymous scope - Capture the command name we know is there, include a single instance of a command chain, and end when an operator is seen</string>
 							<key>end</key>
 							<string>\s*(?=[\n;&amp;)])</string>
 							<key>patterns</key>
@@ -880,7 +786,7 @@
 								</dict>
 							</dict>
 							<key>comment</key>
-							<string>Capture the operator we know is there, include the base scope, and end when an `end` command is seen</string>
+							<string>Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen</string>
 							<key>end</key>
 							<string>(?=end[\s;&amp;)|&lt;&gt;])</string>
 							<key>patterns</key>
@@ -897,7 +803,7 @@
 					<key>begin</key>
 					<string>(?=if\s+[^\s;)-])</string>
 					<key>comment</key>
-					<string>If the command name is followed by a valid command (not anything that closes the scope or a command starting with a '-') then open the scope</string>
+					<string>If the command name is followed by a valid string (not anything that closes the scope or a string starting with a '-') then open the scope</string>
 					<key>end</key>
 					<string>end(?=[\s;&amp;)|&lt;&gt;])</string>
 					<key>endCaptures</key>
@@ -919,6 +825,135 @@
 						<dict>
 							<key>include</key>
 							<string>#command-call-block-if-internal</string>
+						</dict>
+					</array>
+				</dict>
+				<dict>
+					<key>begin</key>
+					<string>(?=for\s+[^\s;)-])</string>
+					<key>comment</key>
+					<string>If the command name is followed by a valid string (not anything that closes the scope or a string starting with a '-') then open the scope</string>
+					<key>end</key>
+					<string>end(?=[\s;&amp;)|&lt;&gt;])</string>
+					<key>endCaptures</key>
+					<dict>
+						<key>0</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.conditional.fish</string>
+						</dict>
+					</dict>
+					<key>name</key>
+					<string>meta.block.for-in.fish</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>begin</key>
+							<string>(for)(?:\s+)</string>
+							<key>beginCaptures</key>
+							<dict>
+								<key>1</key>
+								<dict>
+									<key>name</key>
+									<string>keyword.control.conditional.fish</string>
+								</dict>
+							</dict>
+							<key>comment</key>
+							<string>Anonymous scope - Capture the command name we know is there, include a single instance of an argument (the varname), and end when the whitespace after the varname is captured</string>
+							<key>end</key>
+							<string>\s+</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>#line-continuation</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#argument</string>
+								</dict>
+								<dict>
+									<key>comment</key>
+									<string>Capture anything that an argument explicitly rejects, which is mostly operators</string>
+									<key>match</key>
+									<string>\S+</string>
+									<key>name</key>
+									<string>invalid.illegal.operator.fish</string>
+								</dict>
+							</array>
+						</dict>
+						<dict>
+							<key>comment</key>
+							<string>Line continuation is allowed between the varname and "in"</string>
+							<key>include</key>
+							<string>#line-continuation</string>
+						</dict>
+						<dict>
+							<key>begin</key>
+							<string>in(?=\s)</string>
+							<key>beginCaptures</key>
+							<dict>
+								<key>0</key>
+								<dict>
+									<key>name</key>
+									<string>keyword.control.conditional.fish</string>
+								</dict>
+							</dict>
+							<key>comment</key>
+							<string>Anonymous scope - Capture the command name which might be there, include an arbitrary number of arguments, and end when the control operator is seen</string>
+							<key>end</key>
+							<string>\s*(?=[\n;&amp;)])</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>#line-continuation</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#comment-internal-end</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#argument</string>
+								</dict>
+							</array>
+						</dict>
+						<dict>
+							<key>begin</key>
+							<string>\n|(;)|([&amp;)])</string>
+							<key>beginCaptures</key>
+							<dict>
+								<key>1</key>
+								<dict>
+									<key>name</key>
+									<string>keyword.operator.fish</string>
+								</dict>
+								<key>2</key>
+								<dict>
+									<key>name</key>
+									<string>invalid.illegal.operator.fish</string>
+								</dict>
+							</dict>
+							<key>comment</key>
+							<string>Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen</string>
+							<key>end</key>
+							<string>(?=end[\s;&amp;)|&lt;&gt;])</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>$self</string>
+								</dict>
+							</array>
+						</dict>
+						<dict>
+							<key>comment</key>
+							<string>Anything beside line continuation, "in", or a control operator is invalid</string>
+							<key>match</key>
+							<string>\S+?(?=[\s;&amp;])</string>
+							<key>name</key>
+							<string>invalid.illegal.function-call.fish</string>
 						</dict>
 					</array>
 				</dict>

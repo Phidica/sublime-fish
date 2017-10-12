@@ -950,8 +950,12 @@ else if if test
 #!      ^^ meta.block.if meta.block.if keyword.control.conditional
 end
 #! <- meta.block.if meta.block.if keyword.control.conditional
-else
+else a&
 #! <- meta.block.if keyword.control.conditional
+#!   ^ invalid.illegal.function-call
+#!    ^ invalid.illegal.operator
+else
+#! <- invalid.illegal.function-call
 end
 #! <- meta.block.if keyword.control.conditional
 
@@ -959,6 +963,15 @@ end
 echo (if)
 #!    ^^ variable.function
 #!      ^ punctuation.section.parens.end
+
+for arg arg in --foo bar; break; end | cat
+#!      ^^^ invalid.illegal.function-call
+#!          ^^ keyword.control.conditional
+#!             ^^^^^ meta.argument meta.string.unquoted
+#!                   ^^^ meta.argument meta.string.unquoted
+#!                        ^^^^^ keyword.control.conditional
+#!                                   ^ meta.pipe keyword.operator.pipe
+#!                                     ^^^ variable.function
 
 for in in in in (seq 5) in in # comment
 #! <- meta.block.for-in keyword.control.conditional
@@ -999,6 +1012,25 @@ for \
 #! ^^^ meta.function-call
 end
 #! <- keyword.control.conditional
+
+# This executes without error
+echo (for)
+#!    ^^^ variable.function
+#!       ^ punctuation.section.parens.end
+
+# The second ')' and "end" are to catch the runaway scopes if needed
+echo (for foo) end)
+#!    ^^^ keyword.control.conditional
+#!        ^^^ meta.argument
+#!           ^ invalid.illegal.operator
+#!             ^^^ keyword.control.conditional
+echo (for foo in bar) end)
+#!    ^^^ keyword.control.conditional
+#!        ^^^ meta.argument
+#!            ^^ keyword.control.conditional
+#!               ^^^ meta.argument
+#!                  ^ invalid.illegal.operator
+#!                    ^^^ keyword.control.conditional
 
 switch (echo $var)
 #! <- meta.block.switch keyword.control.conditional
