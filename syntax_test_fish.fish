@@ -940,6 +940,21 @@ if \
 #!              ^ keyword.operator
 #!                ^^^^^^^^^ comment.line
 
+if if test
+#! ^^ meta.block.if meta.block.if keyword.control.conditional
+end
+#! <- meta.block.if meta.block.if keyword.control.conditional
+else if if test
+#! <- meta.block.if keyword.control.conditional
+#!   ^^ meta.block.if keyword.control.conditional
+#!      ^^ meta.block.if meta.block.if keyword.control.conditional
+end
+#! <- meta.block.if meta.block.if keyword.control.conditional
+else
+#! <- meta.block.if keyword.control.conditional
+end
+#! <- meta.block.if keyword.control.conditional
+
 # This executes without error
 echo (if)
 #!    ^^ variable.function

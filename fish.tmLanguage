@@ -581,7 +581,7 @@
 			<array>
 				<dict>
 					<key>begin</key>
-					<string>(?=if\s+[^\s;])</string>
+					<string>(?=if(?:\s*\n|\s+[^\s;]))</string>
 					<key>comment</key>
 					<string>Anonymous scope - Capture an `if` and the command up to the end-of-scope operator, then capture from the end-of-scope operator indefinitely</string>
 					<key>end</key>
@@ -660,7 +660,7 @@
 											<key>comment</key>
 											<string>Anonymous scope - Match the `else` we know is there and any comment, and mark anything besides an `if` as illegal</string>
 											<key>end</key>
-											<string>\s*(?=[\n;&amp;]|if\s+[^\s;])</string>
+											<string>\s*(?=[\n;&amp;]|if(?:\s*\n|\s+[^\s;]))</string>
 											<key>endCaptures</key>
 											<dict>
 												<key>1</key>

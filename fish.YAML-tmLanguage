@@ -252,7 +252,7 @@ repository:
     comment: The acceptable structure internal to an if-end block can be represented recursively because anonymous scopes nest silently. If an `else` without a following `if` is seen, then further `else` commands will be correctly marked as invalid. This is a lot of work just to get that extra little bit of functionality :)
     patterns:
       - comment: Anonymous scope - Capture an `if` and the command up to the end-of-scope operator, then capture from the end-of-scope operator indefinitely
-        begin: (?=if\s+[^\s;])
+        begin: (?=if(?:\s*\n|\s+[^\s;]))
         end: (?=end[\s;&)|<>])
         patterns:
           - comment: Anonymous scope - Match the command name we know is there, include a single instance of a command chain, and end when an operator is seen
@@ -279,7 +279,7 @@ repository:
                     begin: else(?=\s*[\s;])
                     beginCaptures:
                       '0': {name: keyword.control.conditional.fish}
-                    end: \s*(?=[\n;&]|if\s+[^\s;])
+                    end: \s*(?=[\n;&]|if(?:\s*\n|\s+[^\s;]))
                     endCaptures:
                       '1': {name: keyword.operator.fish}
                       '2': {name: invalid.illegal.operator.fish}
