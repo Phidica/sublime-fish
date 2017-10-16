@@ -191,7 +191,7 @@ repository:
   command-call-block-rewrite:
     patterns:
       - comment: Block commands cannot be backgrounded, piped, or redirected
-        match: (begin|while|if|for)\s*([&|<>])
+        match: (begin|while|if|for|switch)\s*([&|<>])
         captures:
           '1': {name: variable.function.fish}
           '2': {name: invalid.illegal.operator.fish}
@@ -293,7 +293,65 @@ repository:
 
           - comment: Anything beside line continuation, "in", or a control operator is invalid
             name: invalid.illegal.function-call.fish
-            match: \S+?(?=[\s;&])
+            match: \S+?(?=[\s;&)])
+
+      - name: meta.block.switch.fish
+        begin: (?=switch\s+[^\s;)-])
+        comment: If the command name is followed by a valid string (not anything that closes the scope or a string starting with a '-') then open the scope
+        end: end(?=[\s;&)|<>])
+        endCaptures:
+          '0': {name: keyword.control.conditional.fish}
+        patterns:
+          - comment: Anonymous scope - Match the valid part of the switch statement, then look for an invalid part
+            begin: (?=switch)
+            end: \s*(?=[\n;&)])
+            patterns:
+              - comment: Anonymous scope - Capture the command name we know is there, include a single instance of an argument (the value), and end when whitespace or a control operator is seen
+                begin: (switch)(?:\s+)
+                beginCaptures:
+                  '1': {name: keyword.control.conditional.fish}
+                end: (?=[\s;&)])
+                patterns:
+                  - include: '#line-continuation' # Eats whitespace on next line!
+
+                  - include: '#argument'
+
+                  - comment: Capture anything that an argument explicitly rejects, which is mostly operators
+                    name: invalid.illegal.operator.fish
+                    match: \S+
+
+              - comment: Anonymous scope - Capture whitespace which might be there, match any non-control-operator strings as invalid, and end when a control operator is seen
+                begin: \s+
+                end: (?=[\n;&)])
+                patterns:
+                  - name: invalid.illegal.string.fish
+                    match: \S+?(?=[\s;&)])
+
+          - comment: Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen
+            begin: \n|(;)|([&)])
+            beginCaptures:
+              '1': {name: keyword.operator.fish}
+              '2': {name: invalid.illegal.operator.fish}
+            end: (?=end[\s;&)|<>])
+            patterns:
+              - comment: Anonymous scope - Capture the command name which might be there, include an arbitrary number of arguments, and end when the control operator is captured
+                begin: case(?=[\s;&)])
+                beginCaptures:
+                  '0': {name: keyword.control.conditional.fish}
+                end: \n|(;)|([&)])
+                endCaptures:
+                  '1': {name: keyword.operator.fish}
+                  '2': {name: invalid.illegal.operator.fish}
+                patterns:
+                  - include: '#line-continuation'
+                  - include: '#comment-internal-end'
+                  - include: '#argument'
+
+                  - comment: Anything else (eg, redirection) is illegal
+                    name: invalid.illegal.operator.fish
+                    match: \S+?(?=[\s;&)])
+
+              - include: $self
 
   command-call-block-if-internal:
     comment: The acceptable structure internal to an if-end block can be represented recursively because anonymous scopes nest silently. If an `else` without a following `if` is seen, then further `else` commands will be correctly marked as invalid. This is a lot of work just to get that extra little bit of functionality :)
@@ -335,8 +393,8 @@ repository:
                       - include: '#comment-internal-end'
 
                       - comment: Anything else is illegal
-                        name: invalid.illegal.function-call.fish
-                        match: (?:\S+?(?=[\s;&]))
+                        name: invalid.illegal.string.fish
+                        match: \S+?(?=[\s;&])
 
                   - comment: Anonymous scope - Match the operator which will be there if no `if` was seen, then include the base scope which marks further `else` commands as invalid
                     begin: \n|(;)|(&)
@@ -354,48 +412,6 @@ repository:
 
   command-call-block:
     patterns:
-      - name: meta.block.switch.fish
-        begin: \b(switch)\b(?!\s*(-|&|\|))
-        beginCaptures:
-          '0': {name: keyword.control.conditional.fish}
-        end: (end)(\s*([;&]))?
-        endCaptures:
-          '1': {name: keyword.control.conditional.fish}
-          '3': {name: keyword.operator.fish}
-        patterns:
-          - name: meta.block.switch.value.fish
-            begin: (?<=switch)
-            end: \n|(;)
-            endCaptures:
-              '1': {name: keyword.operator.fish}
-            comment: Value ends at a newline or ';'
-            patterns:
-              - include: '#line-continuation'
-              - include: '#comment-internal-end'
-              - include: '#argument'
-
-          - name: meta.block.switch.case.fish
-            begin: \b(case)\b
-            beginCaptures:
-              '0': {name: keyword.control.conditional.fish}
-            end: (?=\b(case|end)\b)
-            comment: Case block ends before a new case or the end of the switch block
-            patterns:
-              - name: meta.block.switch.case.wildcard.fish
-                begin: (?<=case)
-                end: \n|(;)
-                endCaptures:
-                  '1': {name: keyword.operator.fish}
-                comment: Wildcard ends at a newline or ';'
-                patterns:
-                  - include: '#line-continuation'
-                  - include: '#comment-internal-end'
-                  - include: '#argument'
-
-              - include: '$self'
-
-          - include: '#comment-external'
-
       - name: meta.block.function.fish
         begin: \b(function)\b(?!\s+(&|\|))
         beginCaptures:

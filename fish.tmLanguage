@@ -211,133 +211,6 @@
 			<array>
 				<dict>
 					<key>begin</key>
-					<string>\b(switch)\b(?!\s*(-|&amp;|\|))</string>
-					<key>beginCaptures</key>
-					<dict>
-						<key>0</key>
-						<dict>
-							<key>name</key>
-							<string>keyword.control.conditional.fish</string>
-						</dict>
-					</dict>
-					<key>end</key>
-					<string>(end)(\s*([;&amp;]))?</string>
-					<key>endCaptures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>keyword.control.conditional.fish</string>
-						</dict>
-						<key>3</key>
-						<dict>
-							<key>name</key>
-							<string>keyword.operator.fish</string>
-						</dict>
-					</dict>
-					<key>name</key>
-					<string>meta.block.switch.fish</string>
-					<key>patterns</key>
-					<array>
-						<dict>
-							<key>begin</key>
-							<string>(?&lt;=switch)</string>
-							<key>comment</key>
-							<string>Value ends at a newline or ';'</string>
-							<key>end</key>
-							<string>\n|(;)</string>
-							<key>endCaptures</key>
-							<dict>
-								<key>1</key>
-								<dict>
-									<key>name</key>
-									<string>keyword.operator.fish</string>
-								</dict>
-							</dict>
-							<key>name</key>
-							<string>meta.block.switch.value.fish</string>
-							<key>patterns</key>
-							<array>
-								<dict>
-									<key>include</key>
-									<string>#line-continuation</string>
-								</dict>
-								<dict>
-									<key>include</key>
-									<string>#comment-internal-end</string>
-								</dict>
-								<dict>
-									<key>include</key>
-									<string>#argument</string>
-								</dict>
-							</array>
-						</dict>
-						<dict>
-							<key>begin</key>
-							<string>\b(case)\b</string>
-							<key>beginCaptures</key>
-							<dict>
-								<key>0</key>
-								<dict>
-									<key>name</key>
-									<string>keyword.control.conditional.fish</string>
-								</dict>
-							</dict>
-							<key>comment</key>
-							<string>Case block ends before a new case or the end of the switch block</string>
-							<key>end</key>
-							<string>(?=\b(case|end)\b)</string>
-							<key>name</key>
-							<string>meta.block.switch.case.fish</string>
-							<key>patterns</key>
-							<array>
-								<dict>
-									<key>begin</key>
-									<string>(?&lt;=case)</string>
-									<key>comment</key>
-									<string>Wildcard ends at a newline or ';'</string>
-									<key>end</key>
-									<string>\n|(;)</string>
-									<key>endCaptures</key>
-									<dict>
-										<key>1</key>
-										<dict>
-											<key>name</key>
-											<string>keyword.operator.fish</string>
-										</dict>
-									</dict>
-									<key>name</key>
-									<string>meta.block.switch.case.wildcard.fish</string>
-									<key>patterns</key>
-									<array>
-										<dict>
-											<key>include</key>
-											<string>#line-continuation</string>
-										</dict>
-										<dict>
-											<key>include</key>
-											<string>#comment-internal-end</string>
-										</dict>
-										<dict>
-											<key>include</key>
-											<string>#argument</string>
-										</dict>
-									</array>
-								</dict>
-								<dict>
-									<key>include</key>
-									<string>$self</string>
-								</dict>
-							</array>
-						</dict>
-						<dict>
-							<key>include</key>
-							<string>#comment-external</string>
-						</dict>
-					</array>
-				</dict>
-				<dict>
-					<key>begin</key>
 					<string>\b(function)\b(?!\s+(&amp;|\|))</string>
 					<key>beginCaptures</key>
 					<dict>
@@ -594,9 +467,9 @@
 													<key>comment</key>
 													<string>Anything else is illegal</string>
 													<key>match</key>
-													<string>(?:\S+?(?=[\s;&amp;]))</string>
+													<string>\S+?(?=[\s;&amp;])</string>
 													<key>name</key>
-													<string>invalid.illegal.function-call.fish</string>
+													<string>invalid.illegal.string.fish</string>
 												</dict>
 											</array>
 										</dict>
@@ -669,7 +542,7 @@
 					<key>comment</key>
 					<string>Block commands cannot be backgrounded, piped, or redirected</string>
 					<key>match</key>
-					<string>(begin|while|if|for)\s*([&amp;|&lt;&gt;])</string>
+					<string>(begin|while|if|for|switch)\s*([&amp;|&lt;&gt;])</string>
 				</dict>
 				<dict>
 					<key>captures</key>
@@ -951,9 +824,173 @@
 							<key>comment</key>
 							<string>Anything beside line continuation, "in", or a control operator is invalid</string>
 							<key>match</key>
-							<string>\S+?(?=[\s;&amp;])</string>
+							<string>\S+?(?=[\s;&amp;)])</string>
 							<key>name</key>
 							<string>invalid.illegal.function-call.fish</string>
+						</dict>
+					</array>
+				</dict>
+				<dict>
+					<key>begin</key>
+					<string>(?=switch\s+[^\s;)-])</string>
+					<key>comment</key>
+					<string>If the command name is followed by a valid string (not anything that closes the scope or a string starting with a '-') then open the scope</string>
+					<key>end</key>
+					<string>end(?=[\s;&amp;)|&lt;&gt;])</string>
+					<key>endCaptures</key>
+					<dict>
+						<key>0</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.control.conditional.fish</string>
+						</dict>
+					</dict>
+					<key>name</key>
+					<string>meta.block.switch.fish</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>begin</key>
+							<string>(?=switch)</string>
+							<key>comment</key>
+							<string>Anonymous scope - Match the valid part of the switch statement, then look for an invalid part</string>
+							<key>end</key>
+							<string>\s*(?=[\n;&amp;)])</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>begin</key>
+									<string>(switch)(?:\s+)</string>
+									<key>beginCaptures</key>
+									<dict>
+										<key>1</key>
+										<dict>
+											<key>name</key>
+											<string>keyword.control.conditional.fish</string>
+										</dict>
+									</dict>
+									<key>comment</key>
+									<string>Anonymous scope - Capture the command name we know is there, include a single instance of an argument (the value), and end when whitespace or a control operator is seen</string>
+									<key>end</key>
+									<string>(?=[\s;&amp;)])</string>
+									<key>patterns</key>
+									<array>
+										<dict>
+											<key>include</key>
+											<string>#line-continuation</string>
+										</dict>
+										<dict>
+											<key>include</key>
+											<string>#argument</string>
+										</dict>
+										<dict>
+											<key>comment</key>
+											<string>Capture anything that an argument explicitly rejects, which is mostly operators</string>
+											<key>match</key>
+											<string>\S+</string>
+											<key>name</key>
+											<string>invalid.illegal.operator.fish</string>
+										</dict>
+									</array>
+								</dict>
+								<dict>
+									<key>begin</key>
+									<string>\s+</string>
+									<key>comment</key>
+									<string>Anonymous scope - Capture whitespace which might be there, match any non-control-operator strings as invalid, and end when a control operator is seen</string>
+									<key>end</key>
+									<string>(?=[\n;&amp;)])</string>
+									<key>patterns</key>
+									<array>
+										<dict>
+											<key>match</key>
+											<string>\S+?(?=[\s;&amp;)])</string>
+											<key>name</key>
+											<string>invalid.illegal.string.fish</string>
+										</dict>
+									</array>
+								</dict>
+							</array>
+						</dict>
+						<dict>
+							<key>begin</key>
+							<string>\n|(;)|([&amp;)])</string>
+							<key>beginCaptures</key>
+							<dict>
+								<key>1</key>
+								<dict>
+									<key>name</key>
+									<string>keyword.operator.fish</string>
+								</dict>
+								<key>2</key>
+								<dict>
+									<key>name</key>
+									<string>invalid.illegal.operator.fish</string>
+								</dict>
+							</dict>
+							<key>comment</key>
+							<string>Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen</string>
+							<key>end</key>
+							<string>(?=end[\s;&amp;)|&lt;&gt;])</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>begin</key>
+									<string>case(?=[\s;&amp;)])</string>
+									<key>beginCaptures</key>
+									<dict>
+										<key>0</key>
+										<dict>
+											<key>name</key>
+											<string>keyword.control.conditional.fish</string>
+										</dict>
+									</dict>
+									<key>comment</key>
+									<string>Anonymous scope - Capture the command name which might be there, include an arbitrary number of arguments, and end when the control operator is captured</string>
+									<key>end</key>
+									<string>\n|(;)|([&amp;)])</string>
+									<key>endCaptures</key>
+									<dict>
+										<key>1</key>
+										<dict>
+											<key>name</key>
+											<string>keyword.operator.fish</string>
+										</dict>
+										<key>2</key>
+										<dict>
+											<key>name</key>
+											<string>invalid.illegal.operator.fish</string>
+										</dict>
+									</dict>
+									<key>patterns</key>
+									<array>
+										<dict>
+											<key>include</key>
+											<string>#line-continuation</string>
+										</dict>
+										<dict>
+											<key>include</key>
+											<string>#comment-internal-end</string>
+										</dict>
+										<dict>
+											<key>include</key>
+											<string>#argument</string>
+										</dict>
+										<dict>
+											<key>comment</key>
+											<string>Anything else (eg, redirection) is illegal</string>
+											<key>match</key>
+											<string>\S+?(?=[\s;&amp;)])</string>
+											<key>name</key>
+											<string>invalid.illegal.operator.fish</string>
+										</dict>
+									</array>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>$self</string>
+								</dict>
+							</array>
 						</dict>
 					</array>
 				</dict>

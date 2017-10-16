@@ -914,8 +914,8 @@ else if test &
 #!         ^ keyword.operator
   echo arg
 else cmd arg; echo &
-#!   ^^^ invalid.illegal.function-call
-#!       ^^^ invalid.illegal.function-call
+#!   ^^^ invalid.illegal.string
+#!       ^^^ invalid.illegal.string
 #!            ^^^^ variable.function
 end
 
@@ -952,7 +952,7 @@ end
 #! <- meta.block.if meta.block.if keyword.control.conditional
 else a&
 #! <- meta.block.if keyword.control.conditional
-#!   ^ invalid.illegal.function-call
+#!   ^ invalid.illegal.string
 #!    ^ invalid.illegal.operator
 else
 #! <- invalid.illegal.function-call
@@ -1032,16 +1032,48 @@ echo (for foo in bar) end)
 #!                  ^ invalid.illegal.operator
 #!                    ^^^ keyword.control.conditional
 
+switch value; case wildcard; command echo foo; end # comment
+#! <- meta.block.switch keyword.control.conditional
+#!          ^ keyword.operator
+#!            ^^^^ keyword.control.conditional
+#!                         ^ keyword.operator
+#!                                           ^ keyword.operator
+#!                                                 ^ comment.line
+
+switch foo bar | echo
+#!     ^^^ meta.argument meta.string.unquoted
+#!         ^^^ invalid.illegal.string
+#!             ^ invalid.illegal.string
+#!               ^^^^ invalid.illegal.string
+  case foo | bar >out &
+#!     ^^^ meta.argument meta.string.unquoted
+#!         ^ invalid.illegal.operator
+#!           ^^^ meta.argument meta.string.unquoted
+#!                    ^ invalid.illegal.operator
+    echo arg
+#!  ^^^^ variable.function
+end | cat
+#!  ^ meta.pipe keyword.operator.pipe
+#!    ^^^ variable.function
+
+switch \-h
+#!     ^^^ meta.argument meta.string.unquoted
+  case -h
+#!     ^^ meta.argument meta.string.unquoted
+    echo "-h" # Haha, this doesn't actually work
+end
+
 switch (echo $var)
 #! <- meta.block.switch keyword.control.conditional
-#!     ^^^^^^^^^^^ meta.block.switch.value
-  case foo
-#! ^^^ meta.block.switch.case keyword.control.conditional
-#!     ^^^ meta.block.switch.case.wildcard
+#!     ^^^^^^^^^^^ meta.block.switch meta.argument
+  case foo baz
+#! ^^^ keyword.control.conditional
+#!     ^^^ meta.argument
+#!         ^^^ meta.argument
     echo bar
   case bar
-#! ^^^ meta.block.switch.case keyword.control.conditional
-#!     ^^^ meta.block.switch.case.wildcard
+#! ^^^ keyword.control.conditional
+#!     ^^^ meta.argument
     echo foo
 end
 #! <- keyword.control.conditional
@@ -1049,29 +1081,19 @@ end
 switch \
 # comment
 "foo"
-#! <- meta.block.switch.value string.quoted.double
+#! <- meta.block.switch meta.argument string.quoted.double
   case \
-#! ^^^ meta.block.switch.case keyword.control.conditional
+#! ^^^ keyword.control.conditional
   (echo foo)[] bar one two
-#! ^^^^^^^^^^^^^^^^^^^^^ meta.block.switch.case.wildcard
+#! ^^^^^^^^^^^ meta.argument
+#!             ^^^ meta.argument
+#!                 ^^^ meta.argument
     echo bar
   case '*'
-#!     ^^^ meta.block.switch.case.wildcard string.quoted.single
+#!     ^^^ meta.argument string.quoted.single
     echo arg
 end
 #! <- keyword.control.conditional
-
-
-
-# TEMP DISABLE
-# switch value; case wildcard; command echo foo; end # comment
-#          ^ keyword.operator
-#                         ^ keyword.operator
-#                                           ^ keyword.operator
-#                                                 ^ comment.line
-
-
-
 
 switch --help; case;
 #! <- meta.function-call variable.function
@@ -1083,8 +1105,13 @@ switch--help arg
 #! <- variable.function
 #! ^^^^^^^^^ meta.function-call variable.function
 
+# This executes without error
+echo (switch)
+#!    ^^^^^^ variable.function
+#!          ^ punctuation.section.parens.end
+
 function foo --arg="bar"
-#! <- meta.block.function. keyword.control.conditional
+#! <- meta.block.function keyword.control.conditional
 #!       ^^^ entity.name.function
 #!           ^^^^^^^^^^^ meta.argument
   return 1
@@ -1095,7 +1122,7 @@ end
 #! <- keyword.control.conditional
 
 function \
-#! <- meta.block.function. keyword.control.conditional
+#! <- meta.block.function keyword.control.conditional
 #!       ^ constant.character.escape
 foo\ bar \
 #! <- entity.name.function
@@ -1110,7 +1137,7 @@ end
 #! <- keyword.control.conditional
 
 function inline; echo arg; end # comment
-#! <- meta.block.function. keyword.control.conditional
+#! <- meta.block.function keyword.control.conditional
 #!       ^^^^^^ entity.name.function
 #!             ^ keyword.operator
 #!                       ^ keyword.operator
