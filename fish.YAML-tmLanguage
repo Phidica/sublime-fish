@@ -170,7 +170,6 @@ repository:
 
               - include: '#line-continuation'
               - include: '#command-call-meta'
-              - include: '#command-call-block'
               - include: '#command-call-standard'
 
       - comment: Pick up a comment that comes after an '&' or otherwise sneaks into the scope
@@ -185,13 +184,12 @@ repository:
         end: (?=[\n;&)|])
         patterns:
           - include: '#line-continuation'
-          - include: '#command-call-block'
           - include: '#command-call-standard'
 
-  command-call-block-rewrite:
+  command-call-standard-block:
     patterns:
       - comment: Block commands cannot be backgrounded, piped, or redirected
-        match: (begin|while|if|for|switch)\s*([&|<>])
+        match: (begin|while|if|for|switch|function)\s*([&|<>])
         captures:
           '1': {name: variable.function.fish}
           '2': {name: invalid.illegal.operator.fish}
@@ -246,7 +244,7 @@ repository:
           '0': {name: keyword.control.conditional.fish}
         patterns:
           - comment: Note that this internal scope does not treat the closing parenthesis as an operator, because a command substitution can't end in the middle of a block
-          - include: '#command-call-block-if-internal'
+          - include: '#command-call-standard-block-if-internal'
 
       - name: meta.block.for-in.fish
         begin: (?=for\s+[^\s;)-])
@@ -353,7 +351,63 @@ repository:
 
               - include: $self
 
-  command-call-block-if-internal:
+      - name: meta.block.function.fish
+        begin: (?=function\s+[^\s;)-])
+        comment: If the command name is followed by a valid string (not anything that closes the scope or a string starting with a '-') then open the scope
+        end: end(?=[\s;&)|<>])
+        endCaptures:
+          '0': {name: keyword.control.conditional.fish}
+        patterns:
+          - comment: Anonymous scope - Match the defined name of the function statement, then look for further arguments
+            begin: (?=function)
+            end: \s*(?=[\n;&)])
+            patterns:
+              - comment: Anonymous scope - Capture the command name we know is there, include a single instance of an argument (the value), and end when whitespace or a control operator is seen
+                begin: (function)(?:\s+)
+                beginCaptures:
+                  '1': {name: keyword.control.conditional.fish}
+                end: (?=[\s;&)])
+                patterns:
+                  - include: '#line-continuation' # Eats whitespace on next line!
+
+                  - name: invalid.illegal.string.fish
+                    begin: (?:[()|<>])
+                    end: (?=[\s;&)])
+
+                  - comment: a
+                    begin: (?!\\\n)
+                    end: (?=[\s;&()|<>])
+                    patterns:
+                      - comment: These patterns are similar to the scope around variable.function.fish in command-call-standard, except the defined name is expanded as an argument
+
+                      - name: constant.character.escape.fish
+                        match: \\\n
+
+                      - name: entity.name.function.fish
+                        begin: (?!\s)
+                        end: (?=[\s;&()|<>]|\\\n)
+                        patterns:
+                          - include: '#argument'
+
+              - comment: Anonymous scope - Capture whitespace which might be there, then match anything normal for a command call
+                begin: \s+
+                end: (?=[\n;&)])
+                patterns:
+                  - include: '#line-continuation'
+                  - include: '#comment-internal-end'
+                  - include: '#redirection'
+                  - include: '#argument'
+
+          - comment: Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen
+            begin: \n|(;)|([&)])
+            beginCaptures:
+              '1': {name: keyword.operator.fish}
+              '2': {name: invalid.illegal.operator.fish}
+            end: (?=end[\s;&)|<>])
+            patterns:
+              - include: $self
+
+  command-call-standard-block-if-internal:
     comment: The acceptable structure internal to an if-end block can be represented recursively because anonymous scopes nest silently. If an `else` without a following `if` is seen, then further `else` commands will be correctly marked as invalid. This is a lot of work just to get that extra little bit of functionality :)
     patterns:
       - comment: Anonymous scope - Capture an `if` and the command up to the end-of-scope operator, then capture from the end-of-scope operator indefinitely
@@ -406,46 +460,9 @@ repository:
                       - include: $self
 
                   - comment: Match the `if` structure which will be there if no operator was seen
-                  - include: '#command-call-block-if-internal'
+                  - include: '#command-call-standard-block-if-internal'
 
               - include: $self
-
-  command-call-block:
-    patterns:
-      - name: meta.block.function.fish
-        begin: \b(function)\b(?!\s+(&|\|))
-        beginCaptures:
-          '0': {name: keyword.control.conditional.fish}
-        end: (end)(\s*([;&]))?
-        endCaptures:
-          '1': {name: keyword.control.conditional.fish}
-          '3': {name: keyword.operator.fish}
-        patterns:
-          - begin: (?<=function)
-            end: \n|(;)
-            endCaptures:
-              '1': {name: keyword.operator.fish}
-            comment: Name and options end at a newline or ';'
-            patterns:
-              - begin: (?<=function)\s+
-                end: (?<=\S|\\ )\s*(?=[\S\n;])
-                comment: Detect the region from just after the `function` command to between the defined function name and the argument or control operators which follow it. Note that we have to account for the fact the defined function name may end in an escaped space
-                patterns:
-                  - comment: The function name may be given using any means that is valid for a command call
-                    match: (?:\'(?:\\[\'\\]|[^\'\\])*\'|\"(?:\\[\"$\n\\]|[^\"$\n\\])*\"|(?:\\[abefnrtv $\\*?#(){}\[\]<>^&;|"']|(?<=^|\s)\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]|[^\s$\\*?~%#()<>&|;"']|\\(?=[^abefnrtv\s$\\*?#(){}\[\]<>^&;|"'xXuUc])|(?<=\S|\\ )\\\n|(?<=\S|\\ )[~%#])+)+
-                    name: entity.name.function.fish
-
-                  - comment: We can't read across lines, so this is needed to catch an escaped newline at the begin of a defined function name
-                  - include: '#line-continuation'
-
-                  - include: '#comment-internal-end'
-
-              - comment: The rest of the patterns are the typical elements of a standard command-call, which is what the `function` command adheres to
-              - include: '#line-continuation'
-              - include: '#comment-internal-end'
-              - include: '#argument'
-
-          - include: $self
 
   command-call-standard:
     comment: Check if the command is any other legal command, ie, a standard command
@@ -479,7 +496,7 @@ repository:
             end: (?=[\s;&)|<>])
             patterns:
               - comment: Look for block structures
-                include: '#command-call-block-rewrite'
+                include: '#command-call-standard-block'
 
               - comment: Look for loop/function control commands. We perform no checking on the validity of their scope (because only allowing them in the correct scope won't work if they are used within if-blocks) or arguments (because fish does that during execution not parsing)
                 match: (?:break|continue|return)(?=[\s;&)|<>])

@@ -1128,6 +1128,7 @@ foo\ bar \
 #! ^^^ meta.argument
   arg2 # comment
 #! ^^^ meta.argument
+#!     ^^^^^^^^^ comment.line
   echo arg
 #! ^^^^^^^ meta.function-call
 end
@@ -1138,9 +1139,27 @@ function inline; echo arg; end # comment
 #!       ^^^^^^ entity.name.function
 #!             ^ keyword.operator
 #!                       ^ keyword.operator
+#!                             ^^^^^^^^^ comment.line
+
+function $cmd>out
+#!       ^^^^ entity.name.function meta.variable-expansion variable.other
+#!           ^^^^ invalid.illegal.string
+  return 0
+end
+
+function fo(echo "ooba")r
+#!       ^^^^^^^^^^^^^^^^ entity.name.function meta.argument
+#!         ^^^^^^^^^^^^^ meta.parens.command-substitution
+  return (echo 1)
+end; foobar
 
 function '$cmd$'; echo $argv; end; $cmd$ arg1 arg2
 #!       ^^^^^^ entity.name.function
 #!                               ^ keyword.operator
 #!                                 ^^^^^ variable.function
 #!                                       ^^^^ meta.argument
+
+# This executes without error
+echo (function)
+#!    ^^^^^^^^ variable.function
+#!            ^ punctuation.section.parens.end

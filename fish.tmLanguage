@@ -205,92 +205,220 @@
 				</dict>
 			</array>
 		</dict>
-		<key>command-call-block</key>
+		<key>command-call-meta</key>
 		<dict>
 			<key>patterns</key>
 			<array>
 				<dict>
 					<key>begin</key>
-					<string>\b(function)\b(?!\s+(&amp;|\|))</string>
+					<string>(builtin|command|exec)\b(?!\s+[-&amp;|])</string>
 					<key>beginCaptures</key>
-					<dict>
-						<key>0</key>
-						<dict>
-							<key>name</key>
-							<string>keyword.control.conditional.fish</string>
-						</dict>
-					</dict>
-					<key>end</key>
-					<string>(end)(\s*([;&amp;]))?</string>
-					<key>endCaptures</key>
 					<dict>
 						<key>1</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.control.conditional.fish</string>
-						</dict>
-						<key>3</key>
-						<dict>
-							<key>name</key>
-							<string>keyword.operator.fish</string>
+							<string>support.function.fish</string>
 						</dict>
 					</dict>
+					<key>comment</key>
+					<string>Check if the command is a builtin which takes another command as arguments, ie, a meta command. Because these commands could take options or be backgrounded/piped -- in which case they do not behave as meta commands -- look ahead to ensure that no options or control operators are found. Note also that a meta command forces its argument to behave as a standard command</string>
+					<key>end</key>
+					<string>(?=[\n;&amp;)|])</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>include</key>
+							<string>#line-continuation</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#command-call-standard</string>
+						</dict>
+					</array>
+				</dict>
+			</array>
+		</dict>
+		<key>command-call-standard</key>
+		<dict>
+			<key>comment</key>
+			<string>Check if the command is any other legal command, ie, a standard command</string>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>begin</key>
+					<string>\#</string>
+					<key>comment</key>
+					<string>A command call can't be a comment, but this match will only be satisfied if the command is first after a pipe because comments are otherwise consumed earlier</string>
+					<key>end</key>
+					<string>(?=[\n)])</string>
 					<key>name</key>
-					<string>meta.block.function.fish</string>
+					<string>invalid.illegal.function-call.fish</string>
+				</dict>
+				<dict>
+					<key>comment</key>
+					<string>Match an operator which cannot start a command call but does not stop the next characters from being interpreted as a command</string>
+					<key>match</key>
+					<string>(?:[&amp;|&lt;&gt;^])</string>
+					<key>name</key>
+					<string>invalid.illegal.operator.fish</string>
+				</dict>
+				<dict>
+					<key>begin</key>
+					<string>(?=\S)</string>
+					<key>comment</key>
+					<string>Anonymous scope - A complete command comprising a name element and optional argument, redirection, and comment elements</string>
+					<key>end</key>
+					<string>(?x)
+(?# Look ahead for control operations)
+(?=
+  (?:
+    (?# Find control operations)
+    [\n;&amp;)]
+  |
+    (?# Find piping)
+    (?:(?:[0-9]+)?(?:&lt;|&gt;|&gt;&gt;))?\|
+  )
+)</string>
 					<key>patterns</key>
 					<array>
 						<dict>
 							<key>begin</key>
-							<string>(?&lt;=function)</string>
+							<string>(?![\s&lt;&gt;^%])</string>
 							<key>comment</key>
-							<string>Name and options end at a newline or ';'</string>
+							<string>Anonymous scope - A name or block element. If a block is found, everything up to the `end` command is captured here. Note that redirection and process expansion can't start the element</string>
 							<key>end</key>
-							<string>\n|(;)</string>
-							<key>endCaptures</key>
-							<dict>
-								<key>1</key>
-								<dict>
-									<key>name</key>
-									<string>keyword.operator.fish</string>
-								</dict>
-							</dict>
+							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
 							<key>patterns</key>
 							<array>
 								<dict>
-									<key>begin</key>
-									<string>(?&lt;=function)\s+</string>
 									<key>comment</key>
-									<string>Detect the region from just after the `function` command to between the defined function name and the argument or control operators which follow it. Note that we have to account for the fact the defined function name may end in an escaped space</string>
+									<string>Look for block structures</string>
+									<key>include</key>
+									<string>#command-call-standard-block</string>
+								</dict>
+								<dict>
+									<key>captures</key>
+									<dict>
+										<key>0</key>
+										<dict>
+											<key>name</key>
+											<string>keyword.control.conditional.fish</string>
+										</dict>
+									</dict>
+									<key>comment</key>
+									<string>Look for loop/function control commands. We perform no checking on the validity of their scope (because only allowing them in the correct scope won't work if they are used within if-blocks) or arguments (because fish does that during execution not parsing)</string>
+									<key>match</key>
+									<string>(?:break|continue|return)(?=[\s;&amp;)|&lt;&gt;])</string>
+								</dict>
+								<dict>
+									<key>begin</key>
+									<string>(?!\s)</string>
+									<key>comment</key>
+									<string>Anonymous scope - A generic name element</string>
 									<key>end</key>
-									<string>(?&lt;=\S|\\ )\s*(?=[\S\n;])</string>
+									<string>(?=[\s;&amp;)|&lt;&gt;])</string>
 									<key>patterns</key>
 									<array>
 										<dict>
+											<key>begin</key>
+											<string>(?=\()</string>
 											<key>comment</key>
-											<string>The function name may be given using any means that is valid for a command call</string>
-											<key>match</key>
-											<string>(?:\'(?:\\[\'\\]|[^\'\\])*\'|\"(?:\\[\"$\n\\]|[^\"$\n\\])*\"|(?:\\[abefnrtv $\\*?#(){}\[\]&lt;&gt;^&amp;;|"']|(?&lt;=^|\s)\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]|[^\s$\\*?~%#()&lt;&gt;&amp;|;"']|\\(?=[^abefnrtv\s$\\*?#(){}\[\]&lt;&gt;^&amp;;|"'xXuUc])|(?&lt;=\S|\\ )\\\n|(?&lt;=\S|\\ )[~%#])+)+</string>
+											<string>fish would match the whole command name invalid if there was a command substitution anywhere in it, but we can't look ahead that effectively</string>
+											<key>end</key>
+											<string>(?=[\s;&amp;)|&lt;&gt;])</string>
 											<key>name</key>
-											<string>entity.name.function.fish</string>
+											<string>invalid.illegal.function-call.fish</string>
+											<key>patterns</key>
+											<array>
+												<dict>
+													<key>begin</key>
+													<string>\(</string>
+													<key>end</key>
+													<string>\)|(?=[\n;&amp;)|&lt;&gt;])</string>
+												</dict>
+											</array>
 										</dict>
 										<dict>
 											<key>comment</key>
-											<string>We can't read across lines, so this is needed to catch an escaped newline at the begin of a defined function name</string>
+											<string>Match an escaped newline in the command name, but don't use line-continuation because comments aren't allowed</string>
+											<key>match</key>
+											<string>\\\n</string>
+											<key>name</key>
+											<string>constant.character.escape.fish</string>
 										</dict>
 										<dict>
-											<key>include</key>
-											<string>#line-continuation</string>
-										</dict>
-										<dict>
-											<key>include</key>
-											<string>#comment-internal-end</string>
+											<key>begin</key>
+											<string>(?!\s)</string>
+											<key>comment</key>
+											<string>Otherwise, treat the element as a fraction of a name made of arbitrary strings (which breaks at an escaped newline)</string>
+											<key>end</key>
+											<string>(?=[\s;&amp;()|&lt;&gt;]|\\\n)</string>
+											<key>name</key>
+											<string>variable.function.fish</string>
+											<key>patterns</key>
+											<array>
+												<dict>
+													<key>comment</key>
+													<string>The string scope explicitly forbids '$' so that the argument rule can pick it up as a variable expansion, but '$' is treated as a literal in command names, so we have to match it separately</string>
+													<key>match</key>
+													<string>\$</string>
+													<key>name</key>
+													<string>meta.string.unquoted.fish</string>
+												</dict>
+												<dict>
+													<key>include</key>
+													<string>#string</string>
+												</dict>
+											</array>
 										</dict>
 									</array>
 								</dict>
+							</array>
+						</dict>
+						<dict>
+							<key>begin</key>
+							<string>\%</string>
+							<key>comment</key>
+							<string>A command name can't begin with a process expansion operator (however the variable expansion operator '$' is allowed)</string>
+							<key>end</key>
+							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
+							<key>name</key>
+							<string>invalid.illegal.function-call.fish</string>
+							<key>patterns</key>
+							<array>
 								<dict>
-									<key>comment</key>
-									<string>The rest of the patterns are the typical elements of a standard command-call, which is what the `function` command adheres to</string>
+									<key>include</key>
+									<string>#string</string>
 								</dict>
+							</array>
+						</dict>
+						<dict>
+							<key>comment</key>
+							<string>Redirection can immediately follow the command name, without whitespace separation</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#redirection</string>
+						</dict>
+						<dict>
+							<key>begin</key>
+							<string>(?:[^\n\S]+)</string>
+							<key>comment</key>
+							<string>Match any whitespace character that isn't the newline</string>
+							<key>end</key>
+							<string>(?x)
+(?# Look ahead for control operations)
+(?=
+  (?:
+    (?# Find whitespace or simple control operations)
+    [\s;&amp;)]
+  |
+    (?# Find piping)
+    (?:(?:[0-9]+)?(?:&lt;|&gt;|&gt;&gt;))?\|
+  )
+)</string>
+							<key>patterns</key>
+							<array>
 								<dict>
 									<key>include</key>
 									<string>#line-continuation</string>
@@ -301,188 +429,19 @@
 								</dict>
 								<dict>
 									<key>include</key>
+									<string>#redirection</string>
+								</dict>
+								<dict>
+									<key>include</key>
 									<string>#argument</string>
 								</dict>
 							</array>
 						</dict>
-						<dict>
-							<key>include</key>
-							<string>$self</string>
-						</dict>
 					</array>
 				</dict>
 			</array>
 		</dict>
-		<key>command-call-block-if-internal</key>
-		<dict>
-			<key>comment</key>
-			<string>The acceptable structure internal to an if-end block can be represented recursively because anonymous scopes nest silently. If an `else` without a following `if` is seen, then further `else` commands will be correctly marked as invalid. This is a lot of work just to get that extra little bit of functionality :)</string>
-			<key>patterns</key>
-			<array>
-				<dict>
-					<key>begin</key>
-					<string>(?=if(?:\s*\n|\s+[^\s;]))</string>
-					<key>comment</key>
-					<string>Anonymous scope - Capture an `if` and the command up to the end-of-scope operator, then capture from the end-of-scope operator indefinitely</string>
-					<key>end</key>
-					<string>(?=end[\s;&amp;)|&lt;&gt;])</string>
-					<key>patterns</key>
-					<array>
-						<dict>
-							<key>begin</key>
-							<string>if</string>
-							<key>beginCaptures</key>
-							<dict>
-								<key>0</key>
-								<dict>
-									<key>name</key>
-									<string>keyword.control.conditional.fish</string>
-								</dict>
-							</dict>
-							<key>comment</key>
-							<string>Anonymous scope - Match the command name we know is there, include a single instance of a command chain, and end when an operator is seen</string>
-							<key>end</key>
-							<string>\s*(?=[\n;&amp;])</string>
-							<key>patterns</key>
-							<array>
-								<dict>
-									<key>include</key>
-									<string>#line-continuation</string>
-								</dict>
-								<dict>
-									<key>include</key>
-									<string>#command-chain</string>
-								</dict>
-							</array>
-						</dict>
-						<dict>
-							<key>begin</key>
-							<string>\n|(;)|(&amp;)</string>
-							<key>beginCaptures</key>
-							<dict>
-								<key>1</key>
-								<dict>
-									<key>name</key>
-									<string>keyword.operator.fish</string>
-								</dict>
-								<key>2</key>
-								<dict>
-									<key>name</key>
-									<string>invalid.illegal.operator.fish</string>
-								</dict>
-							</dict>
-							<key>comment</key>
-							<string>Anonymous scope - Match the operator we know is there, then include the base scope or an `else` structure</string>
-							<key>end</key>
-							<string>(?=end[\s;&amp;)|&lt;&gt;])</string>
-							<key>patterns</key>
-							<array>
-								<dict>
-									<key>begin</key>
-									<string>(?=else\s*[\s;])</string>
-									<key>comment</key>
-									<string>Anonymous scope - Capture an `else` up to the end-of-scope operator or the start of an `if` structure, then match from the end-of-scope operator indefinitely or match an `if` structure</string>
-									<key>end</key>
-									<string>(?=end[\s;&amp;)|&lt;&gt;])</string>
-									<key>patterns</key>
-									<array>
-										<dict>
-											<key>begin</key>
-											<string>else(?=\s*[\s;])</string>
-											<key>beginCaptures</key>
-											<dict>
-												<key>0</key>
-												<dict>
-													<key>name</key>
-													<string>keyword.control.conditional.fish</string>
-												</dict>
-											</dict>
-											<key>comment</key>
-											<string>Anonymous scope - Match the `else` we know is there and any comment, and mark anything besides an `if` as illegal</string>
-											<key>end</key>
-											<string>\s*(?=[\n;&amp;]|if(?:\s*\n|\s+[^\s;]))</string>
-											<key>endCaptures</key>
-											<dict>
-												<key>1</key>
-												<dict>
-													<key>name</key>
-													<string>keyword.operator.fish</string>
-												</dict>
-												<key>2</key>
-												<dict>
-													<key>name</key>
-													<string>invalid.illegal.operator.fish</string>
-												</dict>
-											</dict>
-											<key>patterns</key>
-											<array>
-												<dict>
-													<key>include</key>
-													<string>#line-continuation</string>
-												</dict>
-												<dict>
-													<key>include</key>
-													<string>#comment-internal-end</string>
-												</dict>
-												<dict>
-													<key>comment</key>
-													<string>Anything else is illegal</string>
-													<key>match</key>
-													<string>\S+?(?=[\s;&amp;])</string>
-													<key>name</key>
-													<string>invalid.illegal.string.fish</string>
-												</dict>
-											</array>
-										</dict>
-										<dict>
-											<key>begin</key>
-											<string>\n|(;)|(&amp;)</string>
-											<key>beginCaptures</key>
-											<dict>
-												<key>1</key>
-												<dict>
-													<key>name</key>
-													<string>keyword.operator.fish</string>
-												</dict>
-												<key>2</key>
-												<dict>
-													<key>name</key>
-													<string>invalid.illegal.operator.fish</string>
-												</dict>
-											</dict>
-											<key>comment</key>
-											<string>Anonymous scope - Match the operator which will be there if no `if` was seen, then include the base scope which marks further `else` commands as invalid</string>
-											<key>end</key>
-											<string>(?=end[\s;&amp;)|&lt;&gt;])</string>
-											<key>patterns</key>
-											<array>
-												<dict>
-													<key>include</key>
-													<string>$self</string>
-												</dict>
-											</array>
-										</dict>
-										<dict>
-											<key>comment</key>
-											<string>Match the `if` structure which will be there if no operator was seen</string>
-										</dict>
-										<dict>
-											<key>include</key>
-											<string>#command-call-block-if-internal</string>
-										</dict>
-									</array>
-								</dict>
-								<dict>
-									<key>include</key>
-									<string>$self</string>
-								</dict>
-							</array>
-						</dict>
-					</array>
-				</dict>
-			</array>
-		</dict>
-		<key>command-call-block-rewrite</key>
+		<key>command-call-standard-block</key>
 		<dict>
 			<key>patterns</key>
 			<array>
@@ -503,7 +462,7 @@
 					<key>comment</key>
 					<string>Block commands cannot be backgrounded, piped, or redirected</string>
 					<key>match</key>
-					<string>(begin|while|if|for|switch)\s*([&amp;|&lt;&gt;])</string>
+					<string>(begin|while|if|for|switch|function)\s*([&amp;|&lt;&gt;])</string>
 				</dict>
 				<dict>
 					<key>captures</key>
@@ -658,7 +617,7 @@
 						</dict>
 						<dict>
 							<key>include</key>
-							<string>#command-call-block-if-internal</string>
+							<string>#command-call-standard-block-if-internal</string>
 						</dict>
 					</array>
 				</dict>
@@ -955,177 +914,125 @@
 						</dict>
 					</array>
 				</dict>
-			</array>
-		</dict>
-		<key>command-call-meta</key>
-		<dict>
-			<key>patterns</key>
-			<array>
 				<dict>
 					<key>begin</key>
-					<string>(builtin|command|exec)\b(?!\s+[-&amp;|])</string>
-					<key>beginCaptures</key>
+					<string>(?=function\s+[^\s;)-])</string>
+					<key>comment</key>
+					<string>If the command name is followed by a valid string (not anything that closes the scope or a string starting with a '-') then open the scope</string>
+					<key>end</key>
+					<string>end(?=[\s;&amp;)|&lt;&gt;])</string>
+					<key>endCaptures</key>
 					<dict>
-						<key>1</key>
+						<key>0</key>
 						<dict>
 							<key>name</key>
-							<string>support.function.fish</string>
+							<string>keyword.control.conditional.fish</string>
 						</dict>
 					</dict>
-					<key>comment</key>
-					<string>Check if the command is a builtin which takes another command as arguments, ie, a meta command. Because these commands could take options or be backgrounded/piped -- in which case they do not behave as meta commands -- look ahead to ensure that no options or control operators are found. Note also that a meta command forces its argument to behave as a standard command</string>
-					<key>end</key>
-					<string>(?=[\n;&amp;)|])</string>
-					<key>patterns</key>
-					<array>
-						<dict>
-							<key>include</key>
-							<string>#line-continuation</string>
-						</dict>
-						<dict>
-							<key>include</key>
-							<string>#command-call-block</string>
-						</dict>
-						<dict>
-							<key>include</key>
-							<string>#command-call-standard</string>
-						</dict>
-					</array>
-				</dict>
-			</array>
-		</dict>
-		<key>command-call-standard</key>
-		<dict>
-			<key>comment</key>
-			<string>Check if the command is any other legal command, ie, a standard command</string>
-			<key>patterns</key>
-			<array>
-				<dict>
-					<key>begin</key>
-					<string>\#</string>
-					<key>comment</key>
-					<string>A command call can't be a comment, but this match will only be satisfied if the command is first after a pipe because comments are otherwise consumed earlier</string>
-					<key>end</key>
-					<string>(?=[\n)])</string>
 					<key>name</key>
-					<string>invalid.illegal.function-call.fish</string>
-				</dict>
-				<dict>
-					<key>comment</key>
-					<string>Match an operator which cannot start a command call but does not stop the next characters from being interpreted as a command</string>
-					<key>match</key>
-					<string>(?:[&amp;|&lt;&gt;^])</string>
-					<key>name</key>
-					<string>invalid.illegal.operator.fish</string>
-				</dict>
-				<dict>
-					<key>begin</key>
-					<string>(?=\S)</string>
-					<key>comment</key>
-					<string>Anonymous scope - A complete command comprising a name element and optional argument, redirection, and comment elements</string>
-					<key>end</key>
-					<string>(?x)
-(?# Look ahead for control operations)
-(?=
-  (?:
-    (?# Find control operations)
-    [\n;&amp;)]
-  |
-    (?# Find piping)
-    (?:(?:[0-9]+)?(?:&lt;|&gt;|&gt;&gt;))?\|
-  )
-)</string>
+					<string>meta.block.function.fish</string>
 					<key>patterns</key>
 					<array>
 						<dict>
 							<key>begin</key>
-							<string>(?![\s&lt;&gt;^%])</string>
+							<string>(?=function)</string>
 							<key>comment</key>
-							<string>Anonymous scope - A name or block element. If a block is found, everything up to the `end` command is captured here. Note that redirection and process expansion can't start the element</string>
+							<string>Anonymous scope - Match the defined name of the function statement, then look for further arguments</string>
 							<key>end</key>
-							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
+							<string>\s*(?=[\n;&amp;)])</string>
 							<key>patterns</key>
 							<array>
 								<dict>
-									<key>comment</key>
-									<string>Look for block structures</string>
-									<key>include</key>
-									<string>#command-call-block-rewrite</string>
-								</dict>
-								<dict>
-									<key>captures</key>
+									<key>begin</key>
+									<string>(function)(?:\s+)</string>
+									<key>beginCaptures</key>
 									<dict>
-										<key>0</key>
+										<key>1</key>
 										<dict>
 											<key>name</key>
 											<string>keyword.control.conditional.fish</string>
 										</dict>
 									</dict>
 									<key>comment</key>
-									<string>Look for loop/function control commands. We perform no checking on the validity of their scope (because only allowing them in the correct scope won't work if they are used within if-blocks) or arguments (because fish does that during execution not parsing)</string>
-									<key>match</key>
-									<string>(?:break|continue|return)(?=[\s;&amp;)|&lt;&gt;])</string>
-								</dict>
-								<dict>
-									<key>begin</key>
-									<string>(?!\s)</string>
-									<key>comment</key>
-									<string>Anonymous scope - A generic name element</string>
+									<string>Anonymous scope - Capture the command name we know is there, include a single instance of an argument (the value), and end when whitespace or a control operator is seen</string>
 									<key>end</key>
-									<string>(?=[\s;&amp;)|&lt;&gt;])</string>
+									<string>(?=[\s;&amp;)])</string>
 									<key>patterns</key>
 									<array>
 										<dict>
-											<key>begin</key>
-											<string>(?=\()</string>
-											<key>comment</key>
-											<string>fish would match the whole command name invalid if there was a command substitution anywhere in it, but we can't look ahead that effectively</string>
-											<key>end</key>
-											<string>(?=[\s;&amp;)|&lt;&gt;])</string>
-											<key>name</key>
-											<string>invalid.illegal.function-call.fish</string>
-											<key>patterns</key>
-											<array>
-												<dict>
-													<key>begin</key>
-													<string>\(</string>
-													<key>end</key>
-													<string>\)|(?=[\n;&amp;)|&lt;&gt;])</string>
-												</dict>
-											</array>
-										</dict>
-										<dict>
-											<key>comment</key>
-											<string>Match an escaped newline in the command name, but don't use line-continuation because comments aren't allowed</string>
-											<key>match</key>
-											<string>\\\n</string>
-											<key>name</key>
-											<string>constant.character.escape.fish</string>
+											<key>include</key>
+											<string>#line-continuation</string>
 										</dict>
 										<dict>
 											<key>begin</key>
-											<string>(?!\s)</string>
-											<key>comment</key>
-											<string>Otherwise, treat the element as a fraction of a name made of arbitrary strings (which breaks at an escaped newline)</string>
+											<string>(?:[()|&lt;&gt;])</string>
 											<key>end</key>
-											<string>(?=[\s;&amp;()|&lt;&gt;]|\\\n)</string>
+											<string>(?=[\s;&amp;)])</string>
 											<key>name</key>
-											<string>variable.function.fish</string>
+											<string>invalid.illegal.string.fish</string>
+										</dict>
+										<dict>
+											<key>begin</key>
+											<string>(?!\\\n)</string>
+											<key>comment</key>
+											<string>a</string>
+											<key>end</key>
+											<string>(?=[\s;&amp;()|&lt;&gt;])</string>
 											<key>patterns</key>
 											<array>
 												<dict>
 													<key>comment</key>
-													<string>The string scope explicitly forbids '$' so that the argument rule can pick it up as a variable expansion, but '$' is treated as a literal in command names, so we have to match it separately</string>
-													<key>match</key>
-													<string>\$</string>
-													<key>name</key>
-													<string>meta.string.unquoted.fish</string>
+													<string>These patterns are similar to the scope around variable.function.fish in command-call-standard, except the defined name is expanded as an argument</string>
 												</dict>
 												<dict>
-													<key>include</key>
-													<string>#string</string>
+													<key>match</key>
+													<string>\\\n</string>
+													<key>name</key>
+													<string>constant.character.escape.fish</string>
+												</dict>
+												<dict>
+													<key>begin</key>
+													<string>(?!\s)</string>
+													<key>end</key>
+													<string>(?=[\s;&amp;()|&lt;&gt;]|\\\n)</string>
+													<key>name</key>
+													<string>entity.name.function.fish</string>
+													<key>patterns</key>
+													<array>
+														<dict>
+															<key>include</key>
+															<string>#argument</string>
+														</dict>
+													</array>
 												</dict>
 											</array>
+										</dict>
+									</array>
+								</dict>
+								<dict>
+									<key>begin</key>
+									<string>\s+</string>
+									<key>comment</key>
+									<string>Anonymous scope - Capture whitespace which might be there, then match anything normal for a command call</string>
+									<key>end</key>
+									<string>(?=[\n;&amp;)])</string>
+									<key>patterns</key>
+									<array>
+										<dict>
+											<key>include</key>
+											<string>#line-continuation</string>
+										</dict>
+										<dict>
+											<key>include</key>
+											<string>#comment-internal-end</string>
+										</dict>
+										<dict>
+											<key>include</key>
+											<string>#redirection</string>
+										</dict>
+										<dict>
+											<key>include</key>
+											<string>#argument</string>
 										</dict>
 									</array>
 								</dict>
@@ -1133,46 +1040,66 @@
 						</dict>
 						<dict>
 							<key>begin</key>
-							<string>\%</string>
+							<string>\n|(;)|([&amp;)])</string>
+							<key>beginCaptures</key>
+							<dict>
+								<key>1</key>
+								<dict>
+									<key>name</key>
+									<string>keyword.operator.fish</string>
+								</dict>
+								<key>2</key>
+								<dict>
+									<key>name</key>
+									<string>invalid.illegal.operator.fish</string>
+								</dict>
+							</dict>
 							<key>comment</key>
-							<string>A command name can't begin with a process expansion operator (however the variable expansion operator '$' is allowed)</string>
+							<string>Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen</string>
 							<key>end</key>
-							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
-							<key>name</key>
-							<string>invalid.illegal.function-call.fish</string>
+							<string>(?=end[\s;&amp;)|&lt;&gt;])</string>
 							<key>patterns</key>
 							<array>
 								<dict>
 									<key>include</key>
-									<string>#string</string>
+									<string>$self</string>
 								</dict>
 							</array>
 						</dict>
-						<dict>
-							<key>comment</key>
-							<string>Redirection can immediately follow the command name, without whitespace separation</string>
-						</dict>
-						<dict>
-							<key>include</key>
-							<string>#redirection</string>
-						</dict>
+					</array>
+				</dict>
+			</array>
+		</dict>
+		<key>command-call-standard-block-if-internal</key>
+		<dict>
+			<key>comment</key>
+			<string>The acceptable structure internal to an if-end block can be represented recursively because anonymous scopes nest silently. If an `else` without a following `if` is seen, then further `else` commands will be correctly marked as invalid. This is a lot of work just to get that extra little bit of functionality :)</string>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>begin</key>
+					<string>(?=if(?:\s*\n|\s+[^\s;]))</string>
+					<key>comment</key>
+					<string>Anonymous scope - Capture an `if` and the command up to the end-of-scope operator, then capture from the end-of-scope operator indefinitely</string>
+					<key>end</key>
+					<string>(?=end[\s;&amp;)|&lt;&gt;])</string>
+					<key>patterns</key>
+					<array>
 						<dict>
 							<key>begin</key>
-							<string>(?:[^\n\S]+)</string>
+							<string>if</string>
+							<key>beginCaptures</key>
+							<dict>
+								<key>0</key>
+								<dict>
+									<key>name</key>
+									<string>keyword.control.conditional.fish</string>
+								</dict>
+							</dict>
 							<key>comment</key>
-							<string>Match any whitespace character that isn't the newline</string>
+							<string>Anonymous scope - Match the command name we know is there, include a single instance of a command chain, and end when an operator is seen</string>
 							<key>end</key>
-							<string>(?x)
-(?# Look ahead for control operations)
-(?=
-  (?:
-    (?# Find whitespace or simple control operations)
-    [\s;&amp;)]
-  |
-    (?# Find piping)
-    (?:(?:[0-9]+)?(?:&lt;|&gt;|&gt;&gt;))?\|
-  )
-)</string>
+							<string>\s*(?=[\n;&amp;])</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -1181,15 +1108,130 @@
 								</dict>
 								<dict>
 									<key>include</key>
-									<string>#comment-internal-end</string>
+									<string>#command-chain</string>
+								</dict>
+							</array>
+						</dict>
+						<dict>
+							<key>begin</key>
+							<string>\n|(;)|(&amp;)</string>
+							<key>beginCaptures</key>
+							<dict>
+								<key>1</key>
+								<dict>
+									<key>name</key>
+									<string>keyword.operator.fish</string>
+								</dict>
+								<key>2</key>
+								<dict>
+									<key>name</key>
+									<string>invalid.illegal.operator.fish</string>
+								</dict>
+							</dict>
+							<key>comment</key>
+							<string>Anonymous scope - Match the operator we know is there, then include the base scope or an `else` structure</string>
+							<key>end</key>
+							<string>(?=end[\s;&amp;)|&lt;&gt;])</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>begin</key>
+									<string>(?=else\s*[\s;])</string>
+									<key>comment</key>
+									<string>Anonymous scope - Capture an `else` up to the end-of-scope operator or the start of an `if` structure, then match from the end-of-scope operator indefinitely or match an `if` structure</string>
+									<key>end</key>
+									<string>(?=end[\s;&amp;)|&lt;&gt;])</string>
+									<key>patterns</key>
+									<array>
+										<dict>
+											<key>begin</key>
+											<string>else(?=\s*[\s;])</string>
+											<key>beginCaptures</key>
+											<dict>
+												<key>0</key>
+												<dict>
+													<key>name</key>
+													<string>keyword.control.conditional.fish</string>
+												</dict>
+											</dict>
+											<key>comment</key>
+											<string>Anonymous scope - Match the `else` we know is there and any comment, and mark anything besides an `if` as illegal</string>
+											<key>end</key>
+											<string>\s*(?=[\n;&amp;]|if(?:\s*\n|\s+[^\s;]))</string>
+											<key>endCaptures</key>
+											<dict>
+												<key>1</key>
+												<dict>
+													<key>name</key>
+													<string>keyword.operator.fish</string>
+												</dict>
+												<key>2</key>
+												<dict>
+													<key>name</key>
+													<string>invalid.illegal.operator.fish</string>
+												</dict>
+											</dict>
+											<key>patterns</key>
+											<array>
+												<dict>
+													<key>include</key>
+													<string>#line-continuation</string>
+												</dict>
+												<dict>
+													<key>include</key>
+													<string>#comment-internal-end</string>
+												</dict>
+												<dict>
+													<key>comment</key>
+													<string>Anything else is illegal</string>
+													<key>match</key>
+													<string>\S+?(?=[\s;&amp;])</string>
+													<key>name</key>
+													<string>invalid.illegal.string.fish</string>
+												</dict>
+											</array>
+										</dict>
+										<dict>
+											<key>begin</key>
+											<string>\n|(;)|(&amp;)</string>
+											<key>beginCaptures</key>
+											<dict>
+												<key>1</key>
+												<dict>
+													<key>name</key>
+													<string>keyword.operator.fish</string>
+												</dict>
+												<key>2</key>
+												<dict>
+													<key>name</key>
+													<string>invalid.illegal.operator.fish</string>
+												</dict>
+											</dict>
+											<key>comment</key>
+											<string>Anonymous scope - Match the operator which will be there if no `if` was seen, then include the base scope which marks further `else` commands as invalid</string>
+											<key>end</key>
+											<string>(?=end[\s;&amp;)|&lt;&gt;])</string>
+											<key>patterns</key>
+											<array>
+												<dict>
+													<key>include</key>
+													<string>$self</string>
+												</dict>
+											</array>
+										</dict>
+										<dict>
+											<key>comment</key>
+											<string>Match the `if` structure which will be there if no operator was seen</string>
+										</dict>
+										<dict>
+											<key>include</key>
+											<string>#command-call-standard-block-if-internal</string>
+										</dict>
+									</array>
 								</dict>
 								<dict>
 									<key>include</key>
-									<string>#redirection</string>
-								</dict>
-								<dict>
-									<key>include</key>
-									<string>#argument</string>
+									<string>$self</string>
 								</dict>
 							</array>
 						</dict>
@@ -1349,10 +1391,6 @@
 								<dict>
 									<key>include</key>
 									<string>#command-call-meta</string>
-								</dict>
-								<dict>
-									<key>include</key>
-									<string>#command-call-block</string>
 								</dict>
 								<dict>
 									<key>include</key>
