@@ -445,19 +445,7 @@ repository:
               - include: '#comment-internal-end'
               - include: '#argument'
 
-          - begin: \b(return)\b(?!\s+(-))
-            beginCaptures:
-              '1': {name: keyword.control.conditional.fish}
-            end: (?=\)|;)|\n|(&|\|)
-            endCaptures:
-              '1': {name: keyword.operator.fish}
-            comment: The `return` command can't accept flags
-            patterns:
-              - include: '#line-continuation'
-              - include: '#comment-internal-end'
-              - include: '#argument'
-
-          - include: '$self'
+          - include: $self
 
   command-call-standard:
     comment: Check if the command is any other legal command, ie, a standard command
@@ -493,8 +481,8 @@ repository:
               - comment: Look for block structures
                 include: '#command-call-block-rewrite'
 
-              - comment: Look for loop control commands, which cannot take arguments. Unfortunately, without an effective scope stack we cannot restrict them to only be valid inside of loop constructs
-                match: (?:break|continue)(?=\s+[^\s-\w]|\s*[\n;&)|<>])
+              - comment: Look for loop/function control commands. We perform no checking on the validity of their scope (because only allowing them in the correct scope won't work if they are used within if-blocks) or arguments (because fish does that during execution not parsing)
+                match: (?:break|continue|return)(?=[\s;&)|<>])
                 captures:
                   '0': {name: keyword.control.conditional.fish}
 

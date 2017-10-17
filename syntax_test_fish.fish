@@ -858,9 +858,6 @@ echo (while)
 #!    ^^^^^ variable.function
 #!         ^ punctuation.section.parens.end
 
-break arg
-#! <- variable.function
-
 begin
 #! <- meta.block.begin keyword.control.conditional
   while echo arg

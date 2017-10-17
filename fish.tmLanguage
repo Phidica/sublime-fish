@@ -306,45 +306,6 @@
 							</array>
 						</dict>
 						<dict>
-							<key>begin</key>
-							<string>\b(return)\b(?!\s+(-))</string>
-							<key>beginCaptures</key>
-							<dict>
-								<key>1</key>
-								<dict>
-									<key>name</key>
-									<string>keyword.control.conditional.fish</string>
-								</dict>
-							</dict>
-							<key>comment</key>
-							<string>The `return` command can't accept flags</string>
-							<key>end</key>
-							<string>(?=\)|;)|\n|(&amp;|\|)</string>
-							<key>endCaptures</key>
-							<dict>
-								<key>1</key>
-								<dict>
-									<key>name</key>
-									<string>keyword.operator.fish</string>
-								</dict>
-							</dict>
-							<key>patterns</key>
-							<array>
-								<dict>
-									<key>include</key>
-									<string>#line-continuation</string>
-								</dict>
-								<dict>
-									<key>include</key>
-									<string>#comment-internal-end</string>
-								</dict>
-								<dict>
-									<key>include</key>
-									<string>#argument</string>
-								</dict>
-							</array>
-						</dict>
-						<dict>
 							<key>include</key>
 							<string>$self</string>
 						</dict>
@@ -1101,9 +1062,9 @@
 										</dict>
 									</dict>
 									<key>comment</key>
-									<string>Look for loop control commands, which cannot take arguments. Unfortunately, without an effective scope stack we cannot restrict them to only be valid inside of loop constructs</string>
+									<string>Look for loop/function control commands. We perform no checking on the validity of their scope (because only allowing them in the correct scope won't work if they are used within if-blocks) or arguments (because fish does that during execution not parsing)</string>
 									<key>match</key>
-									<string>(?:break|continue)(?=\s+[^\s-\w]|\s*[\n;&amp;)|&lt;&gt;])</string>
+									<string>(?:break|continue|return)(?=[\s;&amp;)|&lt;&gt;])</string>
 								</dict>
 								<dict>
 									<key>begin</key>
