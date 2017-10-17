@@ -186,6 +186,108 @@ repository:
           - include: '#line-continuation'
           - include: '#command-call-standard'
 
+  command-call-standard:
+    comment: Check if the command is any other legal command, ie, a standard command
+    patterns:
+      - comment: A command call can't be a comment, but this match will only be satisfied if the command is first after a pipe because comments are otherwise consumed earlier
+        name: invalid.illegal.function-call.fish
+        begin: \#
+        end: (?=[\n)])
+
+      - comment: Match an operator which cannot start a command call but does not stop the next characters from being interpreted as a command
+        name: invalid.illegal.operator.fish
+        match: (?:[&|<>^])
+
+      - comment: Anonymous scope - A complete command comprising a name element and optional argument, redirection, and comment elements
+        begin: (?=\S)
+        end: |-
+          (?x)
+          (?# Look ahead for control operations)
+          (?=
+            (?:
+              (?# Find control operations)
+              [\n;&)]
+            |
+              (?# Find piping)
+              (?:(?:[0-9]+)?(?:<|>|>>))?\|
+            )
+          )
+        patterns:
+          - comment: Anonymous scope - A name or block element. If a block is found, everything up to the `end` command is captured here. Note that redirection and process expansion can't start the element
+            begin: (?![\s<>^%])
+            end: (?=[\s;&)|<>])
+            patterns:
+              - comment: Look for block structures
+                include: '#command-call-standard-block'
+
+              - comment: Look for loop/function control commands. We perform no checking on the validity of their scope (because only allowing them in the correct scope won't work if they are used within if-blocks) or arguments (because fish does that during execution not parsing)
+                match: (?:break|continue|return)(?=[\s;&)|<>])
+                captures:
+                  '0': {name: keyword.control.conditional.fish}
+
+              - comment: Anonymous scope - A generic name element
+                begin: (?!\s)
+                end: (?=[\s;&)|<>])
+                patterns:
+                  - comment: A command name can't contain a command substitution. We match the whole line if no closing parenthesis is found, or until the end of the command name if the command substitution gets closed
+                    comment: fish would match the whole command name invalid if there was a command substitution anywhere in it, but we can't look ahead that effectively
+                    name: invalid.illegal.function-call.fish
+                    begin: (?=\()
+                    end: (?=[\s;&)|<>])
+                    patterns:
+                      - begin: \(
+                        end: \)|(?=[\n;&)|<>])
+
+                  - comment: Match an escaped newline in the command name, but don't use line-continuation because comments aren't allowed
+                    name: constant.character.escape.fish
+                    match: \\\n
+
+                  - comment: Otherwise, treat the element as a fraction of a name made of arbitrary strings (which breaks at an escaped newline)
+                    name: variable.function.fish
+                    begin: (?!\s)
+                    end: (?=[\s;&()|<>]|\\\n)
+                    patterns:
+                      - comment: The string scope explicitly forbids '$' so that the argument rule can pick it up as a variable expansion, but '$' is treated as a literal in command names, so we have to match it separately
+                        name: meta.string.unquoted.fish
+                        match: \$
+
+                      - include: '#string'
+
+          - comment: A command name can't begin with a process expansion operator (however the variable expansion operator '$' is allowed)
+            name: invalid.illegal.function-call.fish
+            begin: \%
+            end: (?=[\s;&)|<>])
+            patterns:
+              - include: '#string'
+
+          - comment: Redirection can immediately follow the command name, without whitespace separation
+          - include: '#redirection'
+
+          - comment: Anonymous scope - An argument or comment element. We rely on these elements needing to be separated by whitespace
+            # name: anon-argument
+            begin: (?:[^\n\S]+)
+            # beginCaptures:
+            #   '0': {name: anon.space}
+            comment: Match any whitespace character that isn't the newline
+            end: (?=[\s;&)|])
+            end: |-
+              (?x)
+              (?# Look ahead for control operations)
+              (?=
+                (?:
+                  (?# Find whitespace or simple control operations)
+                  [\s;&)]
+                |
+                  (?# Find piping)
+                  (?:(?:[0-9]+)?(?:<|>|>>))?\|
+                )
+              )
+            patterns:
+              - include: '#line-continuation'
+              - include: '#comment-internal-end'
+              - include: '#redirection'
+              - include: '#argument'
+
   command-call-standard-block:
     patterns:
       - comment: Block commands cannot be backgrounded, piped, or redirected
@@ -463,108 +565,6 @@ repository:
                   - include: '#command-call-standard-block-if-internal'
 
               - include: $self
-
-  command-call-standard:
-    comment: Check if the command is any other legal command, ie, a standard command
-    patterns:
-      - comment: A command call can't be a comment, but this match will only be satisfied if the command is first after a pipe because comments are otherwise consumed earlier
-        name: invalid.illegal.function-call.fish
-        begin: \#
-        end: (?=[\n)])
-
-      - comment: Match an operator which cannot start a command call but does not stop the next characters from being interpreted as a command
-        name: invalid.illegal.operator.fish
-        match: (?:[&|<>^])
-
-      - comment: Anonymous scope - A complete command comprising a name element and optional argument, redirection, and comment elements
-        begin: (?=\S)
-        end: |-
-          (?x)
-          (?# Look ahead for control operations)
-          (?=
-            (?:
-              (?# Find control operations)
-              [\n;&)]
-            |
-              (?# Find piping)
-              (?:(?:[0-9]+)?(?:<|>|>>))?\|
-            )
-          )
-        patterns:
-          - comment: Anonymous scope - A name or block element. If a block is found, everything up to the `end` command is captured here. Note that redirection and process expansion can't start the element
-            begin: (?![\s<>^%])
-            end: (?=[\s;&)|<>])
-            patterns:
-              - comment: Look for block structures
-                include: '#command-call-standard-block'
-
-              - comment: Look for loop/function control commands. We perform no checking on the validity of their scope (because only allowing them in the correct scope won't work if they are used within if-blocks) or arguments (because fish does that during execution not parsing)
-                match: (?:break|continue|return)(?=[\s;&)|<>])
-                captures:
-                  '0': {name: keyword.control.conditional.fish}
-
-              - comment: Anonymous scope - A generic name element
-                begin: (?!\s)
-                end: (?=[\s;&)|<>])
-                patterns:
-                  - comment: A command name can't contain a command substitution. We match the whole line if no closing parenthesis is found, or until the end of the command name if the command substitution gets closed
-                    comment: fish would match the whole command name invalid if there was a command substitution anywhere in it, but we can't look ahead that effectively
-                    name: invalid.illegal.function-call.fish
-                    begin: (?=\()
-                    end: (?=[\s;&)|<>])
-                    patterns:
-                      - begin: \(
-                        end: \)|(?=[\n;&)|<>])
-
-                  - comment: Match an escaped newline in the command name, but don't use line-continuation because comments aren't allowed
-                    name: constant.character.escape.fish
-                    match: \\\n
-
-                  - comment: Otherwise, treat the element as a fraction of a name made of arbitrary strings (which breaks at an escaped newline)
-                    name: variable.function.fish
-                    begin: (?!\s)
-                    end: (?=[\s;&()|<>]|\\\n)
-                    patterns:
-                      - comment: The string scope explicitly forbids '$' so that the argument rule can pick it up as a variable expansion, but '$' is treated as a literal in command names, so we have to match it separately
-                        name: meta.string.unquoted.fish
-                        match: \$
-
-                      - include: '#string'
-
-          - comment: A command name can't begin with a process expansion operator (however the variable expansion operator '$' is allowed)
-            name: invalid.illegal.function-call.fish
-            begin: \%
-            end: (?=[\s;&)|<>])
-            patterns:
-              - include: '#string'
-
-          - comment: Redirection can immediately follow the command name, without whitespace separation
-          - include: '#redirection'
-
-          - comment: Anonymous scope - An argument or comment element. We rely on these elements needing to be separated by whitespace
-            # name: anon-argument
-            begin: (?:[^\n\S]+)
-            # beginCaptures:
-            #   '0': {name: anon.space}
-            comment: Match any whitespace character that isn't the newline
-            end: (?=[\s;&)|])
-            end: |-
-              (?x)
-              (?# Look ahead for control operations)
-              (?=
-                (?:
-                  (?# Find whitespace or simple control operations)
-                  [\s;&)]
-                |
-                  (?# Find piping)
-                  (?:(?:[0-9]+)?(?:<|>|>>))?\|
-                )
-              )
-            patterns:
-              - include: '#line-continuation'
-              - include: '#comment-internal-end'
-              - include: '#redirection'
-              - include: '#argument'
 
   command-substitution:
     patterns:
