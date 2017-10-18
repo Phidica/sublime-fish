@@ -1,13 +1,14 @@
-Shell Script Improved (fish)
-============================
+friendly interactive shell (fish)
+=================================
 
-A Sublime Text 2/3 package for [fish-shell](https://github.com/fish-shell/fish-shell). It features a robust syntax highlighting scheme that mimics the native highlighting behavior of fish.
+A Sublime Text 2/3 package for the [friendly interactive shell](https://github.com/fish-shell/fish-shell). It features a robust syntax highlighting scheme that mimics the native highlighting behaviour of fish.
 
-This package is currently under active development and, while complete enough for general use, is not yet fully implemented.
+All the general syntax of fish is completely implemented, however a number of additional features are planned and bug reports are welcome.
 
 To do:
-- Command piping
-- Additional useful highlighting
+- Optimise scope nesting
+- Add further useful highlighting (eg, parameters)
+- Rewrite for `.sublime-syntax`
 
 Installation
 ------------
@@ -17,7 +18,7 @@ Clone the repository to your [Packages directory](http://docs.sublimetext.info/e
     cd /path/to/sublime/packages/directory
     git clone https://github.com/Phidica/sublime-fish-shell-improved.git
 
-Open a `.fish` file and set the default syntax highlighting to "Shell Script Improved (fish)".
+Open a `.fish` file and set the default syntax highlighting to "friendly interactive shell (fish)".
 
 Exposed scopes
 --------------

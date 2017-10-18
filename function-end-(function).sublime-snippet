@@ -3,6 +3,6 @@
   ${2:body}
 end]]></content>
     <tabTrigger>function</tabTrigger>
-    <scope>source.fish</scope>
+    <scope>source.shell.fish</scope>
     <description>function … end</description>
 </snippet>

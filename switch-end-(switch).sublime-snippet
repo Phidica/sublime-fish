@@ -5,6 +5,6 @@
 end
 ]]></content>
     <tabTrigger>switch</tabTrigger>
-    <scope>source.fish</scope>
+    <scope>source.shell.fish</scope>
     <description>switch … end</description>
 </snippet>

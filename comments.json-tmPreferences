@@ -1,6 +1,6 @@
 {
   "name": "Comments",
-  "scope": "source.fish",
+  "scope": "source.shell.fish",
   "settings" : {
     "shellVariables": [
       {

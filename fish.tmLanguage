@@ -15,7 +15,7 @@
 	<key>keyEquivalent</key>
 	<string>^~S</string>
 	<key>name</key>
-	<string>Shell Script Improved (fish)</string>
+	<string>friendly interactive shell (fish)</string>
 	<key>patterns</key>
 	<array>
 		<dict>
@@ -2146,7 +2146,7 @@
 		</dict>
 	</dict>
 	<key>scopeName</key>
-	<string>source.fish</string>
+	<string>source.shell.fish</string>
 	<key>uuid</key>
 	<string>f9278d07-f7c1-4a9b-9581-ebcbc050fbfb</string>
 </dict>

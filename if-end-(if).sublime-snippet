@@ -4,6 +4,6 @@
 end
 ]]></content>
     <tabTrigger>if</tabTrigger>
-    <scope>source.fish</scope>
+    <scope>source.shell.fish</scope>
     <description>if … end</description>
 </snippet>

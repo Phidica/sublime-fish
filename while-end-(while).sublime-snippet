@@ -4,6 +4,6 @@
 end
 ]]></content>
     <tabTrigger>while</tabTrigger>
-    <scope>source.fish</scope>
+    <scope>source.shell.fish</scope>
     <description>while … end</description>
 </snippet>

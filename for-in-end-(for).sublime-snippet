@@ -3,6 +3,6 @@
   ${3:# commands}
 end]]></content>
     <tabTrigger>for</tabTrigger>
-    <scope>source.fish</scope>
+    <scope>source.shell.fish</scope>
     <description>for … in … end</description>
 </snippet>
