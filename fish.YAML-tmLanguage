@@ -51,8 +51,8 @@ repository:
         name: meta.argument.fish
         begin: (?![\s;&)|<>^])
         comment: Begin arg if it does not precede whitespace or a control operator
-        end: (?=[\s;&)|<>])|(?=\\\n)
-        comment: End arg if it precedes whitespace or control operators (including stdin/stdout redirection but not stderr due to a fish quirk), or an escaped newline (which line-continuation should take care of)
+        end: (?=[\s;&)|<>])
+        comment: End arg if it precedes whitespace or control operators (including stdin/stdout redirection but not stderr due to a fish quirk)
         patterns:
           - comment: Home directory expansion only occurs if the '~' is at the front of the argument
             name: meta.string.unquoted.fish meta.home-directory-expansion.fish keyword.operator.tilde.fish
@@ -69,17 +69,13 @@ repository:
                 name: meta.string.unquoted.fish variable.language.fish
                 match: (?:self|last)(?=[\s;&)|])
 
-              - comment: An escaped newline during a process expansion cannot be used to insert comments so consume it and let the process expansion continue on the next line
-                name: constant.character.escape.fish
-                match: \\\n
-
               - include: '#command-substitution'
               - include: '#variable-expansion'
               - include: '#string'
 
-          - comment: Arguments are otherwise made of strings, either quoted or unquoted. The unquoted string rule handles numerics, character escapes, command substitutions, and brace/variable/process expansions. These scopes consume the remainder of the argument
+          - comment: Arguments are otherwise made of strings, either quoted or unquoted. The unquoted string rule handles numerics, character escapes, and brace expansions
             begin: (?!\s)
-            end: (?=[\s;&)|<>])|(?=\\\n)
+            end: (?=[\s;&)|<>])
             patterns:
               - include: '#command-substitution'
 
@@ -238,14 +234,10 @@ repository:
                       - begin: \(
                         end: \)|(?=[\n;&)|<>])
 
-                  - comment: Match an escaped newline in the command name, but don't use line-continuation because comments aren't allowed
-                    name: constant.character.escape.fish
-                    match: \\\n
-
                   - comment: Otherwise, treat the element as a fraction of a name made of arbitrary strings (which breaks at an escaped newline)
                     name: variable.function.fish
                     begin: (?!\s)
-                    end: (?=[\s;&()|<>]|\\\n)
+                    end: (?=[\s;&()|<>])
                     patterns:
                       - comment: The string scope explicitly forbids '$' so that the argument rule can pick it up as a variable expansion, but '$' is treated as a literal in command names, so we have to match it separately
                         name: meta.string.unquoted.fish
@@ -263,20 +255,16 @@ repository:
           - comment: Redirection can immediately follow the command name, without whitespace separation
           - include: '#redirection'
 
-          - comment: Anonymous scope - An argument or comment element. We rely on these elements needing to be separated by whitespace
-            # name: anon-argument
+          - comment: Anonymous scope - A list of argument, redirection, or comment elements. We rely on this list being separated from the command name by whitespace
             begin: (?:[^\n\S]+)
-            # beginCaptures:
-            #   '0': {name: anon.space}
-            comment: Match any whitespace character that isn't the newline
-            end: (?=[\s;&)|])
+            comment: Match any whitespace characters that aren't the newline
             end: |-
               (?x)
               (?# Look ahead for control operations)
               (?=
                 (?:
-                  (?# Find whitespace or simple control operations)
-                  [\s;&)]
+                  (?# Find simple control operations)
+                  [\n;&)]
                 |
                   (?# Find piping)
                   (?:(?:[0-9]+)?(?:<|>|>>))?\|
@@ -476,18 +464,15 @@ repository:
                     begin: (?:[()|<>])
                     end: (?=[\s;&)])
 
-                  - comment: a
+                  - comment: Anonymous scope - Start when an escaped newline isn't present, and end when whitespace or a control operator is seen
                     begin: (?!\\\n)
                     end: (?=[\s;&()|<>])
                     patterns:
                       - comment: These patterns are similar to the scope around variable.function.fish in command-call-standard, except the defined name is expanded as an argument
 
-                      - name: constant.character.escape.fish
-                        match: \\\n
-
                       - name: entity.name.function.fish
                         begin: (?!\s)
-                        end: (?=[\s;&()|<>]|\\\n)
+                        end: (?=[\s;&()|<>])
                         patterns:
                           - include: '#argument'
 
@@ -640,7 +625,6 @@ repository:
         begin: (?=\\\n)
         end: ^(?![\s\#])|\s(?![\s\#])
         comment: End when the first character of a line isn't whitespace or a comment character, or if the next character after some consumed whitespace isn't more whitespace or a comment character
-        # name: free.continue
         patterns:
           - name: constant.character.escape
             match: \\\n
@@ -753,8 +737,8 @@ repository:
       - name: meta.string.unquoted.fish
         begin: (?!['"])
         comment: Begin unquoted string if there are no quotes present
-        end: (?=[\s;&()|<>'"$])|(?=\\\n)
-        comment: End unquoted string at whitespace, control operators, quoted strings, a variable expansion, or an upcoming escaped newline
+        end: (?=[\s;&()|<>'"$])
+        comment: End unquoted string at whitespace, control operators, quoted strings, or a variable expansion
         patterns:
           - include: '#string-unquoted-patterns'
 
@@ -778,6 +762,10 @@ repository:
           \\U[0-9A-Fa-f]{1,8}
           |
           \\c[?-~]
+
+      - comment: Just for convenience we separate the newline escape
+        name: constant.character.escape.fish
+        match: \\\n
 
       - name: meta.braces.brace-expansion.fish
         begin: \{

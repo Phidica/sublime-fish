@@ -80,18 +80,9 @@ echo arg
 #! <- variable.function
 
 echo ar\
-# comment
- # comment
-  # comment
-g
-#! <- meta.string.unquoted
-
-echo str\
-#!   ^^^ meta.string.unquoted
-#!      ^^ constant.character.escape
-ing # comment
-#! <- meta.string.unquoted
-#!  ^^^^^^^^^ comment.line
+g # comment
+#! <- meta.argument meta.string.unquoted
+#! ^^^^^^^^ comment.line
 
 echo str1 2 3str -b="str" --num=2
 #!   ^^^^ meta.string.unquoted
@@ -1158,6 +1149,12 @@ function '$cmd$'; echo $argv; end; $cmd$ arg1 arg2
 #!                               ^ keyword.operator
 #!                                 ^^^^^ variable.function
 #!                                       ^^^^ meta.argument
+
+function foo\
+bar
+#! <- entity.name.function
+  body
+end
 
 # This executes without error
 echo (function)
