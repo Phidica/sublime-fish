@@ -3,7 +3,7 @@ friendly interactive shell (fish)
 
 A Sublime Text 2/3 package for the [friendly interactive shell](https://github.com/fish-shell/fish-shell). It features a robust syntax highlighting scheme that mimics the native highlighting behaviour of fish.
 
-All the general syntax of fish is completely implemented, however a number of additional features are planned and bug reports are welcome.
+All the general syntax of fish is completely implemented, however a number of additional features are planned and suggestions or bug reports are welcome.
 
 To do:
 - Optimise scope nesting
@@ -19,6 +19,19 @@ Clone the repository to your [Packages directory](http://docs.sublimetext.info/e
     git clone https://github.com/Phidica/sublime-fish-shell-improved.git
 
 Open a `.fish` file and set the default syntax highlighting to "friendly interactive shell (fish)".
+
+Screenshots
+-----------
+
+As of version 2.0.0, a fish script (for example, `ls.fish`) will look something like:
+
+![Screenshot of text in Monokai](https://imgur.com/1yxw7Xn.png)
+
+Figure 1: Default Monokai colour scheme
+
+![Screenshot of text in custom Monokai](https://imgur.com/DU4yNh9.png)
+
+Figure 2: Example custom Monokai colour scheme formatting additional scopes
 
 Exposed scopes
 --------------
@@ -40,7 +53,7 @@ Contribution
 
 This package is built with [PackageDev](https://github.com/SublimeText/PackageDev).
 
-The source file for the syntax highlighting is `fish.YAML-tmLanguage`. When editing this file, "compile" it with the PackageDev build system to automatically generate the `fish.tmLanguage` file which is used by Sublime Text.
+The source file for the syntax is `fish.YAML-tmLanguage`. When editing this file, "compile" it with the PackageDev build system to automatically generate the `fish.tmLanguage` file which is used by Sublime Text.
 
 History
 -------
