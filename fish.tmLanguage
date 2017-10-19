@@ -61,7 +61,7 @@
 					<key>comment</key>
 					<string>Match an operation which cannot start a command chain (because it is consumed by the command chain when it appears further within it). These are simple control operators and redirections (which conveniently also matches redirection-into-pipe)</string>
 					<key>match</key>
-					<string>(?:[&amp;|]|(?:[0-9]+)?(?:&lt;|&gt;|&gt;&gt;))</string>
+					<string>(?:[&amp;|]|(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))</string>
 					<key>name</key>
 					<string>invalid.illegal.operator.fish</string>
 				</dict>
@@ -268,7 +268,7 @@
     [\n;&amp;)]
   |
     (?# Find piping)
-    (?:(?:[0-9]+)?(?:&lt;|&gt;|&gt;&gt;))?\|
+    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
   )
 )</string>
 					<key>patterns</key>
@@ -398,7 +398,7 @@
     [\n;&amp;)]
   |
     (?# Find piping)
-    (?:(?:[0-9]+)?(?:&lt;|&gt;|&gt;&gt;))?\|
+    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
   )
 )</string>
 							<key>patterns</key>
@@ -1225,9 +1225,9 @@
 			<array>
 				<dict>
 					<key>comment</key>
-					<string>Todo - Restructure command-chain so that this match isn't duplicated from the base scope. Might require the unary operator commands to become an explicit recursive match (though we tried this once and it was more complicated than anything should be)</string>
+					<string>Todo - Restructure command-chain so that this match isn't duplicated from the base scope, as it must be for any other scopes which implement their own control operator consumption. Might require the unary operator commands to become an explicit recursive match (though we tried this once and it was more complicated than anything should be)</string>
 					<key>match</key>
-					<string>(?:[&amp;|]|(?:[0-9]+)?(?:&lt;|&gt;|&gt;&gt;))</string>
+					<string>(?:[&amp;|]|(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))</string>
 					<key>name</key>
 					<string>invalid.illegal.operator.fish</string>
 				</dict>
@@ -1278,7 +1278,7 @@
     [\n;&amp;)]
   |
     (?# Find piping)
-    (?:(?:[0-9]+)?(?:&lt;|&gt;|&gt;&gt;))?\|
+    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
   )
 )</string>
 							<key>name</key>
@@ -1322,7 +1322,7 @@
 									<key>match</key>
 									<string>(?x)
 (?# Consume valid piping; groups 1 2 3)
-(?:([0-9]+)?(&lt;|&gt;|&gt;&gt;))?(\|)
+(?:([0-9]+)?(&lt;|&gt;&gt;?|\^\^?))?(\|)
 (?# Consume whitespace)
 \s*
 (?# Look ahead for control operations)
@@ -1332,7 +1332,7 @@
     [;&amp;]
   |
     (?# Find piping)
-    (?:(?:[0-9]+)?(?:&lt;|&gt;|&gt;&gt;))?\|
+    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
   )
 )
 (?# Consume control operations and beyond; group 4)
@@ -1358,7 +1358,7 @@
 										</dict>
 									</dict>
 									<key>match</key>
-									<string>(?:([0-9]+)?(&lt;|&gt;|&gt;&gt;))?(\|)</string>
+									<string>(?:([0-9]+)?(&lt;|&gt;&gt;?|\^\^?))?(\|)</string>
 									<key>name</key>
 									<string>meta.pipe.fish</string>
 								</dict>

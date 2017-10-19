@@ -33,7 +33,7 @@ patterns:
     patterns:
       - comment: Match an operation which cannot start a command chain (because it is consumed by the command chain when it appears further within it). These are simple control operators and redirections (which conveniently also matches redirection-into-pipe)
         name: invalid.illegal.operator.fish
-        match: (?:[&|]|(?:[0-9]+)?(?:<|>|>>))
+        match: (?:[&|]|(?:[0-9]+)?(?:<|>>?|\^\^?))
 
       - comment: Anonymous scope - Base scope command chain (up until an '&')
         comment: The reason we match the '&' in a different way is the ';' can be alone on a line, while we must explicitly require that the '&' comes after a command
@@ -92,9 +92,9 @@ repository:
     comment: The command-chain rule is nonterminating, meaning that it will not consume a newline, ';', or '&'
     patterns:
       - comment: Match an operation which cannot start a command chain (because it is consumed by the command chain when it appears further within it). These are simple control operators and redirections (which conveniently also matches redirection-into-pipe)
-        comment: Todo - Restructure command-chain so that this match isn't duplicated from the base scope. Might require the unary operator commands to become an explicit recursive match (though we tried this once and it was more complicated than anything should be)
+        comment: Todo - Restructure command-chain so that this match isn't duplicated from the base scope, as it must be for any other scopes which implement their own control operator consumption. Might require the unary operator commands to become an explicit recursive match (though we tried this once and it was more complicated than anything should be)
         name: invalid.illegal.operator.fish
-        match: (?:[&|]|(?:[0-9]+)?(?:<|>|>>))
+        match: (?:[&|]|(?:[0-9]+)?(?:<|>>?|\^\^?))
 
       - comment: Match a command which acts as a unary operator on the command to the right. Neglect the match if it is taking the one valid option argument these commands accept. Allow the match if there is a scope-ending operation after the command name
         name: meta.function-call.fish keyword.operator.word.fish
@@ -123,7 +123,7 @@ repository:
                   [\n;&)]
                 |
                   (?# Find piping)
-                  (?:(?:[0-9]+)?(?:<|>|>>))?\|
+                  (?:(?:[0-9]+)?(?:<|>>?|\^\^?))?\|
                 )
               )
             patterns:
@@ -136,7 +136,7 @@ repository:
                 match: |-
                   (?x)
                   (?# Consume valid piping; groups 1 2 3)
-                  (?:([0-9]+)?(<|>|>>))?(\|)
+                  (?:([0-9]+)?(<|>>?|\^\^?))?(\|)
                   (?# Consume whitespace)
                   \s*
                   (?# Look ahead for control operations)
@@ -146,7 +146,7 @@ repository:
                       [;&]
                     |
                       (?# Find piping)
-                      (?:(?:[0-9]+)?(?:<|>|>>))?\|
+                      (?:(?:[0-9]+)?(?:<|>>?|\^\^?))?\|
                     )
                   )
                   (?# Consume control operations and beyond; group 4)
@@ -158,7 +158,7 @@ repository:
                   '4': {name: invalid.illegal.function-call.fish}
 
               - name: meta.pipe.fish
-                match: (?:([0-9]+)?(<|>|>>))?(\|)
+                match: (?:([0-9]+)?(<|>>?|\^\^?))?(\|)
                 captures:
                   '1': {name: constant.numeric.file-descriptor.fish}
                   '2': {name: keyword.operator.redirect.fish}
@@ -205,7 +205,7 @@ repository:
               [\n;&)]
             |
               (?# Find piping)
-              (?:(?:[0-9]+)?(?:<|>|>>))?\|
+              (?:(?:[0-9]+)?(?:<|>>?|\^\^?))?\|
             )
           )
         patterns:
@@ -267,7 +267,7 @@ repository:
                   [\n;&)]
                 |
                   (?# Find piping)
-                  (?:(?:[0-9]+)?(?:<|>|>>))?\|
+                  (?:(?:[0-9]+)?(?:<|>>?|\^\^?))?\|
                 )
               )
             patterns:

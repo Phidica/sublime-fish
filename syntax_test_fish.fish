@@ -183,6 +183,11 @@ foo\
 #! ^^^^^ variable.function
 #!       ^^^ meta.argument
 
+;  ^^|err.pipe arg
+#! ^^^ invalid.illegal.operator
+#!    ^^^^^^^^ variable.function
+#!             ^^^ meta.argument
+
 (echo out) arg
 #! <- invalid.illegal.function-call
 #! ^^^^^^^ invalid.illegal.function-call
@@ -497,6 +502,13 @@ echo out 1>|
 echo out >| 9>|
 #!       ^^ meta.pipe
 #!          ^^^ invalid.illegal.function-call
+
+echo out ^| cat ^^| cat
+#!       ^ meta.pipe keyword.operator.redirect
+#!        ^ meta.pipe keyword.operator.pipe
+#!              ^ meta.pipe keyword.operator.redirect
+#!               ^ meta.pipe keyword.operator.redirect
+#!                ^ meta.pipe keyword.operator.pipe
 
 and | cat
 #! <- meta.function-call keyword.operator.word
