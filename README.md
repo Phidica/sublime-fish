@@ -7,7 +7,7 @@ All the general syntax of fish is completely implemented, however a number of ad
 
 To do:
 - Optimise scope nesting
-- Add further useful highlighting (eg, parameters)
+- Add further useful highlighting (eg, `[ ... ]` form of `test`)
 - Rewrite for `.sublime-syntax`
 
 Installation

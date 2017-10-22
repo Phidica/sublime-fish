@@ -47,6 +47,52 @@ patterns:
 repository:
   argument:
     patterns:
+      - comment: See the argument-nonoption rule for more information on arguments
+        begin: (?![\s;&)|<>^])
+        end: (?=[\s;&)|<>])
+        patterns:
+          - comment: Argument starting with two dashes (long option)
+            name: meta.argument.fish
+            begin: (?=--)
+            end: (?=[\s;&)|<>])
+            patterns:
+              - name: variable.parameter.fish
+                begin: (?:--)
+                beginCaptures:
+                  '0': {name: punctuation.definition.parameter.fish meta.string.unquoted.fish}
+                end: (?=[\s;&)|<>]|=)
+                patterns:
+                  - include: '#argument-patterns'
+
+              - comment: Consume the '=' and then use standard argument patterns
+                begin: (?:=)
+                beginCaptures:
+                  '0': {name: variable.parameter.fish punctuation.definition.parameter.separator.fish meta.string.unquoted.fish }
+                end: (?=[\s;&)|<>])
+                patterns:
+                  - comment: Standard argument patterns
+                  - include: '#argument-patterns'
+                  - name: meta.string.unquoted.fish
+                    match: \=
+
+          - comment: Argument starting with one dash (short option)
+            name: meta.argument.fish variable.parameter.fish
+            begin: (?:-)
+            beginCaptures:
+              '0': {name: punctuation.definition.parameter.fish meta.string.unquoted.fish}
+            end: (?=[\s;&)|<>])
+            patterns:
+              - comment: Standard argument patterns
+              - include: '#argument-patterns'
+              - name: meta.string.unquoted.fish
+                match: \=
+
+          - comment: Argument starting with no dashes
+          - include: '#argument-nonoption'
+
+  argument-nonoption:
+    comment: This rule must be entirely standalone because it is used in scopes where arguments starting with dashes are explicitly not interpreted as options
+    patterns:
       - comment: An argument is a fundamental unit of a command call, defined as a sequence of non-control-operator characters separated by unescaped and unscoped whitespace
         name: meta.argument.fish
         begin: (?![\s;&)|<>^])
@@ -66,27 +112,38 @@ repository:
             end: (?=[\s;&)|<>])
             patterns:
               - comment: Match special process names. By a convention that I'm making up, scope them as a type of variable
-                name: meta.string.unquoted.fish variable.language.fish
+                name: variable.language.fish meta.string.unquoted.fish
                 match: (?:self|last)(?=[\s;&)|])
 
-              - include: '#command-substitution'
-              - include: '#variable-expansion'
-              - include: '#string'
+              - comment: Standard argument patterns
+              - include: '#argument-patterns'
+              - name: meta.string.unquoted.fish
+                match: \=
 
-          - comment: Arguments are otherwise made of strings, either quoted or unquoted. The unquoted string rule handles numerics, character escapes, and brace expansions
+          - comment: Use standard argument patterns exclusively for the remainder of the argument
             begin: (?!\s)
             end: (?=[\s;&)|<>])
             patterns:
-              - include: '#command-substitution'
+              - include: '#argument-patterns'
 
-              - comment: Give the variable expansion the unquoted string scope
+              - comment: Pick up characters excluded by the string rule
                 name: meta.string.unquoted.fish
-                begin: (?=\$)
-                end: (?!\$)
-                patterns:
-                  - include: '#variable-expansion'
+                match: \=
 
-              - include: '#string'
+  argument-patterns:
+    comment: The typical substitutions, expansions, and escapes allowed anywhere in an argument
+    patterns:
+      - include: '#command-substitution'
+
+      - comment: Give variable expansion the unquoted string scope
+        name: meta.string.unquoted.fish
+        begin: (?=\$)
+        end: (?!\$)
+        patterns:
+          - include: '#variable-expansion'
+
+      - comment: Arguments are otherwise made of strings, either quoted or unquoted. The unquoted string rule handles numerics, character escapes, and the brace expansion. It excludes '=' though, so that the long option argument pattern can treat it as a special character
+      - include: '#string'
 
   command-chain:
     comment: The command-chain rule is nonterminating, meaning that it will not consume a newline, ';', or '&'
@@ -360,7 +417,7 @@ repository:
           - comment: Line continuation is allowed between the varname and "in"
             include: '#line-continuation'
 
-          - comment: Anonymous scope - Capture the command name which might be there, include an arbitrary number of arguments, and end when the control operator is seen
+          - comment: Anonymous scope - Capture the command name which might be there, include an arbitrary number of (forcibly nonoption) arguments, and end when the control operator is seen
             begin: in(?=\s)
             beginCaptures:
               '0': {name: keyword.control.conditional.fish}
@@ -368,7 +425,7 @@ repository:
             patterns:
               - include: '#line-continuation'
               - include: '#comment-internal-end'
-              - include: '#argument'
+              - include: '#argument-nonoption'
 
           - comment: Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen
             begin: \n|(;)|([&)])
@@ -422,7 +479,7 @@ repository:
               '2': {name: invalid.illegal.operator.fish}
             end: (?=end[\s;&)|<>])
             patterns:
-              - comment: Anonymous scope - Capture the command name which might be there, include an arbitrary number of arguments, and end when the control operator is captured
+              - comment: Anonymous scope - Capture the command name which might be there, include an arbitrary number of (forcibly nonoption) arguments, and end when the control operator is captured
                 begin: case(?=[\s;&)])
                 beginCaptures:
                   '0': {name: keyword.control.conditional.fish}
@@ -433,7 +490,7 @@ repository:
                 patterns:
                   - include: '#line-continuation'
                   - include: '#comment-internal-end'
-                  - include: '#argument'
+                  - include: '#argument-nonoption'
 
                   - comment: Anything else (eg, redirection) is illegal
                     name: invalid.illegal.operator.fish
@@ -737,8 +794,8 @@ repository:
       - name: meta.string.unquoted.fish
         begin: (?!['"])
         comment: Begin unquoted string if there are no quotes present
-        end: (?=[\s;&()|<>'"$])
-        comment: End unquoted string at whitespace, control operators, quoted strings, or a variable expansion
+        end: (?=[\s;&()|<>'"$=])
+        comment: End unquoted string at whitespace, control operators, quoted strings, a variable expansion, or an equals sign '=' (because the long option argument pattern needs to see it)
         patterns:
           - include: '#string-unquoted-patterns'
 

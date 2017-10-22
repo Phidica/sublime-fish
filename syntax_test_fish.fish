@@ -11,18 +11,6 @@
 \
 #! <- constant.character.escape
 
-echo --arg -arg arg ; echo arg # comment
-#! <- variable.function
-#! ^^^^^^^^^^^^^^^^  meta.function-call
-#!   ^^^^^ meta.argument
-#!         ^^^^ meta.argument
-#!              ^^^ meta.argument
-#!                  ^ keyword.operator
-#!                    ^^^^ variable.function
-#!                    ^^^^^^^^ meta.function-call
-#!                             ^ punctuation.definition.comment
-#!                             ^^^^^^^^^ comment.line
-
 echo arg & # comment
 #!       ^ keyword.operator
 #!         ^ comment.line
@@ -84,13 +72,44 @@ g # comment
 #! <- meta.argument meta.string.unquoted
 #! ^^^^^^^^ comment.line
 
-echo str1 2 3str -b="str" --num=2
+echo --arg -arg arg ; echo arg # comment
+#! <- variable.function
+#! ^^^^^^^^^^^^^^^^  meta.function-call
+#!   ^^^^^ meta.argument variable.parameter
+#!         ^^^^ meta.argument variable.parameter
+#!              ^^^ meta.argument
+#!                  ^ keyword.operator
+#!                    ^^^^ variable.function
+#!                    ^^^^^^^^ meta.function-call
+#!                             ^ punctuation.definition.comment
+#!                             ^^^^^^^^^ comment.line
+
+echo a=a -a=a --a=a
+#!   ^^^ meta.string.unquoted
+#!       ^^^^ meta.argument variable.parameter meta.string.unquoted
+#!       ^ punctuation.definition.parameter
+#!         ^ - punctuation.definition.parameter.separator
+#!            ^^^^^ meta.argument meta.string.unquoted
+#!            ^^^^ variable.parameter
+#!            ^^ punctuation.definition.parameter
+#!               ^ punctuation.definition.parameter.separator
+
+echo --arg=~/Documents --(echo arg)=(echo val)
+#!         ^^^^^^^^^^^ meta.string.unquoted
+#!         ^ - meta.home-director-expansion keyword.operator.tilde
+#!                     ^^^^^^^^^^^^^ meta.argument variable.parameter
+#!                                  ^^^^^^^^^^ meta.argument
+
+echo str1 2 3str -b"str" --num=2
 #!   ^^^^ meta.string.unquoted
+#!      ^ - constant.numeric
 #!        ^ meta.string.unquoted constant.numeric
+#!          ^ - constant.numeric
 #!          ^^^^ meta.string.unquoted
-#!               ^^^ meta.string.unquoted
-#!                  ^^^^^ string.quoted.double
-#!                        ^^^^^^ meta.string.unquoted
+#!               ^^ meta.string.unquoted
+#!                 ^^^^^ string.quoted.double
+#!                       ^^^^^^ meta.string.unquoted
+#!                             ^ constant.numeric
 
 echo str \ # not-comment \  # comment
 #!   ^^^ meta.string.unquoted
@@ -968,6 +987,7 @@ for arg arg in --foo bar; break; end | cat
 #!      ^^^ invalid.illegal.function-call
 #!          ^^ keyword.control.conditional
 #!             ^^^^^ meta.argument meta.string.unquoted
+#!             ^^^^^ - variable.parameter
 #!                   ^^^ meta.argument meta.string.unquoted
 #!                        ^^^^^ keyword.control.conditional
 #!                                   ^ meta.pipe keyword.operator.pipe
@@ -1058,8 +1078,10 @@ end | cat
 
 switch \-h
 #!     ^^^ meta.argument meta.string.unquoted
+#!     ^^^ - variable.parameter
   case -h
 #!     ^^ meta.argument meta.string.unquoted
+#!     ^^ - variable.parameter
     echo "-h" # Haha, this doesn't actually work
 end
 
