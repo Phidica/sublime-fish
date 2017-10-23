@@ -111,6 +111,14 @@ echo str1 2 3str -b"str" --num=2
 #!                       ^^^^^^ meta.string.unquoted
 #!                             ^ constant.numeric
 
+cmd -a --arg -- -- -h # comment
+#!  ^^ variable.parameter
+#!     ^^^^^ variable.parameter
+#!           ^^ variable.parameter
+#!              ^^ - variable.parameter
+#!                 ^^ - variable.parameter
+#!                    ^^^^^^^^^ comment.line
+
 echo str \ # not-comment \  # comment
 #!   ^^^ meta.string.unquoted
 #!       ^^^ meta.string.unquoted

@@ -108,9 +108,9 @@
 					<array>
 						<dict>
 							<key>begin</key>
-							<string>(?=--)</string>
+							<string>(?=--[^\s;&amp;)|&lt;&gt;])</string>
 							<key>comment</key>
-							<string>Argument starting with two dashes (long option)</string>
+							<string>If the argument is just the two dashes, consider it a short option</string>
 							<key>end</key>
 							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
 							<key>name</key>
@@ -561,20 +561,117 @@
 							<key>patterns</key>
 							<array>
 								<dict>
-									<key>include</key>
-									<string>#line-continuation</string>
+									<key>begin</key>
+									<string>(?!--[\s;&amp;)|&lt;&gt;])</string>
+									<key>comment</key>
+									<string>A list of elements that does not start with an end-of-options argument</string>
+									<key>end</key>
+									<string>(?x)
+(?# Look ahead for control operations or the end of options)
+(?=
+  (?:
+    (?# Find simple control operations)
+    [\n;&amp;)]
+  |
+    (?# Find piping)
+    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
+  |
+    (?# Find a double dash)
+    --[\s;&amp;)|&lt;&gt;]
+  )
+)</string>
+									<key>patterns</key>
+									<array>
+										<dict>
+											<key>include</key>
+											<string>#line-continuation</string>
+										</dict>
+										<dict>
+											<key>include</key>
+											<string>#comment-internal-end</string>
+										</dict>
+										<dict>
+											<key>include</key>
+											<string>#redirection</string>
+										</dict>
+										<dict>
+											<key>include</key>
+											<string>#argument</string>
+										</dict>
+									</array>
 								</dict>
 								<dict>
-									<key>include</key>
-									<string>#comment-internal-end</string>
-								</dict>
-								<dict>
-									<key>include</key>
-									<string>#redirection</string>
-								</dict>
-								<dict>
-									<key>include</key>
-									<string>#argument</string>
+									<key>begin</key>
+									<string>(?=--[\s;&amp;)|&lt;&gt;])</string>
+									<key>comment</key>
+									<string>A list of elements that starts with an end-of-options argument</string>
+									<key>end</key>
+									<string>(?x)
+(?# Look ahead for control operations)
+(?=
+  (?:
+    (?# Find simple control operations)
+    [\n;&amp;)]
+  |
+    (?# Find piping)
+    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
+  )
+)</string>
+									<key>patterns</key>
+									<array>
+										<dict>
+											<key>begin</key>
+											<string>(?=--[\s;&amp;)|&lt;&gt;])</string>
+											<key>comment</key>
+											<string>Contain just the end-of-options argument and give it the normal scope</string>
+											<key>end</key>
+											<string>(?=[\s;&amp;)|&lt;&gt;])</string>
+											<key>patterns</key>
+											<array>
+												<dict>
+													<key>include</key>
+													<string>#argument</string>
+												</dict>
+											</array>
+										</dict>
+										<dict>
+											<key>begin</key>
+											<string>(?=\s)</string>
+											<key>comment</key>
+											<string>A list of elements (now using forcibly nonoption arguments)</string>
+											<key>end</key>
+											<string>(?x)
+(?# Look ahead for control operations)
+(?=
+  (?:
+    (?# Find simple control operations)
+    [\n;&amp;)]
+  |
+    (?# Find piping)
+    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
+  )
+)</string>
+											<key>patterns</key>
+											<array>
+												<dict>
+													<key>include</key>
+													<string>#line-continuation</string>
+												</dict>
+												<dict>
+													<key>include</key>
+													<string>#comment-internal-end</string>
+												</dict>
+												<dict>
+													<key>include</key>
+													<string>#redirection</string>
+												</dict>
+												<dict>
+													<key>include</key>
+													<string>#argument-nonoption</string>
+												</dict>
+											</array>
+										</dict>
+									</array>
 								</dict>
 							</array>
 						</dict>

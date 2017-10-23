@@ -53,7 +53,8 @@ repository:
         patterns:
           - comment: Argument starting with two dashes (long option)
             name: meta.argument.fish
-            begin: (?=--)
+            begin: (?=--[^\s;&)|<>])
+            comment: If the argument is just the two dashes, consider it a short option
             end: (?=[\s;&)|<>])
             patterns:
               - name: variable.parameter.fish
@@ -328,10 +329,69 @@ repository:
                 )
               )
             patterns:
-              - include: '#line-continuation'
-              - include: '#comment-internal-end'
-              - include: '#redirection'
-              - include: '#argument'
+              - comment: A list of elements that does not start with an end-of-options argument
+                begin: (?!--[\s;&)|<>])
+                end: |-
+                  (?x)
+                  (?# Look ahead for control operations or the end of options)
+                  (?=
+                    (?:
+                      (?# Find simple control operations)
+                      [\n;&)]
+                    |
+                      (?# Find piping)
+                      (?:(?:[0-9]+)?(?:<|>>?|\^\^?))?\|
+                    |
+                      (?# Find a double dash)
+                      --[\s;&)|<>]
+                    )
+                  )
+                patterns:
+                  - include: '#line-continuation'
+                  - include: '#comment-internal-end'
+                  - include: '#redirection'
+                  - include: '#argument'
+
+              - comment: A list of elements that starts with an end-of-options argument
+                begin: (?=--[\s;&)|<>])
+                end: |-
+                  (?x)
+                  (?# Look ahead for control operations)
+                  (?=
+                    (?:
+                      (?# Find simple control operations)
+                      [\n;&)]
+                    |
+                      (?# Find piping)
+                      (?:(?:[0-9]+)?(?:<|>>?|\^\^?))?\|
+                    )
+                  )
+                patterns:
+                  - comment: Contain just the end-of-options argument and give it the normal scope
+                    begin: (?=--[\s;&)|<>])
+                    end: (?=[\s;&)|<>])
+                    patterns:
+                      - include: '#argument'
+
+                  - comment: A list of elements (now using forcibly nonoption arguments)
+                    begin: (?=\s)
+                    end: |-
+                      (?x)
+                      (?# Look ahead for control operations)
+                      (?=
+                        (?:
+                          (?# Find simple control operations)
+                          [\n;&)]
+                        |
+                          (?# Find piping)
+                          (?:(?:[0-9]+)?(?:<|>>?|\^\^?))?\|
+                        )
+                      )
+                    patterns:
+                      - include: '#line-continuation'
+                      - include: '#comment-internal-end'
+                      - include: '#redirection'
+                      - include: '#argument-nonoption'
 
   command-call-standard-block:
     patterns:
