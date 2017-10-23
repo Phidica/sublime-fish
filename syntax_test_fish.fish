@@ -111,6 +111,13 @@ echo str1 2 3str -b"str" --num=2
 #!                       ^^^^^^ meta.string.unquoted
 #!                             ^ constant.numeric
 
+echo 1 1.2 .3 4. .
+#!   ^ constant.numeric
+#!     ^^^ constant.numeric
+#!         ^^ constant.numeric
+#!            ^^ constant.numeric
+#!               ^ - constant.numeric
+
 cmd -a --arg -- -- -h # comment
 #!  ^^ variable.parameter
 #!     ^^^^^ variable.parameter
@@ -620,11 +627,12 @@ echo $var $var[$var[1 $var[1]] $var[1..2]] "str"
 #!                    ^^^^ meta.brackets.index-expansion meta.brackets.index-expansion variable.other
 #!                                         ^^^^^ string.quoted
 
-echo $$var[ 1 ][ 1 ]
+echo $$var[ 1 ][ 1 ] $var[1.2]
 #!   ^^^^^^^^^^^^^^^ meta.variable-expansion
 #!    ^^^^ variable.other
 #!        ^^^^^ meta.brackets.index-expansion
 #!             ^^^^^ meta.brackets.index-expansion
+#!                        ^^^ - constant.numeric
 
 echo $var[(echo 1)] $var["2"] "str"
 #!   ^^^^ variable.other
@@ -677,6 +685,12 @@ echo $var{,'brace',"expansion",he{e,$e}re\,}"str"
 #!                                       ^^ constant.character.escape
 #!                                         ^ punctuation.section.braces.end
 #!                                          ^^^^^ string.quoted
+
+echo 1{1.2,2a}3
+#!   ^ - constant.numeric
+#!     ^^^ constant.numeric
+#!         ^ - constant.numeric
+#!            ^ - constant.numeric
 
 echo %"fish" one%two %%percent
 #!   ^^^^^^^ meta.process-expansion

@@ -849,7 +849,7 @@ repository:
     patterns:
       - comment: Treat a sequence of integers (with possible decimal separator) as a standalone constant. Do this separate to string-unquoted-pattens so we can ensure it is a string solely of numbers
         name: meta.string.unquoted.fish constant.numeric.fish
-        match: (?:[0-9\.]+)(?=[\s;&)|<>'"])
+        match: (?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=[\s;&)|<>'"])
 
       - name: meta.string.unquoted.fish
         begin: (?!['"])
@@ -902,7 +902,7 @@ repository:
           - comment: Manually recreate the #string rule with extra logic in unquoted strings, and don't repeat the meta.string.unquoted scope
           - include: '#string-quoted'
           - name: constant.numeric.fish
-            match: (?:[0-9\.]+)(?=[\s;&)|<>'"]|\}|\,)
+            match: (?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=[\s;&)|<>'"]|\}|\,)
           - begin: (?![\s'"])
             end: (?=[\s;&)|<>'"]|\}|\,)
             comment: Begin/end string as before with the addition of breaking at a '}' or ','
