@@ -23,13 +23,13 @@ Open a `.fish` file and set the default syntax highlighting to "friendly interac
 Screenshots
 -----------
 
-As of version 2.0.0, a fish script (for example, `ls.fish`) will look something like:
+As of version 2.1.0, a fish script (for example, `fish-shell/share/functions/ls.fish`) will look something like:
 
-![Screenshot of text in Monokai](https://imgur.com/1yxw7Xn.png)
+![Screenshot of text in Monokai](https://imgur.com/UUrDBSl.png)
 
 Figure 1: Default Monokai colour scheme
 
-![Screenshot of text in custom Monokai](https://imgur.com/DU4yNh9.png)
+![Screenshot of text in custom Monokai](https://imgur.com/oX51Ku7.png)
 
 Figure 2: Example custom Monokai colour scheme formatting additional scopes
 
