@@ -162,14 +162,14 @@
 											<string>Standard argument patterns</string>
 										</dict>
 										<dict>
-											<key>include</key>
-											<string>#argument-patterns</string>
-										</dict>
-										<dict>
 											<key>match</key>
 											<string>\=</string>
 											<key>name</key>
 											<string>meta.string.unquoted.fish</string>
+										</dict>
+										<dict>
+											<key>include</key>
+											<string>#argument-patterns</string>
 										</dict>
 									</array>
 								</dict>
@@ -199,14 +199,14 @@
 									<string>Standard argument patterns</string>
 								</dict>
 								<dict>
-									<key>include</key>
-									<string>#argument-patterns</string>
-								</dict>
-								<dict>
 									<key>match</key>
 									<string>\=</string>
 									<key>name</key>
 									<string>meta.string.unquoted.fish</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#argument-patterns</string>
 								</dict>
 							</array>
 						</dict>
@@ -279,14 +279,14 @@
 									<string>Standard argument patterns</string>
 								</dict>
 								<dict>
-									<key>include</key>
-									<string>#argument-patterns</string>
-								</dict>
-								<dict>
 									<key>match</key>
 									<string>\=</string>
 									<key>name</key>
 									<string>meta.string.unquoted.fish</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#argument-patterns</string>
 								</dict>
 							</array>
 						</dict>
@@ -300,16 +300,16 @@
 							<key>patterns</key>
 							<array>
 								<dict>
-									<key>include</key>
-									<string>#argument-patterns</string>
-								</dict>
-								<dict>
 									<key>comment</key>
 									<string>Pick up characters excluded by the string rule</string>
 									<key>match</key>
 									<string>\=</string>
 									<key>name</key>
 									<string>meta.string.unquoted.fish</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#argument-patterns</string>
 								</dict>
 							</array>
 						</dict>

@@ -72,9 +72,9 @@ repository:
                 end: (?=[\s;&)|<>])
                 patterns:
                   - comment: Standard argument patterns
-                  - include: '#argument-patterns'
                   - name: meta.string.unquoted.fish
                     match: \=
+                  - include: '#argument-patterns'
 
           - comment: Argument starting with one dash (short option)
             name: meta.argument.fish variable.parameter.fish
@@ -84,9 +84,9 @@ repository:
             end: (?=[\s;&)|<>])
             patterns:
               - comment: Standard argument patterns
-              - include: '#argument-patterns'
               - name: meta.string.unquoted.fish
                 match: \=
+              - include: '#argument-patterns'
 
           - comment: Argument starting with no dashes
           - include: '#argument-nonoption'
@@ -117,19 +117,19 @@ repository:
                 match: (?:self|last)(?=[\s;&)|])
 
               - comment: Standard argument patterns
-              - include: '#argument-patterns'
               - name: meta.string.unquoted.fish
                 match: \=
+              - include: '#argument-patterns'
 
           - comment: Use standard argument patterns exclusively for the remainder of the argument
             begin: (?!\s)
             end: (?=[\s;&)|<>])
             patterns:
-              - include: '#argument-patterns'
-
               - comment: Pick up characters excluded by the string rule
                 name: meta.string.unquoted.fish
                 match: \=
+
+              - include: '#argument-patterns'
 
   argument-patterns:
     comment: The typical substitutions, expansions, and escapes allowed anywhere in an argument

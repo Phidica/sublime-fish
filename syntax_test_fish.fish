@@ -72,6 +72,20 @@ g # comment
 #! <- meta.argument meta.string.unquoted
 #! ^^^^^^^^ comment.line
 
+echo str1 2 3str
+#!   ^^^^ meta.string.unquoted
+#!      ^ - constant.numeric
+#!        ^ meta.string.unquoted constant.numeric
+#!          ^ - constant.numeric
+#!          ^^^^ meta.string.unquoted
+
+echo 1 1.2 .3 4. .
+#!   ^ constant.numeric
+#!     ^^^ constant.numeric
+#!         ^^ constant.numeric
+#!            ^^ constant.numeric
+#!               ^ - constant.numeric
+
 echo --arg -arg arg ; echo arg # comment
 #! <- variable.function
 #! ^^^^^^^^^^^^^^^^  meta.function-call
@@ -100,23 +114,10 @@ echo --arg=~/Documents --(echo arg)=(echo val)
 #!                     ^^^^^^^^^^^^^ meta.argument variable.parameter
 #!                                  ^^^^^^^^^^ meta.argument
 
-echo str1 2 3str -b"str" --num=2
-#!   ^^^^ meta.string.unquoted
-#!      ^ - constant.numeric
-#!        ^ meta.string.unquoted constant.numeric
-#!          ^ - constant.numeric
-#!          ^^^^ meta.string.unquoted
-#!               ^^ meta.string.unquoted
-#!                 ^^^^^ string.quoted.double
-#!                       ^^^^^^ meta.string.unquoted
-#!                             ^ constant.numeric
-
-echo 1 1.2 .3 4. .
-#!   ^ constant.numeric
-#!     ^^^ constant.numeric
-#!         ^^ constant.numeric
-#!            ^^ constant.numeric
-#!               ^ - constant.numeric
+echo --num=2 -n2
+#!   ^^^^^^ meta.string.unquoted
+#!         ^ meta.argument constant.numeric
+#!             ^ - constant.numeric
 
 cmd -a --arg -- -- -h # comment
 #!  ^^ variable.parameter
@@ -125,6 +126,14 @@ cmd -a --arg -- -- -h # comment
 #!              ^^ - variable.parameter
 #!                 ^^ - variable.parameter
 #!                    ^^^^^^^^^ comment.line
+
+set equals =
+echo "$equals"
+#! <- variable.function
+
+echo --==
+cmd
+#! <- variable.function
 
 echo str \ # not-comment \  # comment
 #!   ^^^ meta.string.unquoted
