@@ -135,6 +135,10 @@ echo --==
 cmd
 #! <- variable.function
 
+= arg
+#! <- variable.function meta.string.unquoted
+#! ^^ meta.argument
+
 echo str \ # not-comment \  # comment
 #!   ^^^ meta.string.unquoted
 #!       ^^^ meta.string.unquoted

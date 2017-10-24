@@ -63,7 +63,22 @@ repository:
                   '0': {name: punctuation.definition.parameter.fish meta.string.unquoted.fish}
                 end: (?=[\s;&)|<>]|=)
                 patterns:
-                  - include: '#argument-patterns'
+                  - comment: We mimic the argument-patterns rule but use a tweaked unquoted string pattern which excludes '='
+                  - include: '#command-substitution'
+
+                  - name: meta.string.unquoted.fish
+                    begin: (?=\$)
+                    end: (?!\$)
+                    patterns:
+                      - include: '#variable-expansion'
+
+                  - include: '#string-quoted'
+
+                  - name: meta.string.unquoted.fish
+                    begin: (?!['"])
+                    end: (?=[\s;&()|<>'"$]|\=)
+                    patterns:
+                      - include: '#string-unquoted-patterns'
 
               - comment: Consume the '=' and then use standard argument patterns
                 begin: (?:=)
@@ -71,9 +86,6 @@ repository:
                   '0': {name: variable.parameter.fish punctuation.definition.parameter.separator.fish meta.string.unquoted.fish }
                 end: (?=[\s;&)|<>])
                 patterns:
-                  - comment: Standard argument patterns
-                  - name: meta.string.unquoted.fish
-                    match: \=
                   - include: '#argument-patterns'
 
           - comment: Argument starting with one dash (short option)
@@ -83,9 +95,6 @@ repository:
               '0': {name: punctuation.definition.parameter.fish meta.string.unquoted.fish}
             end: (?=[\s;&)|<>])
             patterns:
-              - comment: Standard argument patterns
-              - name: meta.string.unquoted.fish
-                match: \=
               - include: '#argument-patterns'
 
           - comment: Argument starting with no dashes
@@ -116,19 +125,12 @@ repository:
                 name: variable.language.fish meta.string.unquoted.fish
                 match: (?:self|last)(?=[\s;&)|])
 
-              - comment: Standard argument patterns
-              - name: meta.string.unquoted.fish
-                match: \=
               - include: '#argument-patterns'
 
           - comment: Use standard argument patterns exclusively for the remainder of the argument
             begin: (?!\s)
             end: (?=[\s;&)|<>])
             patterns:
-              - comment: Pick up characters excluded by the string rule
-                name: meta.string.unquoted.fish
-                match: \=
-
               - include: '#argument-patterns'
 
   argument-patterns:
@@ -143,7 +145,7 @@ repository:
         patterns:
           - include: '#variable-expansion'
 
-      - comment: Arguments are otherwise made of strings, either quoted or unquoted. The unquoted string rule handles numerics, character escapes, and the brace expansion. It excludes '=' though, so that the long option argument pattern can treat it as a special character
+      - comment: Arguments are otherwise made of strings, either quoted or unquoted. The unquoted string rule handles numerics, character escapes, and brace expansion
       - include: '#string'
 
   command-chain:
@@ -725,7 +727,7 @@ repository:
 
           - include: '#variable-expansion'
 
-          - comment: Manually recreate the #string rule with extra logic in unquoted strings, and don't repeat the meta.string.unquoted scope
+          - comment: Manually recreate the string rule with extra logic in unquoted strings, and don't repeat the meta.string.unquoted scope
           - include: '#string-quoted'
           - name: constant.numeric.fish
             match: (?:[0-9]+)(?=[\s;&)|<>'"]|\]|\.\.)
@@ -854,8 +856,8 @@ repository:
       - name: meta.string.unquoted.fish
         begin: (?!['"])
         comment: Begin unquoted string if there are no quotes present
-        end: (?=[\s;&()|<>'"$=])
-        comment: End unquoted string at whitespace, control operators, quoted strings, a variable expansion, or an equals sign '=' (because the long option argument pattern needs to see it)
+        end: (?=[\s;&()|<>'"$])
+        comment: End unquoted string at whitespace, control operators, quoted strings, or a variable expansion
         patterns:
           - include: '#string-unquoted-patterns'
 
@@ -899,7 +901,7 @@ repository:
 
           - include: '#variable-expansion'
 
-          - comment: Manually recreate the #string rule with extra logic in unquoted strings, and don't repeat the meta.string.unquoted scope
+          - comment: Manually recreate the string rule with extra logic in unquoted strings, and don't repeat the meta.string.unquoted scope
           - include: '#string-quoted'
           - name: constant.numeric.fish
             match: (?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=[\s;&)|<>'"]|\}|\,)
