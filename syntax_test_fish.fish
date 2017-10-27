@@ -108,25 +108,6 @@ echo a=a -a=a --a=a
 #!            ^^ punctuation.definition.parameter
 #!               ^ punctuation.definition.parameter.separator
 
-echo --arg=~/Documents --(echo arg)=(echo val)
-#!         ^^^^^^^^^^^ meta.string.unquoted
-#!         ^ - meta.home-director-expansion keyword.operator.tilde
-#!                     ^^^^^^^^^^^^^ meta.argument variable.parameter
-#!                                  ^^^^^^^^^^ meta.argument
-
-echo --num=2 -n2
-#!   ^^^^^^ meta.string.unquoted
-#!         ^ meta.argument constant.numeric
-#!             ^ - constant.numeric
-
-cmd -a --arg -- -- -h # comment
-#!  ^^ variable.parameter
-#!     ^^^^^ variable.parameter
-#!           ^^ variable.parameter
-#!              ^^ - variable.parameter
-#!                 ^^ - variable.parameter
-#!                    ^^^^^^^^^ comment.line
-
 set equals =
 echo "$equals"
 #! <- variable.function
@@ -138,6 +119,33 @@ cmd
 = arg
 #! <- variable.function meta.string.unquoted
 #! ^^ meta.argument
+
+echo --arg=~/Documents --(echo arg)=(echo val)
+#!         ^^^^^^^^^^^ meta.string.unquoted
+#!         ^ - meta.home-director-expansion keyword.operator.tilde
+#!                     ^^^^^^^^^^^^^ meta.argument variable.parameter
+#!                                  ^^^^^^^^^^ meta.argument
+
+echo --num=2 -n2
+#!   ^^^^^^ meta.string.unquoted
+#!         ^ meta.argument constant.numeric
+#!             ^ - constant.numeric
+
+cmd -h --help -- -- -h # comment
+#!  ^^ variable.parameter
+#!     ^^^^^^ variable.parameter
+#!            ^^ variable.parameter
+#!               ^^ - variable.parameter
+#!                  ^^ - variable.parameter
+#!                     ^^^^^^^^^ comment.line
+
+1 arg -1 +1 -- -1. +.0
+#! <- - constant.numeric
+#!    ^^ variable.parameter
+#!    ^^ - constant.numeric
+#!       ^^ constant.numeric
+#!             ^^^ constant.numeric
+#!                 ^^^ constant.numeric
 
 echo str \ # not-comment \  # comment
 #!   ^^^ meta.string.unquoted
@@ -646,6 +654,10 @@ echo $$var[ 1 ][ 1 ] $var[1.2]
 #!        ^^^^^ meta.brackets.index-expansion
 #!             ^^^^^ meta.brackets.index-expansion
 #!                        ^^^ - constant.numeric
+
+echo $var[+1..-1]
+#!        ^^ constant.numeric
+#!            ^^ constant.numeric
 
 echo $var[(echo 1)] $var["2"] "str"
 #!   ^^^^ variable.other

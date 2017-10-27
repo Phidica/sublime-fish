@@ -9,7 +9,6 @@ uuid: f9278d07-f7c1-4a9b-9581-ebcbc050fbfb
 # - support.function is applied to any fish builtins that we have to treat uniquely, however variable.function is used for everything else including other shell builtins
 # - constant.character.escape is used for the backslash at the end of a line which causes line continuation because technically that backslash is "escaping" the literal newline which appears in the unquoted string environment which the shell assumes you are in. In this sense, the backslash is indeed an escape character
 # - constant.character.escape is used for \x?? and \0?? escape codes rather than constant.numeric.{hex,octal} because even though the user inputs a numeric value in hex or octal, the codes serve the purpose of making characters not numbers
-# - Individual arguments in function calls do not get the variable.parameter label because that swiftly becomes the overwhelming majority of all words in a program
 # - By analogy to the recommendation that `meta.function.php meta.function.parameters.php` should never occur, we use a single `meta.function-call` scope and name the argument scope `meta.argument` not `meta.function-call.argument`. Furthermore, a single `meta.function-call` scope continues from the first command name until the consumption of a ';', '&', or '\n'. The same scope continues through '|' because we have no other way to ensure that a command follows a '|'
 # - Every character outside of comments should be scoped as `meta.string.unquoted`, `string.quoted.single`, or `string.quoted.double`. Furthermore, there is no concept of an unquoted string inside a quoted string or vice-versa
 # - The order of operators in expressions is (by invented convention): newline '\n', whitespace '\s' (includes newline), ';', '&', '(', ')', '|', '<', '>', '^'
@@ -80,12 +79,15 @@ repository:
                     patterns:
                       - include: '#string-unquoted-patterns'
 
-              - comment: Consume the '=' and then use standard argument patterns
+              - comment: Consume the '=' and then use standard argument patterns as well as numerics
                 begin: (?:=)
                 beginCaptures:
                   '0': {name: variable.parameter.fish punctuation.definition.parameter.separator.fish meta.string.unquoted.fish }
                 end: (?=[\s;&)|<>])
                 patterns:
+                  - name: meta.string.unquoted.fish constant.numeric.fish
+                    match: (?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=[\s;&)|<>])
+
                   - include: '#argument-patterns'
 
           - comment: Argument starting with one dash (short option)
@@ -127,6 +129,10 @@ repository:
 
               - include: '#argument-patterns'
 
+          - comment: Treat a sequence of integers (with possible sign and decimal separator) as a standalone constant. Do this separate to the #string-unquoted-pattens rule so we can ensure it is a string solely of numbers
+            name: meta.string.unquoted.fish constant.numeric.fish
+            match: (?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=[\s;&)|<>])
+
           - comment: Use standard argument patterns exclusively for the remainder of the argument
             begin: (?!\s)
             end: (?=[\s;&)|<>])
@@ -145,7 +151,7 @@ repository:
         patterns:
           - include: '#variable-expansion'
 
-      - comment: Arguments are otherwise made of strings, either quoted or unquoted. The unquoted string rule handles numerics, character escapes, and brace expansion
+      - comment: Arguments are otherwise made of strings, either quoted or unquoted. The unquoted string rule handles character escapes and brace expansion
       - include: '#string'
 
   command-chain:
@@ -727,10 +733,10 @@ repository:
 
           - include: '#variable-expansion'
 
-          - comment: Manually recreate the string rule with extra logic in unquoted strings, and don't repeat the meta.string.unquoted scope
+          - comment: Manually recreate the string rule with a numeric match, extra logic in unquoted strings, and don't repeat the meta.string.unquoted scope
           - include: '#string-quoted'
           - name: constant.numeric.fish
-            match: (?:[0-9]+)(?=[\s;&)|<>'"]|\]|\.\.)
+            match: (?:[+-]?[0-9]+)(?=[\s;&)|<>]|\]|\.\.)
           - begin: (?![\s'"]|\.\.)
             end: (?=[\s;&)|<>'"]|\]|\.\.)
             comment: Begin/end string as before with the addition of breaking at a ']' or ".."
@@ -849,10 +855,6 @@ repository:
 
   string-unquoted:
     patterns:
-      - comment: Treat a sequence of integers (with possible decimal separator) as a standalone constant. Do this separate to string-unquoted-pattens so we can ensure it is a string solely of numbers
-        name: meta.string.unquoted.fish constant.numeric.fish
-        match: (?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=[\s;&)|<>'"])
-
       - name: meta.string.unquoted.fish
         begin: (?!['"])
         comment: Begin unquoted string if there are no quotes present
@@ -901,10 +903,10 @@ repository:
 
           - include: '#variable-expansion'
 
-          - comment: Manually recreate the string rule with extra logic in unquoted strings, and don't repeat the meta.string.unquoted scope
+          - comment: Manually recreate the string rule with a numeric match, extra logic in unquoted strings, and don't repeat the meta.string.unquoted scope
           - include: '#string-quoted'
           - name: constant.numeric.fish
-            match: (?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=[\s;&)|<>'"]|\}|\,)
+            match: (?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=[\s;&)|<>]|\}|\,)
           - begin: (?![\s'"])
             end: (?=[\s;&)|<>'"]|\}|\,)
             comment: Begin/end string as before with the addition of breaking at a '}' or ','
