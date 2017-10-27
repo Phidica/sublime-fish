@@ -294,7 +294,7 @@
 									<key>comment</key>
 									<string>Match special process names. By a convention that I'm making up, scope them as a type of variable</string>
 									<key>match</key>
-									<string>(?:self|last)(?=[\s;&amp;)|])</string>
+									<string>(?:self|last)(?=[\s;&amp;)|&lt;&gt;])</string>
 									<key>name</key>
 									<string>variable.language.fish meta.string.unquoted.fish</string>
 								</dict>

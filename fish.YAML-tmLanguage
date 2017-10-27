@@ -125,7 +125,7 @@ repository:
             patterns:
               - comment: Match special process names. By a convention that I'm making up, scope them as a type of variable
                 name: variable.language.fish meta.string.unquoted.fish
-                match: (?:self|last)(?=[\s;&)|])
+                match: (?:self|last)(?=[\s;&)|<>])
 
               - include: '#argument-patterns'
 

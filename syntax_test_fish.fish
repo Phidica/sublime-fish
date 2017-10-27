@@ -740,6 +740,9 @@ echo %self foo %(set foo "fi"; echo $foo)sh "bar"
 #!                                       ^^ meta.process-expansion
 #!                                          ^^^^^ string.quoted
 
+echo %self>out
+#!    ^^^^ variable.language
+
 echo $var(echo str{$arg}str "{$var}")$var"str"$var
 #!   ^^^^ variable.other
 #!                 ^^^^ variable.other
