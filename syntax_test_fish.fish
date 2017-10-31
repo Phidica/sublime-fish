@@ -125,7 +125,7 @@ cmd
 
 echo --arg=~/Documents --(echo arg)=(echo val)
 #!         ^^^^^^^^^^^ meta.string.unquoted
-#!         ^ - meta.home-director-expansion keyword.operator.tilde
+#!         ^ - meta.home-directory-expansion keyword.operator.tilde
 #!                     ^^^^^^^^^^^^^ meta.argument variable.parameter
 #!                                  ^^^^^^^^^^ meta.argument
 
