@@ -211,26 +211,37 @@
 						</dict>
 						<dict>
 							<key>begin</key>
-							<string>(?:-)</string>
-							<key>beginCaptures</key>
-							<dict>
-								<key>0</key>
-								<dict>
-									<key>name</key>
-									<string>punctuation.definition.parameter.fish meta.string.unquoted.fish</string>
-								</dict>
-							</dict>
+							<string>(?=-[^\s;&amp;)|&lt;&gt;])</string>
 							<key>comment</key>
 							<string>Argument starting with one dash (short option)</string>
 							<key>end</key>
 							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
 							<key>name</key>
-							<string>meta.argument.fish variable.parameter.fish</string>
+							<string>meta.argument.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
-									<key>include</key>
-									<string>#argument-patterns</string>
+									<key>begin</key>
+									<string>(?:-)</string>
+									<key>beginCaptures</key>
+									<dict>
+										<key>0</key>
+										<dict>
+											<key>name</key>
+											<string>punctuation.definition.parameter.fish meta.string.unquoted.fish</string>
+										</dict>
+									</dict>
+									<key>end</key>
+									<string>(?=[\s;&amp;)|&lt;&gt;])</string>
+									<key>name</key>
+									<string>variable.parameter.fish</string>
+									<key>patterns</key>
+									<array>
+										<dict>
+											<key>include</key>
+											<string>#argument-patterns</string>
+										</dict>
+									</array>
 								</dict>
 							</array>
 						</dict>

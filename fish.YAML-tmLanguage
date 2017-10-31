@@ -91,13 +91,17 @@ repository:
                   - include: '#argument-patterns'
 
           - comment: Argument starting with one dash (short option)
-            name: meta.argument.fish variable.parameter.fish
-            begin: (?:-)
-            beginCaptures:
-              '0': {name: punctuation.definition.parameter.fish meta.string.unquoted.fish}
+            name: meta.argument.fish
+            begin: (?=-[^\s;&)|<>])
             end: (?=[\s;&)|<>])
             patterns:
-              - include: '#argument-patterns'
+              - name: variable.parameter.fish
+                begin: (?:-)
+                beginCaptures:
+                  '0': {name: punctuation.definition.parameter.fish meta.string.unquoted.fish}
+                end: (?=[\s;&)|<>])
+                patterns:
+                  - include: '#argument-patterns'
 
           - comment: Argument starting with no dashes
           - include: '#argument-nonoption'

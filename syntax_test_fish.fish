@@ -108,6 +108,9 @@ echo a=a -a=a --a=a
 #!            ^^ punctuation.definition.parameter
 #!               ^ punctuation.definition.parameter.separator
 
+echo - 1
+#!   ^ - variable.parameter
+
 set equals =
 echo "$equals"
 #! <- variable.function
