@@ -16,7 +16,7 @@ Installation
 Clone the repository to your [Packages directory](http://docs.sublimetext.info/en/latest/basic_concepts.html#the-packages-directory).
 
     cd /path/to/sublime/packages/directory
-    git clone https://github.com/Phidica/sublime-fish-shell-improved.git
+    git clone https://github.com/Phidica/sublime-fish.git
 
 Open a `.fish` file and set the default syntax highlighting to "friendly interactive shell (fish)".
 
