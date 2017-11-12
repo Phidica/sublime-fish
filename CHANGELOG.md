@@ -27,20 +27,20 @@ Bugfixes:
 -----
 
 Bugfixes:
-- A command call line ending with `=` did not terminate
+- A command call line ending with `=` did not terminate (#11)
 - An `=` could not safely be a command name
 
 2.1.1
 -----
 
 Bugfixes:
-- A lone `.` was scoped as a decimal point for a numeric
+- A lone `.` was scoped as a decimal point for a numeric (#10)
 
 2.1.0
 -----
 
 New features:
-- Support for short (`-x`) and long (`--x=arg`) option arguments using the `variable.parameter` scope
+- Support for short (`-x`) and long (`--x=arg`) option arguments using the `variable.parameter` scope (#5)
 - Recognise `--` as the end of options and treat further arguments as normal, even if they start with a dash
 
 2.0.1
