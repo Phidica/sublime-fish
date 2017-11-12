@@ -1,10 +1,9 @@
 <snippet>
-    <content><![CDATA[switch ${1:value}
-  case ${2:wildcard}
-    ${3:# commands}
-end
-]]></content>
-    <tabTrigger>switch</tabTrigger>
-    <scope>source.shell.fish</scope>
-    <description>switch … end</description>
+	<content><![CDATA[switch ${1:value}
+	case ${2:wildcard}
+		${3:# commands}
+end]]></content>
+	<tabTrigger>switch</tabTrigger>
+	<scope>source.shell.fish</scope>
+	<description>switch … end</description>
 </snippet>

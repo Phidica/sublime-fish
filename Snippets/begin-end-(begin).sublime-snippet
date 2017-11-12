@@ -1,8 +1,8 @@
 <snippet>
-    <content><![CDATA[begin
-  ${1:# commands}
+	<content><![CDATA[begin
+	${1:# commands}
 end]]></content>
-    <tabTrigger>begin</tabTrigger>
-    <scope>source.shell.fish</scope>
-    <description>begin … end</description>
+	<tabTrigger>begin</tabTrigger>
+	<scope>source.shell.fish</scope>
+	<description>begin … end</description>
 </snippet>

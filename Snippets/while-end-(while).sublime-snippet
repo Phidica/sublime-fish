@@ -1,9 +1,8 @@
 <snippet>
-    <content><![CDATA[while ${1:test}
-  ${2:# commands}
-end
-]]></content>
-    <tabTrigger>while</tabTrigger>
-    <scope>source.shell.fish</scope>
-    <description>while … end</description>
+	<content><![CDATA[while ${1:test}
+	${2:# commands}
+end]]></content>
+	<tabTrigger>while</tabTrigger>
+	<scope>source.shell.fish</scope>
+	<description>while … end</description>
 </snippet>

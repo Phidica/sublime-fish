@@ -1,9 +1,8 @@
 <snippet>
-    <content><![CDATA[if ${1:test}
-  ${2:# commands}
-end
-]]></content>
-    <tabTrigger>if</tabTrigger>
-    <scope>source.shell.fish</scope>
-    <description>if … end</description>
+	<content><![CDATA[if ${1:test}
+	${2:# commands}
+end]]></content>
+	<tabTrigger>if</tabTrigger>
+	<scope>source.shell.fish</scope>
+	<description>if … end</description>
 </snippet>

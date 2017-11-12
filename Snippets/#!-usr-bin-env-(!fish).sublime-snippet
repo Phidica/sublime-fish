@@ -1,0 +1,6 @@
+<snippet>
+	<content><![CDATA[#!/usr/bin/env fish]]></content>
+	<tabTrigger>!fish</tabTrigger>
+	<scope>source.shell.fish</scope>
+	<description>#!/usr/bin/env</description>
+</snippet>
