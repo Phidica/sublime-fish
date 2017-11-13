@@ -1,8 +1,5 @@
-News
-====
-
-2.0.0
------
+News - 2.0.0
+============
 
 Welcome to the new Sublime Text fish package!
 
