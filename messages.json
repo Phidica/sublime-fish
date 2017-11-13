@@ -1,10 +1,4 @@
 {
-  "2.2.2": "Messages/changes-2.2.2.md",
-  "2.2.1": "Messages/changes-2.2.1.md",
-  "2.2.0": "Messages/changes-2.2.0.md",
-  "2.1.2": "Messages/changes-2.1.2.md",
-  "2.1.1": "Messages/changes-2.1.1.md",
-  "2.1.0": "Messages/changes-2.1.0.md",
-  "2.0.1": "Messages/changes-2.0.1.md",
+  "2.2.2": "Messages/changes.md",
   "2.0.0": "Messages/news-2.0.0.md"
 }

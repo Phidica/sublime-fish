@@ -1,0 +1,35 @@
+[
+  {
+    "id": "preferences",
+    "children": [{
+        "caption": "Package Settings",
+        "id": "package-settings",
+        "children": [{
+          "caption": "fish",
+          "children": [
+            {
+              "caption": "Readme",
+              "command": "open_file",
+              "args": {
+                "file": "${packages}/sublime-fish/README.md"
+              }
+            }, {
+              "caption": "Changelog",
+              "command": "open_file",
+              "args": {
+                "file": "${packages}/sublime-fish/CHANGELOG.md"
+              }
+            }, {
+              "caption": "-"
+            }, {
+              "caption": "Issues",
+              "command": "open_url",
+              "args": {
+                "url": "https://github.com/Phidica/sublime-fish/issues"
+              }
+            }
+          ]
+        }]
+    }]
+  }
+]
