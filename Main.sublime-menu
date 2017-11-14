@@ -11,13 +11,13 @@
               "caption": "Readme",
               "command": "open_file",
               "args": {
-                "file": "${packages}/sublime-fish/README.md"
+                "file": "${packages}/fish/README.md"
               }
             }, {
               "caption": "Changelog",
               "command": "open_file",
               "args": {
-                "file": "${packages}/sublime-fish/CHANGELOG.md"
+                "file": "${packages}/fish/CHANGELOG.md"
               }
             }, {
               "caption": "-"

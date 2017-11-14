@@ -1,6 +1,12 @@
 Changelog
 =========
 
+2.2.3
+-----
+
+Bugfixes:
+- Menu options could not open the README or CHANGELOG files
+
 2.2.2
 -----
 
