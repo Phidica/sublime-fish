@@ -13,12 +13,19 @@ To do:
 Installation
 ------------
 
-Clone the repository to your [Packages directory](http://docs.sublimetext.info/en/latest/basic_concepts.html#the-packages-directory).
+### Via Package Control
+
+Install [Package Control](https://packagecontrol.io), then go to Command Palette (Ctrl+Shift+P) > Package Control: Install Package > fish.
+
+### Manual
+
+Clone the repository to your [Packages directory](http://docs.sublimetext.info/en/latest/basic_concepts.html#the-packages-directory) and rename it to `fish`.
 
     cd /path/to/sublime/packages/directory
     git clone https://github.com/Phidica/sublime-fish.git
+    mv sublime-fish fish
 
-Open a `.fish` file and set the default syntax highlighting to "friendly interactive shell (fish)".
+Open a `.fish` file and ensure the default syntax highlighting is "friendly interactive shell (fish)".
 
 Screenshots
 -----------
