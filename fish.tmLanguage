@@ -109,7 +109,7 @@
 					<key>end</key>
 					<string>(?=[\s;&amp;)|&lt;&gt;])</string>
 					<key>name</key>
-					<string>meta.argument.fish</string>
+					<string>meta.parameter.argument.fish</string>
 					<key>patterns</key>
 					<array>
 						<dict>
@@ -1782,14 +1782,22 @@
 					<key>patterns</key>
 					<array>
 						<dict>
-							<key>begin</key>
-							<string>(?=--[^\s;&amp;)|&lt;&gt;])</string>
 							<key>comment</key>
-							<string>If the parameter is just the two hyphens, consider it a short option</string>
+							<string>End of options (parameter of just two hyphens)</string>
+							<key>match</key>
+							<string>(?:--)(?=[\s;&amp;)|&lt;&gt;])</string>
+							<key>name</key>
+							<string>meta.parameter.option.end.fish variable.parameter.fish punctuation.definition.option.end.fish meta.string.unquoted.fish</string>
+						</dict>
+						<dict>
+							<key>begin</key>
+							<string>(?=--)</string>
+							<key>comment</key>
+							<string>Long option (parameter starting with two hyphens)</string>
 							<key>end</key>
 							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
 							<key>name</key>
-							<string>meta.argument.fish</string>
+							<string>meta.parameter.option.long.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -1800,7 +1808,7 @@
 										<key>0</key>
 										<dict>
 											<key>name</key>
-											<string>punctuation.definition.parameter.fish meta.string.unquoted.fish</string>
+											<string>punctuation.definition.option.long.begin.fish meta.string.unquoted.fish</string>
 										</dict>
 									</dict>
 									<key>end</key>
@@ -1857,7 +1865,7 @@
 										<key>0</key>
 										<dict>
 											<key>name</key>
-											<string>variable.parameter.fish punctuation.definition.parameter.separator.fish meta.string.unquoted.fish</string>
+											<string>variable.parameter.fish punctuation.definition.option.long.separator.fish meta.string.unquoted.fish</string>
 										</dict>
 									</dict>
 									<key>comment</key>
@@ -1888,7 +1896,7 @@
 								<key>0</key>
 								<dict>
 									<key>name</key>
-									<string>punctuation.definition.parameter.fish meta.string.unquoted.fish</string>
+									<string>punctuation.definition.option.short.fish meta.string.unquoted.fish</string>
 								</dict>
 							</dict>
 							<key>comment</key>
@@ -1896,7 +1904,7 @@
 							<key>end</key>
 							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
 							<key>name</key>
-							<string>meta.argument.fish variable.parameter.fish</string>
+							<string>meta.parameter.option.short.fish variable.parameter.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>

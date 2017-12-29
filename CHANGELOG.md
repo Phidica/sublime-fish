@@ -1,6 +1,25 @@
 Changelog
 =========
 
+2.4.0-rc1
+---------
+
+Improvements:
+- Distinguish option and argument parameter types, and long and short option types (as well as the "end of options" option).
+  We now provide the following scopes:
+  - `meta.parameter.option.long`
+  - `meta.parameter.option.short`
+  - `meta.parameter.option.end`
+  - `meta.parameter.argument`
+  - `punctuation.definition.option.long.begin`
+  - `punctuation.definition.option.long.separator`
+  - `punctuation.definition.option.short`
+  - `punctuation.definition.option.end`
+
+Internal changes:
+- Rename "argument" to "parameter"
+- Rename "nonoption argument" to "argument"
+
 2.3.0
 -----
 

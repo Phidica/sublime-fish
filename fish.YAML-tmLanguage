@@ -5,14 +5,15 @@ fileTypes: [fish]
 uuid: f9278d07-f7c1-4a9b-9581-ebcbc050fbfb
 
 # Style guide:
-# - keyword.control.conditional is applied to all control keywords that are actually words (if, else, end, function, etc.)
-# - support.function is applied to any fish builtins that we have to treat uniquely, however variable.function is used for everything else including other shell builtins
-# - constant.character.escape is used for the backslash at the end of a line which causes line continuation because technically that backslash is "escaping" the literal newline which appears in the unquoted string environment which the shell assumes you are in. In this sense, the backslash is indeed an escape character
-# - constant.character.escape is used for \x?? and \0?? escape codes rather than constant.numeric.{hex,octal} because even though the user inputs a numeric value in hex or octal, the codes serve the purpose of making characters not numbers
-# - By analogy to the recommendation that `meta.function.php meta.function.parameters.php` should never occur, we use a single `meta.function-call` scope and name the parameter scope `meta.argument` not `meta.function-call.argument`. Furthermore, a single `meta.function-call` scope continues from the first command name until the consumption of a ';', '&', or '\n'. The same scope continues through '|' because we have no other way to ensure that a command follows a '|'
+# - The fish docs for `complete` define the fundamental units passed to commands as "parameters", where those starting with hyphens are "options" and those which don't are "arguments". For optimum usefulness to the user, only options receive the variable.parameter scope
+# - `keyword.control.conditional` is applied to all control keywords that are actually words (if, else, end, function, etc.)
+# - `support.function` is applied to any fish builtins that we have to treat uniquely, however `variable.function` is used for everything else including other shell builtins
+# - `constant.character.escape` is used for the backslash at the end of a line which causes line continuation because technically that backslash is "escaping" the literal newline which appears in the unquoted string environment which the shell assumes you are in. In this sense, the backslash is indeed an escape character
+# - `constant.character.escape` is used for \x?? and \0?? escape codes rather than `constant.numeric.{hex,octal}` because even though the user inputs a numeric value in hex or octal, the codes serve the purpose of making characters not numbers
+# - By analogy to the recommendation that `meta.function.php meta.function.parameters.php` should never occur, we use a single `meta.function-call` scope and name the parameter scope `meta.parameter` not `meta.function-call.parameter`. Furthermore, a single `meta.function-call` scope continues from the first command name until the consumption of a ';', '&', or '\n'. The same scope continues through '|' because we have no other way to ensure that a command follows a '|'
 # - Every character outside of comments should be scoped as `meta.string.unquoted`, `string.quoted.single`, or `string.quoted.double`. Furthermore, there is no concept of an unquoted string inside a quoted string or vice-versa
-# - The order of operators in expressions is (by invented convention): newline '\n', whitespace '\s' (includes newline), ';', '&', '(', ')', '|', '<', '>', '^'
-# - The fish docs for `complete` define the fundamental units passed to commands as "parameters", where those starting with hyphens are "options" and those which don't are "arguments"
+# - The invented convention for order of operators in expressions is: newline '\n', whitespace '\s' (includes newline), ';', '&', '(', ')', '|', '<', '>', '^'. Then the pseudo-operators: '-'
+# - fish functions (defined with a call to the `function` builtin) cannot begin with a hyphen, however commands (any executable files on the user's $PATH) can begin with a hypen and are executed without trouble. To this end, we never forbid a command call from beginning with a hypen
 
 patterns:
   # Base scope - Pick up '#' and "\\\n" before command-call sees them
@@ -54,16 +55,19 @@ repository:
         begin: (?![\s;&)|<>^])
         end: (?=[\s;&)|<>])
         patterns:
+          - comment: End of options (parameter of just two hyphens)
+            name: meta.parameter.option.end.fish variable.parameter.fish punctuation.definition.option.end.fish meta.string.unquoted.fish
+            match: (?:--)(?=[\s;&)|<>])
+
           - comment: Long option (parameter starting with two hyphens)
-            name: meta.argument.fish
-            begin: (?=--[^\s;&)|<>])
-            comment: If the parameter is just the two hyphens, consider it a short option
+            name: meta.parameter.option.long.fish
+            begin: (?=--)
             end: (?=[\s;&)|<>])
             patterns:
               - name: variable.parameter.fish
                 begin: (?:--)
                 beginCaptures:
-                  '0': {name: punctuation.definition.parameter.fish meta.string.unquoted.fish}
+                  '0': {name: punctuation.definition.option.long.begin.fish meta.string.unquoted.fish}
                 end: (?=[\s;&)|<>]|=)
                 patterns:
                   # We mimic the parameter-patterns rule but use a tweaked unquoted string pattern which excludes '='
@@ -86,7 +90,7 @@ repository:
               - comment: Consume the '=' and then use standard parameter patterns as well as numerics
                 begin: (?:=)
                 beginCaptures:
-                  '0': {name: variable.parameter.fish punctuation.definition.parameter.separator.fish meta.string.unquoted.fish }
+                  '0': {name: variable.parameter.fish punctuation.definition.option.long.separator.fish meta.string.unquoted.fish }
                 end: (?=[\s;&)|<>])
                 patterns:
                   - name: meta.string.unquoted.fish constant.numeric.fish
@@ -95,10 +99,10 @@ repository:
                   - include: '#parameter-patterns'
 
           - comment: Short option (parameter starting with one hyphen)
-            name: meta.argument.fish variable.parameter.fish
+            name: meta.parameter.option.short.fish variable.parameter.fish
             begin: (?:-)(?=[^\s;&)|<>])
             beginCaptures:
-              '0': {name: punctuation.definition.parameter.fish meta.string.unquoted.fish}
+              '0': {name: punctuation.definition.option.short.fish meta.string.unquoted.fish}
             end: (?=[\s;&)|<>])
             patterns:
               - include: '#parameter-patterns'
@@ -125,7 +129,7 @@ repository:
     comment: This rule must be entirely standalone because it is used in scopes where parameters starting with hyphens are explicitly interpreted as arguments rather than as options
     patterns:
       - comment: A parameter is a fundamental unit of a command call, defined as a sequence of non-control-operator characters separated by unescaped and unscoped whitespace
-        name: meta.argument.fish
+        name: meta.parameter.argument.fish
         begin: (?![\s;&)|<>^])
         comment: Begin arg if it does not precede whitespace or a control operator
         end: (?=[\s;&)|<>])
