@@ -9,9 +9,10 @@ uuid: f9278d07-f7c1-4a9b-9581-ebcbc050fbfb
 # - support.function is applied to any fish builtins that we have to treat uniquely, however variable.function is used for everything else including other shell builtins
 # - constant.character.escape is used for the backslash at the end of a line which causes line continuation because technically that backslash is "escaping" the literal newline which appears in the unquoted string environment which the shell assumes you are in. In this sense, the backslash is indeed an escape character
 # - constant.character.escape is used for \x?? and \0?? escape codes rather than constant.numeric.{hex,octal} because even though the user inputs a numeric value in hex or octal, the codes serve the purpose of making characters not numbers
-# - By analogy to the recommendation that `meta.function.php meta.function.parameters.php` should never occur, we use a single `meta.function-call` scope and name the argument scope `meta.argument` not `meta.function-call.argument`. Furthermore, a single `meta.function-call` scope continues from the first command name until the consumption of a ';', '&', or '\n'. The same scope continues through '|' because we have no other way to ensure that a command follows a '|'
+# - By analogy to the recommendation that `meta.function.php meta.function.parameters.php` should never occur, we use a single `meta.function-call` scope and name the parameter scope `meta.argument` not `meta.function-call.argument`. Furthermore, a single `meta.function-call` scope continues from the first command name until the consumption of a ';', '&', or '\n'. The same scope continues through '|' because we have no other way to ensure that a command follows a '|'
 # - Every character outside of comments should be scoped as `meta.string.unquoted`, `string.quoted.single`, or `string.quoted.double`. Furthermore, there is no concept of an unquoted string inside a quoted string or vice-versa
 # - The order of operators in expressions is (by invented convention): newline '\n', whitespace '\s' (includes newline), ';', '&', '(', ')', '|', '<', '>', '^'
+# - The fish docs for `complete` define the fundamental units passed to commands as "parameters", where those starting with hyphens are "options" and those which don't are "arguments"
 
 patterns:
   # Base scope - Pick up '#' and "\\\n" before command-call sees them
@@ -47,16 +48,16 @@ patterns:
           - include: '#command-chain'
 
 repository:
-  argument:
+  parameter:
     patterns:
-      - comment: See the argument-nonoption rule for more information on arguments
+      - comment: See the argument rule for more general information on parameters
         begin: (?![\s;&)|<>^])
         end: (?=[\s;&)|<>])
         patterns:
-          - comment: Argument starting with two dashes (long option)
+          - comment: Long option (parameter starting with two hyphens)
             name: meta.argument.fish
             begin: (?=--[^\s;&)|<>])
-            comment: If the argument is just the two dashes, consider it a short option
+            comment: If the parameter is just the two hyphens, consider it a short option
             end: (?=[\s;&)|<>])
             patterns:
               - name: variable.parameter.fish
@@ -65,7 +66,7 @@ repository:
                   '0': {name: punctuation.definition.parameter.fish meta.string.unquoted.fish}
                 end: (?=[\s;&)|<>]|=)
                 patterns:
-                  # We mimic the argument-patterns rule but use a tweaked unquoted string pattern which excludes '='
+                  # We mimic the parameter-patterns rule but use a tweaked unquoted string pattern which excludes '='
                   - include: '#command-substitution'
 
                   - name: meta.string.unquoted.fish
@@ -82,7 +83,7 @@ repository:
                     patterns:
                       - include: '#string-unquoted-patterns'
 
-              - comment: Consume the '=' and then use standard argument patterns as well as numerics
+              - comment: Consume the '=' and then use standard parameter patterns as well as numerics
                 begin: (?:=)
                 beginCaptures:
                   '0': {name: variable.parameter.fish punctuation.definition.parameter.separator.fish meta.string.unquoted.fish }
@@ -91,24 +92,39 @@ repository:
                   - name: meta.string.unquoted.fish constant.numeric.fish
                     match: (?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=[\s;&)|<>])
 
-                  - include: '#argument-patterns'
+                  - include: '#parameter-patterns'
 
-          - comment: Argument starting with one dash (short option)
+          - comment: Short option (parameter starting with one hyphen)
             name: meta.argument.fish variable.parameter.fish
             begin: (?:-)(?=[^\s;&)|<>])
             beginCaptures:
               '0': {name: punctuation.definition.parameter.fish meta.string.unquoted.fish}
             end: (?=[\s;&)|<>])
             patterns:
-              - include: '#argument-patterns'
+              - include: '#parameter-patterns'
 
-          # Argument starting with no dashes
-          - include: '#argument-nonoption'
+          # Argument (parameter starting with no hyphens)
+          - include: '#argument'
 
-  argument-nonoption:
-    comment: This rule must be entirely standalone because it is used in scopes where arguments starting with dashes are explicitly not interpreted as options
+  parameter-patterns:
+    comment: The typical substitutions, expansions, and escapes allowed anywhere in a parameter
     patterns:
-      - comment: An argument is a fundamental unit of a command call, defined as a sequence of non-control-operator characters separated by unescaped and unscoped whitespace
+      - include: '#command-substitution'
+
+      - comment: Give variable expansion the unquoted string scope
+        name: meta.string.unquoted.fish
+        begin: (?=\$)
+        end: (?!\$)
+        patterns:
+          - include: '#variable-expansion'
+
+      # Parameters are otherwise made of strings, either quoted or unquoted. The unquoted string rule handles character escapes and brace expansion
+      - include: '#string'
+
+  argument:
+    comment: This rule must be entirely standalone because it is used in scopes where parameters starting with hyphens are explicitly interpreted as arguments rather than as options
+    patterns:
+      - comment: A parameter is a fundamental unit of a command call, defined as a sequence of non-control-operator characters separated by unescaped and unscoped whitespace
         name: meta.argument.fish
         begin: (?![\s;&)|<>^])
         comment: Begin arg if it does not precede whitespace or a control operator
@@ -130,32 +146,17 @@ repository:
                 name: variable.language.fish meta.string.unquoted.fish
                 match: (?:self|last)(?=[\s;&)|<>])
 
-              - include: '#argument-patterns'
+              - include: '#parameter-patterns'
 
           - comment: Treat a sequence of integers (with possible sign and decimal separator) as a standalone constant. Do this separate to the #string-unquoted-pattens rule so we can ensure it is a string solely of numbers
             name: meta.string.unquoted.fish constant.numeric.fish
             match: (?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=[\s;&)|<>])
 
-          - comment: Use standard argument patterns exclusively for the remainder of the argument
+          - comment: Use standard parameter patterns exclusively for the remainder of the argument
             begin: (?!\s)
             end: (?=[\s;&)|<>])
             patterns:
-              - include: '#argument-patterns'
-
-  argument-patterns:
-    comment: The typical substitutions, expansions, and escapes allowed anywhere in an argument
-    patterns:
-      - include: '#command-substitution'
-
-      - comment: Give variable expansion the unquoted string scope
-        name: meta.string.unquoted.fish
-        begin: (?=\$)
-        end: (?!\$)
-        patterns:
-          - include: '#variable-expansion'
-
-      # Arguments are otherwise made of strings, either quoted or unquoted. The unquoted string rule handles character escapes and brace expansion
-      - include: '#string'
+              - include: '#parameter-patterns'
 
   command-chain:
     comment: The command-chain rule is nonterminating, meaning that it will not consume a newline, ';', or '&'
@@ -269,10 +270,10 @@ repository:
               - include: '#command-call-standard'
 
   command-call-meta:
-    comment: Check if the command is a builtin which takes another command as arguments, ie, a meta command. However, ignore the command if it is taking an option or being backgrounded/piped, as in such a case it behaves as a standard command and should be picked up by that scope instead
+    comment: Check if the command is a builtin which takes another command as parameters, ie, a meta command. However, ignore the command if it is taking an option or being backgrounded/piped, as in such a case it behaves as a standard command and should be picked up by that scope instead
     comment: Todo - Better logic in the types of piping ignored in the begin match
     patterns:
-      - comment: These meta commands force their argument to behave as a standard command. They stop at piping
+      - comment: These meta commands force the parameter to behave as a standard command. They stop at piping
         begin: (builtin|command|exec)\b(?!\s+[-&|])
         beginCaptures:
           '1': {name: support.function.fish}
@@ -325,7 +326,7 @@ repository:
         name: invalid.illegal.operator.fish
         match: (?:[&|<>^])
 
-      - comment: Anonymous scope - A complete command comprising a name element and optional argument, redirection, and comment elements
+      - comment: Anonymous scope - A complete command comprising a name element and optional parameter, redirection, and comment elements
         begin: (?=\S)
         end: |-
           (?x)
@@ -347,7 +348,7 @@ repository:
               - comment: Look for block structures
                 include: '#command-call-standard-block'
 
-              - comment: Look for loop/function control commands. We perform no checking on the validity of their scope (because only allowing them in the correct scope won't work if they are used within if-blocks) or arguments (because fish does that during execution not parsing)
+              - comment: Look for loop/function control commands. We perform no checking on the validity of their scope (because only allowing them in the correct scope won't work if they are used within if-blocks) or parameters (because fish does that during execution not parsing)
                 match: (?:break|continue|return)(?=[\s;&)|<>])
                 captures:
                   '0': {name: keyword.control.conditional.fish}
@@ -386,7 +387,7 @@ repository:
           # Redirection can immediately follow the command name, without whitespace separation
           - include: '#redirection'
 
-          - comment: Anonymous scope - A list of argument, redirection, or comment elements. We rely on this list being separated from the command name by whitespace
+          - comment: Anonymous scope - A list of parameter, redirection, or comment elements. We rely on this list being separated from the command name by whitespace
             begin: (?:[^\n\S]+)
             comment: Match any whitespace characters that aren't the newline
             end: |-
@@ -402,7 +403,7 @@ repository:
                 )
               )
             patterns:
-              - comment: A list of elements that does not start with an end-of-options argument
+              - comment: A list of elements that does not start with an end-of-options parameter
                 begin: (?!--[\s;&)|<>])
                 end: |-
                   (?x)
@@ -415,7 +416,7 @@ repository:
                       (?# Find piping)
                       (?:(?:[0-9]+)?(?:<|>>?|\^\^?))?\|
                     |
-                      (?# Find a double dash)
+                      (?# Find a double hyphen)
                       --[\s;&)|<>]
                     )
                   )
@@ -423,9 +424,9 @@ repository:
                   - include: '#line-continuation'
                   - include: '#comment-internal-end'
                   - include: '#redirection'
-                  - include: '#argument'
+                  - include: '#parameter'
 
-              - comment: A list of elements that starts with an end-of-options argument
+              - comment: A list of elements that starts with an end-of-options parameter
                 begin: (?=--[\s;&)|<>])
                 end: |-
                   (?x)
@@ -440,13 +441,13 @@ repository:
                     )
                   )
                 patterns:
-                  - comment: Contain just the end-of-options argument and give it the normal scope
+                  - comment: Contain just the end-of-options parameter and give it the normal scope
                     begin: (?=--[\s;&)|<>])
                     end: (?=[\s;&)|<>])
                     patterns:
-                      - include: '#argument'
+                      - include: '#parameter'
 
-                  - comment: A list of elements (now using forcibly nonoption arguments)
+                  - comment: A list of elements (now forcibly using arguments)
                     begin: (?=\s)
                     end: |-
                       (?x)
@@ -464,7 +465,7 @@ repository:
                       - include: '#line-continuation'
                       - include: '#comment-internal-end'
                       - include: '#redirection'
-                      - include: '#argument-nonoption'
+                      - include: '#argument'
 
   command-call-standard-block:
     patterns:
@@ -533,7 +534,7 @@ repository:
         endCaptures:
           '0': {name: keyword.control.conditional.fish}
         patterns:
-          - comment: Anonymous scope - Capture the command name we know is there, include a single instance of an argument (the varname), and end when the whitespace after the varname is captured
+          - comment: Anonymous scope - Capture the command name we know is there, include a single instance of a parameter (the varname), and end when the whitespace after the varname is captured
             begin: (for)(?:\s+)
             beginCaptures:
               '1': {name: keyword.control.conditional.fish}
@@ -541,16 +542,16 @@ repository:
             patterns:
               - include: '#line-continuation' # Eats whitespace on next line!
 
-              - include: '#argument'
+              - include: '#parameter'
 
-              - comment: Capture anything that an argument explicitly rejects, which is mostly operators
+              - comment: Capture anything that a parameter explicitly rejects, which is mostly operators
                 name: invalid.illegal.operator.fish
                 match: \S+
 
           - comment: Line continuation is allowed between the varname and "in"
             include: '#line-continuation'
 
-          - comment: Anonymous scope - Capture the command name which might be there, include an arbitrary number of (forcibly nonoption) arguments, and end when the control operator is seen
+          - comment: Anonymous scope - Capture the command name which might be there, include an arbitrary number of arguments, and end when the control operator is seen
             begin: in(?=\s)
             beginCaptures:
               '0': {name: keyword.control.conditional.fish}
@@ -558,7 +559,7 @@ repository:
             patterns:
               - include: '#line-continuation'
               - include: '#comment-internal-end'
-              - include: '#argument-nonoption'
+              - include: '#argument'
 
           - comment: Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen
             begin: \n|(;)|([&)])
@@ -584,7 +585,7 @@ repository:
             begin: (?=switch)
             end: \s*(?=[\n;&)])
             patterns:
-              - comment: Anonymous scope - Capture the command name we know is there, include a single instance of an argument (the value), and end when whitespace or a control operator is seen
+              - comment: Anonymous scope - Capture the command name we know is there, include a single instance of a parameter (the value), and end when whitespace or a control operator is seen
                 begin: (switch)(?:\s+)
                 beginCaptures:
                   '1': {name: keyword.control.conditional.fish}
@@ -592,9 +593,9 @@ repository:
                 patterns:
                   - include: '#line-continuation' # Eats whitespace on next line!
 
-                  - include: '#argument'
+                  - include: '#parameter'
 
-                  - comment: Capture anything that an argument explicitly rejects, which is mostly operators
+                  - comment: Capture anything that a parameter explicitly rejects, which is mostly operators
                     name: invalid.illegal.operator.fish
                     match: \S+
 
@@ -612,7 +613,7 @@ repository:
               '2': {name: invalid.illegal.operator.fish}
             end: (?=end(?:$|[\s;&)|<>]))
             patterns:
-              - comment: Anonymous scope - Capture the command name which might be there, include an arbitrary number of (forcibly nonoption) arguments, and end when the control operator is captured
+              - comment: Anonymous scope - Capture the command name which might be there, include an arbitrary number of arguments, and end when the control operator is captured
                 begin: case(?=[\s;&)])
                 beginCaptures:
                   '0': {name: keyword.control.conditional.fish}
@@ -623,7 +624,7 @@ repository:
                 patterns:
                   - include: '#line-continuation'
                   - include: '#comment-internal-end'
-                  - include: '#argument-nonoption'
+                  - include: '#argument'
 
                   - comment: Anything else (eg, redirection) is illegal
                     name: invalid.illegal.operator.fish
@@ -638,11 +639,11 @@ repository:
         endCaptures:
           '0': {name: keyword.control.conditional.fish}
         patterns:
-          - comment: Anonymous scope - Match the defined name of the function statement, then look for further arguments
+          - comment: Anonymous scope - Match the defined name of the function statement, then look for further parameters
             begin: (?=function)
             end: \s*(?=[\n;&)])
             patterns:
-              - comment: Anonymous scope - Capture the command name we know is there, include a single instance of an argument (the value), and end when whitespace or a control operator is seen
+              - comment: Anonymous scope - Capture the command name we know is there, include a single instance of a parameter (the value), and end when whitespace or a control operator is seen
                 begin: (function)(?:\s+)
                 beginCaptures:
                   '1': {name: keyword.control.conditional.fish}
@@ -658,13 +659,13 @@ repository:
                     begin: (?!\\\n)
                     end: (?=[\s;&()|<>])
                     patterns:
-                      # These patterns are similar to the scope around variable.function.fish in command-call-standard, except the defined name is expanded as an argument
+                      # These patterns are similar to the scope around variable.function.fish in command-call-standard, except the defined name is expanded as a parameter
 
                       - name: entity.name.function.fish
                         begin: (?!\s)
                         end: (?=[\s;&()|<>])
                         patterns:
-                          - include: '#argument'
+                          - include: '#parameter'
 
               - comment: Anonymous scope - Capture whitespace which might be there, then match anything normal for a command call
                 begin: \s+
@@ -673,7 +674,7 @@ repository:
                   - include: '#line-continuation'
                   - include: '#comment-internal-end'
                   - include: '#redirection'
-                  - include: '#argument'
+                  - include: '#parameter'
 
           - comment: Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen
             begin: \n|(;)|([&)])
@@ -788,8 +789,8 @@ repository:
         end: \]
         endCaptures:
           '0': {name: punctuation.section.brackets.end.fish}
-        comment: The number of index expansion argument lists `[...]` should always be less than or equal to the number of variable expansion operators `$`. Unfortunately, we can do nothing to moderate that with this syntax schema; with a *.sublime-syntax and a scope stack it could be done. As it stands, "$$foo[...]" is the deepest that we can accurately highlight
-        comment: In other words, the anonymous scope which contains the variable and the index expansion argument list should only be allowed to contain a single copy of each of those two things. We cannot enforce that without a scope stack. Our workaround is to allow an infinite number of these and hope the user can keep track of when there are too many
+        comment: The number of index expansion parameter lists `[...]` should always be less than or equal to the number of variable expansion operators `$`. Unfortunately, we can do nothing to moderate that with this syntax schema; with a *.sublime-syntax and a scope stack it could be done. As it stands, "$$foo[...]" is the deepest that we can accurately highlight
+        comment: In other words, the anonymous scope which contains the variable and the index expansion parameter list should only be allowed to contain a single copy of each of those two things. We cannot enforce that without a scope stack. Our workaround is to allow an infinite number of these and hope the user can keep track of when there are too many
         patterns:
           - name: keyword.operator.fish
             match: \.\.
@@ -837,7 +838,7 @@ repository:
           '4': {name: keyword.operator.redirect.dereference.fish}
         comment: Begin at any of the redirections valid for a file descriptor (the '&' must be present). Note that the stderr redirection operator '^' must be preceded by whitespace and cannot be preceded by a file descriptor
         end: (?<=[^&\s]|\n)(?=[\s);&|<>])
-        comment: End at anything that would end an argument, with the added condition that the character before the boundary cannot be the final character of the begin match or whitespace, thus allowing an arbitrary amount of whitespace between the begin match and the integer found before the end match
+        comment: End at anything that would end a parameter, with the added condition that the character before the boundary cannot be the final character of the begin match or whitespace, thus allowing an arbitrary amount of whitespace between the begin match and the integer found before the end match
         patterns:
           - include: '#line-continuation'
 
@@ -866,7 +867,7 @@ repository:
           '4': {name: keyword.operator.redirect.clobber-test.fish}
         comment: Begin at any of the redirections valid for a file path (the '?' may optionally be used to prevent clobber). Note that the stderr redirection operator '^' must be preceded by whitespace and cannot be preceded by a file descriptor
         end: (?<=[^<>^?\s]|\n)(?=[\s);&|<>])|(?=\n)
-        comment: End at anything that would end an argument, with the added condition that the character before the boundary cannot be the final character of the begin match or whitespace, thus allowing an arbitrary amount of whitespace between the begin match and the path found before the end match
+        comment: End at anything that would end a parameter, with the added condition that the character before the boundary cannot be the final character of the begin match or whitespace, thus allowing an arbitrary amount of whitespace between the begin match and the path found before the end match
         patterns:
           - include: '#line-continuation'
 
@@ -931,7 +932,7 @@ repository:
   string-unquoted-patterns:
     comment: Describe contents of an unquoted string separately for ease of recursion
     patterns:
-      - comment: This list follows the order given in official fish documentation, with the addition of additional checks made on the ~ and % characters which only need escaping if they appear at the front of an argument
+      - comment: This list follows the order given in official fish documentation, with the addition of additional checks made on the ~ and % characters which only need escaping if they appear at the front of a parameter
         name: constant.character.escape.fish
         match: |-
           (?x)

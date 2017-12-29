@@ -97,153 +97,8 @@
 	<dict>
 		<key>argument</key>
 		<dict>
-			<key>patterns</key>
-			<array>
-				<dict>
-					<key>begin</key>
-					<string>(?![\s;&amp;)|&lt;&gt;^])</string>
-					<key>comment</key>
-					<string>See the argument-nonoption rule for more information on arguments</string>
-					<key>end</key>
-					<string>(?=[\s;&amp;)|&lt;&gt;])</string>
-					<key>patterns</key>
-					<array>
-						<dict>
-							<key>begin</key>
-							<string>(?=--[^\s;&amp;)|&lt;&gt;])</string>
-							<key>comment</key>
-							<string>If the argument is just the two dashes, consider it a short option</string>
-							<key>end</key>
-							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
-							<key>name</key>
-							<string>meta.argument.fish</string>
-							<key>patterns</key>
-							<array>
-								<dict>
-									<key>begin</key>
-									<string>(?:--)</string>
-									<key>beginCaptures</key>
-									<dict>
-										<key>0</key>
-										<dict>
-											<key>name</key>
-											<string>punctuation.definition.parameter.fish meta.string.unquoted.fish</string>
-										</dict>
-									</dict>
-									<key>end</key>
-									<string>(?=[\s;&amp;)|&lt;&gt;]|=)</string>
-									<key>name</key>
-									<string>variable.parameter.fish</string>
-									<key>patterns</key>
-									<array>
-										<dict>
-											<key>include</key>
-											<string>#command-substitution</string>
-										</dict>
-										<dict>
-											<key>begin</key>
-											<string>(?=\$)</string>
-											<key>end</key>
-											<string>(?!\$)</string>
-											<key>name</key>
-											<string>meta.string.unquoted.fish</string>
-											<key>patterns</key>
-											<array>
-												<dict>
-													<key>include</key>
-													<string>#variable-expansion</string>
-												</dict>
-											</array>
-										</dict>
-										<dict>
-											<key>include</key>
-											<string>#string-quoted</string>
-										</dict>
-										<dict>
-											<key>begin</key>
-											<string>(?!['"])</string>
-											<key>end</key>
-											<string>(?=[\s;&amp;()|&lt;&gt;'"$]|\=)</string>
-											<key>name</key>
-											<string>meta.string.unquoted.fish</string>
-											<key>patterns</key>
-											<array>
-												<dict>
-													<key>include</key>
-													<string>#string-unquoted-patterns</string>
-												</dict>
-											</array>
-										</dict>
-									</array>
-								</dict>
-								<dict>
-									<key>begin</key>
-									<string>(?:=)</string>
-									<key>beginCaptures</key>
-									<dict>
-										<key>0</key>
-										<dict>
-											<key>name</key>
-											<string>variable.parameter.fish punctuation.definition.parameter.separator.fish meta.string.unquoted.fish</string>
-										</dict>
-									</dict>
-									<key>comment</key>
-									<string>Consume the '=' and then use standard argument patterns as well as numerics</string>
-									<key>end</key>
-									<string>(?=[\s;&amp;)|&lt;&gt;])</string>
-									<key>patterns</key>
-									<array>
-										<dict>
-											<key>match</key>
-											<string>(?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=[\s;&amp;)|&lt;&gt;])</string>
-											<key>name</key>
-											<string>meta.string.unquoted.fish constant.numeric.fish</string>
-										</dict>
-										<dict>
-											<key>include</key>
-											<string>#argument-patterns</string>
-										</dict>
-									</array>
-								</dict>
-							</array>
-						</dict>
-						<dict>
-							<key>begin</key>
-							<string>(?:-)(?=[^\s;&amp;)|&lt;&gt;])</string>
-							<key>beginCaptures</key>
-							<dict>
-								<key>0</key>
-								<dict>
-									<key>name</key>
-									<string>punctuation.definition.parameter.fish meta.string.unquoted.fish</string>
-								</dict>
-							</dict>
-							<key>comment</key>
-							<string>Argument starting with one dash (short option)</string>
-							<key>end</key>
-							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
-							<key>name</key>
-							<string>meta.argument.fish variable.parameter.fish</string>
-							<key>patterns</key>
-							<array>
-								<dict>
-									<key>include</key>
-									<string>#argument-patterns</string>
-								</dict>
-							</array>
-						</dict>
-						<dict>
-							<key>include</key>
-							<string>#argument-nonoption</string>
-						</dict>
-					</array>
-				</dict>
-			</array>
-		</dict>
-		<key>argument-nonoption</key>
-		<dict>
 			<key>comment</key>
-			<string>This rule must be entirely standalone because it is used in scopes where arguments starting with dashes are explicitly not interpreted as options</string>
+			<string>This rule must be entirely standalone because it is used in scopes where parameters starting with hyphens are explicitly interpreted as arguments rather than as options</string>
 			<key>patterns</key>
 			<array>
 				<dict>
@@ -294,7 +149,7 @@
 								</dict>
 								<dict>
 									<key>include</key>
-									<string>#argument-patterns</string>
+									<string>#parameter-patterns</string>
 								</dict>
 							</array>
 						</dict>
@@ -310,51 +165,18 @@
 							<key>begin</key>
 							<string>(?!\s)</string>
 							<key>comment</key>
-							<string>Use standard argument patterns exclusively for the remainder of the argument</string>
+							<string>Use standard parameter patterns exclusively for the remainder of the argument</string>
 							<key>end</key>
 							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
 							<key>patterns</key>
 							<array>
 								<dict>
 									<key>include</key>
-									<string>#argument-patterns</string>
+									<string>#parameter-patterns</string>
 								</dict>
 							</array>
 						</dict>
 					</array>
-				</dict>
-			</array>
-		</dict>
-		<key>argument-patterns</key>
-		<dict>
-			<key>comment</key>
-			<string>The typical substitutions, expansions, and escapes allowed anywhere in an argument</string>
-			<key>patterns</key>
-			<array>
-				<dict>
-					<key>include</key>
-					<string>#command-substitution</string>
-				</dict>
-				<dict>
-					<key>begin</key>
-					<string>(?=\$)</string>
-					<key>comment</key>
-					<string>Give variable expansion the unquoted string scope</string>
-					<key>end</key>
-					<string>(?!\$)</string>
-					<key>name</key>
-					<string>meta.string.unquoted.fish</string>
-					<key>patterns</key>
-					<array>
-						<dict>
-							<key>include</key>
-							<string>#variable-expansion</string>
-						</dict>
-					</array>
-				</dict>
-				<dict>
-					<key>include</key>
-					<string>#string</string>
 				</dict>
 			</array>
 		</dict>
@@ -376,7 +198,7 @@
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>These meta commands force their argument to behave as a standard command. They stop at piping</string>
+					<string>These meta commands force the parameter to behave as a standard command. They stop at piping</string>
 					<key>end</key>
 					<string>(?x)
 (?# Look ahead for control operations after whitespace)
@@ -472,7 +294,7 @@
 					<key>begin</key>
 					<string>(?=\S)</string>
 					<key>comment</key>
-					<string>Anonymous scope - A complete command comprising a name element and optional argument, redirection, and comment elements</string>
+					<string>Anonymous scope - A complete command comprising a name element and optional parameter, redirection, and comment elements</string>
 					<key>end</key>
 					<string>(?x)
 (?# Look ahead for control operations)
@@ -512,7 +334,7 @@
 										</dict>
 									</dict>
 									<key>comment</key>
-									<string>Look for loop/function control commands. We perform no checking on the validity of their scope (because only allowing them in the correct scope won't work if they are used within if-blocks) or arguments (because fish does that during execution not parsing)</string>
+									<string>Look for loop/function control commands. We perform no checking on the validity of their scope (because only allowing them in the correct scope won't work if they are used within if-blocks) or parameters (because fish does that during execution not parsing)</string>
 									<key>match</key>
 									<string>(?:break|continue|return)(?=[\s;&amp;)|&lt;&gt;])</string>
 								</dict>
@@ -617,7 +439,7 @@
 									<key>begin</key>
 									<string>(?!--[\s;&amp;)|&lt;&gt;])</string>
 									<key>comment</key>
-									<string>A list of elements that does not start with an end-of-options argument</string>
+									<string>A list of elements that does not start with an end-of-options parameter</string>
 									<key>end</key>
 									<string>(?x)
 (?# Look ahead for control operations or the end of options)
@@ -629,7 +451,7 @@
     (?# Find piping)
     (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
   |
-    (?# Find a double dash)
+    (?# Find a double hyphen)
     --[\s;&amp;)|&lt;&gt;]
   )
 )</string>
@@ -649,7 +471,7 @@
 										</dict>
 										<dict>
 											<key>include</key>
-											<string>#argument</string>
+											<string>#parameter</string>
 										</dict>
 									</array>
 								</dict>
@@ -657,7 +479,7 @@
 									<key>begin</key>
 									<string>(?=--[\s;&amp;)|&lt;&gt;])</string>
 									<key>comment</key>
-									<string>A list of elements that starts with an end-of-options argument</string>
+									<string>A list of elements that starts with an end-of-options parameter</string>
 									<key>end</key>
 									<string>(?x)
 (?# Look ahead for control operations)
@@ -676,14 +498,14 @@
 											<key>begin</key>
 											<string>(?=--[\s;&amp;)|&lt;&gt;])</string>
 											<key>comment</key>
-											<string>Contain just the end-of-options argument and give it the normal scope</string>
+											<string>Contain just the end-of-options parameter and give it the normal scope</string>
 											<key>end</key>
 											<string>(?=[\s;&amp;)|&lt;&gt;])</string>
 											<key>patterns</key>
 											<array>
 												<dict>
 													<key>include</key>
-													<string>#argument</string>
+													<string>#parameter</string>
 												</dict>
 											</array>
 										</dict>
@@ -691,7 +513,7 @@
 											<key>begin</key>
 											<string>(?=\s)</string>
 											<key>comment</key>
-											<string>A list of elements (now using forcibly nonoption arguments)</string>
+											<string>A list of elements (now forcibly using arguments)</string>
 											<key>end</key>
 											<string>(?x)
 (?# Look ahead for control operations)
@@ -720,7 +542,7 @@
 												</dict>
 												<dict>
 													<key>include</key>
-													<string>#argument-nonoption</string>
+													<string>#argument</string>
 												</dict>
 											</array>
 										</dict>
@@ -939,7 +761,7 @@
 								</dict>
 							</dict>
 							<key>comment</key>
-							<string>Anonymous scope - Capture the command name we know is there, include a single instance of an argument (the varname), and end when the whitespace after the varname is captured</string>
+							<string>Anonymous scope - Capture the command name we know is there, include a single instance of a parameter (the varname), and end when the whitespace after the varname is captured</string>
 							<key>end</key>
 							<string>\s+</string>
 							<key>patterns</key>
@@ -950,11 +772,11 @@
 								</dict>
 								<dict>
 									<key>include</key>
-									<string>#argument</string>
+									<string>#parameter</string>
 								</dict>
 								<dict>
 									<key>comment</key>
-									<string>Capture anything that an argument explicitly rejects, which is mostly operators</string>
+									<string>Capture anything that a parameter explicitly rejects, which is mostly operators</string>
 									<key>match</key>
 									<string>\S+</string>
 									<key>name</key>
@@ -980,7 +802,7 @@
 								</dict>
 							</dict>
 							<key>comment</key>
-							<string>Anonymous scope - Capture the command name which might be there, include an arbitrary number of (forcibly nonoption) arguments, and end when the control operator is seen</string>
+							<string>Anonymous scope - Capture the command name which might be there, include an arbitrary number of arguments, and end when the control operator is seen</string>
 							<key>end</key>
 							<string>\s*(?=[\n;&amp;)])</string>
 							<key>patterns</key>
@@ -995,7 +817,7 @@
 								</dict>
 								<dict>
 									<key>include</key>
-									<string>#argument-nonoption</string>
+									<string>#argument</string>
 								</dict>
 							</array>
 						</dict>
@@ -1077,7 +899,7 @@
 										</dict>
 									</dict>
 									<key>comment</key>
-									<string>Anonymous scope - Capture the command name we know is there, include a single instance of an argument (the value), and end when whitespace or a control operator is seen</string>
+									<string>Anonymous scope - Capture the command name we know is there, include a single instance of a parameter (the value), and end when whitespace or a control operator is seen</string>
 									<key>end</key>
 									<string>(?=[\s;&amp;)])</string>
 									<key>patterns</key>
@@ -1088,11 +910,11 @@
 										</dict>
 										<dict>
 											<key>include</key>
-											<string>#argument</string>
+											<string>#parameter</string>
 										</dict>
 										<dict>
 											<key>comment</key>
-											<string>Capture anything that an argument explicitly rejects, which is mostly operators</string>
+											<string>Capture anything that a parameter explicitly rejects, which is mostly operators</string>
 											<key>match</key>
 											<string>\S+</string>
 											<key>name</key>
@@ -1153,7 +975,7 @@
 										</dict>
 									</dict>
 									<key>comment</key>
-									<string>Anonymous scope - Capture the command name which might be there, include an arbitrary number of (forcibly nonoption) arguments, and end when the control operator is captured</string>
+									<string>Anonymous scope - Capture the command name which might be there, include an arbitrary number of arguments, and end when the control operator is captured</string>
 									<key>end</key>
 									<string>\n|(;)|([&amp;)])</string>
 									<key>endCaptures</key>
@@ -1181,7 +1003,7 @@
 										</dict>
 										<dict>
 											<key>include</key>
-											<string>#argument-nonoption</string>
+											<string>#argument</string>
 										</dict>
 										<dict>
 											<key>comment</key>
@@ -1224,7 +1046,7 @@
 							<key>begin</key>
 							<string>(?=function)</string>
 							<key>comment</key>
-							<string>Anonymous scope - Match the defined name of the function statement, then look for further arguments</string>
+							<string>Anonymous scope - Match the defined name of the function statement, then look for further parameters</string>
 							<key>end</key>
 							<string>\s*(?=[\n;&amp;)])</string>
 							<key>patterns</key>
@@ -1241,7 +1063,7 @@
 										</dict>
 									</dict>
 									<key>comment</key>
-									<string>Anonymous scope - Capture the command name we know is there, include a single instance of an argument (the value), and end when whitespace or a control operator is seen</string>
+									<string>Anonymous scope - Capture the command name we know is there, include a single instance of a parameter (the value), and end when whitespace or a control operator is seen</string>
 									<key>end</key>
 									<string>(?=[\s;&amp;)])</string>
 									<key>patterns</key>
@@ -1278,7 +1100,7 @@
 													<array>
 														<dict>
 															<key>include</key>
-															<string>#argument</string>
+															<string>#parameter</string>
 														</dict>
 													</array>
 												</dict>
@@ -1309,7 +1131,7 @@
 										</dict>
 										<dict>
 											<key>include</key>
-											<string>#argument</string>
+											<string>#parameter</string>
 										</dict>
 									</array>
 								</dict>
@@ -1847,7 +1669,7 @@
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>In other words, the anonymous scope which contains the variable and the index expansion argument list should only be allowed to contain a single copy of each of those two things. We cannot enforce that without a scope stack. Our workaround is to allow an infinite number of these and hope the user can keep track of when there are too many</string>
+					<string>In other words, the anonymous scope which contains the variable and the index expansion parameter list should only be allowed to contain a single copy of each of those two things. We cannot enforce that without a scope stack. Our workaround is to allow an infinite number of these and hope the user can keep track of when there are too many</string>
 					<key>end</key>
 					<string>\]</string>
 					<key>endCaptures</key>
@@ -1946,6 +1768,184 @@
 				</dict>
 			</array>
 		</dict>
+		<key>parameter</key>
+		<dict>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>begin</key>
+					<string>(?![\s;&amp;)|&lt;&gt;^])</string>
+					<key>comment</key>
+					<string>See the argument rule for more general information on parameters</string>
+					<key>end</key>
+					<string>(?=[\s;&amp;)|&lt;&gt;])</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>begin</key>
+							<string>(?=--[^\s;&amp;)|&lt;&gt;])</string>
+							<key>comment</key>
+							<string>If the parameter is just the two hyphens, consider it a short option</string>
+							<key>end</key>
+							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
+							<key>name</key>
+							<string>meta.argument.fish</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>begin</key>
+									<string>(?:--)</string>
+									<key>beginCaptures</key>
+									<dict>
+										<key>0</key>
+										<dict>
+											<key>name</key>
+											<string>punctuation.definition.parameter.fish meta.string.unquoted.fish</string>
+										</dict>
+									</dict>
+									<key>end</key>
+									<string>(?=[\s;&amp;)|&lt;&gt;]|=)</string>
+									<key>name</key>
+									<string>variable.parameter.fish</string>
+									<key>patterns</key>
+									<array>
+										<dict>
+											<key>include</key>
+											<string>#command-substitution</string>
+										</dict>
+										<dict>
+											<key>begin</key>
+											<string>(?=\$)</string>
+											<key>end</key>
+											<string>(?!\$)</string>
+											<key>name</key>
+											<string>meta.string.unquoted.fish</string>
+											<key>patterns</key>
+											<array>
+												<dict>
+													<key>include</key>
+													<string>#variable-expansion</string>
+												</dict>
+											</array>
+										</dict>
+										<dict>
+											<key>include</key>
+											<string>#string-quoted</string>
+										</dict>
+										<dict>
+											<key>begin</key>
+											<string>(?!['"])</string>
+											<key>end</key>
+											<string>(?=[\s;&amp;()|&lt;&gt;'"$]|\=)</string>
+											<key>name</key>
+											<string>meta.string.unquoted.fish</string>
+											<key>patterns</key>
+											<array>
+												<dict>
+													<key>include</key>
+													<string>#string-unquoted-patterns</string>
+												</dict>
+											</array>
+										</dict>
+									</array>
+								</dict>
+								<dict>
+									<key>begin</key>
+									<string>(?:=)</string>
+									<key>beginCaptures</key>
+									<dict>
+										<key>0</key>
+										<dict>
+											<key>name</key>
+											<string>variable.parameter.fish punctuation.definition.parameter.separator.fish meta.string.unquoted.fish</string>
+										</dict>
+									</dict>
+									<key>comment</key>
+									<string>Consume the '=' and then use standard parameter patterns as well as numerics</string>
+									<key>end</key>
+									<string>(?=[\s;&amp;)|&lt;&gt;])</string>
+									<key>patterns</key>
+									<array>
+										<dict>
+											<key>match</key>
+											<string>(?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=[\s;&amp;)|&lt;&gt;])</string>
+											<key>name</key>
+											<string>meta.string.unquoted.fish constant.numeric.fish</string>
+										</dict>
+										<dict>
+											<key>include</key>
+											<string>#parameter-patterns</string>
+										</dict>
+									</array>
+								</dict>
+							</array>
+						</dict>
+						<dict>
+							<key>begin</key>
+							<string>(?:-)(?=[^\s;&amp;)|&lt;&gt;])</string>
+							<key>beginCaptures</key>
+							<dict>
+								<key>0</key>
+								<dict>
+									<key>name</key>
+									<string>punctuation.definition.parameter.fish meta.string.unquoted.fish</string>
+								</dict>
+							</dict>
+							<key>comment</key>
+							<string>Short option (parameter starting with one hyphen)</string>
+							<key>end</key>
+							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
+							<key>name</key>
+							<string>meta.argument.fish variable.parameter.fish</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>#parameter-patterns</string>
+								</dict>
+							</array>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#argument</string>
+						</dict>
+					</array>
+				</dict>
+			</array>
+		</dict>
+		<key>parameter-patterns</key>
+		<dict>
+			<key>comment</key>
+			<string>The typical substitutions, expansions, and escapes allowed anywhere in a parameter</string>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>include</key>
+					<string>#command-substitution</string>
+				</dict>
+				<dict>
+					<key>begin</key>
+					<string>(?=\$)</string>
+					<key>comment</key>
+					<string>Give variable expansion the unquoted string scope</string>
+					<key>end</key>
+					<string>(?!\$)</string>
+					<key>name</key>
+					<string>meta.string.unquoted.fish</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>include</key>
+							<string>#variable-expansion</string>
+						</dict>
+					</array>
+				</dict>
+				<dict>
+					<key>include</key>
+					<string>#string</string>
+				</dict>
+			</array>
+		</dict>
 		<key>redirection</key>
 		<dict>
 			<key>patterns</key>
@@ -1977,7 +1977,7 @@
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>End at anything that would end an argument, with the added condition that the character before the boundary cannot be the final character of the begin match or whitespace, thus allowing an arbitrary amount of whitespace between the begin match and the integer found before the end match</string>
+					<string>End at anything that would end a parameter, with the added condition that the character before the boundary cannot be the final character of the begin match or whitespace, thus allowing an arbitrary amount of whitespace between the begin match and the integer found before the end match</string>
 					<key>end</key>
 					<string>(?&lt;=[^&amp;\s]|\n)(?=[\s);&amp;|&lt;&gt;])</string>
 					<key>name</key>
@@ -2049,7 +2049,7 @@
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>End at anything that would end an argument, with the added condition that the character before the boundary cannot be the final character of the begin match or whitespace, thus allowing an arbitrary amount of whitespace between the begin match and the path found before the end match</string>
+					<string>End at anything that would end a parameter, with the added condition that the character before the boundary cannot be the final character of the begin match or whitespace, thus allowing an arbitrary amount of whitespace between the begin match and the path found before the end match</string>
 					<key>end</key>
 					<string>(?&lt;=[^&lt;&gt;^?\s]|\n)(?=[\s);&amp;|&lt;&gt;])|(?=\n)</string>
 					<key>name</key>
@@ -2219,7 +2219,7 @@
 			<array>
 				<dict>
 					<key>comment</key>
-					<string>This list follows the order given in official fish documentation, with the addition of additional checks made on the ~ and % characters which only need escaping if they appear at the front of an argument</string>
+					<string>This list follows the order given in official fish documentation, with the addition of additional checks made on the ~ and % characters which only need escaping if they appear at the front of a parameter</string>
 					<key>match</key>
 					<string>(?x)
 \\[abefnrtv $\\*?#(){}\[\]&lt;&gt;^&amp;|;"']
