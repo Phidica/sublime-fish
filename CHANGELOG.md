@@ -15,10 +15,17 @@ Improvements:
   - `punctuation.definition.option.long.separator`
   - `punctuation.definition.option.short`
   - `punctuation.definition.option.end`
+- Distinguish operator types.
+  We now provide the following scopes:
+  - `keyword.operator.control`
+  - `keyword.operator.pipe`
+  - `keyword.operator.redirect`
+  - `keyword.operator.range`
 
 Internal changes:
 - Rename "argument" to "parameter"
 - Rename "nonoption argument" to "argument"
+- Rename "command chain" to "pipeline"
 
 2.3.0
 -----

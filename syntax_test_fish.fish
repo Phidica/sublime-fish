@@ -3,7 +3,7 @@
 # If using fish to test parsing of this file, all invalid illegal tokens and their tests must be temporarily removed
 
 ;
-#! <- keyword.operator
+#! <- keyword.operator.control
 &
 #! <- invalid.illegal.operator
 |
@@ -12,7 +12,7 @@
 #! <- constant.character.escape
 
 echo arg & # comment
-#!       ^ keyword.operator
+#!       ^ keyword.operator.control
 #!         ^ comment.line
 
 echo 'single-quoted' "double-quoted" unquoted
@@ -92,7 +92,7 @@ echo --arg -arg arg ; echo arg # comment
 #!   ^^^^^ meta.parameter.option.long variable.parameter
 #!         ^^^^ meta.parameter.option.short variable.parameter
 #!              ^^^ meta.parameter.argument
-#!                  ^ keyword.operator
+#!                  ^ keyword.operator.control
 #!                    ^^^^ variable.function
 #!                    ^^^^^^^^ meta.function-call
 #!                             ^ punctuation.definition.comment
@@ -289,25 +289,25 @@ cat ((echo out) echo out) out
 
 echo one >out.log two < in.log three ^^err.log four4> out.log five
 #!       ^^^^^^^^ meta.redirection
-#!       ^ keyword.operator
+#!       ^ keyword.operator.redirect
 #!        ^^^^^^^ meta.path
 #!                ^^^ meta.parameter.argument
 #!                    ^^^^^^^^ meta.redirection
-#!                    ^ keyword.operator
+#!                    ^ keyword.operator.redirect
 #!                      ^^^^^^ meta.path
 #!                                   ^^^^^^^^^ meta.redirection
-#!                                   ^^ keyword.operator
+#!                                   ^^ keyword.operator.redirect
 #!                                     ^^^^^^^ meta.path
 #!                                             ^^^^^ meta.parameter.argument
 #!                                                  ^^^^^^^^^ meta.redirection
-#!                                                  ^ keyword.operator
+#!                                                  ^ keyword.operator.redirect
 #!                                                    ^^^^^^^ meta.path
 #!                                                            ^^^^ meta.parameter.argument
 
 echo one 1>err.log two 2^err.log three^four five^6 7>? \
 #!       ^^^^^^^^^ meta.redirection
 #!       ^ constant.numeric.file-descriptor
-#!        ^ keyword.operator
+#!        ^ keyword.operator.redirect
 #!         ^^^^^^^ meta.path
 #!                 ^^^ meta.parameter.argument
 #!                     ^^^^^^^^^ meta.parameter.argument
@@ -315,51 +315,51 @@ echo one 1>err.log two 2^err.log three^four five^6 7>? \
 #!                                          ^^^^^^ meta.parameter.argument
 #!                                                 ^^^^^^ meta.redirection
 #!                                                 ^ constant.numeric.file-descriptor
-#!                                                  ^^ keyword.operator
+#!                                                  ^^ keyword.operator.redirect
   out.log 8<? "in.log" nine
 #!^^^^^^^ meta.path
 #!        ^^^^^^^^^^^^ meta.redirection
 #!        ^ constant.numeric.file-descriptor
-#!         ^^ keyword.operator
+#!         ^^ keyword.operator.redirect
 #!            ^^^^^^^^ meta.path
 #!                     ^^^^ meta.parameter.argument
 
 echo one ^err.log^'log' >out.log<in.log < \?in.log > ?out.log
 #!       ^^^^^^^^^^^^^^ meta.redirection
-#!       ^ keyword.operator
+#!       ^ keyword.operator.redirect
 #!        ^^^^^^^^^^^^^ meta.path
 #!                      ^^^^^^^^^^^^^^^ meta.redirection
-#!                      ^ keyword.operator
+#!                      ^ keyword.operator.redirect
 #!                       ^^^^^^^ meta.path
-#!                              ^ keyword.operator
+#!                              ^ keyword.operator.redirect
 #!                               ^^^^^^ meta.path
 #!                                      ^^^^^^^^^^ meta.redirection
-#!                                      ^ keyword.operator
+#!                                      ^ keyword.operator.redirect
 #!                                        ^^^^^^^^ meta.path
 #!                                                 ^^^^^^^^^^ meta.redirection
-#!                                                 ^ keyword.operator
+#!                                                 ^ keyword.operator.redirect
 #!                                                   ^^^^^^^^ invalid.illegal.path
 
 echo one >? 1 >? 2<in.log
 #!       ^^^^ meta.redirection
-#!       ^^ keyword.operator
+#!       ^^ keyword.operator.redirect
 #!          ^ meta.path
 #!            ^^^^^^^^^^^ meta.redirection
-#!            ^^ keyword.operator
+#!            ^^ keyword.operator.redirect
 #!               ^^^^^^^^ invalid.illegal.path
 
 echo one > $file <? (echo in.log) >{a,b} ^ \
 #!       ^^^^^^ meta.redirection
-#!       ^ keyword.operator
+#!       ^ keyword.operator.redirect
 #!         ^^^^^ variable.other
 #!               ^^^^^^^^^^^^^^^^ meta.redirection
-#!               ^^ keyword.operator
+#!               ^^ keyword.operator.redirect
 #!                  ^^^^^^^^^^^^^ meta.parens.command-substitution
 #!                                ^^^^^^ meta.redirection
-#!                                ^ keyword.operator
+#!                                ^ keyword.operator.redirect
 #!                                 ^^^^^ meta.path
 #!                                       ^^^^ meta.redirection
-#!                                       ^ keyword.operator
+#!                                       ^ keyword.operator.redirect
 #!                                         ^^ constant.character.escape
   "err.log"
 #! <- meta.redirection
@@ -367,42 +367,42 @@ echo one > $file <? (echo in.log) >{a,b} ^ \
 
 echo one ^&2 two three3>&4 four 5>& \
 #!       ^^^ meta.redirection
-#!       ^^ keyword.operator
+#!       ^^ keyword.operator.redirect
 #!         ^ constant.numeric.file-descriptor
 #!               ^^^^^ meta.parameter.argument
 #!                     ^^^ meta.redirection
-#!                     ^^ keyword.operator
+#!                     ^^ keyword.operator.redirect
 #!                       ^ constant.numeric.file-descriptor
 #!                              ^^^^^ meta.redirection
 #!                              ^ constant.numeric.file-descriptor
-#!                               ^^ keyword.operator
+#!                               ^^ keyword.operator.redirect
   - six 7<&->out.log 2> &1
 #!^ keyword.operator.redirect.close
 #!  ^^^ meta.parameter.argument
 #!      ^^^^ meta.redirection
 #!      ^ constant.numeric.file-descriptor
-#!       ^^ keyword.operator
+#!       ^^ keyword.operator.redirect
 #!         ^ keyword.operator.redirect.close
 #!          ^^^^^^^^ meta.redirection
-#!          ^ keyword.operator
+#!          ^ keyword.operator.redirect
 #!           ^^^^^^^ meta.path
 #!                   ^^^^^ meta.redirection
 #!                   ^ constant.numeric.file-descriptor
-#!                    ^ keyword.operator
+#!                    ^ keyword.operator.redirect
 #!                      ^^ invalid.illegal.path
 
 echo one >&1>?two<&2>&4five
 #!       ^^^ meta.redirection
-#!       ^^ keyword.operator
+#!       ^^ keyword.operator.redirect
 #!         ^ constant.numeric.file-descriptor
 #!          ^^^^^ meta.redirection
-#!          ^^ keyword.operator
+#!          ^^ keyword.operator.redirect
 #!            ^^^ meta.path
 #!               ^^^ meta.redirection
-#!               ^^ keyword.operator
+#!               ^^ keyword.operator.redirect
 #!                 ^ constant.numeric.file-descriptor
 #!                  ^^^^^^^ meta.redirection
-#!                  ^^ keyword.operator
+#!                  ^^ keyword.operator.redirect
 #!                    ^^^^^ invalid.illegal.file-descriptor
 
 foo>bar
@@ -428,12 +428,12 @@ echo seven
 echo ( \
 #!     ^ constant.character.escape
 ;  &
-#! <- keyword.operator
+#! <- keyword.operator.control
 #! ^ invalid.illegal.operator
 echo &
 #! <- meta.function-call
 )  &  & hmm
-#! ^ keyword.operator
+#! ^ keyword.operator.control
 #!    ^ invalid.illegal.operator
 
 echo ( # comment
@@ -462,13 +462,13 @@ arg
 builtin echo &
 #! <- meta.function-call support.function
 #!      ^^^^ meta.function-call variable.function
-#!           ^ keyword.operator
+#!           ^ keyword.operator.control
 
 builtin echo arg ; and echo arg
 #! <- meta.function-call support.function
 #!      ^^^^ meta.function-call variable.function
 #!           ^^^ meta.function-call meta.parameter.argument
-#!               ^ keyword.operator
+#!               ^ keyword.operator.control
 #!                 ^^^ meta.function-call keyword.operator.word
 #!                     ^^^^ meta.function-call variable.function
 #!                          ^^^ meta.parameter.argument
@@ -498,7 +498,7 @@ echo \
 arg \
 #! <- meta.function-call meta.parameter.argument
 &
-#! <- meta.function-call keyword.operator
+#! <- meta.function-call keyword.operator.control
 
 not builtin case 1>/dev/null
 #! <- meta.function-call keyword.operator.word
@@ -516,13 +516,13 @@ exec %fish
 and end; or %fish okay
 #! <- meta.function-call keyword.operator.word
 #!  ^^^ invalid.illegal.function-call
-#!     ^ keyword.operator
+#!     ^ keyword.operator.control
 #!       ^^ meta.function-call keyword.operator.word
 #!          ^^^^^ invalid.illegal.function-call
 
 echo arg | cat
 #! <- meta.function-call variable.function
-#!       ^ meta.function-call keyword.operator
+#!       ^ meta.function-call keyword.operator.pipe
 #!         ^^^ meta.function-call variable.function
 
 echo \
@@ -530,11 +530,11 @@ echo \
 arg \
 # comment
 | \
-#! <- meta.function-call keyword.operator
+#! <- meta.function-call keyword.operator.pipe
 cat \
 #! <- meta.function-call variable.function
 | \
-#! <- meta.function-call keyword.operator
+#! <- meta.function-call keyword.operator.pipe
 cat \
 #! <- meta.function-call variable.function
 arg
@@ -553,7 +553,7 @@ arg
 make fish 2>| less
 #!        ^^^ meta.pipe
 #!        ^ constant.numeric.file-descriptor
-#!         ^ keyword.operator.redirect
+#!         ^ keyword.operator.pipe.redirect
 #!          ^ keyword.operator.pipe
 #!            ^^^^ variable.function
 
@@ -562,7 +562,7 @@ echo (echo arg |) | cat
 #!                ^ meta.function-call keyword.operator
 
 echo arg | # bad text
-#!       ^ meta.function-call keyword.operator
+#!       ^ meta.function-call keyword.operator.pipe
 #!         ^^^^^^^^^^ meta.function-call invalid.illegal.function-call
 
 echo arg | )paren
@@ -570,11 +570,11 @@ echo arg | )paren
 #!         ^^^^^^ meta.function-call invalid.illegal.function-call
 
 and echo arg | %fish
-#!           ^ meta.function-call keyword.operator
+#!           ^ meta.function-call keyword.operator.pipe
 #!             ^^^^^ meta.function-call invalid.illegal.function-call
 
 not echo arg | | arg ; # comment
-#!           ^ meta.function-call keyword.operator
+#!           ^ meta.function-call keyword.operator.pipe
 #!             ^^^^^^^^^^^^^^^^^ meta.function-call invalid.illegal.function-call
 
 echo out 1>|
@@ -585,10 +585,9 @@ echo out >| 9>|
 #!          ^^^ invalid.illegal.function-call
 
 echo out ^| cat ^^| cat
-#!       ^ meta.pipe keyword.operator.redirect
+#!       ^ meta.pipe keyword.operator.pipe.redirect
 #!        ^ meta.pipe keyword.operator.pipe
-#!              ^ meta.pipe keyword.operator.redirect
-#!               ^ meta.pipe keyword.operator.redirect
+#!              ^^ meta.pipe keyword.operator.pipe.redirect
 #!                ^ meta.pipe keyword.operator.pipe
 
 and | cat
@@ -628,16 +627,16 @@ echo arg1 ; and echo arg2 & not echo arg3 | cat
 #! <- meta.function-call variable.function
 #!          ^^^ meta.function-call keyword.operator.word
 #!              ^^^^ meta.function-call variable.function
-#!                        ^ keyword.operator
+#!                        ^ keyword.operator.control
 #!                          ^^^ meta.function-call keyword.operator.word
 #!                              ^^^^ meta.function-call variable.function
-#!                                        ^ keyword.operator
+#!                                        ^ keyword.operator.pipe
 #!                                          ^^^ meta.function-call variable.function
 
 or echo arg1 | command cat
 #! <- meta.function-call keyword.operator.word
 #! ^^^^ meta.function-call variable.function
-#!           ^ keyword.operator
+#!           ^ keyword.operator.pipe
 #!             ^^^^^^^ meta.function-call support.function
 #!                     ^^^ meta.function-call variable.function
 
@@ -645,11 +644,11 @@ builtin \
 #! <- meta.function-call support.function
 true | cat
 #! <- meta.function-call variable.function
-#!   ^ meta.function-call keyword.operator
+#!   ^ meta.function-call keyword.operator.pipe
 #!     ^^^ meta.function-call variable.function
 
 echo out | >echo
-#!       ^ keyword.operator
+#!       ^ keyword.operator.pipe
 #!         ^ invalid.illegal.operator
 #!          ^^^^ variable.function
 
@@ -683,7 +682,7 @@ echo $var[1..2] $var[1..$foo]
 #!   ^^^^ variable.other
 #!       ^^^^^^  meta.brackets.index-expansion
 #!        ^ constant.numeric
-#!         ^^ keyword.operator
+#!         ^^ keyword.operator.range
 #!           ^ constant.numeric
 #!                  ^^^^^^^^^ meta.brackets.index-expansion
 #!                      ^^^^ variable.other
@@ -806,21 +805,21 @@ echo -n --switch=(echo "str;";);
 #!   ^^ meta.parameter.option.short
 #!      ^^^^^^^^^^^^^^^^^^^^^^^ meta.parameter.option.long
 #!                         ^ string.quoted
-#!                           ^ keyword.operator
-#!                             ^ keyword.operator
+#!                           ^ keyword.operator.control
+#!                             ^ keyword.operator.control
 
 echo --switch=(echo "str;";
 #!   ^^^^^^^^^^^^^^^^^^^^^^^ meta.parameter.option.long
 #!                      ^ string.quoted
-#!                        ^ keyword.operator
+#!                        ^ keyword.operator.control
   echo test \
 #!   ^^^^^^^^^ meta.parameter.option.long
 #!          ^ constant.character.escape
     &
-#!  ^ keyword.operator
+#!  ^ keyword.operator.control
 #!   ^ meta.parameter.option.long
 )  ;
-#! ^ keyword.operator
+#! ^ keyword.operator.control
 
 echo end
 echo arg
@@ -829,7 +828,7 @@ echo arg
 begin --help; end
 #! <- meta.function-call variable.function
 #!    ^^^^^^ meta.parameter.option.long
-#!          ^ keyword.operator
+#!          ^ keyword.operator.control
 #!            ^^^ invalid.illegal.function-call
 
 foobegin; end
@@ -869,7 +868,7 @@ echo one two& end
 
 begin echo out; echo
 end; or begin
-#! ^ keyword.operator
+#! ^ keyword.operator.control
 #!      ^^^^^ meta.block.begin keyword.control.conditional
 end
 #! <- keyword.control.conditional
@@ -900,7 +899,7 @@ end
 begin
   echo arg
 end & echo next | cat
-#!  ^ keyword.operator
+#!  ^ keyword.operator.control
 
 # "echo (begin)" will error
 # The second ')' and "end" are to catch the runaway scopes if needed
@@ -971,14 +970,14 @@ while &
 end
 
 while true ; cmd arg ; end &
-#!         ^ keyword.operator
+#!         ^ keyword.operator.control
 #!                     ^^^ keyword.control.conditional
-#!                         ^ keyword.operator
+#!                         ^ keyword.operator.control
 
 while true & cmd arg ; end ;
 #!         ^ invalid.illegal.operator
 #!                     ^^^ keyword.control.conditional
-#!                         ^ keyword.operator
+#!                         ^ keyword.operator.control
 
 while false ))arg; end
 #!          ^ invalid.illegal.operator
@@ -1003,13 +1002,13 @@ begin
 #!  ^^^^^^^^ meta.function-call
     break ;
 #!  ^^^^^ keyword.control.conditional
-#!        ^ keyword.operator
+#!        ^ keyword.operator.control
   end ;
 #! ^^ keyword.control.conditional
-#!    ^ keyword.operator
+#!    ^ keyword.operator.control
 end &
 #! <- keyword.control.conditional
-#!  ^ keyword.operator
+#!  ^ keyword.operator.control
 
 if echo arg
 #! <- meta.block.if keyword.control.conditional
@@ -1044,7 +1043,7 @@ else \
 else if test &
 #!           ^ invalid.illegal.operator
   and test &# comment
-#!         ^ keyword.operator
+#!         ^ keyword.operator.control
   echo arg
 else cmd arg; echo &
 #!   ^^^ invalid.illegal.string
@@ -1055,7 +1054,7 @@ end
 if --foobar; else;
 #! <- meta.function-call variable.function
 #! ^^^^^^^^ meta.parameter.option.long
-#!         ^ keyword.operator
+#!         ^ keyword.operator.control
 #!           ^^^^ invalid.illegal.function-call
 
 # This really works in fish!
@@ -1068,9 +1067,9 @@ if \
 #! ^ constant.character.escape
   test foo; end & # comment
 #! ^^^ meta.block.if
-#!        ^ keyword.operator
+#!        ^ keyword.operator.control
 #!          ^^^ keyword.control.conditional
-#!              ^ keyword.operator
+#!              ^ keyword.operator.control
 #!                ^^^^^^^^^ comment.line
 
 if if test
@@ -1121,7 +1120,7 @@ for in in in in (seq 5) in in # comment
 #! ^^^ meta.function-call
   continue ;
 #! ^^^^^^^ keyword.control.conditional
-#!         ^ keyword.operator
+#!         ^ keyword.operator.control
 end
 #! <- keyword.control.conditional
 
@@ -1168,10 +1167,10 @@ echo (for foo in bar) end)
 
 switch value; case wildcard; command echo foo; end # comment
 #! <- meta.block.switch keyword.control.conditional
-#!          ^ keyword.operator
+#!          ^ keyword.operator.control
 #!            ^^^^ keyword.control.conditional
-#!                         ^ keyword.operator
-#!                                           ^ keyword.operator
+#!                         ^ keyword.operator.control
+#!                                           ^ keyword.operator.control
 #!                                                 ^ comment.line
 
 switch foo bar | echo
@@ -1234,7 +1233,7 @@ end
 switch --help; case;
 #! <- meta.function-call variable.function
 #!     ^^^^^^ meta.parameter.option.long
-#!           ^ keyword.operator
+#!           ^ keyword.operator.control
 #!             ^^^^ invalid.illegal.function-call
 
 switch--help arg
@@ -1276,8 +1275,8 @@ end
 function inline; echo arg; end # comment
 #! <- meta.block.function keyword.control.conditional
 #!       ^^^^^^ entity.name.function
-#!             ^ keyword.operator
-#!                       ^ keyword.operator
+#!             ^ keyword.operator.control
+#!                       ^ keyword.operator.control
 #!                             ^^^^^^^^^ comment.line
 
 function $cmd>out
@@ -1294,7 +1293,7 @@ end; foobar
 
 function '$cmd$'; echo $argv; end; $cmd$ arg1 arg2
 #!       ^^^^^^ entity.name.function
-#!                               ^ keyword.operator
+#!                               ^ keyword.operator.control
 #!                                 ^^^^^ variable.function
 #!                                       ^^^^ meta.parameter.argument
 

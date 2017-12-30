@@ -40,7 +40,7 @@
 			<key>begin</key>
 			<string>(?=\S)</string>
 			<key>comment</key>
-			<string>Anonymous scope - Base scope command chain goes up until one of the definitive ends (newline and ';') or the sequences that could be an end if we're actually inside a $self scope right now (')' and "end")</string>
+			<string>Anonymous scope - Base scope pipeline goes up until one of the definitive ends (newline and ';') or the sequences that could be an end if we're actually inside a $self scope right now (')' and "end")</string>
 			<key>end</key>
 			<string>\n|(;)|(?=\))|(?=end)</string>
 			<key>endCaptures</key>
@@ -48,14 +48,14 @@
 				<key>1</key>
 				<dict>
 					<key>name</key>
-					<string>meta.function-call.operator.fish keyword.operator.fish</string>
+					<string>meta.function-call.operator.fish keyword.operator.control.fish</string>
 				</dict>
 			</dict>
 			<key>patterns</key>
 			<array>
 				<dict>
 					<key>comment</key>
-					<string>Match an operation which cannot start a command chain (because it is consumed by the command chain when it appears further within it). These are simple control operators and redirections (which conveniently also matches redirection-into-pipe)</string>
+					<string>Match operators ('&amp;', pipe, and redirect) which cannot start a pipeline because they must be consumed within or after a pipeline</string>
 					<key>match</key>
 					<string>(?:[&amp;|]|(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))</string>
 					<key>name</key>
@@ -71,7 +71,7 @@
 					<key>begin</key>
 					<string>(?=\S)</string>
 					<key>comment</key>
-					<string>The reason we match the '&amp;' in a different way is the ';' can be alone on a line, while we must explicitly require that the '&amp;' comes after a command</string>
+					<string>The reason we match '&amp;' here is because we explicitly require it come after a command (unlike ';' which can be alone on a line)</string>
 					<key>end</key>
 					<string>(?=[\n;)])|(&amp;)</string>
 					<key>endCaptures</key>
@@ -79,14 +79,14 @@
 						<key>1</key>
 						<dict>
 							<key>name</key>
-							<string>meta.function-call.operator.fish keyword.operator.fish</string>
+							<string>meta.function-call.operator.fish keyword.operator.control.fish</string>
 						</dict>
 					</dict>
 					<key>patterns</key>
 					<array>
 						<dict>
 							<key>include</key>
-							<string>#command-chain</string>
+							<string>#pipeline</string>
 						</dict>
 					</array>
 				</dict>
@@ -105,7 +105,7 @@
 					<key>begin</key>
 					<string>(?![\s;&amp;)|&lt;&gt;^])</string>
 					<key>comment</key>
-					<string>End arg if it precedes whitespace or control operators (including stdin/stdout redirection but not stderr due to a fish quirk)</string>
+					<string>End arg if it precedes whitespace or operators (excluding stderr redirect '^' due to a fish quirk)</string>
 					<key>end</key>
 					<string>(?=[\s;&amp;)|&lt;&gt;])</string>
 					<key>name</key>
@@ -297,13 +297,13 @@
 					<string>Anonymous scope - A complete command comprising a name element and optional parameter, redirection, and comment elements</string>
 					<key>end</key>
 					<string>(?x)
-(?# Look ahead for control operations)
+(?# Look ahead for operators)
 (?=
   (?:
-    (?# Find control operations)
+    (?# Find a control operator)
     [\n;&amp;)]
   |
-    (?# Find piping)
+    (?# Find a pipe operator)
     (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
   )
 )</string>
@@ -423,13 +423,13 @@
 							<string>Match any whitespace characters that aren't the newline</string>
 							<key>end</key>
 							<string>(?x)
-(?# Look ahead for control operations)
+(?# Look ahead for operators)
 (?=
   (?:
-    (?# Find simple control operations)
+    (?# Find a control operator)
     [\n;&amp;)]
   |
-    (?# Find piping)
+    (?# Find a pipe operator)
     (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
   )
 )</string>
@@ -442,13 +442,13 @@
 									<string>A list of elements that does not start with an end-of-options parameter</string>
 									<key>end</key>
 									<string>(?x)
-(?# Look ahead for control operations or the end of options)
+(?# Look ahead for operators or the end of options)
 (?=
   (?:
-    (?# Find simple control operations)
+    (?# Find a control operator)
     [\n;&amp;)]
   |
-    (?# Find piping)
+    (?# Find a pipe operator)
     (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
   |
     (?# Find a double hyphen)
@@ -482,13 +482,13 @@
 									<string>A list of elements that starts with an end-of-options parameter</string>
 									<key>end</key>
 									<string>(?x)
-(?# Look ahead for control operations)
+(?# Look ahead for operators)
 (?=
   (?:
-    (?# Find simple control operations)
+    (?# Find a control operator)
     [\n;&amp;)]
   |
-    (?# Find piping)
+    (?# Find a pipe operator)
     (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
   )
 )</string>
@@ -516,13 +516,13 @@
 											<string>A list of elements (now forcibly using arguments)</string>
 											<key>end</key>
 											<string>(?x)
-(?# Look ahead for control operations)
+(?# Look ahead for operators)
 (?=
   (?:
-    (?# Find simple control operations)
+    (?# Find a control operator)
     [\n;&amp;)]
   |
-    (?# Find piping)
+    (?# Find a pipe operator)
     (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
   )
 )</string>
@@ -660,7 +660,7 @@
 								</dict>
 							</dict>
 							<key>comment</key>
-							<string>Anonymous scope - Capture the command name we know is there, include a single instance of a command chain, and end when an operator is seen</string>
+							<string>Anonymous scope - Capture the command name we know is there, include a single instance of a pipeline, and end when an operator is seen</string>
 							<key>end</key>
 							<string>\s*(?=[\n;&amp;)])</string>
 							<key>patterns</key>
@@ -671,7 +671,7 @@
 								</dict>
 								<dict>
 									<key>include</key>
-									<string>#command-chain</string>
+									<string>#pipeline</string>
 								</dict>
 							</array>
 						</dict>
@@ -683,7 +683,7 @@
 								<key>1</key>
 								<dict>
 									<key>name</key>
-									<string>keyword.operator.fish</string>
+									<string>keyword.operator.control.fish</string>
 								</dict>
 								<key>2</key>
 								<dict>
@@ -829,7 +829,7 @@
 								<key>1</key>
 								<dict>
 									<key>name</key>
-									<string>keyword.operator.fish</string>
+									<string>keyword.operator.control.fish</string>
 								</dict>
 								<key>2</key>
 								<dict>
@@ -949,7 +949,7 @@
 								<key>1</key>
 								<dict>
 									<key>name</key>
-									<string>keyword.operator.fish</string>
+									<string>keyword.operator.control.fish</string>
 								</dict>
 								<key>2</key>
 								<dict>
@@ -983,7 +983,7 @@
 										<key>1</key>
 										<dict>
 											<key>name</key>
-											<string>keyword.operator.fish</string>
+											<string>keyword.operator.control.fish</string>
 										</dict>
 										<key>2</key>
 										<dict>
@@ -1084,7 +1084,7 @@
 											<key>begin</key>
 											<string>(?!\\\n)</string>
 											<key>comment</key>
-											<string>Anonymous scope - Start when an escaped newline isn't present, and end when whitespace or a control operator is seen</string>
+											<string>Anonymous scope - Start when an escaped newline isn't present, and end when whitespace or an operator is seen</string>
 											<key>end</key>
 											<string>(?=[\s;&amp;()|&lt;&gt;])</string>
 											<key>patterns</key>
@@ -1145,7 +1145,7 @@
 								<key>1</key>
 								<dict>
 									<key>name</key>
-									<string>keyword.operator.fish</string>
+									<string>keyword.operator.control.fish</string>
 								</dict>
 								<key>2</key>
 								<dict>
@@ -1179,7 +1179,7 @@
 					<key>begin</key>
 					<string>(?=if(?:\s*\n|\s+[^\s;]))</string>
 					<key>comment</key>
-					<string>Anonymous scope - Capture an `if` and the command up to the end-of-scope operator, then capture from the end-of-scope operator indefinitely</string>
+					<string>Anonymous scope - Capture an `if` and the command up to the control operator, then capture from the control operator indefinitely</string>
 					<key>end</key>
 					<string>(?=end(?:$|[\s;&amp;)|&lt;&gt;]))</string>
 					<key>patterns</key>
@@ -1196,7 +1196,7 @@
 								</dict>
 							</dict>
 							<key>comment</key>
-							<string>Anonymous scope - Match the command name we know is there, include a single instance of a command chain, and end when an operator is seen</string>
+							<string>Anonymous scope - Match the command name we know is there, include a single instance of a pipeline, and end when a control operator is seen</string>
 							<key>end</key>
 							<string>\s*(?=[\n;&amp;])</string>
 							<key>patterns</key>
@@ -1207,7 +1207,7 @@
 								</dict>
 								<dict>
 									<key>include</key>
-									<string>#command-chain</string>
+									<string>#pipeline</string>
 								</dict>
 							</array>
 						</dict>
@@ -1219,7 +1219,7 @@
 								<key>1</key>
 								<dict>
 									<key>name</key>
-									<string>keyword.operator.fish</string>
+									<string>keyword.operator.control.fish</string>
 								</dict>
 								<key>2</key>
 								<dict>
@@ -1237,7 +1237,7 @@
 									<key>begin</key>
 									<string>(?=else\s*[\s;])</string>
 									<key>comment</key>
-									<string>Anonymous scope - Capture an `else` up to the end-of-scope operator or the start of an `if` structure, then match from the end-of-scope operator indefinitely or match an `if` structure</string>
+									<string>Anonymous scope - Capture an `else` up to the control operator or the start of an `if` structure, then match from the control operator indefinitely or match an `if` structure</string>
 									<key>end</key>
 									<string>(?=end(?:$|[\s;&amp;)|&lt;&gt;]))</string>
 									<key>patterns</key>
@@ -1257,19 +1257,6 @@
 											<string>Anonymous scope - Match the `else` we know is there and any comment, and mark anything besides an `if` as illegal</string>
 											<key>end</key>
 											<string>\s*(?=[\n;&amp;]|if(?:\s*\n|\s+[^\s;]))</string>
-											<key>endCaptures</key>
-											<dict>
-												<key>1</key>
-												<dict>
-													<key>name</key>
-													<string>keyword.operator.fish</string>
-												</dict>
-												<key>2</key>
-												<dict>
-													<key>name</key>
-													<string>invalid.illegal.operator.fish</string>
-												</dict>
-											</dict>
 											<key>patterns</key>
 											<array>
 												<dict>
@@ -1298,7 +1285,7 @@
 												<key>1</key>
 												<dict>
 													<key>name</key>
-													<string>keyword.operator.fish</string>
+													<string>keyword.operator.control.fish</string>
 												</dict>
 												<key>2</key>
 												<dict>
@@ -1327,223 +1314,6 @@
 								<dict>
 									<key>include</key>
 									<string>$self</string>
-								</dict>
-							</array>
-						</dict>
-					</array>
-				</dict>
-			</array>
-		</dict>
-		<key>command-chain</key>
-		<dict>
-			<key>comment</key>
-			<string>The command-chain rule is nonterminating, meaning that it will not consume a newline, ';', or '&amp;'</string>
-			<key>patterns</key>
-			<array>
-				<dict>
-					<key>comment</key>
-					<string>Todo - Restructure command-chain so that this match isn't duplicated from the base scope, as it must be for any other scopes which implement their own control operator consumption. Might require the unary operator commands to become an explicit recursive match (though we tried this once and it was more complicated than anything should be)</string>
-					<key>match</key>
-					<string>(?:[&amp;|]|(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))</string>
-					<key>name</key>
-					<string>invalid.illegal.operator.fish</string>
-				</dict>
-				<dict>
-					<key>comment</key>
-					<string>Todo - These commands cannot be followed by backgrounding, piping, or redirection alone. Add logic to catch these cases. It will be extensive...</string>
-					<key>match</key>
-					<string>(and|or)\b(?!\s+-)</string>
-					<key>name</key>
-					<string>meta.function-call.fish keyword.operator.word.fish</string>
-				</dict>
-				<dict>
-					<key>include</key>
-					<string>#line-continuation</string>
-				</dict>
-				<dict>
-					<key>comment</key>
-					<string>This is a hack for now, which allows nesting of 'not' and 'and'/'or' commands. A better solution will be explicit recursivity in these commands</string>
-					<key>match</key>
-					<string>(not)\b(?!\s+-)</string>
-					<key>name</key>
-					<string>meta.function-call.fish keyword.operator.word.fish</string>
-				</dict>
-				<dict>
-					<key>comment</key>
-					<string>Match a command which is illegal in the base scope</string>
-					<key>match</key>
-					<string>(?:case|else|end)(?=[\s;&amp;)|&lt;&gt;])</string>
-					<key>name</key>
-					<string>invalid.illegal.function-call.fish</string>
-				</dict>
-				<dict>
-					<key>begin</key>
-					<string>(?=[^\s#])</string>
-					<key>comment</key>
-					<string>Anonymous scope - Command chain. Define a command chain as either one command call, or multiple command calls linked by piping ('|', '2&gt;|', etc). The chain terminates at the first encounter of any other control operator (newline, ';', '&amp;') or the implied newline of the closing parenthesis of a command substitution</string>
-					<key>end</key>
-					<string>(\s*)(?=[\n;&amp;)])</string>
-					<key>endCaptures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>meta.function-call.fish</string>
-						</dict>
-					</dict>
-					<key>patterns</key>
-					<array>
-						<dict>
-							<key>begin</key>
-							<string>(?x)
-(?# Negative lookahead for piping)
-(?!
-  (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
-)</string>
-							<key>comment</key>
-							<string>Match the first command of a potential chain</string>
-							<key>end</key>
-							<string>(?x)
-(?# Look ahead for control operations after whitespace)
-(?=\s*
-  (?:
-    (?# Find simple control operations)
-    [\n;&amp;)]
-  |
-    (?# Find piping)
-    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
-  )
-)</string>
-							<key>name</key>
-							<string>meta.function-call.fish</string>
-							<key>patterns</key>
-							<array>
-								<dict>
-									<key>include</key>
-									<string>#command-call-meta</string>
-								</dict>
-								<dict>
-									<key>include</key>
-									<string>#command-call-standard</string>
-								</dict>
-							</array>
-						</dict>
-						<dict>
-							<key>begin</key>
-							<string>(?x)
-(?# Look ahead for piping)
-(?=
-  (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
-)</string>
-							<key>comment</key>
-							<string>Match a second or later command of a chain, starting with the connective piping</string>
-							<key>end</key>
-							<string>(?=\s*[\n;&amp;)])</string>
-							<key>name</key>
-							<string>meta.function-call.fish</string>
-							<key>patterns</key>
-							<array>
-								<dict>
-									<key>begin</key>
-									<string>(?x)
-(?# Look ahead for piping followed by either control operators or piping)
-(?=
-  (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
-  \s*
-  (?:
-    [\n;&amp;)]
-  |
-    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
-  )
-)</string>
-									<key>comment</key>
-									<string>Match a pipe not followed by a command, hence a malformed segment of the chain</string>
-									<key>end</key>
-									<string>(?=\s*[\n;&amp;)])</string>
-									<key>patterns</key>
-									<array>
-										<dict>
-											<key>comment</key>
-											<string>If the command chain would end implicitly (ie, with a newline or close parenthesis), then mark the pipe itself invalid</string>
-											<key>match</key>
-											<string>(?:(?:[0-9]+)?(?:&lt;|&gt;|&gt;&gt;))?\|(?=\s*[\n)])</string>
-											<key>name</key>
-											<string>invalid.illegal.operator.fish</string>
-										</dict>
-										<dict>
-											<key>captures</key>
-											<dict>
-												<key>1</key>
-												<dict>
-													<key>name</key>
-													<string>meta.pipe.fish constant.numeric.file-descriptor.fish</string>
-												</dict>
-												<key>2</key>
-												<dict>
-													<key>name</key>
-													<string>meta.pipe.fish keyword.operator.redirect.fish</string>
-												</dict>
-												<key>3</key>
-												<dict>
-													<key>name</key>
-													<string>meta.pipe.fish keyword.operator.pipe.fish</string>
-												</dict>
-												<key>4</key>
-												<dict>
-													<key>name</key>
-													<string>invalid.illegal.function-call.fish</string>
-												</dict>
-											</dict>
-											<key>comment</key>
-											<string>If the command chain would end with an explicit operator or encounter a second set of piping, then mark the first set of piping as valid and beyond as invalid</string>
-											<key>match</key>
-											<string>(?x)
-(?# Consume valid piping; captures 1 2 3)
-(?:([0-9]+)?(&lt;|&gt;&gt;?|\^\^?))?(\|)
-(?# Consume whitespace)
-\s*
-(?# Consume remainder; capture 4)
-(.*)</string>
-										</dict>
-									</array>
-								</dict>
-								<dict>
-									<key>captures</key>
-									<dict>
-										<key>1</key>
-										<dict>
-											<key>name</key>
-											<string>constant.numeric.file-descriptor.fish</string>
-										</dict>
-										<key>2</key>
-										<dict>
-											<key>name</key>
-											<string>keyword.operator.redirect.fish</string>
-										</dict>
-										<key>3</key>
-										<dict>
-											<key>name</key>
-											<string>keyword.operator.pipe.fish</string>
-										</dict>
-									</dict>
-									<key>comment</key>
-									<string>Pick up a legitimate pipe</string>
-									<key>match</key>
-									<string>(?:([0-9]+)?(&lt;|&gt;&gt;?|\^\^?))?(\|)</string>
-									<key>name</key>
-									<string>meta.pipe.fish</string>
-								</dict>
-								<dict>
-									<key>include</key>
-									<string>#line-continuation</string>
-								</dict>
-								<dict>
-									<key>include</key>
-									<string>#command-call-meta</string>
-								</dict>
-								<dict>
-									<key>include</key>
-									<string>#command-call-standard</string>
 								</dict>
 							</array>
 						</dict>
@@ -1688,7 +1458,7 @@
 							<key>match</key>
 							<string>\.\.</string>
 							<key>name</key>
-							<string>keyword.operator.fish</string>
+							<string>keyword.operator.range.fish</string>
 						</dict>
 						<dict>
 							<key>include</key>
@@ -1951,6 +1721,223 @@
 				<dict>
 					<key>include</key>
 					<string>#string</string>
+				</dict>
+			</array>
+		</dict>
+		<key>pipeline</key>
+		<dict>
+			<key>comment</key>
+			<string>The pipeline rule is nonterminating, meaning that it will not consume a control operator</string>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>comment</key>
+					<string>Todo - Restructure pipeline so that this match isn't duplicated from the base scope, which it must also be for any other scopes which implement their own control operator consumption. Might require the unary operator commands to become an explicit recursive match (though we tried this once and it was more complicated than anything should be)</string>
+					<key>match</key>
+					<string>(?:[&amp;|]|(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))</string>
+					<key>name</key>
+					<string>invalid.illegal.operator.fish</string>
+				</dict>
+				<dict>
+					<key>comment</key>
+					<string>Todo - These commands cannot be followed by backgrounding, piping, or redirection alone. Add logic to catch these cases. It will be extensive...</string>
+					<key>match</key>
+					<string>(and|or)\b(?!\s+-)</string>
+					<key>name</key>
+					<string>meta.function-call.fish keyword.operator.word.fish</string>
+				</dict>
+				<dict>
+					<key>include</key>
+					<string>#line-continuation</string>
+				</dict>
+				<dict>
+					<key>comment</key>
+					<string>This is a hack for now, which allows nesting of 'not' and 'and'/'or' commands. A better solution will be explicit recursivity in these commands</string>
+					<key>match</key>
+					<string>(not)\b(?!\s+-)</string>
+					<key>name</key>
+					<string>meta.function-call.fish keyword.operator.word.fish</string>
+				</dict>
+				<dict>
+					<key>comment</key>
+					<string>Match a command which is illegal in the base scope</string>
+					<key>match</key>
+					<string>(?:case|else|end)(?=[\s;&amp;)|&lt;&gt;])</string>
+					<key>name</key>
+					<string>invalid.illegal.function-call.fish</string>
+				</dict>
+				<dict>
+					<key>begin</key>
+					<string>(?=[^\s#])</string>
+					<key>comment</key>
+					<string>Anonymous scope - Pipeline. Define a pipeline as either one command call, or multiple command calls linked by pipe operators ('|', '2&gt;|', etc). The pipeline terminates at the first encounter of any control operator</string>
+					<key>end</key>
+					<string>(\s*)(?=[\n;&amp;)])</string>
+					<key>endCaptures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>meta.function-call.fish</string>
+						</dict>
+					</dict>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>begin</key>
+							<string>(?x)
+(?# Negative lookahead for piping)
+(?!
+  (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
+)</string>
+							<key>comment</key>
+							<string>Match the first command of a potential pipeline</string>
+							<key>end</key>
+							<string>(?x)
+(?# Look ahead for operators after whitespace)
+(?=\s*
+  (?:
+    (?# Find a control operator)
+    [\n;&amp;)]
+  |
+    (?# Find a pipe operator)
+    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
+  )
+)</string>
+							<key>name</key>
+							<string>meta.function-call.fish</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>#command-call-meta</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#command-call-standard</string>
+								</dict>
+							</array>
+						</dict>
+						<dict>
+							<key>begin</key>
+							<string>(?x)
+(?# Look ahead for piping)
+(?=
+  (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
+)</string>
+							<key>comment</key>
+							<string>Match a second or later command of a pipeline, starting with the connective piping</string>
+							<key>end</key>
+							<string>(?=\s*[\n;&amp;)])</string>
+							<key>name</key>
+							<string>meta.function-call.fish</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>begin</key>
+									<string>(?x)
+(?# Look ahead for piping followed by either control operators or piping)
+(?=
+  (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
+  \s*
+  (?:
+    [\n;&amp;)]
+  |
+    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
+  )
+)</string>
+									<key>comment</key>
+									<string>Match a pipe not followed by a command, hence a malformed segment of the pipeline</string>
+									<key>end</key>
+									<string>(?=\s*[\n;&amp;)])</string>
+									<key>patterns</key>
+									<array>
+										<dict>
+											<key>comment</key>
+											<string>If the pipeline would end implicitly (ie, with a newline or close parenthesis), then mark the pipe itself invalid</string>
+											<key>match</key>
+											<string>(?:(?:[0-9]+)?(?:&lt;|&gt;|&gt;&gt;))?\|(?=\s*[\n)])</string>
+											<key>name</key>
+											<string>invalid.illegal.operator.fish</string>
+										</dict>
+										<dict>
+											<key>captures</key>
+											<dict>
+												<key>1</key>
+												<dict>
+													<key>name</key>
+													<string>meta.pipe.fish constant.numeric.file-descriptor.fish</string>
+												</dict>
+												<key>2</key>
+												<dict>
+													<key>name</key>
+													<string>meta.pipe.fish keyword.operator.redirect.fish</string>
+												</dict>
+												<key>3</key>
+												<dict>
+													<key>name</key>
+													<string>meta.pipe.fish keyword.operator.pipe.fish</string>
+												</dict>
+												<key>4</key>
+												<dict>
+													<key>name</key>
+													<string>invalid.illegal.function-call.fish</string>
+												</dict>
+											</dict>
+											<key>comment</key>
+											<string>If the pipeline would end with an explicit operator or encounter a second set of piping, then mark the first set of piping as valid and beyond as invalid</string>
+											<key>match</key>
+											<string>(?x)
+(?# Consume valid piping; captures 1 2 3)
+(?:([0-9]+)?(&lt;|&gt;&gt;?|\^\^?))?(\|)
+(?# Consume whitespace)
+\s*
+(?# Consume remainder; capture 4)
+(.*)</string>
+										</dict>
+									</array>
+								</dict>
+								<dict>
+									<key>captures</key>
+									<dict>
+										<key>1</key>
+										<dict>
+											<key>name</key>
+											<string>constant.numeric.file-descriptor.fish</string>
+										</dict>
+										<key>2</key>
+										<dict>
+											<key>name</key>
+											<string>keyword.operator.pipe.redirect.fish</string>
+										</dict>
+										<key>3</key>
+										<dict>
+											<key>name</key>
+											<string>keyword.operator.pipe.fish</string>
+										</dict>
+									</dict>
+									<key>comment</key>
+									<string>Pick up a legitimate pipe</string>
+									<key>match</key>
+									<string>(?:([0-9]+)?(&lt;|&gt;&gt;?|\^\^?))?(\|)</string>
+									<key>name</key>
+									<string>meta.pipe.fish</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#line-continuation</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#command-call-meta</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#command-call-standard</string>
+								</dict>
+							</array>
+						</dict>
+					</array>
 				</dict>
 			</array>
 		</dict>
