@@ -104,10 +104,8 @@ echo a=a -a=a --a=a
 #!       ^ punctuation.definition.option.short
 #!         ^ - punctuation.definition.option.long.separator
 #!            ^^^^^ meta.parameter.option.long meta.string.unquoted
-#!            ^^^ variable.parameter
-#!               ^ variable.parameter
-#!            ^^ punctuation.definition.option.long
-#!               ^ punctuation.definition.option.long.separator
+#!            ^^ meta.parameter.option.long variable.parameter punctuation.definition.option.long.begin
+#!               ^ meta.parameter.option.long variable.parameter punctuation.definition.option.long.separator
 
 echo - 1
 #!   ^ - variable.parameter
@@ -130,16 +128,16 @@ echo --num=2 -n2
 #!             ^ - constant.numeric
 
 cmd -h --help -- -- -h # comment
-#!  ^^ variable.parameter
-#!     ^^^^^^ variable.parameter
-#!            ^^ variable.parameter punctuation.definition.option.end meta.string.unquoted
+#!  ^^ meta.parameter.option.short variable.parameter
+#!     ^^^^^^ meta.parameter.option.long variable.parameter
+#!            ^^ meta.parameter.option.end variable.parameter punctuation.definition.option.end meta.string.unquoted
 #!               ^^ - variable.parameter
 #!                  ^^ - variable.parameter
 #!                     ^^^^^^^^^ comment.line
 
 1 arg -1 +1 -- -1. +.0
 #! <- - constant.numeric
-#!    ^^ variable.parameter
+#!    ^^ meta.parameter.option.short variable.parameter
 #!    ^^ - constant.numeric
 #!       ^^ constant.numeric
 #!             ^^^ constant.numeric

@@ -16,7 +16,7 @@ uuid: f9278d07-f7c1-4a9b-9581-ebcbc050fbfb
 #   - (Pseudo-operator) Whitespace: '\s' (includes newline)
 #   - Control operators: newline '\n', ';', '&', and the implied newline of encountering ')'
 #   - (Pseudo-operator) Command substitution: '(' and ')'
-#   - Pipe operators: '|', as well as redirect-into-pipe operations like '<|', '>>|', '3>|', etc
+#   - Pipe operators (including redirection-into-pipe): '|', '<|', '>>|', '3>|', etc
 #   - Redirect operators: '<', '>', '^'
 #   - (Pseudo-operator) Option: '-'
 # - fish functions (defined with a call to the `function` builtin) cannot begin with a hyphen, however commands (any executable files on the user's $PATH) can begin with a hypen and are executed without trouble. To this end, we never forbid a command call from beginning with a hypen
