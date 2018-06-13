@@ -4,29 +4,29 @@ Changelog
 2.2.3
 -----
 
-Bugfixes:
+Bugfix:
 - Menu options could not open the README or CHANGELOG files
 
 2.2.2
 -----
 
-Bugfixes:
+Bugfix:
 - Snippets did not use tabs for indenting (#12)
 
 2.2.1
 -----
 
-Bugfixes:
+Bugfix:
 - An argument consisting of a lone `-` was scoped as an option
 
 2.2.0
 -----
 
-Improvements:
+Improvement:
 - Make numeric scoping more consistent, and now recognise numbers starting with a plus or minus sign.
   After the end of options argument `--`, an argument like `-5` will be scoped as numeric rather than as an option. Additionally, recognition of sign is important for when numbers are used in index expansion
 
-Bugfixes:
+Bugfix:
 - Redirected process expansion failed to recognise special names like "self"
 
 2.1.2
@@ -39,7 +39,7 @@ Bugfixes:
 2.1.1
 -----
 
-Bugfixes:
+Bugfix:
 - A lone `.` was scoped as a decimal point for a numeric (#10)
 
 2.1.0
