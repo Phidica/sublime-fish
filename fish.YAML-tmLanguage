@@ -748,8 +748,8 @@ repository:
     patterns:
       - comment: Consume any number of alternating escaped newlines and lines which have nothing on them but comments
         begin: (?=\\\n)
-        end: ^(?![\s\#])|\s(?![\s\#])
-        comment: End when the first character of a line isn't whitespace or a comment character, or if the next character after some consumed whitespace isn't more whitespace or a comment character
+        end: ^(?![\s\#\\])|\s(?![\s\#])
+        comment: End when the first character of a line isn't whitespace or a comment character or the escaped newline itself, or if the next character after some consumed whitespace isn't more whitespace or a comment character
         patterns:
           - name: constant.character.escape
             match: \\\n

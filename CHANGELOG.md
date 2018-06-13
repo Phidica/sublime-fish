@@ -1,6 +1,12 @@
 Changelog
 =========
 
+2.2.5
+-----
+
+Bugfix:
+- ST2 would freeze encountering an escaped newline
+
 2.2.4
 -----
 
