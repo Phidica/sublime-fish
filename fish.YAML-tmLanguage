@@ -856,10 +856,10 @@ repository:
   string-unquoted:
     patterns:
       - name: meta.string.unquoted.fish
-        begin: (?!['"])
-        comment: Begin unquoted string if there are no quotes present
+        begin: (?![\s;&()|<>'"$])
+        comment: Begin unquoted string if not whitespace, control operator, quoted string, or variable expansion
         end: (?=[\s;&()|<>'"$])
-        comment: End unquoted string at whitespace, control operators, quoted strings, or a variable expansion
+        comment: End unquoted string at anything that can't be in one
         patterns:
           - include: '#string-unquoted-patterns'
 
@@ -907,7 +907,7 @@ repository:
           - include: '#string-quoted'
           - name: constant.numeric.fish
             match: (?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=[\s;&)|<>]|\}|\,)
-          - begin: (?![\s'"])
+          - begin: (?![\s;&)|<>'"])
             end: (?=[\s;&)|<>'"]|\}|\,)
             comment: Begin/end string as before with the addition of breaking at a '}' or ','
             patterns:

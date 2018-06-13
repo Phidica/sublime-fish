@@ -2123,9 +2123,9 @@
 			<array>
 				<dict>
 					<key>begin</key>
-					<string>(?!['"])</string>
+					<string>(?![\s;&amp;()|&lt;&gt;'"$])</string>
 					<key>comment</key>
-					<string>End unquoted string at whitespace, control operators, quoted strings, or a variable expansion</string>
+					<string>End unquoted string at anything that can't be in one</string>
 					<key>end</key>
 					<string>(?=[\s;&amp;()|&lt;&gt;'"$])</string>
 					<key>name</key>
@@ -2230,7 +2230,7 @@
 						</dict>
 						<dict>
 							<key>begin</key>
-							<string>(?![\s'"])</string>
+							<string>(?![\s;&amp;)|&lt;&gt;'"])</string>
 							<key>comment</key>
 							<string>Begin/end string as before with the addition of breaking at a '}' or ','</string>
 							<key>end</key>

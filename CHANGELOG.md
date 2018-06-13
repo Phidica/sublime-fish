@@ -1,6 +1,12 @@
 Changelog
 =========
 
+2.2.4
+-----
+
+Bugfix:
+- Control characters appearing in brace expansion would freeze ST2
+
 2.2.3
 -----
 
