@@ -535,7 +535,7 @@ make fish 2>| less
 #!            ^^^^ variable.function
 
 echo (echo arg |) | cat
-#!             ^ meta.function-call meta.function-call keyword.operator
+#!             ^ invalid.illegal.operator
 #!                ^ meta.function-call keyword.operator
 
 echo arg | # bad text
@@ -543,7 +543,7 @@ echo arg | # bad text
 #!         ^^^^^^^^^^ meta.function-call invalid.illegal.function-call
 
 echo arg | )paren
-#!       ^ meta.function-call keyword.operator
+#!       ^ invalid.illegal.operator
 #!         ^^^^^^ meta.function-call invalid.illegal.function-call
 
 and echo arg | %fish
@@ -576,6 +576,10 @@ and>cat
 #! <- meta.function-call keyword.operator.word
 #! ^ invalid.illegal.operator
 #!  ^^^ meta.function-call variable.function
+
+echo || cat # comment
+#!   ^ meta.function-call keyword.operator.pipe
+#!    ^ invalid.illegal
 
 and -h
 #! <- meta.function-call variable.function

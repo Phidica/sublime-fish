@@ -66,6 +66,12 @@
 					<string>invalid.illegal.operator.fish</string>
 				</dict>
 				<dict>
+					<key>comment</key>
+					<string>Pick up a comment that has come after an '&amp;'</string>
+					<key>include</key>
+					<string>#comment-internal-end</string>
+				</dict>
+				<dict>
 					<key>begin</key>
 					<string>(?=\S)</string>
 					<key>comment</key>
@@ -1534,9 +1540,13 @@
 					<array>
 						<dict>
 							<key>begin</key>
-							<string>(?=\S)</string>
+							<string>(?x)
+(?# Negative lookahead for piping)
+(?!
+  (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
+)</string>
 							<key>comment</key>
-							<string>Match one command, which may start with any non-whitespace character. If it starts with piping however, perform checks to ensure it is valid. A command call ends at any control operation including piping</string>
+							<string>Match the first command of a potential chain</string>
 							<key>end</key>
 							<string>(?x)
 (?# Look ahead for control operations after whitespace)
@@ -1555,56 +1565,96 @@
 							<array>
 								<dict>
 									<key>comment</key>
-									<string>We can't lookahead to find a close parenthesis because we want that close parenthesis to be caught and marked invalid. The downside is that this means a pipe at the end of the inside of a command substitution will not be marked invalid, but it turns out the fish parser doesn't do that either!</string>
-									<key>match</key>
-									<string>(?:(?:[0-9]+)?(?:&lt;|&gt;|&gt;&gt;))?\|(?=\s*\n)</string>
-									<key>name</key>
-									<string>invalid.illegal.operator.fish</string>
+									<string>Pick up the command call</string>
 								</dict>
 								<dict>
-									<key>captures</key>
-									<dict>
-										<key>1</key>
-										<dict>
-											<key>name</key>
-											<string>meta.pipe.fish constant.numeric.file-descriptor.fish</string>
-										</dict>
-										<key>2</key>
-										<dict>
-											<key>name</key>
-											<string>meta.pipe.fish keyword.operator.redirect.fish</string>
-										</dict>
-										<key>3</key>
-										<dict>
-											<key>name</key>
-											<string>meta.pipe.fish keyword.operator.pipe.fish</string>
-										</dict>
-										<key>4</key>
-										<dict>
-											<key>name</key>
-											<string>invalid.illegal.function-call.fish</string>
-										</dict>
-									</dict>
-									<key>comment</key>
-									<string>If there's no command call after the pipe and the command chain would end with an operator, then mark the next control operator (and beyond) as invalid</string>
-									<key>match</key>
+									<key>include</key>
+									<string>#command-call-meta</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#command-call-standard</string>
+								</dict>
+							</array>
+						</dict>
+						<dict>
+							<key>begin</key>
+							<string>(?x)
+(?# Look ahead for piping)
+(?=
+  (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
+)</string>
+							<key>comment</key>
+							<string>Match a second or later command of a chain, starting with the connective piping</string>
+							<key>end</key>
+							<string>(?=\s*[\n;&amp;)])</string>
+							<key>name</key>
+							<string>meta.function-call.fish</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>begin</key>
 									<string>(?x)
-(?# Consume valid piping; groups 1 2 3)
+(?# Look ahead for piping followed by either control operators or piping)
+(?=
+  (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
+  \s*
+  (?:
+    [\n;&amp;)]
+  |
+    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
+  )
+)</string>
+									<key>comment</key>
+									<string>Match a pipe not followed by a command, hence a malformed segment of the chain</string>
+									<key>end</key>
+									<string>(?=\s*[\n;&amp;)])</string>
+									<key>patterns</key>
+									<array>
+										<dict>
+											<key>comment</key>
+											<string>If the command chain would end implicitly (ie, with a newline or close parenthesis), then mark the pipe itself invalid</string>
+											<key>match</key>
+											<string>(?:(?:[0-9]+)?(?:&lt;|&gt;|&gt;&gt;))?\|(?=\s*[\n)])</string>
+											<key>name</key>
+											<string>invalid.illegal.operator.fish</string>
+										</dict>
+										<dict>
+											<key>captures</key>
+											<dict>
+												<key>1</key>
+												<dict>
+													<key>name</key>
+													<string>meta.pipe.fish constant.numeric.file-descriptor.fish</string>
+												</dict>
+												<key>2</key>
+												<dict>
+													<key>name</key>
+													<string>meta.pipe.fish keyword.operator.redirect.fish</string>
+												</dict>
+												<key>3</key>
+												<dict>
+													<key>name</key>
+													<string>meta.pipe.fish keyword.operator.pipe.fish</string>
+												</dict>
+												<key>4</key>
+												<dict>
+													<key>name</key>
+													<string>invalid.illegal.function-call.fish</string>
+												</dict>
+											</dict>
+											<key>comment</key>
+											<string>If the command chain would end with an explicit operator or encounter a second set of piping, then mark the first set of piping as valid and beyond as invalid</string>
+											<key>match</key>
+											<string>(?x)
+(?# Consume valid piping; captures 1 2 3)
 (?:([0-9]+)?(&lt;|&gt;&gt;?|\^\^?))?(\|)
 (?# Consume whitespace)
 \s*
-(?# Look ahead for control operations)
-(?=
-  (?:
-    (?# Find simple control operations)
-    [;&amp;]
-  |
-    (?# Find piping)
-    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
-  )
-)
-(?# Consume control operations and beyond; group 4)
-(.*)$</string>
+(?# Consume remainder; capture 4)
+(.*)</string>
+										</dict>
+									</array>
 								</dict>
 								<dict>
 									<key>captures</key>
@@ -1625,10 +1675,16 @@
 											<string>keyword.operator.pipe.fish</string>
 										</dict>
 									</dict>
+									<key>comment</key>
+									<string>Pick up a legitimate pipe</string>
 									<key>match</key>
 									<string>(?:([0-9]+)?(&lt;|&gt;&gt;?|\^\^?))?(\|)</string>
 									<key>name</key>
 									<string>meta.pipe.fish</string>
+								</dict>
+								<dict>
+									<key>comment</key>
+									<string>Pick up the command call</string>
 								</dict>
 								<dict>
 									<key>include</key>
@@ -1645,12 +1701,6 @@
 							</array>
 						</dict>
 					</array>
-				</dict>
-				<dict>
-					<key>comment</key>
-					<string>Pick up a comment that comes after an '&amp;' or otherwise sneaks into the scope</string>
-					<key>include</key>
-					<string>#comment-internal-end</string>
 				</dict>
 			</array>
 		</dict>

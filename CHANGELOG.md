@@ -4,8 +4,9 @@ Changelog
 2.2.5
 -----
 
-Bugfix:
+Bugfixes:
 - ST2 would freeze encountering an escaped newline
+- ST2 would freeze encountering a pipe
 
 2.2.4
 -----

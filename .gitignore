@@ -36,3 +36,4 @@ package-metadata.json
 
 # User
 *.xcf
+*_sec.*

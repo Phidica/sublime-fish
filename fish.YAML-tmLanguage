@@ -34,6 +34,9 @@ patterns:
         name: invalid.illegal.operator.fish
         match: (?:[&|]|(?:[0-9]+)?(?:<|>>?|\^\^?))
 
+      - comment: Pick up a comment that has come after an '&'
+        include: '#comment-internal-end'
+
       - comment: Anonymous scope - Base scope command chain (up until an '&')
         comment: The reason we match the '&' in a different way is the ';' can be alone on a line, while we must explicitly require that the '&' comes after a command
         begin: (?=\S)
@@ -177,9 +180,14 @@ repository:
         endCaptures:
           '1': {name: meta.function-call.fish}
         patterns:
-          - comment: Match one command, which may start with any non-whitespace character. If it starts with piping however, perform checks to ensure it is valid. A command call ends at any control operation including piping
+          - comment: Match the first command of a potential chain
             name: meta.function-call.fish
-            begin: (?=\S)
+            begin: |-
+              (?x)
+              (?# Negative lookahead for piping)
+              (?!
+                (?:(?:[0-9]+)?(?:<|>>?|\^\^?))?\|
+              )
             end: |-
               (?x)
               (?# Look ahead for control operations after whitespace)
@@ -193,49 +201,67 @@ repository:
                 )
               )
             patterns:
-              - comment: If there's no command call after the pipe and the command chain would end quietly, then mark the pipe invalid
-                comment: We can't lookahead to find a close parenthesis because we want that close parenthesis to be caught and marked invalid. The downside is that this means a pipe at the end of the inside of a command substitution will not be marked invalid, but it turns out the fish parser doesn't do that either!
-                name: invalid.illegal.operator.fish
-                match: (?:(?:[0-9]+)?(?:<|>|>>))?\|(?=\s*\n)
+              - comment: Pick up the command call
+              # - include: '#line-continuation'
+              - include: '#command-call-meta'
+              - include: '#command-call-standard'
 
-              - comment: If there's no command call after the pipe and the command chain would end with an operator, then mark the next control operator (and beyond) as invalid
-                match: |-
+          - comment: Match a second or later command of a chain, starting with the connective piping
+            name: meta.function-call.fish
+            begin: |-
+              (?x)
+              (?# Look ahead for piping)
+              (?=
+                (?:(?:[0-9]+)?(?:<|>>?|\^\^?))?\|
+              )
+            end: (?=\s*[\n;&)])
+            patterns:
+              - comment: Match a pipe not followed by a command, hence a malformed segment of the chain
+                begin: |-
                   (?x)
-                  (?# Consume valid piping; groups 1 2 3)
-                  (?:([0-9]+)?(<|>>?|\^\^?))?(\|)
-                  (?# Consume whitespace)
-                  \s*
-                  (?# Look ahead for control operations)
+                  (?# Look ahead for piping followed by either control operators or piping)
                   (?=
+                    (?:(?:[0-9]+)?(?:<|>>?|\^\^?))?\|
+                    \s*
                     (?:
-                      (?# Find simple control operations)
-                      [;&]
+                      [\n;&)]
                     |
-                      (?# Find piping)
                       (?:(?:[0-9]+)?(?:<|>>?|\^\^?))?\|
                     )
                   )
-                  (?# Consume control operations and beyond; group 4)
-                  (.*)$
-                captures:
-                  '1': {name: meta.pipe.fish constant.numeric.file-descriptor.fish}
-                  '2': {name: meta.pipe.fish keyword.operator.redirect.fish}
-                  '3': {name: meta.pipe.fish keyword.operator.pipe.fish}
-                  '4': {name: invalid.illegal.function-call.fish}
+                end: (?=\s*[\n;&)])
+                patterns:
+                  - comment: If the command chain would end implicitly (ie, with a newline or close parenthesis), then mark the pipe itself invalid
+                    name: invalid.illegal.operator.fish
+                    match: (?:(?:[0-9]+)?(?:<|>|>>))?\|(?=\s*[\n)])
 
-              - name: meta.pipe.fish
+                  - comment: If the command chain would end with an explicit operator or encounter a second set of piping, then mark the first set of piping as valid and beyond as invalid
+                    match: |-
+                      (?x)
+                      (?# Consume valid piping; captures 1 2 3)
+                      (?:([0-9]+)?(<|>>?|\^\^?))?(\|)
+                      (?# Consume whitespace)
+                      \s*
+                      (?# Consume remainder; capture 4)
+                      (.*)
+                    captures:
+                      '1': {name: meta.pipe.fish constant.numeric.file-descriptor.fish}
+                      '2': {name: meta.pipe.fish keyword.operator.redirect.fish}
+                      '3': {name: meta.pipe.fish keyword.operator.pipe.fish}
+                      '4': {name: invalid.illegal.function-call.fish}
+
+              - comment: Pick up a legitimate pipe
+                name: meta.pipe.fish
                 match: (?:([0-9]+)?(<|>>?|\^\^?))?(\|)
                 captures:
                   '1': {name: constant.numeric.file-descriptor.fish}
                   '2': {name: keyword.operator.redirect.fish}
                   '3': {name: keyword.operator.pipe.fish}
 
+              - comment: Pick up the command call
               - include: '#line-continuation'
               - include: '#command-call-meta'
               - include: '#command-call-standard'
-
-      - comment: Pick up a comment that comes after an '&' or otherwise sneaks into the scope
-        include: '#comment-internal-end'
 
   command-call-meta:
     patterns:
