@@ -376,6 +376,8 @@
 		</dict>
 		<key>command-call-meta</key>
 		<dict>
+			<key>comment</key>
+			<string>Todo - Better logic in the types of piping ignored</string>
 			<key>patterns</key>
 			<array>
 				<dict>
@@ -390,7 +392,7 @@
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>Check if the command is a builtin which takes another command as arguments, ie, a meta command. Because these commands could take options or be backgrounded/piped -- in which case they do not behave as meta commands -- look ahead to ensure that no options or control operators are found. Note also that a meta command forces its argument to behave as a standard command</string>
+					<string>These meta commands force their argument to behave as a standard command</string>
 					<key>end</key>
 					<string>(?=[\n;&amp;)|])</string>
 					<key>patterns</key>
@@ -398,6 +400,47 @@
 						<dict>
 							<key>include</key>
 							<string>#line-continuation</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#command-call-standard</string>
+						</dict>
+					</array>
+				</dict>
+				<dict>
+					<key>begin</key>
+					<string>(not)\b(?!\s+[-&amp;|])</string>
+					<key>beginCaptures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.operator.word.fish</string>
+						</dict>
+					</dict>
+					<key>comment</key>
+					<string>This meta command acts as a unary operator on the command to the right, which can also be a meta command. It only applies to one command and stops at piping</string>
+					<key>end</key>
+					<string>(?x)
+(?# Look ahead for control operations after whitespace)
+(?=\s*
+  (?:
+    (?# Find simple control operations)
+    [\n;&amp;)]
+  |
+    (?# Find piping)
+    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
+  )
+)</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>include</key>
+							<string>#line-continuation</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#command-call-meta</string>
 						</dict>
 						<dict>
 							<key>include</key>
@@ -1507,9 +1550,21 @@
 				</dict>
 				<dict>
 					<key>comment</key>
-					<string>Match a command which acts as a unary operator on the command to the right. Neglect the match if it is taking the one valid option argument these commands accept. Allow the match if there is a scope-ending operation after the command name</string>
+					<string>Todo - These commands cannot be followed by backgrounding, piping, or redirection alone. Add logic to catch these cases. It will be extensive...</string>
 					<key>match</key>
-					<string>(and|not|or)(?=\s+(?!-h|--help)|[;&amp;)|&lt;&gt;])</string>
+					<string>(and|or)\b(?!\s+-)</string>
+					<key>name</key>
+					<string>meta.function-call.fish keyword.operator.word.fish</string>
+				</dict>
+				<dict>
+					<key>include</key>
+					<string>#line-continuation</string>
+				</dict>
+				<dict>
+					<key>comment</key>
+					<string>This is a hack for now, which allows nesting of 'not' and 'and'/'or' commands. A better solution will be explicit recursivity in these commands</string>
+					<key>match</key>
+					<string>(not)\b(?!\s+-)</string>
 					<key>name</key>
 					<string>meta.function-call.fish keyword.operator.word.fish</string>
 				</dict>

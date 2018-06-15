@@ -469,7 +469,7 @@ command  &
 echo arg &
 #! <-meta.function-call variable.function
 
-not \
+and \
 #! <- meta.function-call keyword.operator.word
 command \
 #! <- meta.function-call support.function
@@ -581,7 +581,24 @@ echo || cat # comment
 #!   ^ meta.function-call keyword.operator.pipe
 #!    ^ invalid.illegal
 
+echo arg | not echo arg
+#!       ^ meta.function-call keyword.operator.pipe
+#!         ^^^ meta.function-call keyword.operator.word
+#!             ^^^^ meta.function-call variable.function
+
+true; not and builtin true
+#!    ^^^ meta.function-call keyword.operator.word
+#!        ^^^ meta.function-call keyword.operator.word
+#!            ^^^^^^^ meta.function-call support.function
+#!                    ^^^^ meta.function-call variable.function
+
+notecho out
+#! <- meta.function-call variable.function
+
 and -h
+#! <- meta.function-call variable.function
+
+builtin -h
 #! <- meta.function-call variable.function
 
 echo arg1 ; and echo arg2 & not echo arg3 | cat

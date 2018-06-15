@@ -7,6 +7,7 @@ Changelog
 Bugfixes:
 - ST2 would freeze encountering an escaped newline
 - ST2 would freeze encountering a pipe
+- `not` wasn't recognised in a command chain
 
 2.2.4
 -----

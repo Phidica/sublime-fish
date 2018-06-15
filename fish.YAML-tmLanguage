@@ -165,9 +165,15 @@ repository:
         name: invalid.illegal.operator.fish
         match: (?:[&|]|(?:[0-9]+)?(?:<|>>?|\^\^?))
 
-      - comment: Match a command which acts as a unary operator on the command to the right. Neglect the match if it is taking the one valid option argument these commands accept. Allow the match if there is a scope-ending operation after the command name
+      - comment: Match a unary operator command that isn't allowed within a command chain, only at the beginning. Neglect the match if it is taking an option. Allow line continuation between one of these commands and the next function call
+        comment: Todo - These commands cannot be followed by backgrounding, piping, or redirection alone. Add logic to catch these cases. It will be extensive...
         name: meta.function-call.fish keyword.operator.word.fish
-        match: (and|not|or)(?=\s+(?!-h|--help)|[;&)|<>])
+        match: (and|or)\b(?!\s+-)
+      - include: '#line-continuation'
+
+      - comment: This is a hack for now, which allows nesting of 'not' and 'and'/'or' commands. A better solution will be explicit recursivity in these commands
+        name: meta.function-call.fish keyword.operator.word.fish
+        match: (not)\b(?!\s+-)
 
       - comment: Match a command which is illegal in the base scope
         name: invalid.illegal.function-call.fish
@@ -202,7 +208,6 @@ repository:
               )
             patterns:
               - comment: Pick up the command call
-              # - include: '#line-continuation'
               - include: '#command-call-meta'
               - include: '#command-call-standard'
 
@@ -264,14 +269,37 @@ repository:
               - include: '#command-call-standard'
 
   command-call-meta:
+    comment: Check if the command is a builtin which takes another command as arguments, ie, a meta command. However, ignore the command if it is taking an option or being backgrounded/piped, as in such a case it behaves as a standard command and should be picked up by that scope instead
+    comment: Todo - Better logic in the types of piping ignored
     patterns:
-      - comment: Check if the command is a builtin which takes another command as arguments, ie, a meta command. Because these commands could take options or be backgrounded/piped -- in which case they do not behave as meta commands -- look ahead to ensure that no options or control operators are found. Note also that a meta command forces its argument to behave as a standard command
+      - comment: These meta commands force their argument to behave as a standard command
         begin: (builtin|command|exec)\b(?!\s+[-&|])
         beginCaptures:
           '1': {name: support.function.fish}
         end: (?=[\n;&)|])
         patterns:
           - include: '#line-continuation'
+          - include: '#command-call-standard'
+
+      - comment: This meta command acts as a unary operator on the command to the right, which can also be a meta command. It only applies to one command and stops at piping
+        begin: (not)\b(?!\s+[-&|])
+        beginCaptures:
+          '1': {name: keyword.operator.word.fish}
+        end: |-
+          (?x)
+          (?# Look ahead for control operations after whitespace)
+          (?=\s*
+            (?:
+              (?# Find simple control operations)
+              [\n;&)]
+            |
+              (?# Find piping)
+              (?:(?:[0-9]+)?(?:<|>>?|\^\^?))?\|
+            )
+          )
+        patterns:
+          - include: '#line-continuation'
+          - include: '#command-call-meta'
           - include: '#command-call-standard'
 
   command-call-standard:
