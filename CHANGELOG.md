@@ -1,6 +1,12 @@
 Changelog
 =========
 
+2.2.6
+-----
+
+Bugfix:
+- ST2 would freeze encountering consecutive command substitutions
+
 2.2.5
 -----
 

@@ -1769,7 +1769,7 @@
 					<key>comment</key>
 					<string>Capture "(...)" or "(...)[...]"</string>
 					<key>end</key>
-					<string>(?&lt;=\))(?!\[)|(?&lt;=\])</string>
+					<string>(?&lt;=\))(?![\(\[])|(?&lt;=\])(?!\()</string>
 					<key>patterns</key>
 					<array>
 						<dict>

@@ -123,12 +123,6 @@ cmd
 #! <- variable.function meta.string.unquoted
 #! ^^ meta.argument
 
-echo --arg=~/Documents --(echo arg)=(echo val)
-#!         ^^^^^^^^^^^ meta.string.unquoted
-#!         ^ - meta.home-directory-expansion keyword.operator.tilde
-#!                     ^^^^^^^^^^^^^ meta.argument variable.parameter
-#!                                  ^^^^^^^^^^ meta.argument
-
 echo --num=2 -n2
 #!   ^^^^^^ meta.string.unquoted
 #!         ^ meta.argument constant.numeric
@@ -184,6 +178,24 @@ echo arg (echo "inner" arg) outer arg
 #!        ^^^^^^^^^^^^^^^^ meta.function-call
 #!                        ^ punctuation.section.parens.end
 #!                          ^ meta.function-call
+
+echo arg(cat)(echo)(cat)arg arg
+#!      ^ punctuation.section.parens.begin
+#!          ^ punctuation.section.parens.end
+#!           ^ punctuation.section.parens.begin
+#!                ^ punctuation.section.parens.end
+#!                 ^ punctuation.section.parens.begin
+#!                     ^ punctuation.section.parens.end
+
+echo (cat (cat))
+# comment
+#! <- - meta.parens.command-substitution
+
+echo --arg=~/Documents --(echo arg)=(echo val)
+#!         ^^^^^^^^^^^ meta.string.unquoted
+#!         ^ - meta.home-directory-expansion keyword.operator.tilde
+#!                     ^^^^^^^^^^^^^ meta.argument variable.parameter
+#!                                  ^^^^^^^^^^ meta.argument
 
 foo\ bar arg
 #! ^^^^^ variable.function
