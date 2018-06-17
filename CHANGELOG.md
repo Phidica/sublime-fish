@@ -5,22 +5,23 @@ Changelog
 -----
 
 Bugfixes:
-- ST2 would freeze encountering consecutive command substitutions
-- ST2 would freeze encountering consecutive variable expansions
+- ST2 would freeze encountering consecutive command substitutions (#14)
+- ST2 would freeze encountering consecutive variable expansions (#14)
+- `end` at end of file wasn't highlighted correctly (#15)
 
 2.2.5
 -----
 
 Bugfixes:
-- ST2 would freeze encountering an escaped newline
-- ST2 would freeze encountering a pipe
+- ST2 would freeze encountering an escaped newline (#14)
+- ST2 would freeze encountering a pipe (#14)
 - `not` wasn't recognised in a command chain
 
 2.2.4
 -----
 
 Bugfix:
-- Control characters appearing in brace expansion would freeze ST2
+- Control characters appearing in brace expansion would freeze ST2 (#14)
 
 2.2.3
 -----

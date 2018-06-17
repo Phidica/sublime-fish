@@ -474,7 +474,7 @@ repository:
         begin: begin(?=\s*[\n;]|\s+[^\s-])
         beginCaptures:
           '0': {name: keyword.control.conditional.fish}
-        end: end(?=[\s;&)|<>])
+        end: end(?=$|[\s;&)|<>])
         endCaptures:
           '0': {name: keyword.control.conditional.fish}
         patterns:
@@ -483,7 +483,7 @@ repository:
       - name: meta.block.while.fish
         begin: (?=while\s+[^\s;)-])
         comment: If the command name is followed by a valid string (not anything that closes the scope or a string starting with a '-') then open the scope
-        end: end(?=[\s;&)|<>])
+        end: end(?=$|[\s;&)|<>])
         endCaptures:
           '0': {name: keyword.control.conditional.fish}
         patterns:
@@ -501,14 +501,14 @@ repository:
             beginCaptures:
               '1': {name: keyword.operator.fish}
               '2': {name: invalid.illegal.operator.fish}
-            end: (?=end[\s;&)|<>])
+            end: (?=end(?:$|[\s;&)|<>]))
             patterns:
               - include: $self
 
       - name: meta.block.if.fish
         begin: (?=if\s+[^\s;)-])
         comment: If the command name is followed by a valid string (not anything that closes the scope or a string starting with a '-') then open the scope
-        end: end(?=[\s;&)|<>])
+        end: end(?=$|[\s;&)|<>])
         endCaptures:
           '0': {name: keyword.control.conditional.fish}
         patterns:
@@ -518,7 +518,7 @@ repository:
       - name: meta.block.for-in.fish
         begin: (?=for\s+[^\s;)-])
         comment: If the command name is followed by a valid string (not anything that closes the scope or a string starting with a '-') then open the scope
-        end: end(?=[\s;&)|<>])
+        end: end(?=$|[\s;&)|<>])
         endCaptures:
           '0': {name: keyword.control.conditional.fish}
         patterns:
@@ -554,7 +554,7 @@ repository:
             beginCaptures:
               '1': {name: keyword.operator.fish}
               '2': {name: invalid.illegal.operator.fish}
-            end: (?=end[\s;&)|<>])
+            end: (?=end(?:$|[\s;&)|<>]))
             patterns:
               - include: $self
 
@@ -565,7 +565,7 @@ repository:
       - name: meta.block.switch.fish
         begin: (?=switch\s+[^\s;)-])
         comment: If the command name is followed by a valid string (not anything that closes the scope or a string starting with a '-') then open the scope
-        end: end(?=[\s;&)|<>])
+        end: end(?=$|[\s;&)|<>])
         endCaptures:
           '0': {name: keyword.control.conditional.fish}
         patterns:
@@ -599,7 +599,7 @@ repository:
             beginCaptures:
               '1': {name: keyword.operator.fish}
               '2': {name: invalid.illegal.operator.fish}
-            end: (?=end[\s;&)|<>])
+            end: (?=end(?:$|[\s;&)|<>]))
             patterns:
               - comment: Anonymous scope - Capture the command name which might be there, include an arbitrary number of (forcibly nonoption) arguments, and end when the control operator is captured
                 begin: case(?=[\s;&)])
@@ -623,7 +623,7 @@ repository:
       - name: meta.block.function.fish
         begin: (?=function\s+[^\s;)-])
         comment: If the command name is followed by a valid string (not anything that closes the scope or a string starting with a '-') then open the scope
-        end: end(?=[\s;&)|<>])
+        end: end(?=$|[\s;&)|<>])
         endCaptures:
           '0': {name: keyword.control.conditional.fish}
         patterns:
@@ -669,7 +669,7 @@ repository:
             beginCaptures:
               '1': {name: keyword.operator.fish}
               '2': {name: invalid.illegal.operator.fish}
-            end: (?=end[\s;&)|<>])
+            end: (?=end(?:$|[\s;&)|<>]))
             patterns:
               - include: $self
 
@@ -678,7 +678,7 @@ repository:
     patterns:
       - comment: Anonymous scope - Capture an `if` and the command up to the end-of-scope operator, then capture from the end-of-scope operator indefinitely
         begin: (?=if(?:\s*\n|\s+[^\s;]))
-        end: (?=end[\s;&)|<>])
+        end: (?=end(?:$|[\s;&)|<>]))
         patterns:
           - comment: Anonymous scope - Match the command name we know is there, include a single instance of a command chain, and end when an operator is seen
             begin: if
@@ -694,11 +694,11 @@ repository:
             beginCaptures:
               '1': {name: keyword.operator.fish}
               '2': {name: invalid.illegal.operator.fish}
-            end: (?=end[\s;&)|<>])
+            end: (?=end(?:$|[\s;&)|<>]))
             patterns:
               - comment: Anonymous scope - Capture an `else` up to the end-of-scope operator or the start of an `if` structure, then match from the end-of-scope operator indefinitely or match an `if` structure
                 begin: (?=else\s*[\s;])
-                end: (?=end[\s;&)|<>])
+                end: (?=end(?:$|[\s;&)|<>]))
                 patterns:
                   - comment: Anonymous scope - Match the `else` we know is there and any comment, and mark anything besides an `if` as illegal
                     begin: else(?=\s*[\s;])
@@ -721,7 +721,7 @@ repository:
                     beginCaptures:
                       '1': {name: keyword.operator.fish}
                       '2': {name: invalid.illegal.operator.fish}
-                    end: (?=end[\s;&)|<>])
+                    end: (?=end(?:$|[\s;&)|<>]))
                     patterns:
                       - include: $self
 
