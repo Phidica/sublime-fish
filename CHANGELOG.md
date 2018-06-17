@@ -4,8 +4,9 @@ Changelog
 2.2.6
 -----
 
-Bugfix:
+Bugfixes:
 - ST2 would freeze encountering consecutive command substitutions
+- ST2 would freeze encountering consecutive variable expansions
 
 2.2.5
 -----

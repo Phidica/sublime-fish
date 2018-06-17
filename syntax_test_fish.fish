@@ -677,6 +677,13 @@ echo $var[1..2] $var[1..$foo]
 #!                  ^^^^^^^^^ meta.brackets.index-expansion
 #!                      ^^^^ variable.other
 
+# Check for when they're consecutive
+echo $res[1]$res[2]
+#!    ^^^ meta.variable-expansion variable.other
+#!       ^^^  meta.brackets.index-expansion
+#!           ^^^ meta.variable-expansion variable.other
+#!              ^^^  meta.brackets.index-expansion
+
 echo $var $var[$var[1 $var[1]] $var[1..2]] "str"
 #!   ^^^^ variable.other
 #!        ^^^^ variable.other

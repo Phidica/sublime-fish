@@ -983,7 +983,7 @@ repository:
       - comment: Capture "$foo" or "$foo[]" or "$$foo[][]" etc
         name: meta.variable-expansion.fish
         begin: (?=\$)
-        end: (?<=[\$\w])(?=[^\$\w\[])|(?<=\])(?!\[)
+        end: (?<=[\$\w])(?=[^\$\w\[])|(?<=\])(?![\$\[])
         patterns:
           - comment: Match any depth of recursive variable expansions
           - name: variable.other.fish
