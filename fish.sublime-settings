@@ -1,4 +1,10 @@
 {
   // Only for nonstandard fish installs: Absolute file path to the directory containing fish_indent
-  "fish_indent_directory": ""
+  "fish_indent_directory": "",
+
+  // Execute fish_indent on the current fish file immediately prior to each save
+  "fish_indent_on_save": false,
+
+  // Only if fish_indent_on_save is true: List of files not to run fish_indent on when saving
+  "blacklist": ["syntax_test_fish.fish"]
 }
