@@ -1,0 +1,4 @@
+{
+  // Only for nonstandard fish installs: Absolute file path to the directory containing fish_indent
+  "fish_indent_directory": ""
+}

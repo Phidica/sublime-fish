@@ -1,6 +1,12 @@
 Changelog
 =========
 
+2.3.0
+-----
+
+New features:
+- Provide `do_fish_indent` TextCommand for indenting and prettifying the current file with `fish_indent` (#16)
+
 2.2.6
 -----
 
