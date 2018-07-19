@@ -5,7 +5,7 @@
         "caption": "Package Settings",
         "id": "package-settings",
         "children": [{
-          "caption": "fish",
+          "caption": "friendly interactive shell",
           "children": [
             {
               "caption": "Readme",
