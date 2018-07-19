@@ -22,6 +22,15 @@
             }, {
               "caption": "-"
             }, {
+              "caption": "Settings",
+              "command": "edit_settings",
+              "args": {
+                "base_file": "${packages}/fish/fish.sublime-settings",
+                "default": "{\n\t$0\n}\n"
+              }
+            }, {
+              "caption": "-"
+            }, {
               "caption": "Issues",
               "command": "open_url",
               "args": {
