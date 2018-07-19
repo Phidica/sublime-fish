@@ -31,7 +31,7 @@
             }, {
               "caption": "-"
             }, {
-              "caption": "Issues",
+              "caption": "Report a bug",
               "command": "open_url",
               "args": {
                 "url": "https://github.com/Phidica/sublime-fish/issues"
