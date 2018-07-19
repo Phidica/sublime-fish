@@ -1,0 +1,6 @@
+[
+  {
+    "caption": "fish: Indent and Prettify",
+    "command": "do_fish_indent"
+  }
+]

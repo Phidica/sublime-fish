@@ -1,0 +1,7 @@
+[
+  { "keys": ["ctrl+alt+i"], "command": "do_fish_indent", "context":
+    [
+      {"key": "selector", "operator": "equal", "operand": "source.shell.fish"}
+    ]
+  }
+]

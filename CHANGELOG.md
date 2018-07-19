@@ -6,6 +6,7 @@ Changelog
 
 New features:
 - Provide `do_fish_indent` TextCommand for indenting and prettifying the current file with `fish_indent` (#16)
+  - Default shortcut to run the command is `ctrl+alt+i`
 
 2.2.6
 -----
