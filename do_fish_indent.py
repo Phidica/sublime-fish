@@ -41,6 +41,8 @@ class DoFishIndentCommand(sublime_plugin.TextCommand):
       out, err = p.communicate(input = fileContent.encode(enc))
     except OSError: # Soft compatibility with Python 2
       msg = "Couldn't find {0}".format(exe)
+      if not pathToDir:
+        msg += ". Specify a nonstandard install location in Preferences > Package Settings > friendly interactive shell > Settings"
       sublime.error_message(msg)
       return
 
