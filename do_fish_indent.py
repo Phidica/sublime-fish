@@ -102,7 +102,7 @@ if sublime.version()[0] == '3':
   class DoFishIndentOnSave(sublime_plugin.ViewEventListener):
     def is_applicable(self):
       # In non-fish files the setting is unset (hence, we ask for False), or if the user set it to False then it will be False even in fish files
-      return self.get('fish_indent_on_save', False)
+      return self.get('indent_on_save', False)
 
     def on_pre_save(self):
       # Skip blacklisted files
@@ -112,7 +112,7 @@ if sublime.version()[0] == '3':
 elif sublime.version()[0] == '2':
   class DoFishIndentOnSave(sublime_plugin.EventListener):
     def on_pre_save(self, view):
-      if view.settings().get('fish_indent_on_save') is not True:
+      if view.settings().get('indent_on_save') is not True:
         return
       if view.settings().has('blacklist') and os.path.basename(view.file_name()) in view.settings().get('blacklist'):
         return

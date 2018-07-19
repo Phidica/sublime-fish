@@ -4,10 +4,12 @@ Changelog
 2.3.0
 -----
 
-New features:
-- Provide `do_fish_indent` TextCommand for indenting and prettifying the current file with `fish_indent` (#16)
-  - Default shortcut to run the command is `ctrl+alt+i`
-- Provide a fish build system for running `do_fish_indent`
+New feature:
+- Automatic indentation and prettification of fish files (#16):
+  - Utilises the `fish_indent` program that comes with fish
+  - Default shortcut for indentation is `ctrl+alt+i`
+  - Build system option is also available
+  - Optionally, turn on automatic indentation at every save
 
 2.2.6
 -----
