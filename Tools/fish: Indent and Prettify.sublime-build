@@ -1,0 +1,4 @@
+{
+  "target": "do_fish_indent_build",
+  "selector": "source.shell.fish"
+}

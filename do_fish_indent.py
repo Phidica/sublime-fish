@@ -92,3 +92,8 @@ class DoFishIndentCommand(sublime_plugin.TextCommand):
     elif versionAPI == 2:
       map(self.view.sel().add, pos)
     self.view.show_at_center(pos[0])
+
+# Only a WindowCommand can be a build system target
+class DoFishIndentBuildCommand(sublime_plugin.WindowCommand):
+  def run(self):
+    self.window.run_command('do_fish_indent')
