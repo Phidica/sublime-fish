@@ -18,15 +18,15 @@ patterns:
   - include: '#comment-external'
   - include: '#line-continuation'
 
-  - comment: A command can't begin with a close parenthesis. We match this so exclusively early because the command chain scope will end immediately if the close parenthesis is seen by its lookahead
-    comment: In an ideal world, command-call-standard would be performing this match because fish highlights the strings which follow as arguments. But we can't do that
+  - comment: The first command of a command chain can't begin with a close parenthesis or be called "end". We match these so exclusively early because the command chain scope will end immediately if either is seen by its lookahead
+    comment: In an ideal world, command-call-standard would be performing this match because fish highlights the strings which follow as arguments. But we can't do that in a tmLanguage
     name: meta.function-call.fish invalid.illegal.function-call.fish
-    begin: \)
+    begin: \)|end
     end: (?=[\s;&)|<>])
 
-  - comment: Anonymous scope - Base scope command chain (up until a newline or ';')
+  - comment: Anonymous scope - Base scope command chain goes up until one of the definitive ends (newline and ';') or the sequences that could be an end if we're actually inside a $self scope right now (')' and "end")
     begin: (?=\S)
-    end: \n|(;)|(?=\))
+    end: \n|(;)|(?=\))|(?=end)
     endCaptures:
       '1': {name: meta.function-call.operator.fish keyword.operator.fish}
     patterns:

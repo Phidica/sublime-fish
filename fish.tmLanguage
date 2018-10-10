@@ -32,9 +32,9 @@
 		</dict>
 		<dict>
 			<key>begin</key>
-			<string>\)</string>
+			<string>\)|end</string>
 			<key>comment</key>
-			<string>In an ideal world, command-call-standard would be performing this match because fish highlights the strings which follow as arguments. But we can't do that</string>
+			<string>In an ideal world, command-call-standard would be performing this match because fish highlights the strings which follow as arguments. But we can't do that in a tmLanguage</string>
 			<key>end</key>
 			<string>(?=[\s;&amp;)|&lt;&gt;])</string>
 			<key>name</key>
@@ -44,9 +44,9 @@
 			<key>begin</key>
 			<string>(?=\S)</string>
 			<key>comment</key>
-			<string>Anonymous scope - Base scope command chain (up until a newline or ';')</string>
+			<string>Anonymous scope - Base scope command chain goes up until one of the definitive ends (newline and ';') or the sequences that could be an end if we're actually inside a $self scope right now (')' and "end")</string>
 			<key>end</key>
-			<string>\n|(;)|(?=\))</string>
+			<string>\n|(;)|(?=\))|(?=end)</string>
 			<key>endCaptures</key>
 			<dict>
 				<key>1</key>

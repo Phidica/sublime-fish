@@ -13,7 +13,10 @@ New feature:
   - Indentation is restricted to highlighted regions if any are present, otherwise the full file is acted on
   - Default shortcut for indentation is `ctrl+alt+i`
   - Build system execution is also available
-  - Optionally, turn on automatic indentation at every save
+  - Optionally, turn on automatic indentation at every save in settings
+
+Bugfix:
+- A block would not scope correctly if an `&` appeared immediately before the `end` command
 
 2.2.6
 -----

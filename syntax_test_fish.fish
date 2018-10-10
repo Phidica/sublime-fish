@@ -846,6 +846,16 @@ begin end # comment
 #!    ^^^ keyword.control.conditional
 #!        ^^^^^^^^^ comment.line
 
+begin true ; end
+#!           ^^^ keyword.control.conditional
+
+begin true & end ; end
+#!           ^^^ keyword.control.conditional
+#!                 ^^^ invalid.illegal.function-call
+
+echo one two& end
+#!            ^^^ invalid.illegal.function-call
+
 begin echo out; echo
 end; or begin
 #! ^ keyword.operator
