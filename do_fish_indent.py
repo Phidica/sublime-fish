@@ -17,9 +17,18 @@ class DoFishIndentCommand(sublime_plugin.TextCommand):
   def run(self, edit):
     versionAPI = int(sublime.version()[0])
 
-    # Check for executable
+    # Check for executable, expanding search to valid fish installs on Windows
     exe = 'fish_indent'
     pathToDir = self.view.settings().get('fish_indent_directory')
+    if not pathToDir and sublime.platform() == 'windows':
+      if sublime.arch() == 'x32':
+        testPaths = ('C:/cygwin/bin', 'C:/msys32/usr/bin')
+      elif sublime.arch() == 'x64':
+        testPaths = ('C:/cygwin64/bin', 'C:/msys64/usr/bin')
+      for p in testPaths:
+        if os.path.exists(p):
+          pathToDir = p
+          break
     if pathToDir:
       exe = os.path.join(pathToDir, exe)
 

@@ -1,5 +1,5 @@
 {
-  // Only for nonstandard fish installs: Absolute file path to the directory containing the fish_indent binary
+  // Only for nonstandard fish installs: Absolute file path to the directory containing the fish_indent binary. For example, if using 32-bit Cygwin on Windows with 64-bit Sublime Text, this would be "C:/cygwin/bin"
   "fish_indent_directory": "",
 
   // Indent the current fish file immediately prior to each save
