@@ -1,13 +1,14 @@
 Changelog
 =========
 
-2.3.0-rc.1
-----------
+2.3.0
+-----
 
 New feature:
 - Automatic indentation and prettification of fish files (#16):
   - Utilises the `fish_indent` program that comes with fish
   - Compatible with Sublime Text 2 and 3 on all platforms
+    - No additional configuration is necessary for standard fish installs
   - Indentation respects user preferences of tab size
   - Default shortcut for indentation is `ctrl+alt+i`
   - Build system execution is also available

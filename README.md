@@ -10,6 +10,16 @@ To do:
 - Add further useful highlighting (eg, `[ ... ]` form of `test`)
 - Rewrite for `.sublime-syntax`
 
+Features
+--------
+
+- Extensive syntax highlighting
+- Snippets for common constructs
+- Indentation and prettification of the active file (with `fish_indent`)
+  - Use `ctrl+alt+i` or your build system shortcut (eg, `ctrl+b`)
+  - Optional setting to run automatically on save
+  - More information [here](Messages/news-2.3.0.md)
+
 Installation
 ------------
 
