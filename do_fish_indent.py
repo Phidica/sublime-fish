@@ -57,37 +57,44 @@ class DoFishIndentCommand(sublime_plugin.TextCommand):
 
     # Select the first region
     # inputRegion = sublime.Region(0, self.view.size())
-    inputRegion = self.view.sel()[0];
-    inputContent = self.view.substr(inputRegion)
 
-    # Run the program, which is searched for on PATH if necessary
-    try:
-      # Pipe the file content into fish_indent and catch the outputs
-      p = subprocess.Popen(exe, stdin = subprocess.PIPE, stdout = subprocess.PIPE,
-        stderr = subprocess.PIPE)
-      out, err = p.communicate(input = inputContent.encode(enc))
-    except OSError: # Soft compatibility with Python 2
-      msg = "Couldn't find {0}".format(exe)
-      if not pathToDir:
-        msg += ". Specify a nonstandard install location in Preferences > " \
-          "Package Settings > friendly interactive shell > Settings"
-      sublime.error_message(msg)
-      return
+    # Iterate over the user's current selection regions
+    for inputRegion in self.view.sel():
+      # Skip zero-width cursor placements
+      if inputRegion.size() == 0:
+        continue
 
-    if err:
-      sublime.message_dialog(err.decode('utf-8'))
+      inputContent = self.view.substr(inputRegion)
 
-    # Replace the contents of the region with the output of fish_indent
-    # We don't use replace() because we need to recalculate the region size
-    #   to adjust the cursor position, since the formatted text will almost
-    #   always have more characters than before
-    self.view.erase(edit, inputRegion)
-    insChars = self.view.insert(edit, inputRegion.begin(), out.decode(enc))
-    outputRegion = sublime.Region(inputRegion.begin(),
-      inputRegion.begin() + insChars)
+      # Run the program, which is searched for on PATH if necessary
+      try:
+        # Pipe the file content into fish_indent and catch the outputs
+        p = subprocess.Popen(exe, stdin = subprocess.PIPE, stdout = subprocess.PIPE,
+          stderr = subprocess.PIPE)
+        out, err = p.communicate(input = inputContent.encode(enc))
+      except OSError: # Soft compatibility with Python 2
+        msg = "Couldn't find {0}".format(exe)
+        if not pathToDir:
+          msg += ". Specify a nonstandard install location in Preferences > " \
+            "Package Settings > friendly interactive shell > Settings"
+        sublime.error_message(msg)
+        return
 
-    # Add new selection region, which encompasses original region and replaces it
-    self.view.sel().add(outputRegion)
+      if err:
+        sublime.message_dialog(err.decode('utf-8'))
+
+      # Replace the contents of the region with the output of fish_indent
+      # We don't use replace() because it does not adequately track changes
+      #   in cursor position. erase() changes the acted upon selection to be
+      #   zero-width, and we recalculate its width based on the number of
+      #   inserted characters
+      beginIndex = inputRegion.begin()
+      self.view.erase(edit, inputRegion)
+      insChars = self.view.insert(edit, beginIndex, out.decode(enc))
+      outputRegion = sublime.Region(beginIndex, beginIndex + insChars)
+
+      # Add new selection region (extends the zero-width region now at beginIndex)
+      self.view.sel().add(outputRegion)
 
     # Convert the format to the user's preferred format
     if indentUsingSpaces and tabSize == 4:
