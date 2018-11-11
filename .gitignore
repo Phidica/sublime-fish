@@ -35,6 +35,13 @@ Icon
 package-metadata.json
 
 # User
-*.xcf
-*_sec.*
+.ipynb_checkpoints
 *.pyc
+
+.gitlint
+*.ipynb
+*.xcf
+
+*_sec.*
+
+

@@ -1959,9 +1959,9 @@
 					<key>begin</key>
 					<string>(?=\\\n)</string>
 					<key>comment</key>
-					<string>End when the first character of a line isn't whitespace or a comment character or the escaped newline itself, or if the next character after some consumed whitespace isn't more whitespace or a comment character</string>
+					<string>End when an unescaped newline is seen, the first character of a line isn't whitespace or a comment character or the escaped newline itself, or if the next character after some consumed whitespace isn't more whitespace or a comment character</string>
 					<key>end</key>
-					<string>^(?![\s\#\\])|\s(?![\s\#])</string>
+					<string>(?=\n)|^(?![\s\#\\])|\s(?![\s\#])</string>
 					<key>patterns</key>
 					<array>
 						<dict>

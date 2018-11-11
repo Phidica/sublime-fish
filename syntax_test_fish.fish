@@ -172,6 +172,12 @@ echo arg \
 #! ^^ meta.argument
 #!    ^^^^^^^^^ comment.line
 
+echo out \
+"one" \
+
+echo two
+#! <- meta.function-call.fish variable.function.fish
+
 echo arg (echo "inner" arg) outer arg
 #!       ^^^^^^^^^^^^^^^^^^ meta.parens.command-substitution
 #!       ^ punctuation.section.parens.begin

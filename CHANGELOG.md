@@ -15,9 +15,10 @@ New feature:
   - Build system execution is also available
   - Optionally, turn on automatic indentation at every save in settings
 
-Bugfix:
+Bugfixes:
 - A block would not scope correctly if an `&` appeared immediately before the `end` command
 - Redirected piping would not scope correctly under `builtin`, `command`, or `exec`
+- Escaping a newline could extend the scope one line too far
 
 2.2.6
 -----
