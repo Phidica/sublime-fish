@@ -10,6 +10,7 @@ New feature:
   - Compatible with Sublime Text 2 and 3 on all platforms
     - No additional configuration is necessary for standard fish installs
   - Indentation respects user preferences of tab size
+  - Indentation is restricted to highlighted regions if any are present, otherwise the full file is acted on
   - Default shortcut for indentation is `ctrl+alt+i`
   - Build system execution is also available
   - Optionally, turn on automatic indentation at every save
