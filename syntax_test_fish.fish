@@ -498,6 +498,9 @@ not builtin case 1>/dev/null
 #!          ^^^^ meta.function-call variable.function
 #!               ^^^^^^^^^^^ meta.redirection
 
+command echo out 2>| cat
+#!                ^^ meta.function-call.fish meta.pipe.fish keyword.operator
+
 exec %fish
 #! <- meta.function-call support.function
 #!   ^^^^^ meta.function-call invalid.illegal.function-call

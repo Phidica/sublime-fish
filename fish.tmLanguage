@@ -377,7 +377,7 @@
 		<key>command-call-meta</key>
 		<dict>
 			<key>comment</key>
-			<string>Todo - Better logic in the types of piping ignored</string>
+			<string>Todo - Better logic in the types of piping ignored in the begin match</string>
 			<key>patterns</key>
 			<array>
 				<dict>
@@ -392,9 +392,19 @@
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>These meta commands force their argument to behave as a standard command</string>
+					<string>These meta commands force their argument to behave as a standard command. They stop at piping</string>
 					<key>end</key>
-					<string>(?=[\n;&amp;)|])</string>
+					<string>(?x)
+(?# Look ahead for control operations after whitespace)
+(?=\s*
+  (?:
+    (?# Find simple control operations)
+    [\n;&amp;)]
+  |
+    (?# Find piping)
+    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
+  )
+)</string>
 					<key>patterns</key>
 					<array>
 						<dict>

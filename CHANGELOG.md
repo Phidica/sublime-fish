@@ -17,6 +17,7 @@ New feature:
 
 Bugfix:
 - A block would not scope correctly if an `&` appeared immediately before the `end` command
+- Redirected piping would not scope correctly under `builtin`, `command`, or `exec`
 
 2.2.6
 -----

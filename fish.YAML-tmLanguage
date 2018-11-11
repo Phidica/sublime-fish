@@ -270,13 +270,24 @@ repository:
 
   command-call-meta:
     comment: Check if the command is a builtin which takes another command as arguments, ie, a meta command. However, ignore the command if it is taking an option or being backgrounded/piped, as in such a case it behaves as a standard command and should be picked up by that scope instead
-    comment: Todo - Better logic in the types of piping ignored
+    comment: Todo - Better logic in the types of piping ignored in the begin match
     patterns:
-      - comment: These meta commands force their argument to behave as a standard command
+      - comment: These meta commands force their argument to behave as a standard command. They stop at piping
         begin: (builtin|command|exec)\b(?!\s+[-&|])
         beginCaptures:
           '1': {name: support.function.fish}
-        end: (?=[\n;&)|])
+        end: |-
+          (?x)
+          (?# Look ahead for control operations after whitespace)
+          (?=\s*
+            (?:
+              (?# Find simple control operations)
+              [\n;&)]
+            |
+              (?# Find piping)
+              (?:(?:[0-9]+)?(?:<|>>?|\^\^?))?\|
+            )
+          )
         patterns:
           - include: '#line-continuation'
           - include: '#command-call-standard'
