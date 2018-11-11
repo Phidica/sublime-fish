@@ -9,7 +9,8 @@ class DoFishIndentCommand(sublime_plugin.TextCommand):
     return 2 <= int(sublime.version()[0]) <= 3
 
   def is_visible(self):
-    return 'source.shell.fish' in self.view.scope_name(self.view.sel()[0].begin())
+    # Syntax will be like "Packages/fish/fish.tmLanguage"
+    return 'Packages/fish/fish' in self.view.settings().get('syntax')
 
   def description(self):
     return 'Indent and Prettify'
