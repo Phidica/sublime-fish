@@ -36,6 +36,9 @@ class DoFishIndentCommand(sublime_plugin.TextCommand):
     indentUsingSpaces = self.view.settings().get('translate_tabs_to_spaces')
     tabSize = self.view.settings().get('tab_size')
 
+    # Create a copy of the initial selection before any edits
+    originalSelection = list( self.view.sel() )
+
     # If user does not use the native fish_indent format, convert file to tabs
     #   of user's preferred width. Then when the formatted text is inserted,
     #   we can convert it to tabs of width 4 without affecting anything else in
@@ -52,15 +55,18 @@ class DoFishIndentCommand(sublime_plugin.TextCommand):
       enc = 'utf-8'
     print('Running {0} on file with encoding {1}'.format(exe, enc))
 
-    # Create a copy of all current cursor positions (selection regions)
-    # pos = list( self.view.sel() );
+    # If user only has simple cursor placements (zero-width regions), indent whole file
+    # Otherwise, we'll iterate over and test all the regions in the selection
+    restoreSelection = None
+    if all( map(lambda p: p.size() == 0, self.view.sel()) ):
+      inputRegions = [ sublime.Region(0, self.view.size()) ]
+      restoreSelection = originalSelection
+    else:
+      inputRegions = self.view.sel()
+      restoreSelection = False
 
-    # Select the first region
-    # inputRegion = sublime.Region(0, self.view.size())
-
-    # Iterate over the user's current selection regions
-    for inputRegion in self.view.sel():
-      # Skip zero-width cursor placements
+    for inputRegion in inputRegions:
+      # Skip zero-width regions
       if inputRegion.size() == 0:
         continue
 
@@ -80,21 +86,29 @@ class DoFishIndentCommand(sublime_plugin.TextCommand):
         sublime.error_message(msg)
         return
 
+      outputContent = out.decode(enc)
+
+      # Trim a trailing newline
+      # if outputContent[-1] == '\n':
+      #   outputContent = outputContent[:-1]
+
       if err:
         sublime.message_dialog(err.decode('utf-8'))
 
       # Replace the contents of the region with the output of fish_indent
-      # We don't use replace() because it does not adequately track changes
-      #   in cursor position. erase() changes the acted upon selection to be
-      #   zero-width, and we recalculate its width based on the number of
-      #   inserted characters
-      beginIndex = inputRegion.begin()
-      self.view.erase(edit, inputRegion)
-      insChars = self.view.insert(edit, beginIndex, out.decode(enc))
-      outputRegion = sublime.Region(beginIndex, beginIndex + insChars)
+      self.view.replace(edit, inputRegion, outputContent)
 
-      # Add new selection region (extends the zero-width region now at beginIndex)
-      self.view.sel().add(outputRegion)
+      # # Alternative code if replace() does not adequately track changes
+      # #   in cursor position. erase() changes the acted upon selection to be
+      # #   zero-width, and we recalculate its width based on the number of
+      # #   inserted characters
+      # beginIndex = inputRegion.begin()
+      # self.view.erase(edit, inputRegion)
+      # insChars = self.view.insert(edit, beginIndex, outputContent)
+      # if not restoreSelection:
+      #   # Update selection (extends the zero-width region now at beginIndex)
+      #   outputRegion = sublime.Region(beginIndex, beginIndex + insChars)
+      #   self.view.sel().add(outputRegion)
 
     # Convert the format to the user's preferred format
     if indentUsingSpaces and tabSize == 4:
@@ -121,8 +135,16 @@ class DoFishIndentCommand(sublime_plugin.TextCommand):
         self.view.settings().set('tab_size', tabSize)
         self.view.run_command('expand_tabs')
 
-    # Ensure cursors remain in view and don't drift off with repeated runs
-    # self.view.show(self.view.sel(), True)
+    if restoreSelection:
+      # Put back the original zero-width regions of the selection
+      self.view.sel().clear()
+      if versionAPI == 3:
+        self.view.sel().add_all(restoreSelection)
+      elif versionAPI == 2:
+        map(self.view.sel().add, restoreSelection)
+
+    # Ensure view doesn't drift off with repeated runs
+    self.view.show(self.view.visible_region(), False)
 
 # Only a WindowCommand can be a build system target
 class DoFishIndentBuildCommand(sublime_plugin.WindowCommand):
