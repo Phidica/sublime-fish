@@ -14,7 +14,7 @@ uuid: f9278d07-f7c1-4a9b-9581-ebcbc050fbfb
 # - The order of operators in expressions is (by invented convention): newline '\n', whitespace '\s' (includes newline), ';', '&', '(', ')', '|', '<', '>', '^'
 
 patterns:
-  - comment: Base scope - Pick up '#' and "\\\n" before command-call sees them
+  # Base scope - Pick up '#' and "\\\n" before command-call sees them
   - include: '#comment-external'
   - include: '#line-continuation'
 
@@ -65,7 +65,7 @@ repository:
                   '0': {name: punctuation.definition.parameter.fish meta.string.unquoted.fish}
                 end: (?=[\s;&)|<>]|=)
                 patterns:
-                  - comment: We mimic the argument-patterns rule but use a tweaked unquoted string pattern which excludes '='
+                  # We mimic the argument-patterns rule but use a tweaked unquoted string pattern which excludes '='
                   - include: '#command-substitution'
 
                   - name: meta.string.unquoted.fish
@@ -102,7 +102,7 @@ repository:
             patterns:
               - include: '#argument-patterns'
 
-          - comment: Argument starting with no dashes
+          # Argument starting with no dashes
           - include: '#argument-nonoption'
 
   argument-nonoption:
@@ -154,7 +154,7 @@ repository:
         patterns:
           - include: '#variable-expansion'
 
-      - comment: Arguments are otherwise made of strings, either quoted or unquoted. The unquoted string rule handles character escapes and brace expansion
+      # Arguments are otherwise made of strings, either quoted or unquoted. The unquoted string rule handles character escapes and brace expansion
       - include: '#string'
 
   command-chain:
@@ -207,7 +207,7 @@ repository:
                 )
               )
             patterns:
-              - comment: Pick up the command call
+              # Pick up the command call
               - include: '#command-call-meta'
               - include: '#command-call-standard'
 
@@ -263,7 +263,7 @@ repository:
                   '2': {name: keyword.operator.redirect.fish}
                   '3': {name: keyword.operator.pipe.fish}
 
-              - comment: Pick up the command call
+              # Pick up the command call
               - include: '#line-continuation'
               - include: '#command-call-meta'
               - include: '#command-call-standard'
@@ -383,7 +383,7 @@ repository:
             patterns:
               - include: '#string'
 
-          - comment: Redirection can immediately follow the command name, without whitespace separation
+          # Redirection can immediately follow the command name, without whitespace separation
           - include: '#redirection'
 
           - comment: Anonymous scope - A list of argument, redirection, or comment elements. We rely on this list being separated from the command name by whitespace
@@ -523,7 +523,7 @@ repository:
         endCaptures:
           '0': {name: keyword.control.conditional.fish}
         patterns:
-          - comment: Note that this internal scope does not treat the closing parenthesis as an operator, because a command substitution can't end in the middle of a block
+          # Note that this internal scope does not treat the closing parenthesis as an operator, because a command substitution can't end in the middle of a block
           - include: '#command-call-standard-block-if-internal'
 
       - name: meta.block.for-in.fish
@@ -658,7 +658,7 @@ repository:
                     begin: (?!\\\n)
                     end: (?=[\s;&()|<>])
                     patterns:
-                      - comment: These patterns are similar to the scope around variable.function.fish in command-call-standard, except the defined name is expanded as an argument
+                      # These patterns are similar to the scope around variable.function.fish in command-call-standard, except the defined name is expanded as an argument
 
                       - name: entity.name.function.fish
                         begin: (?!\s)
@@ -736,7 +736,7 @@ repository:
                     patterns:
                       - include: $self
 
-                  - comment: Match the `if` structure which will be there if no operator was seen
+                  # Match the `if` structure which will be there if no operator was seen
                   - include: '#command-call-standard-block-if-internal'
 
               - include: $self
@@ -798,7 +798,7 @@ repository:
 
           - include: '#variable-expansion'
 
-          - comment: Manually recreate the string rule with a numeric match, extra logic in unquoted strings, and don't repeat the meta.string.unquoted scope
+          # Manually recreate the string rule with a numeric match, extra logic in unquoted strings, and don't repeat the meta.string.unquoted scope
           - include: '#string-quoted'
           - name: constant.numeric.fish
             match: (?:[+-]?[0-9]+)(?=[\s;&)|<>]|\]|\.\.)
@@ -968,7 +968,7 @@ repository:
 
           - include: '#variable-expansion'
 
-          - comment: Manually recreate the string rule with a numeric match, extra logic in unquoted strings, and don't repeat the meta.string.unquoted scope
+          # Manually recreate the string rule with a numeric match, extra logic in unquoted strings, and don't repeat the meta.string.unquoted scope
           - include: '#string-quoted'
           - name: constant.numeric.fish
             match: (?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=[\s;&)|<>]|\}|\,)
@@ -996,7 +996,7 @@ repository:
         begin: (?=\$)
         end: (?<=[\$\w])(?=[^\$\w\[])|(?<=\])(?![\$\[])
         patterns:
-          - comment: Match any depth of recursive variable expansions
+          # Match any depth of recursive variable expansions
           - name: variable.other.fish
             begin: \$
             beginCaptures:
@@ -1006,7 +1006,7 @@ repository:
               - include: '#variable-expansion-illegal'
               - include: '#variable-expansion-simple'
 
-          - comment: Match any number of consecutive index expansions
+          # Match any number of consecutive index expansions
           - include: '#index-expansion'
 
   variable-expansion-simple:

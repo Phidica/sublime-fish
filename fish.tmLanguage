@@ -19,10 +19,6 @@
 	<key>patterns</key>
 	<array>
 		<dict>
-			<key>comment</key>
-			<string>Base scope - Pick up '#' and "\\\n" before command-call sees them</string>
-		</dict>
-		<dict>
 			<key>include</key>
 			<string>#comment-external</string>
 		</dict>
@@ -141,10 +137,6 @@
 									<key>patterns</key>
 									<array>
 										<dict>
-											<key>comment</key>
-											<string>We mimic the argument-patterns rule but use a tweaked unquoted string pattern which excludes '='</string>
-										</dict>
-										<dict>
 											<key>include</key>
 											<string>#command-substitution</string>
 										</dict>
@@ -239,10 +231,6 @@
 									<string>#argument-patterns</string>
 								</dict>
 							</array>
-						</dict>
-						<dict>
-							<key>comment</key>
-							<string>Argument starting with no dashes</string>
 						</dict>
 						<dict>
 							<key>include</key>
@@ -363,10 +351,6 @@
 							<string>#variable-expansion</string>
 						</dict>
 					</array>
-				</dict>
-				<dict>
-					<key>comment</key>
-					<string>Arguments are otherwise made of strings, either quoted or unquoted. The unquoted string rule handles character escapes and brace expansion</string>
 				</dict>
 				<dict>
 					<key>include</key>
@@ -605,10 +589,6 @@
 									<string>#string</string>
 								</dict>
 							</array>
-						</dict>
-						<dict>
-							<key>comment</key>
-							<string>Redirection can immediately follow the command name, without whitespace separation</string>
 						</dict>
 						<dict>
 							<key>include</key>
@@ -922,10 +902,6 @@
 					<string>meta.block.if.fish</string>
 					<key>patterns</key>
 					<array>
-						<dict>
-							<key>comment</key>
-							<string>Note that this internal scope does not treat the closing parenthesis as an operator, because a command substitution can't end in the middle of a block</string>
-						</dict>
 						<dict>
 							<key>include</key>
 							<string>#command-call-standard-block-if-internal</string>
@@ -1292,10 +1268,6 @@
 											<key>patterns</key>
 											<array>
 												<dict>
-													<key>comment</key>
-													<string>These patterns are similar to the scope around variable.function.fish in command-call-standard, except the defined name is expanded as an argument</string>
-												</dict>
-												<dict>
 													<key>begin</key>
 													<string>(?!\s)</string>
 													<key>end</key>
@@ -1525,10 +1497,6 @@
 											</array>
 										</dict>
 										<dict>
-											<key>comment</key>
-											<string>Match the `if` structure which will be there if no operator was seen</string>
-										</dict>
-										<dict>
 											<key>include</key>
 											<string>#command-call-standard-block-if-internal</string>
 										</dict>
@@ -1628,10 +1596,6 @@
 							<string>meta.function-call.fish</string>
 							<key>patterns</key>
 							<array>
-								<dict>
-									<key>comment</key>
-									<string>Pick up the command call</string>
-								</dict>
 								<dict>
 									<key>include</key>
 									<string>#command-call-meta</string>
@@ -1746,10 +1710,6 @@
 									<string>(?:([0-9]+)?(&lt;|&gt;&gt;?|\^\^?))?(\|)</string>
 									<key>name</key>
 									<string>meta.pipe.fish</string>
-								</dict>
-								<dict>
-									<key>comment</key>
-									<string>Pick up the command call</string>
 								</dict>
 								<dict>
 									<key>include</key>
@@ -1915,10 +1875,6 @@
 						<dict>
 							<key>include</key>
 							<string>#variable-expansion</string>
-						</dict>
-						<dict>
-							<key>comment</key>
-							<string>Manually recreate the string rule with a numeric match, extra logic in unquoted strings, and don't repeat the meta.string.unquoted scope</string>
 						</dict>
 						<dict>
 							<key>include</key>
@@ -2330,10 +2286,6 @@
 							<string>#variable-expansion</string>
 						</dict>
 						<dict>
-							<key>comment</key>
-							<string>Manually recreate the string rule with a numeric match, extra logic in unquoted strings, and don't repeat the meta.string.unquoted scope</string>
-						</dict>
-						<dict>
 							<key>include</key>
 							<string>#string-quoted</string>
 						</dict>
@@ -2412,10 +2364,6 @@
 					<key>patterns</key>
 					<array>
 						<dict>
-							<key>comment</key>
-							<string>Match any depth of recursive variable expansions</string>
-						</dict>
-						<dict>
 							<key>begin</key>
 							<string>\$</string>
 							<key>beginCaptures</key>
@@ -2441,10 +2389,6 @@
 									<string>#variable-expansion-simple</string>
 								</dict>
 							</array>
-						</dict>
-						<dict>
-							<key>comment</key>
-							<string>Match any number of consecutive index expansions</string>
 						</dict>
 						<dict>
 							<key>include</key>
