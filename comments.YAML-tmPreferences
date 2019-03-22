@@ -1,8 +1,0 @@
-# [PackageDev] target_format: plist, ext: tmPreferences
-name: Comments
-uuid: 8b2c53cb-42b5-4e0c-a37a-f8cf5527b26b
-scope: source.shell.fish
-settings:
-  shellVariables:
-  - name: TM_COMMENT_START
-    value: '# '

@@ -3,11 +3,19 @@
 <plist version="1.0">
 <dict>
 	<key>name</key>
-	<string>Comments</string>
+	<string>settings</string>
 	<key>scope</key>
 	<string>source.shell.fish</string>
 	<key>settings</key>
 	<dict>
+		<key>cancelCompletion</key>
+		<string>^.*\b(end)$</string>
+		<key>decreaseIndentPattern</key>
+		<string>^\s*(case|else|end)\b</string>
+		<key>increaseIndentPattern</key>
+		<string>^\s*(begin|case|for|if|else|function|switch|while)\b</string>
+		<key>indentNextLinePattern</key>
+		<string>^.*[^\\]\\$</string>
 		<key>shellVariables</key>
 		<array>
 			<dict>
@@ -18,7 +26,5 @@
 			</dict>
 		</array>
 	</dict>
-	<key>uuid</key>
-	<string>8b2c53cb-42b5-4e0c-a37a-f8cf5527b26b</string>
 </dict>
 </plist>

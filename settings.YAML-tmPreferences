@@ -1,0 +1,21 @@
+# [PackageDev] source_format: yaml, target_format: plist, ext: tmPreferences
+# Use PackageDev to build this file into the .tmPreferences equivalent
+name: settings
+scope: source.shell.fish
+
+# See docs at http://docs.sublimetext.info/en/latest/reference/metadata.html
+
+settings:
+  shellVariables:
+  - name: TM_COMMENT_START
+    value: '# '
+
+  decreaseIndentPattern:
+    ^\s*(case|else|end)\b
+  increaseIndentPattern:
+    ^\s*(begin|case|for|if|else|function|switch|while)\b
+  indentNextLinePattern:
+    ^.*[^\\]\\$
+
+  cancelCompletion:
+    ^.*\b(end)$
