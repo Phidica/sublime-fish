@@ -2125,7 +2125,7 @@
 							<key>comment</key>
 							<string>Use the function call match to build a file path, as the syntax is fairly similar (possibly identical, after exceptions caught above? I haven't checked)</string>
 							<key>match</key>
-							<string>(?:\'(?:\\[\'\\]|[^\'\\])*\'|\"(?:\\[\"$\n\\]|[^\"$\n\\])*\"|(?:\\[abefnrtv $\\*?#(){}\[\]&lt;&gt;^&amp;;|"']|\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]|[^\s$\\*?~%#()&lt;&gt;&amp;|;"']|\\(?=[^abefnrtv\s$\\*?#(){}\[\]&lt;&gt;^&amp;;|"'xXuUc])|(?&lt;=\S|\\ )\\\n|[~%#])+)+</string>
+							<string>(?:\'(?:\\[\'\\]|[^\'\\])*\'|\"(?:\\[\"$\n\\]|[^\"$\n\\])*\"|(?:\\[abefnrtv $\\*?#(){}\[\]&lt;&gt;^&amp;;|"']|\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]|[^\s$\\*?~%#()&lt;&gt;&amp;|;"']|\\(?=[^abefnrtv\s$\\*?#(){}\[\]&lt;&gt;^&amp;;|"'xXuUc])|\\\n|[~%#])+)+</string>
 							<key>name</key>
 							<string>meta.path.fish</string>
 						</dict>
