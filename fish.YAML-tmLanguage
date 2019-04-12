@@ -1017,14 +1017,14 @@ repository:
       - comment: Capture "$foo" or "$foo[]" or "$$foo[][]" etc
         name: meta.variable-expansion.fish
         begin: (?=\$)
-        end: (?<=[\$\w])(?=[^\$\w\[])|(?<=\])(?![\$\[])
+        end: (?=[^\$\w\[])
         patterns:
           # Match any depth of recursive variable expansions
           - name: variable.other.fish
             begin: \$
             beginCaptures:
               '0': {name: punctuation.definition.variable.fish}
-            end: (?<=[\$\w])(?=[^\$\w])
+            end: (?=[^\$\w])
             patterns:
               - include: '#variable-expansion-illegal'
               - include: '#variable-expansion-simple'
@@ -1039,7 +1039,7 @@ repository:
         begin: \$
         beginCaptures:
           '0': {name: punctuation.definition.variable.fish}
-        end: (?<=[\$\w])(?=[^\$\w])
+        end: (?=[^\$\w])
         patterns:
           - include: '#variable-expansion-illegal'
           - include: '#variable-expansion-simple'

@@ -2399,7 +2399,7 @@
 					<key>comment</key>
 					<string>Capture "$foo" or "$foo[]" or "$$foo[][]" etc</string>
 					<key>end</key>
-					<string>(?&lt;=[\$\w])(?=[^\$\w\[])|(?&lt;=\])(?![\$\[])</string>
+					<string>(?=[^\$\w\[])</string>
 					<key>name</key>
 					<string>meta.variable-expansion.fish</string>
 					<key>patterns</key>
@@ -2416,7 +2416,7 @@
 								</dict>
 							</dict>
 							<key>end</key>
-							<string>(?&lt;=[\$\w])(?=[^\$\w])</string>
+							<string>(?=[^\$\w])</string>
 							<key>name</key>
 							<string>variable.other.fish</string>
 							<key>patterns</key>
@@ -2473,7 +2473,7 @@
 						</dict>
 					</dict>
 					<key>end</key>
-					<string>(?&lt;=[\$\w])(?=[^\$\w])</string>
+					<string>(?=[^\$\w])</string>
 					<key>name</key>
 					<string>variable.other.fish</string>
 					<key>patterns</key>
