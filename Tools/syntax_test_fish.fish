@@ -389,6 +389,22 @@ echo one ^&2 two three3>&4 four 5>& \
 #!                    ^ keyword.operator.redirect
 #!                      ^^ invalid.illegal.path
 
+echo foo ^^&1& echo foo ^^&& 1
+#!           ^ meta.function-call.operator keyword.operator.control
+#!                         ^ meta.redirection invalid.illegal.file-descriptor
+
+echo bar >&\
+& 1 >|cat
+#! <- meta.redirection invalid.illegal.file-descriptor
+
+echo foo ^^fp& echo foo ^^>fp
+#!           ^ meta.function-call.operator keyword.operator.control
+#!                        ^ meta.redirection invalid.illegal.path
+
+echo one >&1>|cat; echo two >out>|cat
+#!          ^^ meta.function-call meta.pipe
+#!                              ^^ meta.function-call meta.pipe
+
 echo one >&1>?two<&2>&4five
 #!       ^^^ meta.redirection
 #!       ^^ keyword.operator.redirect
