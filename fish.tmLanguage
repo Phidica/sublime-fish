@@ -1331,7 +1331,7 @@
 					<key>comment</key>
 					<string>Capture "(...)" or "(...)[...]"</string>
 					<key>end</key>
-					<string>(?&lt;=\))(?![\(\[])|(?&lt;=\])(?!\()</string>
+					<string>(?![\(\[])</string>
 					<key>patterns</key>
 					<array>
 						<dict>

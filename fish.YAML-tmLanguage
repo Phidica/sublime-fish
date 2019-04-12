@@ -752,7 +752,7 @@ repository:
     patterns:
       - comment: Capture "(...)" or "(...)[...]"
         begin: (?=\()
-        end: (?<=\))(?![\(\[])|(?<=\])(?!\()
+        end: (?![\(\[])
         patterns:
           - name: meta.parens.command-substitution.fish
             begin: \(
