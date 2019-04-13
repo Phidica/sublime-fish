@@ -23,8 +23,8 @@ For collaborators cutting a new release
 =======================================
 
 Ensure `CHANGELOG.md` has a new version number, and all *relevant* committed changes (ie, changes that users will see the effects of) are logged.
-  - Only pluralise headings for lists of more than one item.
-  - Be aware that the text is copied directly to the GitHub release description, so stick to valid markdown.
+- Only pluralise headings for lists of more than one item.
+- Be aware that the text is copied directly to the GitHub release description, so stick to valid markdown.
 
 Bump the version number in `messages.json` to the new version number in `CHANGELOG.md`.
 
