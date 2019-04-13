@@ -6,9 +6,9 @@ A Sublime Text 2/3 package for the [friendly interactive shell](https://github.c
 All the general syntax of fish is completely implemented, however a number of additional features are planned and suggestions or bug reports are welcome.
 
 To do:
+
 - Rewrite for `.sublime-syntax`
 - Support fish 3
-- Add further useful highlighting (eg, `[ ... ]` form of `test`)
 - Optimise scope nesting
 
 Features

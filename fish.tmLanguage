@@ -325,6 +325,50 @@
 									<string>#command-call-standard-block</string>
 								</dict>
 								<dict>
+									<key>begin</key>
+									<string>\[(?=[\s&lt;&gt;]|\\\n)</string>
+									<key>beginCaptures</key>
+									<dict>
+										<key>0</key>
+										<dict>
+											<key>name</key>
+											<string>support.function.test.begin.fish</string>
+										</dict>
+									</dict>
+									<key>comment</key>
+									<string>Look for the alternate form of test, which uses a matching pair of '[' ']'</string>
+									<key>end</key>
+									<string>(\])|(\n|[;&amp;)|].*)</string>
+									<key>endCaptures</key>
+									<dict>
+										<key>1</key>
+										<dict>
+											<key>name</key>
+											<string>support.function.test.end.fish</string>
+										</dict>
+										<key>2</key>
+										<dict>
+											<key>name</key>
+											<string>invalid.illegal.function-call.fish</string>
+										</dict>
+									</dict>
+									<key>patterns</key>
+									<array>
+										<dict>
+											<key>include</key>
+											<string>#line-continuation</string>
+										</dict>
+										<dict>
+											<key>include</key>
+											<string>#parameter</string>
+										</dict>
+										<dict>
+											<key>include</key>
+											<string>#redirection</string>
+										</dict>
+									</array>
+								</dict>
+								<dict>
 									<key>captures</key>
 									<dict>
 										<key>0</key>

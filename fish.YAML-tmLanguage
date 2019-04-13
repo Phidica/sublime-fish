@@ -359,6 +359,19 @@ repository:
               - comment: Look for block structures
                 include: '#command-call-standard-block'
 
+              - comment: Look for the alternate form of test, which uses a matching pair of '[' ']'
+                begin: \[(?=[\s<>]|\\\n)
+                beginCaptures:
+                  '0': {name: support.function.test.begin.fish}
+                end: (\])|(\n|[;&)|].*)
+                endCaptures:
+                  '1': {name: support.function.test.end.fish}
+                  '2': {name: invalid.illegal.function-call.fish}
+                patterns:
+                  - include: '#line-continuation'
+                  - include: '#parameter'
+                  - include: '#redirection'
+
               - comment: Look for loop/function control commands. We perform no checking on the validity of their scope (because only allowing them in the correct scope won't work if they are used within if-blocks) or parameters (because fish does that during execution not parsing)
                 match: (?:break|continue|return)(?=[\s;&)|<>])
                 captures:

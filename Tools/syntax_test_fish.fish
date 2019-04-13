@@ -839,6 +839,17 @@ echo end
 echo arg
 #! <- meta.function-call variable.function
 
+[ 1 -eq 1 >out ]; echo
+#! <- support.function.test.begin
+#!        ^^^^ meta.redirection
+#!             ^ support.function.test.end
+#!              ^ keyword.operator.control
+
+[1 ] ; [ 1 -eq 1] ;
+#! <- variable.function
+#! ^ meta.parameter.argument
+#!                ^ invalid.illegal.function-call
+
 begin --help; end
 #! <- meta.function-call variable.function
 #!    ^^^^^^ meta.parameter.option.long

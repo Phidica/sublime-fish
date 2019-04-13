@@ -5,6 +5,7 @@ Changelog
 ---------
 
 Improvements:
+- Support the `[ ]` form of `test` (#8)
 - Distinguish option and argument parameter types, and long and short option types (as well as the "end of options" option).
   We now provide the following scopes:
   - `meta.parameter.option.long`
