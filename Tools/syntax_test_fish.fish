@@ -784,6 +784,10 @@ echo 1{1.2,2a}3
 #!         ^ - constant.numeric
 #!            ^ - constant.numeric
 
+echo one{, ,\ }two
+#!        ^ invalid.illegal.whitespace
+#!          ^^ constant.character.escape
+
 echo %"fish" one%two %%percent
 #!   ^^^^^^^ meta.process-expansion
 #!   ^ punctuation.definition.process

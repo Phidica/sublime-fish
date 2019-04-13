@@ -25,6 +25,7 @@ Improvements:
 
 Bugfix:
 - Some structures were not highlighted correctly if they were immediately followed by the EOF
+- Unescaped spaces in brace expansion weren't marked up as invalid
 
 Internal changes:
 - Rename "argument" to "parameter"

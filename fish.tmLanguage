@@ -2345,13 +2345,18 @@
 						</dict>
 					</dict>
 					<key>end</key>
-					<string>\}</string>
+					<string>(\})|(\n|[;&amp;)|].*)</string>
 					<key>endCaptures</key>
 					<dict>
-						<key>0</key>
+						<key>1</key>
 						<dict>
 							<key>name</key>
 							<string>punctuation.section.braces.end.fish</string>
+						</dict>
+						<key>2</key>
+						<dict>
+							<key>name</key>
+							<string>invalid.illegal.punctuation.section.fish</string>
 						</dict>
 					</dict>
 					<key>name</key>
@@ -2371,6 +2376,14 @@
 						<dict>
 							<key>include</key>
 							<string>#variable-expansion</string>
+						</dict>
+						<dict>
+							<key>comment</key>
+							<string>Unescaped spaces aren't allowed, as technically that separates the braces into two separate arguments. Don't consume a newline though, so the scope end capture can get it</string>
+							<key>match</key>
+							<string>(?:[^\S\n]+)</string>
+							<key>name</key>
+							<string>invalid.illegal.whitespace.fish</string>
 						</dict>
 						<dict>
 							<key>include</key>

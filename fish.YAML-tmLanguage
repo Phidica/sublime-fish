@@ -995,9 +995,10 @@ repository:
         begin: \{
         beginCaptures:
           '0': {name: punctuation.section.braces.begin.fish}
-        end: \}
+        end: (\})|(\n|[;&)|].*)
         endCaptures:
-          '0': {name: punctuation.section.braces.end.fish}
+          '1': {name: punctuation.section.braces.end.fish}
+          '2': {name: invalid.illegal.punctuation.section.fish}
         patterns:
           - name: punctuation.section.braces.separator.fish
             match: \,
@@ -1005,6 +1006,10 @@ repository:
           - include: '#command-substitution'
 
           - include: '#variable-expansion'
+
+          - comment: Unescaped spaces aren't allowed, as technically that separates the braces into two separate arguments. Don't consume a newline though, so the scope end capture can get it
+            name: invalid.illegal.whitespace.fish
+            match: (?:[^\S\n]+)
 
           # Manually recreate the string rule with a numeric match, extra logic in unquoted strings, and don't repeat the meta.string.unquoted scope
           - include: '#string-quoted'
