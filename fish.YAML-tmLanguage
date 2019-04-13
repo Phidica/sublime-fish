@@ -100,7 +100,7 @@ repository:
                 end: (?=[\s;&)|<>])
                 patterns:
                   - name: meta.string.unquoted.fish constant.numeric.fish
-                    match: (?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=[\s;&)|<>])
+                    match: (?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=$|[\s;&)|<>])
 
                   - include: '#parameter-patterns'
 
@@ -154,13 +154,13 @@ repository:
             patterns:
               - comment: Match special process names. By a convention that I'm making up, scope them as a type of variable
                 name: variable.language.fish meta.string.unquoted.fish
-                match: (?:self|last)(?=[\s;&)|<>])
+                match: (?:self|last)(?=$|[\s;&)|<>])
 
               - include: '#parameter-patterns'
 
           - comment: Treat a sequence of integers (with possible sign and decimal separator) as a standalone constant. Do this separate to the #string-unquoted-pattens rule so we can ensure it is a string solely of numbers
             name: meta.string.unquoted.fish constant.numeric.fish
-            match: (?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=[\s;&)|<>])
+            match: (?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=$|[\s;&)|<>])
 
           - comment: Use standard parameter patterns exclusively for the remainder of the argument
             begin: (?!\s)
@@ -239,16 +239,18 @@ repository:
                     (?:(?:[0-9]+)?(?:<|>>?|\^\^?))?\|
                     \s*
                     (?:
+                      $
+                    |
                       [\n;&)]
                     |
                       (?:(?:[0-9]+)?(?:<|>>?|\^\^?))?\|
                     )
                   )
-                end: (?=\s*[\n;&)])
+                end: (?=\s*$|\s*[\n;&)])
                 patterns:
                   - comment: If the pipeline would end implicitly (ie, with a newline or close parenthesis), then mark the pipe itself invalid
                     name: invalid.illegal.operator.fish
-                    match: (?:(?:[0-9]+)?(?:<|>|>>))?\|(?=\s*[\n)])
+                    match: (?:(?:[0-9]+)?(?:<|>|>>))?\|(?=\s*$|\s*[\n)])
 
                   - comment: If the pipeline would end with an explicit operator or encounter a second set of piping, then mark the first set of piping as valid and beyond as invalid
                     match: |-
@@ -492,7 +494,7 @@ repository:
 
       - comment: The begin command can be alone on a line or followed by any command that doesn't start with a '-'. If a '-' is seen it shouldn't be treated as a block
         name: meta.block.begin.fish
-        begin: begin(?=\s*[\n;]|\s+[^\s-])
+        begin: begin(?=\s*$|\s*[\n;]|\s+[^\s-])
         beginCaptures:
           '0': {name: keyword.control.conditional.fish}
         end: end(?=$|[\s;&)|<>])
@@ -863,9 +865,9 @@ repository:
             include: '#variable-expansion'
 
           - name: constant.numeric.file-descriptor.fish
-            match: (?:[0-9]+)(?=[\s;&)|<>])
+            match: (?:[0-9]+)(?=$|[\s;&)|<>])
           - name: keyword.operator.redirect.close.fish
-            match: (?:-)(?=[\s;&)|<>])
+            match: (?:-)(?=$|[\s;&)|<>])
 
           - comment: Anything else is illegal
             name: invalid.illegal.file-descriptor.fish
@@ -994,7 +996,7 @@ repository:
           # Manually recreate the string rule with a numeric match, extra logic in unquoted strings, and don't repeat the meta.string.unquoted scope
           - include: '#string-quoted'
           - name: constant.numeric.fish
-            match: (?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=[\s;&)|<>]|\}|\,)
+            match: (?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=$|[\s;&)|<>]|\}|\,)
           - begin: (?![\s;&)|<>'"])
             end: (?=[\s;&)|<>'"]|\}|\,)
             comment: Begin/end string as before with the addition of breaking at a '}' or ','

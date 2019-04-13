@@ -22,6 +22,9 @@ Improvements:
   - `keyword.operator.redirect`
   - `keyword.operator.range`
 
+Bugfix:
+- Some structures were not highlighted correctly if they were immediately followed by the EOF
+
 Internal changes:
 - Rename "argument" to "parameter"
 - Rename "nonoption argument" to "argument"

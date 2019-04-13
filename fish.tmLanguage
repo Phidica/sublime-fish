@@ -143,7 +143,7 @@
 									<key>comment</key>
 									<string>Match special process names. By a convention that I'm making up, scope them as a type of variable</string>
 									<key>match</key>
-									<string>(?:self|last)(?=[\s;&amp;)|&lt;&gt;])</string>
+									<string>(?:self|last)(?=$|[\s;&amp;)|&lt;&gt;])</string>
 									<key>name</key>
 									<string>variable.language.fish meta.string.unquoted.fish</string>
 								</dict>
@@ -157,7 +157,7 @@
 							<key>comment</key>
 							<string>Treat a sequence of integers (with possible sign and decimal separator) as a standalone constant. Do this separate to the</string>
 							<key>match</key>
-							<string>(?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=[\s;&amp;)|&lt;&gt;])</string>
+							<string>(?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=$|[\s;&amp;)|&lt;&gt;])</string>
 							<key>name</key>
 							<string>meta.string.unquoted.fish constant.numeric.fish</string>
 						</dict>
@@ -598,7 +598,7 @@
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>begin(?=\s*[\n;]|\s+[^\s-])</string>
+					<string>begin(?=\s*$|\s*[\n;]|\s+[^\s-])</string>
 					<key>beginCaptures</key>
 					<dict>
 						<key>0</key>
@@ -1646,7 +1646,7 @@
 									<array>
 										<dict>
 											<key>match</key>
-											<string>(?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=[\s;&amp;)|&lt;&gt;])</string>
+											<string>(?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=$|[\s;&amp;)|&lt;&gt;])</string>
 											<key>name</key>
 											<string>meta.string.unquoted.fish constant.numeric.fish</string>
 										</dict>
@@ -1841,6 +1841,8 @@
   (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
   \s*
   (?:
+    $
+  |
     [\n;&amp;)]
   |
     (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
@@ -1849,14 +1851,14 @@
 									<key>comment</key>
 									<string>Match a pipe not followed by a command, hence a malformed segment of the pipeline</string>
 									<key>end</key>
-									<string>(?=\s*[\n;&amp;)])</string>
+									<string>(?=\s*$|\s*[\n;&amp;)])</string>
 									<key>patterns</key>
 									<array>
 										<dict>
 											<key>comment</key>
 											<string>If the pipeline would end implicitly (ie, with a newline or close parenthesis), then mark the pipe itself invalid</string>
 											<key>match</key>
-											<string>(?:(?:[0-9]+)?(?:&lt;|&gt;|&gt;&gt;))?\|(?=\s*[\n)])</string>
+											<string>(?:(?:[0-9]+)?(?:&lt;|&gt;|&gt;&gt;))?\|(?=\s*$|\s*[\n)])</string>
 											<key>name</key>
 											<string>invalid.illegal.operator.fish</string>
 										</dict>
@@ -2020,13 +2022,13 @@
 						</dict>
 						<dict>
 							<key>match</key>
-							<string>(?:[0-9]+)(?=[\s;&amp;)|&lt;&gt;])</string>
+							<string>(?:[0-9]+)(?=$|[\s;&amp;)|&lt;&gt;])</string>
 							<key>name</key>
 							<string>constant.numeric.file-descriptor.fish</string>
 						</dict>
 						<dict>
 							<key>match</key>
-							<string>(?:-)(?=[\s;&amp;)|&lt;&gt;])</string>
+							<string>(?:-)(?=$|[\s;&amp;)|&lt;&gt;])</string>
 							<key>name</key>
 							<string>keyword.operator.redirect.close.fish</string>
 						</dict>
@@ -2332,7 +2334,7 @@
 						</dict>
 						<dict>
 							<key>match</key>
-							<string>(?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=[\s;&amp;)|&lt;&gt;]|\}|\,)</string>
+							<string>(?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=$|[\s;&amp;)|&lt;&gt;]|\}|\,)</string>
 							<key>name</key>
 							<string>constant.numeric.fish</string>
 						</dict>
