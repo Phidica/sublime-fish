@@ -2078,6 +2078,12 @@
 						</dict>
 						<dict>
 							<key>comment</key>
+							<string>May be a quoted integer, which is allowed</string>
+							<key>include</key>
+							<string>#string-quoted</string>
+						</dict>
+						<dict>
+							<key>comment</key>
 							<string>Anything else is illegal</string>
 							<key>match</key>
 							<string>(?:\S+.*)$</string>
@@ -2166,6 +2172,12 @@
 							<string>(?:[&amp;?]|[0-9]*[&lt;&gt;^]).*$</string>
 							<key>name</key>
 							<string>invalid.illegal.path.fish</string>
+						</dict>
+						<dict>
+							<key>match</key>
+							<string>\~</string>
+							<key>name</key>
+							<string>meta.path.fish keyword.operator.tilde.fish</string>
 						</dict>
 						<dict>
 							<key>comment</key>

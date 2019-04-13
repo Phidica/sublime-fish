@@ -302,18 +302,18 @@ echo one >out.log two < in.log three ^^err.log four4> out.log five
 #!                                                    ^^^^^^^ meta.path
 #!                                                            ^^^^ meta.parameter.argument
 
-echo one 1>err.log two 2^err.log three^four five^6 7>? \
-#!       ^^^^^^^^^ meta.redirection
-#!       ^ constant.numeric.file-descriptor
-#!        ^ keyword.operator.redirect
-#!         ^^^^^^^ meta.path
-#!                 ^^^ meta.parameter.argument
-#!                     ^^^^^^^^^ meta.parameter.argument
-#!                               ^^^^^^^^^^ meta.parameter.argument
-#!                                          ^^^^^^ meta.parameter.argument
-#!                                                 ^^^^^^ meta.redirection
-#!                                                 ^ constant.numeric.file-descriptor
-#!                                                  ^^ keyword.operator.redirect
+echo one 1>~/err.log two 2^err.log three^four five^6 7>? \
+#!       ^^^^^^^^^^^ meta.redirection
+#!       ^   constant.numeric.file-descriptor
+#!        ^   keyword.operator.redirect
+#!         ^^^^^^^^^ meta.path
+#!                   ^^^ meta.parameter.argument
+#!                       ^^^^^^^^^ meta.parameter.argument
+#!                                 ^^^^^^^^^^ meta.parameter.argument
+#!                                            ^^^^^^ meta.parameter.argument
+#!                                                   ^^^^^^ meta.redirection
+#!                                                   ^ constant.numeric.file-descriptor
+#!                                                    ^^ keyword.operator.redirect
   out.log 8<? "in.log" nine
 #!^^^^^^^ meta.path
 #!        ^^^^^^^^^^^^ meta.redirection
@@ -388,6 +388,10 @@ echo one ^&2 two three3>&4 four 5>& \
 #!                   ^ constant.numeric.file-descriptor
 #!                    ^ keyword.operator.redirect
 #!                      ^^ invalid.illegal.path
+
+echo out >&"1" ^&"one"
+#!         ^^^ meta.redirection
+##               ^^^^^ Scanning this string to ensure it contains exactly one integer is too hard, sorry
 
 echo foo ^^&1& echo foo ^^&& 1
 #!           ^ meta.function-call.operator keyword.operator.control

@@ -882,6 +882,9 @@ repository:
           - name: keyword.operator.redirect.close.fish
             match: (?:-)(?=$|[\s;&)|<>])
 
+          - comment: May be a quoted integer, which is allowed
+            include: '#string-quoted'
+
           - comment: Anything else is illegal
             name: invalid.illegal.file-descriptor.fish
             match: (?:\S+.*)$
@@ -918,6 +921,8 @@ repository:
             name: invalid.illegal.path.fish
             match: (?:[&?]|[0-9]*[<>^]).*$
 
+          - name: meta.path.fish keyword.operator.tilde.fish
+            match: \~
           - comment: Use the function call match to build a file path, as the syntax is fairly similar (possibly identical, after exceptions caught above? I haven't checked)
             name: meta.path.fish
             match: (?:\'(?:\\[\'\\]|[^\'\\])*\'|\"(?:\\[\"$\n\\]|[^\"$\n\\])*\"|(?:\\[abefnrtv $\\*?#(){}\[\]<>^&;|"']|\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]|[^\s$\\*?~%#()<>&|;"']|\\(?=[^abefnrtv\s$\\*?#(){}\[\]<>^&;|"'xXuUc])|\\\n|[~%#])+)+

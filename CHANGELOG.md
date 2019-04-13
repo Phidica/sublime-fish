@@ -6,6 +6,7 @@ Changelog
 
 Improvements:
 - Support the `[ ]` form of `test` (#8)
+- Highlight a `~` in redirect paths
 - Distinguish option and argument parameter types, and long and short option types (as well as the "end of options" option).
   We now provide the following scopes:
   - `meta.parameter.option.long`
@@ -26,6 +27,7 @@ Improvements:
 Bugfix:
 - Some structures were not highlighted correctly if they were immediately followed by the EOF
 - Unescaped spaces in brace expansion weren't marked up as invalid
+- Quoted integers were not allowed as file descriptors in redirection
 
 Internal changes:
 - Rename "argument" to "parameter"
