@@ -58,7 +58,7 @@ Exposed scopes
 | :------------:             | :----------
 | Parameters                 | `meta.parameter.option`/`argument`
 | Unquoted string            | `meta.string.unquoted`
-| File path (in redirection) | `meta.path`
+| File path (in redirection) | `meta.redirection.path`
 | Variable expansion         | `meta.variable-expansion` and `punctuation.definition.variable`
 | Process expansion          | `meta.process-expansion` and `punctuation.definition.process`
 | Command substitution       | `meta.parens.command-substitution` and `punctuation.section.parens.begin`/`end`

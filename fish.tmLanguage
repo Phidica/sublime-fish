@@ -1998,8 +1998,6 @@
 					<string>End at anything that would end a parameter, including redirections *if* they are *not* this same type of redirection (ie, have an '&amp;'), in which case this scope stays open and we match the next one. The negative lookahead for &lt;&gt;^ at the end is to keep ST2 happy (not hanging)</string>
 					<key>end</key>
 					<string>(?=[\s;&amp;)|]|(?:[0-9]+(?:&lt;|&gt;|&gt;&gt;)|&gt;&gt;|\^\^|[&lt;&gt;^])(?![&amp;&lt;&gt;^]))</string>
-					<key>name</key>
-					<string>meta.redirection.fish</string>
 					<key>patterns</key>
 					<array>
 						<dict>
@@ -2040,6 +2038,8 @@
 									<string>invalid.illegal.file-descriptor.fish</string>
 								</dict>
 							</dict>
+							<key>name</key>
+							<string>meta.redirection.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -2049,38 +2049,82 @@
 							</array>
 						</dict>
 						<dict>
-							<key>include</key>
-							<string>#line-continuation</string>
+							<key>begin</key>
+							<string>(?=\\\n)</string>
+							<key>end</key>
+							<string>(?!\\\n)</string>
+							<key>name</key>
+							<string>meta.redirection.fish</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>#line-continuation</string>
+								</dict>
+							</array>
 						</dict>
 						<dict>
+							<key>begin</key>
+							<string>(?=\()</string>
 							<key>comment</key>
 							<string>Evaluates to a string which may be an integer</string>
-							<key>include</key>
-							<string>#command-substitution</string>
+							<key>end</key>
+							<string>(?!\()</string>
+							<key>name</key>
+							<string>meta.redirection.fish</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>#command-substitution</string>
+								</dict>
+							</array>
 						</dict>
 						<dict>
+							<key>begin</key>
+							<string>(?=\$)</string>
 							<key>comment</key>
 							<string>Evaluates to a string which may be an integer</string>
-							<key>include</key>
-							<string>#variable-expansion</string>
+							<key>end</key>
+							<string>(?!\$)</string>
+							<key>name</key>
+							<string>meta.redirection.fish</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>#variable-expansion</string>
+								</dict>
+							</array>
+						</dict>
+						<dict>
+							<key>begin</key>
+							<string>(?=['"])</string>
+							<key>comment</key>
+							<string>May be a quoted integer, which is allowed</string>
+							<key>end</key>
+							<string>(?!['"])</string>
+							<key>name</key>
+							<string>meta.redirection.fish</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>#string-quoted</string>
+								</dict>
+							</array>
 						</dict>
 						<dict>
 							<key>match</key>
 							<string>(?:[0-9]+)(?=$|[\s;&amp;)|&lt;&gt;])</string>
 							<key>name</key>
-							<string>constant.numeric.file-descriptor.fish</string>
+							<string>meta.redirection.file-descriptor.fish constant.numeric.file-descriptor.fish</string>
 						</dict>
 						<dict>
 							<key>match</key>
 							<string>(?:-)(?=$|[\s;&amp;)|&lt;&gt;])</string>
 							<key>name</key>
-							<string>keyword.operator.redirect.close.fish</string>
-						</dict>
-						<dict>
-							<key>comment</key>
-							<string>May be a quoted integer, which is allowed</string>
-							<key>include</key>
-							<string>#string-quoted</string>
+							<string>meta.redirection.file-descriptor.fish keyword.operator.redirect.close.fish</string>
 						</dict>
 						<dict>
 							<key>comment</key>
@@ -2088,7 +2132,7 @@
 							<key>match</key>
 							<string>(?:\S+.*)$</string>
 							<key>name</key>
-							<string>invalid.illegal.file-descriptor.fish</string>
+							<string>meta.redirection.fish invalid.illegal.file-descriptor.fish</string>
 						</dict>
 					</array>
 				</dict>
@@ -2099,8 +2143,6 @@
 					<string>End at anything that would end a parameter, including redirections *if* they are *not* this same type of redirection (ie, redirection into file descriptor, or into pipe), in which case this scope stays open and we match the next one</string>
 					<key>end</key>
 					<string>(?=[\s;&amp;)|]|(?:[0-9]+(?:&lt;|&gt;|&gt;&gt;)|&gt;&gt;|\^\^|[&lt;&gt;^])[&amp;|])</string>
-					<key>name</key>
-					<string>meta.redirection.fish</string>
 					<key>patterns</key>
 					<array>
 						<dict>
@@ -2141,6 +2183,8 @@
 									<string>invalid.illegal.path.fish</string>
 								</dict>
 							</dict>
+							<key>name</key>
+							<string>meta.redirection.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -2150,34 +2194,67 @@
 							</array>
 						</dict>
 						<dict>
-							<key>include</key>
-							<string>#line-continuation</string>
+							<key>begin</key>
+							<string>(?=\\\n)</string>
+							<key>end</key>
+							<string>(?!\\\n)</string>
+							<key>name</key>
+							<string>meta.redirection.fish</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>#line-continuation</string>
+								</dict>
+							</array>
+						</dict>
+						<dict>
+							<key>begin</key>
+							<string>(?=\()</string>
+							<key>comment</key>
+							<string>Evaluates to a string, so path cannot begin with '('</string>
+							<key>end</key>
+							<string>(?!\()</string>
+							<key>name</key>
+							<string>meta.redirection.fish</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>#command-substitution</string>
+								</dict>
+							</array>
+						</dict>
+						<dict>
+							<key>begin</key>
+							<string>(?=\$)</string>
+							<key>comment</key>
+							<string>Evaluates to a string, so path cannot begin with '$'</string>
+							<key>end</key>
+							<string>(?!\$)</string>
+							<key>name</key>
+							<string>meta.redirection.fish</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>#variable-expansion</string>
+								</dict>
+							</array>
 						</dict>
 						<dict>
 							<key>comment</key>
-							<string>Evaluates to a string so path cannot begin with '('</string>
-							<key>include</key>
-							<string>#command-substitution</string>
-						</dict>
-						<dict>
-							<key>comment</key>
-							<string>Evaluates to a string so path cannot begin with '$'</string>
-							<key>include</key>
-							<string>#variable-expansion</string>
-						</dict>
-						<dict>
-							<key>comment</key>
-							<string>Check for characters which are associated with redirection, so path cannot begin with them</string>
+							<string>Check for characters which are associated with redirection, so path cannot begin with them. Don't put them in the meta.redirection.path scope, so that only valid paths are in there</string>
 							<key>match</key>
 							<string>(?:[&amp;?]|[0-9]*[&lt;&gt;^]).*$</string>
 							<key>name</key>
-							<string>invalid.illegal.path.fish</string>
+							<string>meta.redirection.fish invalid.illegal.path.fish</string>
 						</dict>
 						<dict>
 							<key>match</key>
 							<string>\~</string>
 							<key>name</key>
-							<string>meta.path.fish keyword.operator.tilde.fish</string>
+							<string>meta.redirection.path.fish keyword.operator.tilde.fish</string>
 						</dict>
 						<dict>
 							<key>comment</key>
@@ -2185,7 +2262,7 @@
 							<key>match</key>
 							<string>(?:\'(?:\\[\'\\]|[^\'\\])*\'|\"(?:\\[\"$\n\\]|[^\"$\n\\])*\"|(?:\\[abefnrtv $\\*?#(){}\[\]&lt;&gt;^&amp;;|"']|\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]|[^\s$\\*?~%#()&lt;&gt;&amp;|;"']|\\(?=[^abefnrtv\s$\\*?#(){}\[\]&lt;&gt;^&amp;;|"'xXuUc])|\\\n|[~%#])+)+</string>
 							<key>name</key>
-							<string>meta.path.fish</string>
+							<string>meta.redirection.path.fish</string>
 						</dict>
 					</array>
 				</dict>
