@@ -108,18 +108,8 @@
 					<string>End arg if it precedes whitespace or operators (excluding stderr redirect '^' due to a fish quirk)</string>
 					<key>end</key>
 					<string>(?=[\s;&amp;)|&lt;&gt;])</string>
-					<key>name</key>
-					<string>meta.parameter.argument.fish</string>
 					<key>patterns</key>
 					<array>
-						<dict>
-							<key>comment</key>
-							<string>Home directory expansion only occurs if the '~' is at the front of the argument</string>
-							<key>match</key>
-							<string>\~</string>
-							<key>name</key>
-							<string>meta.string.unquoted.fish meta.home-directory-expansion.fish keyword.operator.tilde.fish</string>
-						</dict>
 						<dict>
 							<key>begin</key>
 							<string>\%</string>
@@ -136,7 +126,7 @@
 							<key>end</key>
 							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
 							<key>name</key>
-							<string>meta.process-expansion.fish</string>
+							<string>meta.parameter.argument.process-expansion.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -145,7 +135,7 @@
 									<key>match</key>
 									<string>(?:self|last)(?=$|[\s;&amp;)|&lt;&gt;])</string>
 									<key>name</key>
-									<string>variable.language.fish meta.string.unquoted.fish</string>
+									<string>meta.string.unquoted.fish variable.language.fish</string>
 								</dict>
 								<dict>
 									<key>include</key>
@@ -159,15 +149,42 @@
 							<key>match</key>
 							<string>(?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=$|[\s;&amp;)|&lt;&gt;])</string>
 							<key>name</key>
-							<string>meta.string.unquoted.fish constant.numeric.fish</string>
+							<string>meta.parameter.argument.numeric.fish meta.string.unquoted.fish constant.numeric.fish</string>
+						</dict>
+						<dict>
+							<key>begin</key>
+							<string>(?![\s($])</string>
+							<key>comment</key>
+							<string>This scope can be used by plugins to locate arguments which don't *start* with command substitution or variable expansion and may directly resolve to file paths. Of course, they could have command substitution or variable expansion further on in them, but looking ahead for that too is nontrivial</string>
+							<key>end</key>
+							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
+							<key>name</key>
+							<string>meta.parameter.argument.path.fish</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>comment</key>
+									<string>Home directory expansion only occurs if the '~' is at the front of the argument, so check it first</string>
+									<key>match</key>
+									<string>\~</string>
+									<key>name</key>
+									<string>meta.string.unquoted.fish keyword.operator.tilde.fish</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#parameter-patterns</string>
+								</dict>
+							</array>
 						</dict>
 						<dict>
 							<key>begin</key>
 							<string>(?!\s)</string>
 							<key>comment</key>
-							<string>Use standard parameter patterns exclusively for the remainder of the argument</string>
+							<string>Use standard parameter patterns for whatever doesn't match the above</string>
 							<key>end</key>
 							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
+							<key>name</key>
+							<string>meta.parameter.argument.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>

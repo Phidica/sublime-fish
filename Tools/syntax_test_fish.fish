@@ -27,7 +27,7 @@ echo ~foo \~bar~\~ %foo \%bar%\%
 #!        ^^^^^^^^ meta.string.unquoted
 #!             ^ - keyword.operator.tilde
 #!        ^^ constant.character.escape
-#!                 ^^^^ meta.process-expansion
+#!                 ^^^^ meta.parameter.argument.process-expansion
 #!                 ^ punctuation.definition.process
 #!                      ^^^^^^^^ meta.string.unquoted
 #!                      ^^ constant.character.escape
@@ -793,26 +793,26 @@ echo one{, ,\ }two
 #!          ^^ constant.character.escape
 
 echo %"fish" one%two %%percent
-#!   ^^^^^^^ meta.process-expansion
+#!   ^^^^^^^ meta.parameter.argument.process-expansion
 #!   ^ punctuation.definition.process
 #!    ^^^^^^ string.quoted
 #!           ^^^^^^^ meta.string.unquoted
-#!                   ^^^^^^^^^ meta.process-expansion
+#!                   ^^^^^^^^^ meta.parameter.argument.process-expansion
 #!                   ^ punctuation.definition.process
 #!                    ^^^^^^^^ meta.string.unquoted
 
 echo %fi\
 sh>out
-#! <- meta.process-expansion
+#! <- meta.parameter.argument.process-expansion
 #! ^^^ meta.redirection
 
 echo %self foo %(set foo "fi"; echo $foo)sh "bar"
-#!   ^^^^^ meta.process-expansion
+#!   ^^^^^ meta.parameter.argument.process-expansion
 #!   ^ punctuation.definition.process
 #!         ^^^ meta.string.unquoted
 #!             ^ punctuation.definition.process
 #!              ^^^^^^^^^^^^^^^^^^^^^^^^^ meta.parens.command-substitution
-#!                                       ^^ meta.process-expansion
+#!                                       ^^ meta.parameter.argument.process-expansion
 #!                                          ^^^^^ string.quoted
 
 echo %self>out

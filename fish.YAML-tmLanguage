@@ -135,34 +135,41 @@ repository:
     comment: This rule must be entirely standalone because it is used in scopes where parameters starting with hyphens are explicitly interpreted as arguments rather than as options
     patterns:
       - comment: A parameter is a fundamental unit of a command call, defined as a sequence of non-operator characters separated by unescaped and unscoped whitespace
-        name: meta.parameter.argument.fish
         begin: (?![\s;&)|<>^])
         comment: Begin arg if it does not precede whitespace or an operator
         end: (?=[\s;&)|<>])
         comment: End arg if it precedes whitespace or operators (excluding stderr redirect '^' due to a fish quirk)
         patterns:
-          - comment: Home directory expansion only occurs if the '~' is at the front of the argument
-            name: meta.string.unquoted.fish meta.home-directory-expansion.fish keyword.operator.tilde.fish
-            match: \~
-
           - comment: Process expansion only occurs if the '%' is at the front of the argument, and continues for the entire argument
-            name: meta.process-expansion.fish
+            name: meta.parameter.argument.process-expansion.fish
             begin: \%
             beginCaptures:
               '0': {name: meta.string.unquoted.fish punctuation.definition.process.fish}
             end: (?=[\s;&)|<>])
             patterns:
               - comment: Match special process names. By a convention that I'm making up, scope them as a type of variable
-                name: variable.language.fish meta.string.unquoted.fish
+                name: meta.string.unquoted.fish variable.language.fish
                 match: (?:self|last)(?=$|[\s;&)|<>])
 
               - include: '#parameter-patterns'
 
-          - comment: Treat a sequence of integers (with possible sign and decimal separator) as a standalone constant. Do this separate to the #string-unquoted-pattens rule so we can ensure it is a string solely of numbers
-            name: meta.string.unquoted.fish constant.numeric.fish
+          - comment: Treat a sequence of integers (with possible sign and decimal separator) as a standalone constant. Do this separate to the #string-unquoted-patterns rule so we can ensure it is a string solely of numbers
+            name: meta.parameter.argument.numeric.fish meta.string.unquoted.fish constant.numeric.fish
             match: (?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=$|[\s;&)|<>])
 
-          - comment: Use standard parameter patterns exclusively for the remainder of the argument
+          - comment: This scope can be used by plugins to locate arguments which don't *start* with command substitution or variable expansion and may directly resolve to file paths. Of course, they could have command substitution or variable expansion further on in them, but looking ahead for that too is nontrivial
+            name: meta.parameter.argument.path.fish
+            begin: (?![\s($])
+            end: (?=[\s;&)|<>])
+            patterns:
+              - comment: Home directory expansion only occurs if the '~' is at the front of the argument, so check it first
+                name: meta.string.unquoted.fish keyword.operator.tilde.fish
+                match: \~
+
+              - include: '#parameter-patterns'
+
+          - comment: Use standard parameter patterns for whatever doesn't match the above
+            name: meta.parameter.argument.fish
             begin: (?!\s)
             end: (?=[\s;&)|<>])
             patterns:

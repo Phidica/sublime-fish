@@ -7,6 +7,7 @@ Changelog
 Improvements:
 - Support the `[ ]` form of `test` (#8)
 - Highlight a `~` in redirect paths
+- Distinguish arguments which might be paths with `meta.parameter.argument.path`
 - Distinguish option and argument parameter types, and long and short option types (as well as the "end of options" option).
   We now provide the following scopes:
   - `meta.parameter.option.long`
