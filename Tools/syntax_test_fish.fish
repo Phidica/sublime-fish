@@ -608,6 +608,19 @@ echo out ^| cat ^^| cat
 #!              ^^ meta.pipe keyword.operator.pipe.redirect
 #!                ^ meta.pipe keyword.operator.pipe
 
+command >| cat
+#! <- variable.function
+
+command >file out
+#! <- variable.function
+#!      ^^^^^ meta.redirection
+#!            ^^^ meta.parameter.argument
+
+not >echo out
+#!  ^ invalid.illegal.operator
+#!   ^^^^ variable.function
+#!        ^^^ meta.parameter.argument
+
 and | cat
 #! <- meta.function-call keyword.operator.word
 #!  ^ invalid.illegal.operator

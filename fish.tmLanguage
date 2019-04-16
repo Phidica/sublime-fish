@@ -200,12 +200,26 @@
 		<key>command-call-meta</key>
 		<dict>
 			<key>comment</key>
-			<string>Todo - Better logic in the types of piping ignored in the begin match</string>
+			<string>Check if the command is a builtin which takes another command as parameters, ie, a meta command. However, ignore the command if it is taking an option or being backgrounded/piped/redirected, as in such a case it behaves as a standard command and should be picked up by that scope instead</string>
 			<key>patterns</key>
 			<array>
 				<dict>
 					<key>begin</key>
-					<string>(builtin|command|exec)\b(?!\s+[-&amp;|])</string>
+					<string>(?x)
+(builtin|command|exec)\b
+(?# Look ahead for control operations after whitespace)
+(?!\s*
+  (?:
+    (?# Find options)
+    -
+  |
+    (?# Find simple control operations)
+    [\n;&amp;)|]
+  |
+    (?# Find redirection, which may be into a pipe but we don't care)
+    (?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?)
+  )
+)</string>
 					<key>beginCaptures</key>
 					<dict>
 						<key>1</key>
@@ -215,7 +229,7 @@
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>These meta commands force the parameter to behave as a standard command. They stop at piping</string>
+					<string>These meta commands force the parameter to behave as a standard command. They stop when their subcommand is piped</string>
 					<key>end</key>
 					<string>(?x)
 (?# Look ahead for control operations after whitespace)
@@ -242,7 +256,21 @@
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>(not)\b(?!\s+[-&amp;|])</string>
+					<string>(?x)
+(not)\b
+(?# Look ahead for control operations after whitespace)
+(?!\s*
+  (?:
+    (?# Find options)
+    -
+  |
+    (?# Find simple control operations)
+    [\n;&amp;)|]
+  |
+    (?# Find redirection, which may be into a pipe but we don't care)
+    (?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?)
+  )
+)</string>
 					<key>beginCaptures</key>
 					<dict>
 						<key>1</key>
@@ -252,7 +280,7 @@
 						</dict>
 					</dict>
 					<key>comment</key>
-					<string>This meta command acts as a unary operator on the command to the right, which can also be a meta command. It only applies to one command and stops at piping</string>
+					<string>This meta command acts as a unary operator on the command to the right, which can also be a meta command. It only applies to one command and stops when the subcommand is piped</string>
 					<key>end</key>
 					<string>(?x)
 (?# Look ahead for control operations after whitespace)
