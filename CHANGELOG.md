@@ -1,8 +1,8 @@
 Changelog
 =========
 
-2.4.0-rc1
----------
+2.4.0
+-----
 
 Improvements:
 - Support the `[ ]` form of `test` (#8)
@@ -25,7 +25,7 @@ Improvements:
   - `keyword.operator.redirect`
   - `keyword.operator.range`
 
-Bugfix:
+Bugfixes:
 - Some structures were not highlighted correctly if they were immediately followed by the EOF
 - Unescaped spaces in brace expansion weren't marked up as invalid
 - Quoted integers were not allowed as file descriptors in redirection

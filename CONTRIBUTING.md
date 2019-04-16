@@ -26,7 +26,7 @@ Ensure `CHANGELOG.md` has a new version number, and all *relevant* committed cha
 - Only pluralise headings for lists of more than one item.
 - Be aware that the text is copied directly to the GitHub release description, so stick to valid markdown.
 
-Bump the version number in `messages.json` to the new version number in `CHANGELOG.md`.
+Bump the version number corresponding to `Messages/changes.md` in `messages.json` to the new version number in `CHANGELOG.md`.
 
 If there's a major addition, add a news message and link it in `messages.json`.
 
