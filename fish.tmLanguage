@@ -217,7 +217,7 @@
     [\n;&amp;)|]
   |
     (?# Find redirection, which may be into a pipe but we don't care)
-    (?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?)
+    (?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?
   )
 )</string>
 					<key>beginCaptures</key>
@@ -239,7 +239,7 @@
     [\n;&amp;)]
   |
     (?# Find piping)
-    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
+    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
   )
 )</string>
 					<key>patterns</key>
@@ -287,7 +287,7 @@
     [\n;&amp;)]
   |
     (?# Find piping)
-    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
+    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
   )
 )</string>
 					<key>patterns</key>
@@ -324,7 +324,7 @@
     [\n;&amp;)]
   |
     (?# Find a pipe operator)
-    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
+    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
   )
 )</string>
 					<key>patterns</key>
@@ -494,7 +494,7 @@
     [\n;&amp;)]
   |
     (?# Find a pipe operator)
-    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
+    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
   )
 )</string>
 							<key>patterns</key>
@@ -513,7 +513,7 @@
     [\n;&amp;)]
   |
     (?# Find a pipe operator)
-    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
+    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
   |
     (?# Find a double hyphen)
     --[\s;&amp;)|&lt;&gt;]
@@ -553,7 +553,7 @@
     [\n;&amp;)]
   |
     (?# Find a pipe operator)
-    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
+    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
   )
 )</string>
 									<key>patterns</key>
@@ -587,7 +587,7 @@
     [\n;&amp;)]
   |
     (?# Find a pipe operator)
-    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
+    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
   )
 )</string>
 											<key>patterns</key>
@@ -1835,7 +1835,7 @@
 			<array>
 				<dict>
 					<key>begin</key>
-					<string>(?=[&amp;|]|(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))</string>
+					<string>(?=[&amp;|]|(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)</string>
 					<key>comment</key>
 					<string>Match operators (background, pipe, and redirect) which cannot start a pipeline because they must be consumed within or after a pipeline</string>
 					<key>end</key>
@@ -1850,14 +1850,14 @@
     [\n;&amp;)|]
   |
     (?# Find a pipe operator)
-    (?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?)
+    (?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?
   )
 )</string>
 					<key>patterns</key>
 					<array>
 						<dict>
 							<key>match</key>
-							<string>(?:[&amp;|]|(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))</string>
+							<string>(?:[&amp;|]|(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)</string>
 							<key>name</key>
 							<string>invalid.illegal.operator.fish</string>
 						</dict>
@@ -1893,7 +1893,7 @@
 							<string>(?x)
 (?# Negative lookahead for piping)
 (?!
-  (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
+  (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
 )</string>
 							<key>comment</key>
 							<string>Match the first command of a potential pipeline</string>
@@ -1906,7 +1906,7 @@
     [\n;&amp;)]
   |
     (?# Find a pipe operator)
-    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
+    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
   )
 )</string>
 							<key>name</key>
@@ -1928,7 +1928,7 @@
 							<string>(?x)
 (?# Look ahead for piping)
 (?=
-  (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
+  (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
 )</string>
 							<key>comment</key>
 							<string>Match a second or later command of a pipeline, starting with the connective piping</string>
@@ -1941,14 +1941,14 @@
 									<string>(?x)
 (?# Look ahead for piping followed by either control operators or piping)
 (?=
-  (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
+  (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
   \s*
   (?:
     $
   |
     [\n;&amp;)]
   |
-    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?|\^\^?))?\|
+    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
   )
 )</string>
 									<key>comment</key>
@@ -1961,7 +1961,7 @@
 											<key>comment</key>
 											<string>If the pipeline would end implicitly (ie, with a newline or close parenthesis), then mark the pipe itself invalid</string>
 											<key>match</key>
-											<string>(?:(?:[0-9]+)?(?:&lt;|&gt;|&gt;&gt;))?\|(?=\s*$|\s*[\n)])</string>
+											<string>(?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|(?=\s*$|\s*[\n)])</string>
 											<key>name</key>
 											<string>meta.function-call.fish invalid.illegal.operator.fish</string>
 										</dict>
@@ -1976,14 +1976,19 @@
 												<key>2</key>
 												<dict>
 													<key>name</key>
-													<string>meta.pipe.fish keyword.operator.redirect.fish</string>
+													<string>meta.pipe.fish keyword.operator.pipe.redirect.fish</string>
 												</dict>
 												<key>3</key>
 												<dict>
 													<key>name</key>
-													<string>meta.pipe.fish keyword.operator.pipe.fish</string>
+													<string>meta.pipe.fish keyword.operator.pipe.redirect.fish</string>
 												</dict>
 												<key>4</key>
+												<dict>
+													<key>name</key>
+													<string>meta.pipe.fish keyword.operator.pipe.fish</string>
+												</dict>
+												<key>5</key>
 												<dict>
 													<key>name</key>
 													<string>invalid.illegal.function-call.fish</string>
@@ -1993,11 +1998,11 @@
 											<string>If the pipeline would end with an explicit operator or encounter a second set of piping, then mark the first set of piping as valid and beyond as invalid</string>
 											<key>match</key>
 											<string>(?x)
-(?# Consume valid piping; captures 1 2 3)
-(?:([0-9]+)?(&lt;|&gt;&gt;?|\^\^?))?(\|)
+(?# Consume valid piping; captures 1 2 3 4)
+(?:([0-9]+)?(&lt;|&gt;&gt;?)|(\^\^?))?(\|)
 (?# Consume whitespace)
 \s*
-(?# Consume remainder; capture 4)
+(?# Consume remainder; capture 5)
 (.*)</string>
 											<key>name</key>
 											<string>meta.function-call.fish</string>
@@ -2020,13 +2025,18 @@
 										<key>3</key>
 										<dict>
 											<key>name</key>
+											<string>keyword.operator.pipe.redirect.fish</string>
+										</dict>
+										<key>4</key>
+										<dict>
+											<key>name</key>
 											<string>keyword.operator.pipe.fish</string>
 										</dict>
 									</dict>
 									<key>comment</key>
 									<string>Pick up a legitimate pipe</string>
 									<key>match</key>
-									<string>(?:([0-9]+)?(&lt;|&gt;&gt;?|\^\^?))?(\|)</string>
+									<string>(?:([0-9]+)?(&lt;|&gt;&gt;?)|(\^\^?))?(\|)</string>
 									<key>name</key>
 									<string>meta.function-call.fish meta.pipe.fish</string>
 								</dict>
@@ -2089,16 +2099,16 @@
 			<array>
 				<dict>
 					<key>begin</key>
-					<string>(?=(?:[0-9]+(?:&lt;|&gt;|&gt;&gt;)|&gt;&gt;|\^\^|[&lt;&gt;^])\&amp;)</string>
+					<string>(?=(?:[0-9]+(?:&lt;|&gt;&gt;|&gt;)|&gt;&gt;|\^\^|[&lt;&gt;^])\&amp;)</string>
 					<key>comment</key>
 					<string>End at anything that would end a parameter, including redirections *if* they are *not* this same type of redirection (ie, have an '&amp;'), in which case this scope stays open and we match the next one. The negative lookahead for &lt;&gt;^ at the end is to keep ST2 happy (not hanging)</string>
 					<key>end</key>
-					<string>(?=[\s;&amp;)|]|(?:[0-9]+(?:&lt;|&gt;|&gt;&gt;)|&gt;&gt;|\^\^|[&lt;&gt;^])(?![&amp;&lt;&gt;^]))</string>
+					<string>(?=[\s;&amp;)|]|(?:[0-9]+(?:&lt;|&gt;&gt;|&gt;)|&gt;&gt;|\^\^|[&lt;&gt;^])(?![&amp;&lt;&gt;^]))</string>
 					<key>patterns</key>
 					<array>
 						<dict>
 							<key>begin</key>
-							<string>(?:([0-9]+)(&lt;|&gt;|&gt;&gt;)|(&gt;&gt;|\^\^|[&lt;&gt;^]))(\&amp;)\s*</string>
+							<string>(?:([0-9]+)(&lt;|&gt;&gt;|&gt;)|(&gt;&gt;|\^\^|[&lt;&gt;^]))(\&amp;)\s*</string>
 							<key>beginCaptures</key>
 							<dict>
 								<key>1</key>
@@ -2234,16 +2244,16 @@
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>(?=(?:[0-9]+(?:&lt;|&gt;|&gt;&gt;)|&gt;&gt;|\^\^|[&lt;&gt;^])\??)</string>
+					<string>(?=(?:[0-9]+(?:&lt;|&gt;&gt;|&gt;)|&gt;&gt;|\^\^|[&lt;&gt;^])\??)</string>
 					<key>comment</key>
 					<string>End at anything that would end a parameter, including redirections *if* they are *not* this same type of redirection (ie, redirection into file descriptor, or into pipe), in which case this scope stays open and we match the next one</string>
 					<key>end</key>
-					<string>(?=[\s;&amp;)|]|(?:[0-9]+(?:&lt;|&gt;|&gt;&gt;)|&gt;&gt;|\^\^|[&lt;&gt;^])[&amp;|])</string>
+					<string>(?=[\s;&amp;)|]|(?:[0-9]+(?:&lt;|&gt;&gt;|&gt;)|&gt;&gt;|\^\^|[&lt;&gt;^])[&amp;|])</string>
 					<key>patterns</key>
 					<array>
 						<dict>
 							<key>begin</key>
-							<string>(?:([0-9]+)(&lt;|&gt;|&gt;&gt;)|(&gt;&gt;|\^\^|[&lt;&gt;^]))(\?)?\s*</string>
+							<string>(?:([0-9]+)(&lt;|&gt;&gt;|&gt;)|(&gt;&gt;|\^\^|[&lt;&gt;^]))(\?)?\s*</string>
 							<key>beginCaptures</key>
 							<dict>
 								<key>1</key>

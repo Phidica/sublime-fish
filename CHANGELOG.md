@@ -4,7 +4,9 @@ Changelog
 2.4.1
 -----
 
-Bugfix:
+Bugfixes:
+- Redirection with two arrows `>>` did not highlight correctly at all (!)
+- The caret redirection operator `^` was still given special treatment inside of some words
 - `and`/`or` weren't shown as invalid when they were used directly after a pipe
 - Redirection wasn't shown as invalid when it was used directly after a pipe
 

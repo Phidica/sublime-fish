@@ -194,7 +194,7 @@ repository:
     comment: The pipeline segment is agnostic of where it appears in the overall pipeline, but it does perform checks on what can appear after a pipe (if there is one) before it will recurse into itself
     patterns:
       - comment: Match operators (background, pipe, and redirect) which cannot start a pipeline because they must be consumed within or after a pipeline
-        begin: (?=[&|]|(?:[0-9]+)?(?:<|>>?|\^\^?))
+        begin: (?=[&|]|(?:[0-9]+)?(?:<|>>?)|\^\^?)
         end: |-
           (?x)
           (?# Look ahead to ensure no more operators after whitespace)
@@ -207,12 +207,12 @@ repository:
               [\n;&)|]
             |
               (?# Find a pipe operator)
-              (?:[0-9]+)?(?:<|>>?|\^\^?)
+              (?:[0-9]+)?(?:<|>>?)|\^\^?
             )
           )
         patterns:
           - name: invalid.illegal.operator.fish
-            match: (?:[&|]|(?:[0-9]+)?(?:<|>>?|\^\^?))
+            match: (?:[&|]|(?:[0-9]+)?(?:<|>>?)|\^\^?)
 
       - comment: Match a command which is illegal in the base scope
         name: invalid.illegal.function-call.fish
@@ -230,7 +230,7 @@ repository:
               (?x)
               (?# Negative lookahead for piping)
               (?!
-                (?:(?:[0-9]+)?(?:<|>>?|\^\^?))?\|
+                (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|
               )
             end: |-
               (?x)
@@ -241,7 +241,7 @@ repository:
                   [\n;&)]
                 |
                   (?# Find a pipe operator)
-                  (?:(?:[0-9]+)?(?:<|>>?|\^\^?))?\|
+                  (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|
                 )
               )
             patterns:
@@ -254,7 +254,7 @@ repository:
               (?x)
               (?# Look ahead for piping)
               (?=
-                (?:(?:[0-9]+)?(?:<|>>?|\^\^?))?\|
+                (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|
               )
             end: (?=\s*[\n;&)])
             patterns:
@@ -263,45 +263,47 @@ repository:
                   (?x)
                   (?# Look ahead for piping followed by either control operators or piping)
                   (?=
-                    (?:(?:[0-9]+)?(?:<|>>?|\^\^?))?\|
+                    (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|
                     \s*
                     (?:
                       $
                     |
                       [\n;&)]
                     |
-                      (?:(?:[0-9]+)?(?:<|>>?|\^\^?))?\|
+                      (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|
                     )
                   )
                 end: (?=\s*$|\s*[\n;&)])
                 patterns:
                   - comment: If the pipeline would end implicitly (ie, with a newline or close parenthesis), then mark the pipe itself invalid
                     name: meta.function-call.fish invalid.illegal.operator.fish
-                    match: (?:(?:[0-9]+)?(?:<|>|>>))?\|(?=\s*$|\s*[\n)])
+                    match: (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|(?=\s*$|\s*[\n)])
 
                   - comment: If the pipeline would end with an explicit operator or encounter a second set of piping, then mark the first set of piping as valid and beyond as invalid
                     name: meta.function-call.fish
                     match: |-
                       (?x)
-                      (?# Consume valid piping; captures 1 2 3)
-                      (?:([0-9]+)?(<|>>?|\^\^?))?(\|)
+                      (?# Consume valid piping; captures 1 2 3 4)
+                      (?:([0-9]+)?(<|>>?)|(\^\^?))?(\|)
                       (?# Consume whitespace)
                       \s*
-                      (?# Consume remainder; capture 4)
+                      (?# Consume remainder; capture 5)
                       (.*)
                     captures:
                       '1': {name: meta.pipe.fish constant.numeric.file-descriptor.fish}
-                      '2': {name: meta.pipe.fish keyword.operator.redirect.fish}
-                      '3': {name: meta.pipe.fish keyword.operator.pipe.fish}
-                      '4': {name: invalid.illegal.function-call.fish}
+                      '2': {name: meta.pipe.fish keyword.operator.pipe.redirect.fish}
+                      '3': {name: meta.pipe.fish keyword.operator.pipe.redirect.fish}
+                      '4': {name: meta.pipe.fish keyword.operator.pipe.fish}
+                      '5': {name: invalid.illegal.function-call.fish}
 
               - comment: Pick up a legitimate pipe
                 name: meta.function-call.fish meta.pipe.fish
-                match: (?:([0-9]+)?(<|>>?|\^\^?))?(\|)
+                match: (?:([0-9]+)?(<|>>?)|(\^\^?))?(\|)
                 captures:
                   '1': {name: constant.numeric.file-descriptor.fish}
                   '2': {name: keyword.operator.pipe.redirect.fish}
-                  '3': {name: keyword.operator.pipe.fish}
+                  '3': {name: keyword.operator.pipe.redirect.fish}
+                  '4': {name: keyword.operator.pipe.fish}
 
               - comment: After a pipe can't be a comment
                 name: meta.function-call.fish invalid.illegal.function-call.fish
@@ -345,7 +347,7 @@ repository:
               [\n;&)|]
             |
               (?# Find redirection, which may be into a pipe but we don't care)
-              (?:[0-9]+)?(?:<|>>?|\^\^?)
+              (?:[0-9]+)?(?:<|>>?)|\^\^?
             )
           )
         beginCaptures:
@@ -359,7 +361,7 @@ repository:
               [\n;&)]
             |
               (?# Find piping)
-              (?:(?:[0-9]+)?(?:<|>>?|\^\^?))?\|
+              (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|
             )
           )
         patterns:
@@ -391,7 +393,7 @@ repository:
               [\n;&)]
             |
               (?# Find piping)
-              (?:(?:[0-9]+)?(?:<|>>?|\^\^?))?\|
+              (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|
             )
           )
         patterns:
@@ -412,7 +414,7 @@ repository:
               [\n;&)]
             |
               (?# Find a pipe operator)
-              (?:(?:[0-9]+)?(?:<|>>?|\^\^?))?\|
+              (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|
             )
           )
         patterns:
@@ -487,7 +489,7 @@ repository:
                   [\n;&)]
                 |
                   (?# Find a pipe operator)
-                  (?:(?:[0-9]+)?(?:<|>>?|\^\^?))?\|
+                  (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|
                 )
               )
             patterns:
@@ -502,7 +504,7 @@ repository:
                       [\n;&)]
                     |
                       (?# Find a pipe operator)
-                      (?:(?:[0-9]+)?(?:<|>>?|\^\^?))?\|
+                      (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|
                     |
                       (?# Find a double hyphen)
                       --[\s;&)|<>]
@@ -525,7 +527,7 @@ repository:
                       [\n;&)]
                     |
                       (?# Find a pipe operator)
-                      (?:(?:[0-9]+)?(?:<|>>?|\^\^?))?\|
+                      (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|
                     )
                   )
                 patterns:
@@ -546,7 +548,7 @@ repository:
                           [\n;&)]
                         |
                           (?# Find a pipe operator)
-                          (?:(?:[0-9]+)?(?:<|>>?|\^\^?))?\|
+                          (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|
                         )
                       )
                     patterns:
@@ -914,13 +916,13 @@ repository:
   redirection:
     patterns:
       - comment: This redirection pattern connects a file descriptor (either explicit or implied) to another file descriptor. As the '&' is necessary to denote the target file descriptor, this is a more strict pattern match and must be attended to first
-        begin: (?=(?:[0-9]+(?:<|>|>>)|>>|\^\^|[<>^])\&)
+        begin: (?=(?:[0-9]+(?:<|>>|>)|>>|\^\^|[<>^])\&)
         comment: Begin at any of the redirections valid for a file descriptor (the '&' must be present). Note that the stderr redirect operator '^' cannot be preceded by a file descriptor. The parameter and argument rules are in charge of preventing '^' being treated as a redirection when it appears in the middle of a word
-        end: (?=[\s;&)|]|(?:[0-9]+(?:<|>|>>)|>>|\^\^|[<>^])(?![&<>^]))
+        end: (?=[\s;&)|]|(?:[0-9]+(?:<|>>|>)|>>|\^\^|[<>^])(?![&<>^]))
         comment: End at anything that would end a parameter, including redirections *if* they are *not* this same type of redirection (ie, have an '&'), in which case this scope stays open and we match the next one. The negative lookahead for <>^ at the end is to keep ST2 happy (not hanging)
         patterns:
           - name: meta.redirection.fish
-            begin: (?:([0-9]+)(<|>|>>)|(>>|\^\^|[<>^]))(\&)\s*
+            begin: (?:([0-9]+)(<|>>|>)|(>>|\^\^|[<>^]))(\&)\s*
             beginCaptures:
               '1': {name: constant.numeric.file-descriptor.fish}
               '2': {name: keyword.operator.redirect.fish}
@@ -970,13 +972,13 @@ repository:
             match: (?:\S+.*)$
 
       - comment: This redirection pattern connects a file descriptor (either explicit or implied) and a file path
-        begin: (?=(?:[0-9]+(?:<|>|>>)|>>|\^\^|[<>^])\??)
+        begin: (?=(?:[0-9]+(?:<|>>|>)|>>|\^\^|[<>^])\??)
         comment: Begin at any of the redirections valid for a file path (the '?' may optionally be used to prevent clobber). See above comments on stderr redirect operator '^'
-        end: (?=[\s;&)|]|(?:[0-9]+(?:<|>|>>)|>>|\^\^|[<>^])[&|]) # watch out for redirect into pipe?
+        end: (?=[\s;&)|]|(?:[0-9]+(?:<|>>|>)|>>|\^\^|[<>^])[&|]) # todo: watch out for redirect into pipe?
         comment: End at anything that would end a parameter, including redirections *if* they are *not* this same type of redirection (ie, redirection into file descriptor, or into pipe), in which case this scope stays open and we match the next one
         patterns:
           - name: meta.redirection.fish
-            begin: (?:([0-9]+)(<|>|>>)|(>>|\^\^|[<>^]))(\?)?\s*
+            begin: (?:([0-9]+)(<|>>|>)|(>>|\^\^|[<>^]))(\?)?\s*
             beginCaptures:
               '1': {name: constant.numeric.file-descriptor.fish}
               '2': {name: keyword.operator.redirect.fish}

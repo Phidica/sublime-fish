@@ -646,6 +646,28 @@ echo out | and
 echo out | 9>out
 #!         ^^ invalid.illegal.operator
 
+2^cmd out | 1^^cmd in
+#! <- variable.function
+#!          ^^^ variable.function
+
+echo out 1^| cat
+#!       ^^ meta.parameter.argument
+
+command 1^out 1^| out
+#!      ^^^^^ variable.function
+
+not 1^out
+#!  ^^^^^ variable.function
+
+echo out ^|
+#!       ^^ invalid.illegal.operator
+
+echo out 1>>out
+#!       ^^^^^^ meta.redirection
+
+1>>out
+#! <- invalid.illegal.operator
+
 and | cat
 #! <- meta.function-call keyword.operator.word
 #!  ^ invalid.illegal.operator
