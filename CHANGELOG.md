@@ -1,6 +1,13 @@
 Changelog
 =========
 
+2.4.1
+-----
+
+Bugfix:
+- `and`/`or` weren't shown as invalid when they were used directly after a pipe
+- Redirection wasn't shown as invalid when it was used directly after a pipe
+
 2.4.0
 -----
 

@@ -38,21 +38,21 @@ patterns:
     endCaptures:
       '1': {name: meta.function-call.operator.fish keyword.operator.control.fish}
     patterns:
-      - comment: Match operators ('&', pipe, and redirect) which cannot start a pipeline because they must be consumed within or after a pipeline
+      - comment: The first character of a pipeline can't be an '&' because the scope will end immediately with it being matched as valid
         name: invalid.illegal.operator.fish
-        match: (?:[&|]|(?:[0-9]+)?(?:<|>>?|\^\^?))
-
-      - comment: Pick up a comment that has come after an '&'
-        include: '#comment-internal-end'
+        match: \&
 
       - comment: Anonymous scope - Base scope pipeline (up until a control operator)
-        comment: The reason we match '&' here is because we explicitly require it come after a command (unlike ';' which can be alone on a line)
-        begin: (?=\S)
+        begin: (?![\s#])
         end: (?=[\n;)])|(&)
         endCaptures:
           '1': {name: meta.function-call.operator.fish keyword.operator.control.fish}
+        comment: We explicitly require '&' come after a full command (unlike ';' which can be alone on a line) so it is captured here
         patterns:
           - include: '#pipeline'
+
+      - comment: Pick up a comment after a backgrounded command
+        include: '#comment-internal-end'
 
 repository:
   parameter:
@@ -176,22 +176,43 @@ repository:
               - include: '#parameter-patterns'
 
   pipeline:
-    comment: The pipeline rule is nonterminating, meaning that it will not consume a control operator
+    comment: The pipeline rule is nonterminating, meaning that it will not consume a *valid* control operator (';' or '&'). It *will* consume control operators that appear in invalid locations
     patterns:
-      - comment: Match operators ('&', pipe, and redirect) which cannot start a pipeline because they must be consumed within or after a pipeline
-        comment: Todo - Restructure pipeline so that this match isn't duplicated from the base scope, which it must also be for any other scopes which implement their own control operator consumption. Might require the unary operator commands to become an explicit recursive match (though we tried this once and it was more complicated than anything should be)
-        name: invalid.illegal.operator.fish
-        match: (?:[&|]|(?:[0-9]+)?(?:<|>>?|\^\^?))
+      - comment: Match a unary operator command that is only allowed at the beginning of a pipeline -- it can't come after a pipe (hence why it isn't in #command-call-meta). Neglect the match if it is taking an option
+        comment: Todo - They cannot be followed by backgrounding, piping, or redirection. Add logic to catch these cases
+        begin: (and|or)\b(?!\s*[\n-])
+        beginCaptures:
+          '1': {name: meta.function-call.fish keyword.operator.word.fish}
+        end: (?=[\n;&)])
+        patterns:
+          - include: '#line-continuation'
+          - include: '#pipeline'
 
-      - comment: Match a unary operator command that isn't allowed within a pipeline, only at the beginning. Neglect the match if it is taking an option. Allow line continuation between one of these commands and the next function call
-        comment: Todo - These commands cannot be followed by backgrounding, piping, or redirection alone. Add logic to catch these cases. It will be extensive...
-        name: meta.function-call.fish keyword.operator.word.fish
-        match: (and|or)\b(?!\s+-)
-      - include: '#line-continuation'
+      - include: '#pipeline-segment'
 
-      - comment: This is a hack for now, which allows nesting of 'not' and 'and'/'or' commands. A better solution will be explicit recursivity in these commands
-        name: meta.function-call.fish keyword.operator.word.fish
-        match: (not)\b(?!\s+-)
+  pipeline-segment:
+    comment: The pipeline segment is agnostic of where it appears in the overall pipeline, but it does perform checks on what can appear after a pipe (if there is one) before it will recurse into itself
+    patterns:
+      - comment: Match operators (background, pipe, and redirect) which cannot start a pipeline because they must be consumed within or after a pipeline
+        begin: (?=[&|]|(?:[0-9]+)?(?:<|>>?|\^\^?))
+        end: |-
+          (?x)
+          (?# Look ahead to ensure no more operators after whitespace)
+          (?=\n)
+          |
+          (?!
+            \s*
+            (?:
+              (?# Find a control operator)
+              [\n;&)|]
+            |
+              (?# Find a pipe operator)
+              (?:[0-9]+)?(?:<|>>?|\^\^?)
+            )
+          )
+        patterns:
+          - name: invalid.illegal.operator.fish
+            match: (?:[&|]|(?:[0-9]+)?(?:<|>>?|\^\^?))
 
       - comment: Match a command which is illegal in the base scope
         name: invalid.illegal.function-call.fish
@@ -229,7 +250,6 @@ repository:
               - include: '#command-call-standard'
 
           - comment: Match a second or later command of a pipeline, starting with the connective piping
-            name: meta.function-call.fish
             begin: |-
               (?x)
               (?# Look ahead for piping)
@@ -256,10 +276,11 @@ repository:
                 end: (?=\s*$|\s*[\n;&)])
                 patterns:
                   - comment: If the pipeline would end implicitly (ie, with a newline or close parenthesis), then mark the pipe itself invalid
-                    name: invalid.illegal.operator.fish
+                    name: meta.function-call.fish invalid.illegal.operator.fish
                     match: (?:(?:[0-9]+)?(?:<|>|>>))?\|(?=\s*$|\s*[\n)])
 
                   - comment: If the pipeline would end with an explicit operator or encounter a second set of piping, then mark the first set of piping as valid and beyond as invalid
+                    name: meta.function-call.fish
                     match: |-
                       (?x)
                       (?# Consume valid piping; captures 1 2 3)
@@ -275,22 +296,42 @@ repository:
                       '4': {name: invalid.illegal.function-call.fish}
 
               - comment: Pick up a legitimate pipe
-                name: meta.pipe.fish
+                name: meta.function-call.fish meta.pipe.fish
                 match: (?:([0-9]+)?(<|>>?|\^\^?))?(\|)
                 captures:
                   '1': {name: constant.numeric.file-descriptor.fish}
                   '2': {name: keyword.operator.pipe.redirect.fish}
                   '3': {name: keyword.operator.pipe.fish}
 
-              # Pick up the command call
-              - include: '#line-continuation'
-              - include: '#command-call-meta'
-              - include: '#command-call-standard'
+              - comment: After a pipe can't be a comment
+                name: meta.function-call.fish invalid.illegal.function-call.fish
+                begin: \#
+                end: (?=[\n)])
+
+              - comment: After a pipe can't be an "and" or "or" that is taking another command as its parameters
+                comment: This match should generally be identical to the match which seeks a valid "and"/"or" in #pipeline, since the only difference is that here the same matched text is instead invalid
+                comment: Todo - They cannot be followed by backgrounding, piping, or redirection. Add logic to catch these cases
+                name: meta.function-call.fish invalid.illegal.function-call.fish
+                match: (and|or)\b(?!\s*[\n-])
+
+              - comment: Keep the scope going over whitespace
+                name: meta.function-call.fish
+                match: \s+
+
+              - comment: Keep the scope going over escaped newlines and comments
+                name: meta.function-call.fish
+                begin: (?=\\\n)
+                end: (?!\\\n)
+                patterns:
+                  - include: '#line-continuation'
+
+              # Match the next command
+              - include: '#pipeline-segment'
 
   command-call-meta:
-    comment: Check if the command is a builtin which takes another command as parameters, ie, a meta command. However, ignore the command if it is taking an option or being backgrounded/piped/redirected, as in such a case it behaves as a standard command and should be picked up by that scope instead
+    comment: Check if the command is a builtin which takes another command as parameters, ie, a meta command. However, ignore the command if it is taking an option, being backgrounded/piped, or in some cases redirected, as in such a case it should be picked up by #command-call-standard instead
     patterns:
-      - comment: These meta commands force the parameter to behave as a standard command. They stop when their subcommand is piped
+      - comment: These meta commands force the parameter to behave as a standard command. They stop when their subcommand is piped. Notably, if the command is followed by redirection, then the redirection is legal and the command just prints its help text, so in that case we avoid opening this scope such that the command is caught elsewhere as a standard command
         begin: |-
           (?x)
           (builtin|command|exec)\b
@@ -325,7 +366,7 @@ repository:
           - include: '#line-continuation'
           - include: '#command-call-standard'
 
-      - comment: This meta command acts as a unary operator on the command to the right, which can also be a meta command. It only applies to one command and stops when the subcommand is piped
+      - comment: This meta command acts as a unary operator on the command to the right, which can also be a meta command. Notably, if the command is followed by redirection, then the redirection is illegal, so we have to open the scope and let it be caught by #pipeline
         begin: |-
           (?x)
           (not)\b
@@ -337,9 +378,6 @@ repository:
             |
               (?# Find simple control operations)
               [\n;&)|]
-            |
-              (?# Find redirection, which may be into a pipe but we don't care)
-              (?:[0-9]+)?(?:<|>>?|\^\^?)
             )
           )
         beginCaptures:
@@ -358,21 +396,11 @@ repository:
           )
         patterns:
           - include: '#line-continuation'
-          - include: '#command-call-meta'
-          - include: '#command-call-standard'
+          - include: '#pipeline'
 
   command-call-standard:
     comment: Check if the command is any other legal command, ie, a standard command
     patterns:
-      - comment: A command call can't be a comment, but this match will only be satisfied if the command is first after a pipe because comments are otherwise consumed earlier
-        name: invalid.illegal.function-call.fish
-        begin: \#
-        end: (?=[\n)])
-
-      - comment: Match an operator which cannot start a command call but does not stop the next characters from being interpreted as a command
-        name: invalid.illegal.operator.fish
-        match: (?:[&|<>^])
-
       - comment: Anonymous scope - A complete command comprising a name element and optional parameter, redirection, and comment elements
         begin: (?=\S)
         end: |-

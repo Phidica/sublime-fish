@@ -621,6 +621,31 @@ not >echo out
 #!   ^^^^ variable.function
 #!        ^^^ meta.parameter.argument
 
+and or not
+#!     ^^^ variable.function
+
+not or and
+#!     ^^^ variable.function
+
+and \
+# comment
+#! <- comment.line
+echo out
+
+not \
+# comment
+#! <- comment.line
+echo out
+
+and echo out | and echo out
+#!             ^^^ invalid.illegal.function-call
+
+echo out | and
+#!         ^^^ variable.function
+
+echo out | 9>out
+#!         ^^ invalid.illegal.operator
+
 and | cat
 #! <- meta.function-call keyword.operator.word
 #!  ^ invalid.illegal.operator
