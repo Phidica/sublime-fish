@@ -55,6 +55,12 @@ patterns:
         include: '#comment-internal-end'
 
 repository:
+  separator-whitespace:
+    patterns:
+      - comment: Fundamental structure used to separate elements of a command call; it's any whitespace that isn't a newline, predominantly meaning spaces or tabs
+        name: meta.function-call.fish
+        match: (?:[^\n\S]+)
+
   parameter:
     patterns:
       - comment: See the argument rule for more general information on parameters
@@ -220,17 +226,15 @@ repository:
 
       - comment: Anonymous scope - Pipeline. Define a pipeline as either one command call, or multiple command calls linked by pipe operators ('|', '2>|', etc). The pipeline terminates at the first encounter of any control operator
         begin: (?=[^\s#])
-        end: (\s*)(?=[\n;&)])
-        endCaptures:
-          '1': {name: meta.function-call.fish}
+        end: (?=[\n;&)])
         patterns:
           - comment: Match the first command of a potential pipeline
             name: meta.function-call.fish
             begin: |-
               (?x)
-              (?# Negative lookahead for piping)
+              (?# Negative lookahead for whitespace, comments, piping)
               (?!
-                (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|
+                \s|\#|(?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|
               )
             end: |-
               (?x)
@@ -316,9 +320,7 @@ repository:
                 name: meta.function-call.fish invalid.illegal.function-call.fish
                 match: (and|or)\b(?!\s*[\n-])
 
-              - comment: Keep the scope going over whitespace
-                name: meta.function-call.fish
-                match: \s+
+              - include: '#separator-whitespace'
 
               - comment: Keep the scope going over escaped newlines and comments
                 name: meta.function-call.fish
@@ -478,7 +480,7 @@ repository:
           - include: '#redirection'
 
           - comment: Anonymous scope - A list of parameter, redirection, or comment elements. We rely on this list being separated from the command name by whitespace
-            begin: (?:[^\n\S]+)
+            begin: (?=[^\n\S]+)
             comment: Match any whitespace characters that aren't the newline
             end: |-
               (?x)

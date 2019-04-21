@@ -12,6 +12,7 @@
 #! <- constant.character.escape
 
 echo arg & # comment
+#! ^^^^^^^ meta.function-call
 #!       ^ keyword.operator.control
 #!         ^ comment.line
 
@@ -19,6 +20,11 @@ echo 'single-quoted' "double-quoted" unquoted
 #!   ^^^^^^^^^^^^^^^ string.quoted.single
 #!                   ^^^^^^^^^^^^^^^ string.quoted.double
 #!                                   ^^^^^^^^ meta.string.unquoted
+
+# The next line should have a tab character between b and c
+echo a\tb	c
+#!   ^^^^ meta.parameter.argument meta.string.unquoted
+#!       ^ meta.function-call
 
 # The ~ and % are only special characters in need of escaping when at the front of arguments
 echo ~foo \~bar~\~ %foo \%bar%\%
@@ -128,6 +134,7 @@ echo --num=2 -n2
 #!             ^ - constant.numeric
 
 cmd -h --help -- -- -h # comment
+#! ^^^^^^^^^^^^^^^^^^^ meta.function-call
 #!  ^^ meta.parameter.option.short variable.parameter
 #!     ^^^^^^ meta.parameter.option.long variable.parameter
 #!            ^^ meta.parameter.option.end variable.parameter punctuation.definition.option.end meta.string.unquoted
@@ -198,7 +205,7 @@ echo (cat (cat))
 
 echo --arg=~/Documents --(echo arg)=(echo val)
 #!         ^^^^^^^^^^^ meta.string.unquoted
-#!         ^ - meta.home-directory-expansion keyword.operator.tilde
+#!         ^ - keyword.operator.tilde
 #!                     ^^^^^^^^^^^^^ meta.parameter.option.long variable.parameter
 #!                                  ^^^^^^^^^^ meta.parameter.option.long
 #!                                  ^^^^^^^^^^ - variable.parameter
@@ -523,6 +530,11 @@ not builtin case 1>/dev/null
 #!  ^^^^^^^ meta.function-call support.function
 #!          ^^^^ meta.function-call variable.function
 #!               ^^^^^^^^^^^ meta.redirection
+
+echo out | echo out
+#!  ^ meta.function-call
+#!      ^ meta.function-call
+#!        ^ meta.function-call
 
 command echo out 2>| cat
 #!                ^^ meta.function-call.fish meta.pipe.fish keyword.operator

@@ -482,7 +482,7 @@
 						</dict>
 						<dict>
 							<key>begin</key>
-							<string>(?:[^\n\S]+)</string>
+							<string>(?=[^\n\S]+)</string>
 							<key>comment</key>
 							<string>Match any whitespace characters that aren't the newline</string>
 							<key>end</key>
@@ -1877,23 +1877,15 @@
 					<key>comment</key>
 					<string>Anonymous scope - Pipeline. Define a pipeline as either one command call, or multiple command calls linked by pipe operators ('|', '2&gt;|', etc). The pipeline terminates at the first encounter of any control operator</string>
 					<key>end</key>
-					<string>(\s*)(?=[\n;&amp;)])</string>
-					<key>endCaptures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>meta.function-call.fish</string>
-						</dict>
-					</dict>
+					<string>(?=[\n;&amp;)])</string>
 					<key>patterns</key>
 					<array>
 						<dict>
 							<key>begin</key>
 							<string>(?x)
-(?# Negative lookahead for piping)
+(?# Negative lookahead for whitespace, comments, piping)
 (?!
-  (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
+  \s|\#|(?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
 )</string>
 							<key>comment</key>
 							<string>Match the first command of a potential pipeline</string>
@@ -2059,12 +2051,8 @@
 									<string>meta.function-call.fish invalid.illegal.function-call.fish</string>
 								</dict>
 								<dict>
-									<key>comment</key>
-									<string>Keep the scope going over whitespace</string>
-									<key>match</key>
-									<string>\s+</string>
-									<key>name</key>
-									<string>meta.function-call.fish</string>
+									<key>include</key>
+									<string>#separator-whitespace</string>
 								</dict>
 								<dict>
 									<key>begin</key>
@@ -2371,6 +2359,20 @@
 							<string>meta.redirection.path.fish</string>
 						</dict>
 					</array>
+				</dict>
+			</array>
+		</dict>
+		<key>separator-whitespace</key>
+		<dict>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>comment</key>
+					<string>Fundamental structure used to separate elements of a command call; it's any whitespace that isn't a newline, predominantly meaning spaces or tabs</string>
+					<key>match</key>
+					<string>(?:[^\n\S]+)</string>
+					<key>name</key>
+					<string>meta.function-call.fish</string>
 				</dict>
 			</array>
 		</dict>
