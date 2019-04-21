@@ -5,9 +5,9 @@
 ;
 #! <- keyword.operator.control
 &
-#! <- invalid.illegal.operator
+#! <- invalid.illegal.function-call
 |
-#! <- invalid.illegal.operator
+#! <- invalid.illegal.function-call
 \
 #! <- constant.character.escape
 
@@ -252,22 +252,22 @@ foo\
 #!       ^^^ meta.parameter.argument
 
 <in.log arg
-#! <- invalid.illegal.operator
+#! <- invalid.illegal.function-call
 #! ^^^^ variable.function
 #!      ^^^ meta.parameter.argument
 
 >out.log arg
-#! <- invalid.illegal.operator
+#! <- invalid.illegal.function-call
 #! ^^^^^ variable.function
 #!       ^^^ meta.parameter.argument
 
 ^err.log arg
-#! <- invalid.illegal.operator
+#! <- invalid.illegal.function-call
 #! ^^^^^ variable.function
 #!       ^^^ meta.parameter.argument
 
 ;  ^^|err.pipe arg
-#! ^^^ invalid.illegal.operator
+#! ^^^ invalid.illegal.function-call
 #!    ^^^^^^^^ variable.function
 #!             ^^^ meta.parameter.argument
 
@@ -459,12 +459,12 @@ echo ( \
 #!     ^ constant.character.escape
 ;  &
 #! <- keyword.operator.control
-#! ^ invalid.illegal.operator
+#! ^ invalid.illegal.function-call
 echo &
 #! <- meta.function-call
 )  &  & hmm
 #! ^ keyword.operator.control
-#!    ^ invalid.illegal.operator
+#!    ^ invalid.illegal.function-call
 
 echo ( # comment
 #!     ^^^^^^^^^ comment.line
@@ -540,7 +540,7 @@ not builtin case 1>/dev/null
 #!               ^^^^^^^^^^^ meta.redirection
 
 and >out
-#!  ^ invalid.illegal.operator
+#!  ^ invalid.illegal.function-call
 
 echo (and)
 #!    ^^^ variable.function
@@ -555,10 +555,10 @@ and \
 #! <- invalid.illegal.function-call
 
 and | cat
-#!  ^ invalid.illegal.operator
+#!  ^ invalid.illegal.function-call
 
 not >out
-#!  ^ invalid.illegal.operator
+#!  ^ invalid.illegal.function-call
 
 echo (not)
 #!    ^^^ variable.function
@@ -573,7 +573,7 @@ not \
 #! <- invalid.illegal.function-call
 
 not | cat
-#!  ^ invalid.illegal.operator
+#!  ^ invalid.illegal.function-call
 
 echo out | echo out
 #!  ^ meta.function-call
@@ -615,13 +615,13 @@ arg
 #! <- meta.function-call meta.parameter.argument
 
 | cat
-#! <- invalid.illegal.operator
+#! <- invalid.illegal.function-call
 #! ^^ variable.function
 
 2>echo; 2>&>&|>&>|echo
-#! <- invalid.illegal.operator
+#! <- invalid.illegal.function-call
 #! ^^^ variable.function
-#!      ^^^^^^^^^^ invalid.illegal.operator
+#!      ^^^^^^^^^^ invalid.illegal.function-call
 #!                ^^^^ variable.function
 
 make fish 2>| less
@@ -673,7 +673,7 @@ command >file out
 #!            ^^^ meta.parameter.argument
 
 not >echo out
-#!  ^ invalid.illegal.operator
+#!  ^ invalid.illegal.function-call
 #!   ^^^^ variable.function
 #!        ^^^ meta.parameter.argument
 
@@ -700,7 +700,7 @@ echo out | and
 #!         ^^^ variable.function
 
 echo out | 9>out
-#!         ^^ invalid.illegal.operator
+#!         ^^ invalid.illegal.function-call
 
 2^cmd out | 1^^cmd in
 #! <- variable.function
@@ -722,15 +722,15 @@ echo out 1>>out
 #!       ^^^^^^ meta.redirection
 
 1>>out
-#! <- invalid.illegal.operator
+#! <- invalid.illegal.function-call
 
 and | cat
 #! <- meta.function-call keyword.operator.word
-#!  ^ invalid.illegal.operator
+#!  ^ invalid.illegal.function-call
 
 and>cat
 #! <- meta.function-call keyword.operator.word
-#! ^ invalid.illegal.operator
+#! ^ invalid.illegal.function-call
 #!  ^^^ meta.function-call variable.function
 
 echo || cat # comment
@@ -783,7 +783,7 @@ true | cat
 
 echo out | >echo
 #!       ^ keyword.operator.pipe
-#!         ^ invalid.illegal.operator
+#!         ^ invalid.illegal.function-call
 #!          ^^^^ variable.function
 
 echo "string"(echo "inner string")" outer string"
@@ -996,7 +996,7 @@ begin >echo arg; end >out | cat
 #! <- variable.function
 #!    ^ invalid.illegal.operator
 #!               ^^^ invalid.illegal.function-call
-#!                   ^ invalid.illegal.operator
+#!                   ^ invalid.illegal.function-call
 #!                        ^ meta.pipe keyword.operator.pipe
 #!                          ^^^ variable.function
 

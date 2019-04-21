@@ -59,7 +59,7 @@
 					<key>match</key>
 					<string>\&amp;</string>
 					<key>name</key>
-					<string>invalid.illegal.operator.fish</string>
+					<string>invalid.illegal.function-call.fish</string>
 				</dict>
 				<dict>
 					<key>begin</key>
@@ -1886,7 +1886,7 @@
 							<key>match</key>
 							<string>(?:[&amp;|]|(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)</string>
 							<key>name</key>
-							<string>invalid.illegal.operator.fish</string>
+							<string>invalid.illegal.function-call.fish</string>
 						</dict>
 					</array>
 				</dict>
@@ -2603,7 +2603,7 @@
 							<key>comment</key>
 							<string>Unescaped spaces aren't allowed, as technically that separates the braces into two separate arguments. Don't consume a newline though, so the scope end capture can get it</string>
 							<key>match</key>
-							<string>(?:[^\S\n]+)</string>
+							<string>(?:[^\n\S]+)</string>
 							<key>name</key>
 							<string>invalid.illegal.whitespace.fish</string>
 						</dict>

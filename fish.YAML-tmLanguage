@@ -39,7 +39,7 @@ patterns:
       '1': {name: meta.function-call.operator.fish keyword.operator.control.fish}
     patterns:
       - comment: The first character of a pipeline can't be an '&' because the scope will end immediately with it being matched as valid
-        name: invalid.illegal.operator.fish
+        name: invalid.illegal.function-call.fish
         match: \&
 
       - comment: Anonymous scope - Base scope pipeline (up until a control operator)
@@ -227,7 +227,7 @@ repository:
             )
           )
         patterns:
-          - name: invalid.illegal.operator.fish
+          - name: invalid.illegal.function-call.fish
             match: (?:[&|]|(?:[0-9]+)?(?:<|>>?)|\^\^?)
 
       - comment: Match a command which is illegal in the base scope
@@ -1108,7 +1108,7 @@ repository:
 
           - comment: Unescaped spaces aren't allowed, as technically that separates the braces into two separate arguments. Don't consume a newline though, so the scope end capture can get it
             name: invalid.illegal.whitespace.fish
-            match: (?:[^\S\n]+)
+            match: (?:[^\n\S]+)
 
           # Manually recreate the string rule with a numeric match, extra logic in unquoted strings, and don't repeat the meta.string.unquoted scope
           - include: '#string-quoted'
