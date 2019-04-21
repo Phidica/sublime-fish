@@ -292,6 +292,11 @@ cat ((echo out) echo out) out
 #! ^^^^ invalid.illegal.function-call
 ##      ^^^ meta.parameter.argument # Not possible due to technical limitations
 
+echo>out arg 2>err &
+#! ^^^^^^^^^^^^^^^^^ meta.function-call
+#!  ^^^^ meta.redirection
+#!           ^^^^^ meta.redirection
+
 echo one >out.log two < in.log three ^^err.log four4> out.log five
 #!       ^^^^^^^^ meta.redirection
 #!       ^ keyword.operator.redirect
@@ -480,6 +485,7 @@ foo\ bar
 
 exec echo \
 #! <- meta.function-call support.function
+#!  ^ meta.function-call
 #!   ^^^^ meta.function-call variable.function
 arg
 #! <-meta.function-call meta.parameter.argument
@@ -516,6 +522,7 @@ echo arg &
 
 and \
 #! <- meta.function-call keyword.operator.word
+#! ^ meta.function-call
 command \
 #! <- meta.function-call support.function
 echo \
@@ -527,6 +534,7 @@ arg \
 
 not builtin case 1>/dev/null
 #! <- meta.function-call keyword.operator.word
+#! ^ meta.function-call
 #!  ^^^^^^^ meta.function-call support.function
 #!          ^^^^ meta.function-call variable.function
 #!               ^^^^^^^^^^^ meta.redirection

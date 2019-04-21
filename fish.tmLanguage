@@ -225,7 +225,7 @@
 						<key>1</key>
 						<dict>
 							<key>name</key>
-							<string>support.function.fish</string>
+							<string>meta.function-call.fish support.function.fish</string>
 						</dict>
 					</dict>
 					<key>comment</key>
@@ -244,6 +244,10 @@
 )</string>
 					<key>patterns</key>
 					<array>
+						<dict>
+							<key>include</key>
+							<string>#separator-whitespace</string>
+						</dict>
 						<dict>
 							<key>include</key>
 							<string>#line-continuation</string>
@@ -273,7 +277,7 @@
 						<key>1</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.operator.word.fish</string>
+							<string>meta.function-call.fish keyword.operator.word.fish</string>
 						</dict>
 					</dict>
 					<key>comment</key>
@@ -292,6 +296,10 @@
 )</string>
 					<key>patterns</key>
 					<array>
+						<dict>
+							<key>include</key>
+							<string>#separator-whitespace</string>
+						</dict>
 						<dict>
 							<key>include</key>
 							<string>#line-continuation</string>
@@ -327,6 +335,8 @@
     (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
   )
 )</string>
+					<key>name</key>
+					<string>meta.function-call.fish</string>
 					<key>patterns</key>
 					<array>
 						<dict>
@@ -1813,6 +1823,10 @@
 					<array>
 						<dict>
 							<key>include</key>
+							<string>#separator-whitespace</string>
+						</dict>
+						<dict>
+							<key>include</key>
 							<string>#line-continuation</string>
 						</dict>
 						<dict>
@@ -1875,7 +1889,7 @@
 					<key>begin</key>
 					<string>(?=[^\s#])</string>
 					<key>comment</key>
-					<string>Anonymous scope - Pipeline. Define a pipeline as either one command call, or multiple command calls linked by pipe operators ('|', '2&gt;|', etc). The pipeline terminates at the first encounter of any control operator</string>
+					<string>Anonymous scope - A pipeline which may be one command call or multiple command calls linked by pipe operators ('|', '2&gt;|', etc). The pipeline terminates at the first encounter of any control operator</string>
 					<key>end</key>
 					<string>(?=[\n;&amp;)])</string>
 					<key>patterns</key>
@@ -1888,7 +1902,7 @@
   \s|\#|(?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
 )</string>
 							<key>comment</key>
-							<string>Match the first command of a potential pipeline</string>
+							<string>Anonymous scope - Match the command of a pipeline segment</string>
 							<key>end</key>
 							<string>(?x)
 (?# Look ahead for operators after whitespace)
@@ -1901,8 +1915,6 @@
     (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
   )
 )</string>
-							<key>name</key>
-							<string>meta.function-call.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -1923,7 +1935,7 @@
   (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
 )</string>
 							<key>comment</key>
-							<string>Match a second or later command of a pipeline, starting with the connective piping</string>
+							<string>Anonymous scope - Match piping which may lead to a second command, and if it does recurse into</string>
 							<key>end</key>
 							<string>(?=\s*[\n;&amp;)])</string>
 							<key>patterns</key>

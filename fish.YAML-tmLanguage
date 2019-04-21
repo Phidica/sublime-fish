@@ -191,6 +191,7 @@ repository:
           '1': {name: meta.function-call.fish keyword.operator.word.fish}
         end: (?=[\n;&)])
         patterns:
+          - include: '#separator-whitespace'
           - include: '#line-continuation'
           - include: '#pipeline'
 
@@ -224,12 +225,11 @@ repository:
         name: invalid.illegal.function-call.fish
         match: (?:case|else|end)(?=[\s;&)|<>])
 
-      - comment: Anonymous scope - Pipeline. Define a pipeline as either one command call, or multiple command calls linked by pipe operators ('|', '2>|', etc). The pipeline terminates at the first encounter of any control operator
+      - comment: Anonymous scope - A pipeline which may be one command call or multiple command calls linked by pipe operators ('|', '2>|', etc). The pipeline terminates at the first encounter of any control operator
         begin: (?=[^\s#])
         end: (?=[\n;&)])
         patterns:
-          - comment: Match the first command of a potential pipeline
-            name: meta.function-call.fish
+          - comment: Anonymous scope - Match the command of a pipeline segment
             begin: |-
               (?x)
               (?# Negative lookahead for whitespace, comments, piping)
@@ -253,7 +253,7 @@ repository:
               - include: '#command-call-meta'
               - include: '#command-call-standard'
 
-          - comment: Match a second or later command of a pipeline, starting with the connective piping
+          - comment: Anonymous scope - Match piping which may lead to a second command, and if it does recurse into #pipeline-segment again
             begin: |-
               (?x)
               (?# Look ahead for piping)
@@ -353,7 +353,7 @@ repository:
             )
           )
         beginCaptures:
-          '1': {name: support.function.fish}
+          '1': {name: meta.function-call.fish support.function.fish}
         end: |-
           (?x)
           (?# Look ahead for control operations after whitespace)
@@ -367,6 +367,7 @@ repository:
             )
           )
         patterns:
+          - include: '#separator-whitespace'
           - include: '#line-continuation'
           - include: '#command-call-standard'
 
@@ -385,7 +386,7 @@ repository:
             )
           )
         beginCaptures:
-          '1': {name: keyword.operator.word.fish}
+          '1': {name: meta.function-call.fish keyword.operator.word.fish}
         end: |-
           (?x)
           (?# Look ahead for control operations after whitespace)
@@ -399,6 +400,7 @@ repository:
             )
           )
         patterns:
+          - include: '#separator-whitespace'
           - include: '#line-continuation'
           - include: '#pipeline'
 
@@ -406,6 +408,7 @@ repository:
     comment: Check if the command is any other legal command, ie, a standard command
     patterns:
       - comment: Anonymous scope - A complete command comprising a name element and optional parameter, redirection, and comment elements
+        name: meta.function-call.fish # Deanonymise the scope for now!
         begin: (?=\S)
         end: |-
           (?x)
