@@ -539,6 +539,42 @@ not builtin case 1>/dev/null
 #!          ^^^^ meta.function-call variable.function
 #!               ^^^^^^^^^^^ meta.redirection
 
+and >out
+#!  ^ invalid.illegal.operator
+
+echo (and)
+#!    ^^^ variable.function
+
+and && &
+#!  ^^ invalid.illegal.function-call
+#!     ^ invalid.illegal.function-call
+
+and \
+# comment
+&
+#! <- invalid.illegal.function-call
+
+and | cat
+#!  ^ invalid.illegal.operator
+
+not >out
+#!  ^ invalid.illegal.operator
+
+echo (not)
+#!    ^^^ variable.function
+
+not && &
+#!  ^^ invalid.illegal.function-call
+#!     ^ invalid.illegal.function-call
+
+not \
+# comment
+&
+#! <- invalid.illegal.function-call
+
+not | cat
+#!  ^ invalid.illegal.operator
+
 echo out | echo out
 #!  ^ meta.function-call
 #!      ^ meta.function-call

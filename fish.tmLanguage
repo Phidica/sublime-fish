@@ -260,49 +260,45 @@
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>(?x)
-(not)\b
-(?# Look ahead for control operations after whitespace)
-(?!\s*
-  (?:
-    (?# Find options)
-    -
-  |
-    (?# Find simple control operations)
-    [\n;&amp;)|]
-  )
-)</string>
-					<key>beginCaptures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>meta.function-call.fish keyword.operator.word.fish</string>
-						</dict>
-					</dict>
+					<string>(?=(not)\b(?!\s*[\n;)-]))</string>
 					<key>comment</key>
-					<string>This meta command acts as a unary operator on the command to the right, which can also be a meta command. Notably, if the command is followed by redirection, then the redirection is illegal, so we have to open the scope and let it be caught by</string>
+					<string>If the command is followed by redirection, then the redirection is illegal so we have to open the scope and let it be caught by</string>
 					<key>end</key>
-					<string>(?x)
-(?# Look ahead for control operations after whitespace)
-(?=\s*
-  (?:
-    (?# Find simple control operations)
-    [\n;&amp;)]
-  |
-    (?# Find piping)
-    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
-  )
-)</string>
+					<string>(?=[\n;&amp;)])</string>
 					<key>patterns</key>
 					<array>
 						<dict>
-							<key>include</key>
-							<string>#separator-whitespace</string>
-						</dict>
-						<dict>
-							<key>include</key>
-							<string>#line-continuation</string>
+							<key>begin</key>
+							<string>(not)\b(?!\s*[\n;)-])</string>
+							<key>beginCaptures</key>
+							<dict>
+								<key>1</key>
+								<dict>
+									<key>name</key>
+									<string>meta.function-call.fish keyword.operator.word.fish</string>
+								</dict>
+							</dict>
+							<key>comment</key>
+							<string>If the command is followed by an "&amp;", then that's invalid</string>
+							<key>end</key>
+							<string>(?![^\n\S]|\&amp;|\\\n)</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>#separator-whitespace</string>
+								</dict>
+								<dict>
+									<key>match</key>
+									<string>\&amp;</string>
+									<key>name</key>
+									<string>invalid.illegal.function-call.fish</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#line-continuation</string>
+								</dict>
+							</array>
 						</dict>
 						<dict>
 							<key>include</key>
@@ -1806,28 +1802,45 @@
 			<array>
 				<dict>
 					<key>begin</key>
-					<string>(and|or)\b(?!\s*[\n-])</string>
-					<key>beginCaptures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>meta.function-call.fish keyword.operator.word.fish</string>
-						</dict>
-					</dict>
+					<string>(?=(and|or)\b(?!\s*[\n;)-]))</string>
 					<key>comment</key>
-					<string>Todo - They cannot be followed by backgrounding, piping, or redirection. Add logic to catch these cases</string>
+					<string>If the command is followed by redirection, then the redirection is illegal so we have to open the scope and let it be caught by</string>
 					<key>end</key>
 					<string>(?=[\n;&amp;)])</string>
 					<key>patterns</key>
 					<array>
 						<dict>
-							<key>include</key>
-							<string>#separator-whitespace</string>
-						</dict>
-						<dict>
-							<key>include</key>
-							<string>#line-continuation</string>
+							<key>begin</key>
+							<string>(and|or)\b(?!\s*[\n;)-])</string>
+							<key>beginCaptures</key>
+							<dict>
+								<key>1</key>
+								<dict>
+									<key>name</key>
+									<string>meta.function-call.fish keyword.operator.word.fish</string>
+								</dict>
+							</dict>
+							<key>comment</key>
+							<string>If the command is followed by an "&amp;", then that's invalid</string>
+							<key>end</key>
+							<string>(?![^\n\S]|\&amp;|\\\n)</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>#separator-whitespace</string>
+								</dict>
+								<dict>
+									<key>match</key>
+									<string>\&amp;</string>
+									<key>name</key>
+									<string>invalid.illegal.function-call.fish</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#line-continuation</string>
+								</dict>
+							</array>
 						</dict>
 						<dict>
 							<key>include</key>
@@ -2056,9 +2069,9 @@
 								</dict>
 								<dict>
 									<key>comment</key>
-									<string>Todo - They cannot be followed by backgrounding, piping, or redirection. Add logic to catch these cases</string>
+									<string>This match should generally be pretty similar to the match which seeks a valid "and"/"or" in</string>
 									<key>match</key>
-									<string>(and|or)\b(?!\s*[\n-])</string>
+									<string>(and|or)\b(?!\s*[\n;-])</string>
 									<key>name</key>
 									<string>meta.function-call.fish invalid.illegal.function-call.fish</string>
 								</dict>
