@@ -25,6 +25,7 @@ echo 'single-quoted' "double-quoted" unquoted
 echo a\tb	c
 #!   ^^^^ meta.parameter.argument meta.string.unquoted
 #!       ^ meta.function-call
+#!         ^ meta.function-call.operator
 
 # The ~ and % are only special characters in need of escaping when at the front of arguments
 echo ~foo \~bar~\~ %foo \%bar%\%
@@ -964,6 +965,7 @@ echo arg
 #! <- meta.function-call variable.function
 
 [ 1 -eq 1 >out ]; echo
+#! ^^^^^^^^^^^^^ meta.function-call
 #! <- support.function.test.begin
 #!        ^^^^ meta.redirection
 #!             ^ support.function.test.end
@@ -973,6 +975,9 @@ echo arg
 #! <- variable.function
 #! ^ meta.parameter.argument
 #!                ^ invalid.illegal.function-call
+
+return
+#! <- meta.function-call keyword.control.conditional
 
 begin --help; end
 #! <- meta.function-call variable.function
@@ -990,7 +995,11 @@ begin; end
 #!     ^^^ invalid.illegal.function-call
 
 begin &
+#! <- meta.function-call variable.function
 #!    ^ invalid.illegal.operator
+
+echo (begin))
+#!    ^^^^^ meta.function-call meta.function-call variable.function
 
 begin >echo arg; end >out | cat
 #! <- variable.function
@@ -1001,14 +1010,16 @@ begin >echo arg; end >out | cat
 #!                          ^^^ variable.function
 
 begin end # comment
-#! <- meta.block.begin keyword.control.conditional
-#!    ^^^ keyword.control.conditional
+#! <- meta.block.begin meta.function-call keyword.control.conditional
+#!   ^ - meta.function-call
+#!    ^^^ meta.block.begin meta.function-call keyword.control.conditional
 #!        ^^^^^^^^^ comment.line
 
 begin true ; end
 #!           ^^^ keyword.control.conditional
 
 begin true & end ; end
+#!           ^^^^^ meta.function-call
 #!           ^^^ keyword.control.conditional
 #!                 ^^^ invalid.illegal.function-call
 
@@ -1061,9 +1072,10 @@ while-cmd
 #! ^^^^^^ variable.function
 
 while true; break ; end
-#! <- meta.block.while keyword.control.conditional
-#!    ^^^^ meta.block.while variable.function
-#!                  ^^^ meta.block.while keyword.control.conditional
+#! <- meta.block.while meta.function-call keyword.control.conditional
+#!   ^ - meta.function-call
+#!    ^^^^ meta.block.while meta.function-call variable.function
+#!                  ^^^ meta.block.while meta.function-call keyword.control.conditional
 
 while ; true ; end
 #! ^^ variable.function
@@ -1160,26 +1172,28 @@ end &
 #!  ^ keyword.operator.control
 
 if echo arg
-#! <- meta.block.if keyword.control.conditional
+#! <- meta.block.if meta.function-call keyword.control.conditional
+#! ^^^^^^^^^ meta.block.if meta.function-call
   and echo arg
   echo arg
 else if echo arg
-#! <- keyword.control.conditional
-#!   ^^ keyword.control.conditional
+#! <- meta.function-call keyword.control.conditional
+#!   ^^ meta.function-call keyword.control.conditional
   and echo arg
   echo arg
-else # comment
-#! <- keyword.control.conditional
-#!   ^^^^^^^^^ comment.line
+else; # comment
+#! <- meta.function-call keyword.control.conditional
+#! ^^ meta.function-call
+#!    ^^^^^^^^^ comment.line
   echo arg
   if echo arg
     # comment
   end
-#! ^^ keyword.control.conditional
+#! ^^ meta.function-call keyword.control.conditional
 else
 #! <- invalid.illegal.function-call
 end # comment
-#! <- keyword.control.conditional
+#! <- meta.function-call keyword.control.conditional
 #!  ^^^^^^^^^ comment.line
 
 if test
@@ -1245,18 +1259,20 @@ echo (if)
 #!    ^^ variable.function
 #!      ^ punctuation.section.parens.end
 
-for arg arg in --foo bar; break; end | cat
+for arg arg in --foo bar ; break; end | cat
 #!      ^^^ invalid.illegal.function-call
 #!          ^^ keyword.control.conditional
 #!             ^^^^^ meta.parameter.argument meta.string.unquoted
 #!             ^^^^^ - variable.parameter
 #!                   ^^^ meta.parameter.argument meta.string.unquoted
-#!                        ^^^^^ keyword.control.conditional
-#!                                   ^ meta.pipe keyword.operator.pipe
-#!                                     ^^^ variable.function
+#!                     ^^^ meta.function-call
+#!                         ^^^^^ keyword.control.conditional
+#!                                    ^ meta.pipe keyword.operator.pipe
+#!                                      ^^^ variable.function
 
 for in in in in (seq 5) in in # comment
-#! <- meta.block.for-in keyword.control.conditional
+#! <- meta.block.for-in meta.function-call keyword.control.conditional
+#!^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.function-call
 #!  ^^ meta.parameter.argument
 #!     ^^ keyword.control.conditional
 #!        ^^ meta.parameter.argument
@@ -1271,7 +1287,7 @@ for in in in in (seq 5) in in # comment
 #! ^^^^^^^ keyword.control.conditional
 #!         ^ keyword.operator.control
 end
-#! <- keyword.control.conditional
+#! <- meta.function-call keyword.control.conditional
 
 for \
 #! <- meta.block.for-in keyword.control.conditional
@@ -1288,8 +1304,9 @@ for \
 #! ^^^ meta.function-call
   one two \
   three
-)
+) ;
 #! <- meta.parameter.argument meta.parens.command-substitution
+#!^ meta.function-call
   echo arg arg
 #! ^^^ meta.function-call
 end
@@ -1314,13 +1331,16 @@ echo (for foo in bar) end)
 #!                  ^ invalid.illegal.operator
 #!                    ^^^ keyword.control.conditional
 
-switch value; case wildcard; command echo foo; end # comment
+switch value ; case wildcard ; command echo foo; end # comment
 #! <- meta.block.switch keyword.control.conditional
-#!          ^ keyword.operator.control
-#!            ^^^^ keyword.control.conditional
-#!                         ^ keyword.operator.control
-#!                                           ^ keyword.operator.control
-#!                                                 ^ comment.line
+#! ^^^^^^^^^^^ meta.block.switch meta.function-call
+#!           ^ meta.function-call.operator keyword.operator.control
+#!             ^^^^^^^^^^^^^^^ meta.function-call
+#!             ^^^^ keyword.control.conditional
+#!                           ^ meta.function-call.operator keyword.operator.control
+#!                                             ^ keyword.operator.control
+#!                                               ^^^ meta.block.switch meta.function-call keyword.control.conditional
+#!                                                   ^ comment.line
 
 switch foo bar | echo
 #!     ^^^ meta.parameter.argument meta.string.unquoted
@@ -1395,7 +1415,8 @@ echo (switch)
 #!          ^ punctuation.section.parens.end
 
 function foo --arg="bar"
-#! <- meta.block.function keyword.control.conditional
+#! <- meta.block.function meta.function-call keyword.control.conditional
+#! ^^^^^^^^^^^^^^^^^^^^^^ meta.function-call
 #!       ^^^ entity.name.function
 #!           ^^^^^^^^^^^ meta.parameter.option.long
   return 1
@@ -1403,7 +1424,7 @@ function foo --arg="bar"
   echo arg
 #! ^^^^^^^ meta.function-call
 end
-#! <- keyword.control.conditional
+#! <- meta.function-call keyword.control.conditional
 
 function \
 #! <- meta.block.function keyword.control.conditional
