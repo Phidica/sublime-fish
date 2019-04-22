@@ -331,8 +331,6 @@
     (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
   )
 )</string>
-					<key>name</key>
-					<string>meta.function-call.fish</string>
 					<key>patterns</key>
 					<array>
 						<dict>
@@ -342,6 +340,8 @@
 							<string>Anonymous scope - A name or block element. If a block is found, everything up to the `end` command is captured here. Note that redirection and process expansion can't start the element</string>
 							<key>end</key>
 							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
+							<key>name</key>
+							<string>meta.function-call.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -473,7 +473,7 @@
 							<key>end</key>
 							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
 							<key>name</key>
-							<string>invalid.illegal.function-call.fish</string>
+							<string>meta.function-call.fish invalid.illegal.function-call.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -483,8 +483,21 @@
 							</array>
 						</dict>
 						<dict>
-							<key>include</key>
-							<string>#redirection</string>
+							<key>begin</key>
+							<string>(?=[&lt;&gt;])</string>
+							<key>comment</key>
+							<string>Temporary wrapping scope</string>
+							<key>end</key>
+							<string>(?=[\s;&amp;)|])</string>
+							<key>name</key>
+							<string>meta.function-call.fish</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>#redirection</string>
+								</dict>
+							</array>
 						</dict>
 						<dict>
 							<key>begin</key>
@@ -503,6 +516,8 @@
     (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
   )
 )</string>
+							<key>name</key>
+							<string>meta.function-call.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>

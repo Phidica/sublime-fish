@@ -403,7 +403,6 @@ repository:
     comment: Check if the command is any other legal command, ie, a standard command
     patterns:
       - comment: Anonymous scope - A complete command comprising a name element and optional parameter, redirection, and comment elements
-        name: meta.function-call.fish # Deanonymise the scope for now!
         begin: (?=\S)
         end: |-
           (?x)
@@ -419,6 +418,7 @@ repository:
           )
         patterns:
           - comment: Anonymous scope - A name or block element. If a block is found, everything up to the `end` command is captured here. Note that redirection and process expansion can't start the element
+            name: meta.function-call.fish # Deanonymise the scope for now!
             begin: (?![\s<>^%])
             end: (?=[\s;&)|<>])
             patterns:
@@ -468,16 +468,22 @@ repository:
                       - include: '#string'
 
           - comment: A command name can't begin with a process expansion operator (however the variable expansion operator '$' is allowed)
-            name: invalid.illegal.function-call.fish
+            name: meta.function-call.fish invalid.illegal.function-call.fish
             begin: \%
             end: (?=[\s;&)|<>])
             patterns:
               - include: '#string'
 
           # Redirection can immediately follow the command name, without whitespace separation
-          - include: '#redirection'
+          - comment: Temporary wrapping scope
+            begin: (?=[<>])
+            end: (?=[\s;&)|])
+            name: meta.function-call.fish
+            patterns:
+              - include: '#redirection'
 
           - comment: Anonymous scope - A list of parameter, redirection, or comment elements. We rely on this list being separated from the command name by whitespace
+            name: meta.function-call.fish # Deanonymise the scope for now!
             begin: (?=[^\n\S]+)
             comment: Match any whitespace characters that aren't the newline
             end: |-
