@@ -11,6 +11,7 @@ Bugfixes:
 - Redirection wasn't shown as invalid when it was used directly after a pipe
 - Backgrounding of `and`/`or`/`not` wasn't shown as invalid
 - Defining a function starting with `~` highlighted it as a special character
+- Invalid structures in the `function` block were not identified
 
 2.4.0
 -----

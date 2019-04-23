@@ -1451,7 +1451,7 @@ function inline; echo arg; end # comment
 
 function $cmd>out
 #!       ^^^^ entity.name.function meta.variable-expansion variable.other
-#!           ^^^^ invalid.illegal.string
+#!           ^ invalid.illegal.function-call
   return 0
 end
 
@@ -1460,6 +1460,13 @@ function fo(echo "ooba")r
 #!         ^^^^^^^^^^^^^ meta.parens.command-substitution
   return (echo 1)
 end; foobar
+
+function (echo f)oo)bar 2> & | --arg ; end
+#!       ^^^^^^^^ meta.function-call meta.parameter.argument entity.name.function meta.parens.command-substitution
+#!                 ^ invalid.illegal.string
+#!                      ^^ invalid.illegal.function-call
+#!                         ^ invalid.illegal.function-call
+#!                           ^ invalid.illegal.function-call
 
 function '$cmd$'; echo $argv; end; $cmd$ arg1 arg2
 #!       ^^^^^^ entity.name.function

@@ -603,6 +603,7 @@ repository:
               - include: '#pipeline'
 
           - comment: Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen
+            comment: Todo - Let the $self scope handle invalid operators
             begin: (\n)|(;)|([&)])
             beginCaptures:
               '1': {name: meta.function-call.operator.fish}
@@ -661,6 +662,7 @@ repository:
               - include: '#argument'
 
           - comment: Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen
+            comment: Todo - Let the $self scope handle invalid operators
             begin: (\n)|(;)|([&)])
             beginCaptures:
               '1': {name: meta.function-call.operator.fish}
@@ -709,6 +711,7 @@ repository:
                     match: \S+?(?=[\s;&)])
 
           - comment: Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen
+            comment: Todo - Let the $self scope handle invalid operators
             begin: (\n)|(;)|([&)])
             beginCaptures:
               '1': {name: meta.function-call.operator.fish}
@@ -720,6 +723,7 @@ repository:
                 begin: case(?=[\s;&)])
                 beginCaptures:
                   '0': {name: meta.function-call.fish keyword.control.conditional.fish}
+                comment: Todo - Double check this catches pipes, redirection into pipe, all that
                 end: (\n)|(;)|([&)])
                 endCaptures:
                   '1': {name: meta.function-call.operator.fish}
@@ -746,48 +750,72 @@ repository:
         patterns:
           - comment: Anonymous scope - Match the defined name of the function statement, then look for further parameters
             begin: (?=function)
-            end: (?=[\n;&)])
+            end: |-
+              (?x)
+              (?# Look ahead for operators)
+              (?=
+                (?:
+                  (?# Find a control operator)
+                  [\n;&)]
+                |
+                  (?# Find a redirect or pipe operator)
+                  (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)\|?
+                )
+              )
             patterns:
               - comment: Anonymous scope - Capture the command name we know is there, include a single instance of a parameter (the value), and end when whitespace or a control operator is seen
                 begin: (function)\s+
                 beginCaptures:
                   '0': {name: meta.function-call.fish}
                   '1': {name: keyword.control.conditional.fish}
-                end: (?=[\s;&)])
+                end: (?=[\s;&)|<>])
                 patterns:
                   - include: '#line-continuation' # Eats whitespace on next line!
 
                   - name: invalid.illegal.string.fish
-                    begin: (?:[()|<>])
+                    begin: '[|<>]'
                     end: (?=[\s;&)])
 
                   - comment: Anonymous scope - Start when an escaped newline isn't present, and end when whitespace or an operator is seen
                     begin: (?!\\\n)
-                    end: (?=[\s;&()|<>])
+                    end: (?=[\s;&|<>])
                     patterns:
                       - comment: This is all the usual things a parameter is allowed to contain
                         name: meta.function-call.fish meta.parameter.argument.fish entity.name.function.fish
-                        begin: (?!\s)
-                        end: (?=[\s;&|<>])
+                        begin: (?![\s)])
+                        end: (?=[\s;&)|<>])
                         patterns:
                           - include: '#parameter-patterns'
 
-              - comment: Anonymous scope - Capture whitespace which might be there, then match anything normal for a command call
+                      - comment: fish sees a closing parenthesis as mismatched, since command substitution is allowed
+                        name: invalid.illegal.string.fish
+                        match: \)
+
+              - comment: Anonymous scope - Capture whitespace which might be there, then match anything normal for a command call, except redirections!
                 begin: (?=[^\n\S])
-                end: (?=[\n;&)])
+                end: |-
+                  (?x)
+                  (?# Look ahead for operators)
+                  (?=
+                    (?:
+                      (?# Find a control operator)
+                      [\n;&)]
+                    |
+                      (?# Find a redirect or pipe operator)
+                      (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)\|?
+                    )
+                  )
                 patterns:
                   - include: '#separator-whitespace'
                   - include: '#line-continuation'
                   - include: '#comment-internal-end'
-                  - include: '#redirection'
                   - include: '#parameter'
 
           - comment: Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen
-            begin: (\n)|(;)|([&)])
+            begin: (\n)|(;)|(?=[&)|]|(?:[0-9]+)?(?:<|>>?)|\^\^?)
             beginCaptures:
               '1': {name: meta.function-call.operator.fish}
               '2': {name: meta.function-call.operator.fish keyword.operator.control.fish}
-              '3': {name: invalid.illegal.operator.fish}
             end: (?=end(?:$|[\s;&)|<>]))
             patterns:
               - include: $self
