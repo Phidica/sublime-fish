@@ -131,7 +131,7 @@
 							<key>end</key>
 							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
 							<key>name</key>
-							<string>meta.parameter.argument.process-expansion.fish</string>
+							<string>meta.function-call.fish meta.parameter.argument.process-expansion.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -154,7 +154,7 @@
 							<key>match</key>
 							<string>(?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=$|[\s;&amp;)|&lt;&gt;])</string>
 							<key>name</key>
-							<string>meta.parameter.argument.numeric.fish meta.string.unquoted.fish constant.numeric.fish</string>
+							<string>meta.function-call.fish meta.parameter.argument.numeric.fish meta.string.unquoted.fish constant.numeric.fish</string>
 						</dict>
 						<dict>
 							<key>begin</key>
@@ -164,7 +164,7 @@
 							<key>end</key>
 							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
 							<key>name</key>
-							<string>meta.parameter.argument.path.fish</string>
+							<string>meta.function-call.fish meta.parameter.argument.path.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -189,7 +189,7 @@
 							<key>end</key>
 							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
 							<key>name</key>
-							<string>meta.parameter.argument.fish</string>
+							<string>meta.function-call.fish meta.parameter.argument.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -361,7 +361,7 @@
 										<key>0</key>
 										<dict>
 											<key>name</key>
-											<string>support.function.test.begin.fish</string>
+											<string>meta.function-call.fish support.function.test.begin.fish</string>
 										</dict>
 									</dict>
 									<key>comment</key>
@@ -373,7 +373,7 @@
 										<key>1</key>
 										<dict>
 											<key>name</key>
-											<string>support.function.test.end.fish</string>
+											<string>meta.function-call.fish support.function.test.end.fish</string>
 										</dict>
 										<key>2</key>
 										<dict>
@@ -381,10 +381,12 @@
 											<string>invalid.illegal.function-call.fish</string>
 										</dict>
 									</dict>
-									<key>name</key>
-									<string>meta.function-call.fish</string>
 									<key>patterns</key>
 									<array>
+										<dict>
+											<key>include</key>
+											<string>#separator-whitespace</string>
+										</dict>
 										<dict>
 											<key>include</key>
 											<string>#line-continuation</string>
@@ -488,21 +490,8 @@
 							</array>
 						</dict>
 						<dict>
-							<key>begin</key>
-							<string>(?=[&lt;&gt;])</string>
-							<key>comment</key>
-							<string>Temporary wrapping scope</string>
-							<key>end</key>
-							<string>(?=[\s;&amp;)|])</string>
-							<key>name</key>
-							<string>meta.function-call.fish</string>
-							<key>patterns</key>
-							<array>
-								<dict>
-									<key>include</key>
-									<string>#redirection</string>
-								</dict>
-							</array>
+							<key>include</key>
+							<string>#redirection</string>
 						</dict>
 						<dict>
 							<key>begin</key>
@@ -521,8 +510,6 @@
     (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
   )
 )</string>
-							<key>name</key>
-							<string>meta.function-call.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -547,6 +534,10 @@
 )</string>
 									<key>patterns</key>
 									<array>
+										<dict>
+											<key>include</key>
+											<string>#separator-whitespace</string>
+										</dict>
 										<dict>
 											<key>include</key>
 											<string>#line-continuation</string>
@@ -618,6 +609,10 @@
 )</string>
 											<key>patterns</key>
 											<array>
+												<dict>
+													<key>include</key>
+													<string>#separator-whitespace</string>
+												</dict>
 												<dict>
 													<key>include</key>
 													<string>#line-continuation</string>
@@ -846,24 +841,22 @@
 					<array>
 						<dict>
 							<key>begin</key>
-							<string>(for)\s+</string>
+							<string>(for)(\s+)</string>
 							<key>beginCaptures</key>
 							<dict>
-								<key>0</key>
+								<key>1</key>
+								<dict>
+									<key>name</key>
+									<string>meta.function-call.fish keyword.control.conditional.fish</string>
+								</dict>
+								<key>2</key>
 								<dict>
 									<key>name</key>
 									<string>meta.function-call.fish</string>
 								</dict>
-								<key>1</key>
-								<dict>
-									<key>name</key>
-									<string>keyword.control.conditional.fish</string>
-								</dict>
 							</dict>
 							<key>comment</key>
 							<string>Anonymous scope - Capture the command name we know is there, include a single instance of a parameter (the varname), and end when the whitespace after the varname is captured</string>
-							<key>contentName</key>
-							<string>meta.function-call.fish</string>
 							<key>end</key>
 							<string>\s+</string>
 							<key>endCaptures</key>
@@ -908,17 +901,19 @@
 								<key>0</key>
 								<dict>
 									<key>name</key>
-									<string>keyword.control.conditional.fish</string>
+									<string>meta.function-call.fish keyword.control.conditional.fish</string>
 								</dict>
 							</dict>
 							<key>comment</key>
 							<string>Anonymous scope - Capture the command name which might be there, include an arbitrary number of arguments, and end when the control operator is seen</string>
 							<key>end</key>
 							<string>(?=[\n;&amp;)])</string>
-							<key>name</key>
-							<string>meta.function-call.fish</string>
 							<key>patterns</key>
 							<array>
+								<dict>
+									<key>include</key>
+									<string>#separator-whitespace</string>
+								</dict>
 								<dict>
 									<key>include</key>
 									<string>#line-continuation</string>
@@ -1006,24 +1001,22 @@
 							<array>
 								<dict>
 									<key>begin</key>
-									<string>(switch)\s+</string>
+									<string>(switch)(\s+)</string>
 									<key>beginCaptures</key>
 									<dict>
-										<key>0</key>
+										<key>1</key>
+										<dict>
+											<key>name</key>
+											<string>meta.function-call.fish keyword.control.conditional.fish</string>
+										</dict>
+										<key>2</key>
 										<dict>
 											<key>name</key>
 											<string>meta.function-call.fish</string>
 										</dict>
-										<key>1</key>
-										<dict>
-											<key>name</key>
-											<string>keyword.control.conditional.fish</string>
-										</dict>
 									</dict>
 									<key>comment</key>
 									<string>Anonymous scope - Capture the command name we know is there, include a single instance of a parameter (the value), and end when whitespace or a control operator is seen</string>
-									<key>contentName</key>
-									<string>meta.function-call.fish</string>
 									<key>end</key>
 									<string>(?=[\s;&amp;)])</string>
 									<key>patterns</key>
@@ -1113,8 +1106,6 @@
 									</dict>
 									<key>comment</key>
 									<string>Anonymous scope - Capture the command name which might be there, include an arbitrary number of arguments, and end when the control operator is captured</string>
-									<key>contentName</key>
-									<string>meta.function-call.fish</string>
 									<key>end</key>
 									<string>(\n)|(;)|([&amp;)])</string>
 									<key>endCaptures</key>
@@ -1137,6 +1128,10 @@
 									</dict>
 									<key>patterns</key>
 									<array>
+										<dict>
+											<key>include</key>
+											<string>#separator-whitespace</string>
+										</dict>
 										<dict>
 											<key>include</key>
 											<string>#line-continuation</string>
@@ -1236,8 +1231,6 @@
 											<string>Anonymous scope - Start when an escaped newline isn't present, and end when whitespace or an operator is seen</string>
 											<key>end</key>
 											<string>(?=[\s;&amp;()|&lt;&gt;])</string>
-											<key>name</key>
-											<string>meta.function-call.fish</string>
 											<key>patterns</key>
 											<array>
 												<dict>
@@ -1248,7 +1241,7 @@
 													<key>end</key>
 													<string>(?=[\s;&amp;|&lt;&gt;])</string>
 													<key>name</key>
-													<string>meta.parameter.argument.fish entity.name.function.fish</string>
+													<string>meta.function-call.fish meta.parameter.argument.fish entity.name.function.fish</string>
 													<key>patterns</key>
 													<array>
 														<dict>
@@ -1263,23 +1256,17 @@
 								</dict>
 								<dict>
 									<key>begin</key>
-									<string>\s+</string>
-									<key>beginCaptures</key>
-									<dict>
-										<key>0</key>
-										<dict>
-											<key>name</key>
-											<string>meta.function-call.fish</string>
-										</dict>
-									</dict>
+									<string>(?=[^\n\S])</string>
 									<key>comment</key>
 									<string>Anonymous scope - Capture whitespace which might be there, then match anything normal for a command call</string>
-									<key>contentName</key>
-									<string>meta.function-call.fish</string>
 									<key>end</key>
 									<string>(?=[\n;&amp;)])</string>
 									<key>patterns</key>
 									<array>
+										<dict>
+											<key>include</key>
+											<string>#separator-whitespace</string>
+										</dict>
 										<dict>
 											<key>include</key>
 											<string>#line-continuation</string>
@@ -1735,7 +1722,7 @@
 							<key>match</key>
 							<string>(?:--)(?=[\s;&amp;)|&lt;&gt;])</string>
 							<key>name</key>
-							<string>meta.parameter.option.end.fish variable.parameter.fish punctuation.definition.option.end.fish meta.string.unquoted.fish</string>
+							<string>meta.function-call.fish meta.parameter.option.end.fish variable.parameter.fish punctuation.definition.option.end.fish meta.string.unquoted.fish</string>
 						</dict>
 						<dict>
 							<key>begin</key>
@@ -1745,7 +1732,7 @@
 							<key>end</key>
 							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
 							<key>name</key>
-							<string>meta.parameter.option.long.fish</string>
+							<string>meta.function-call.fish meta.parameter.option.long.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -1852,7 +1839,7 @@
 							<key>end</key>
 							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
 							<key>name</key>
-							<string>meta.parameter.option.short.fish variable.parameter.fish</string>
+							<string>meta.function-call.fish meta.parameter.option.short.fish variable.parameter.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -2266,7 +2253,7 @@
 								</dict>
 							</dict>
 							<key>name</key>
-							<string>meta.redirection.fish</string>
+							<string>meta.function-call.fish meta.redirection.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -2281,7 +2268,7 @@
 							<key>end</key>
 							<string>(?!\\\n)</string>
 							<key>name</key>
-							<string>meta.redirection.fish</string>
+							<string>meta.function-call.fish meta.redirection.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -2298,7 +2285,7 @@
 							<key>end</key>
 							<string>(?!\()</string>
 							<key>name</key>
-							<string>meta.redirection.fish</string>
+							<string>meta.function-call.fish meta.redirection.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -2315,7 +2302,7 @@
 							<key>end</key>
 							<string>(?!\$)</string>
 							<key>name</key>
-							<string>meta.redirection.fish</string>
+							<string>meta.function-call.fish meta.redirection.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -2332,7 +2319,7 @@
 							<key>end</key>
 							<string>(?!['"])</string>
 							<key>name</key>
-							<string>meta.redirection.fish</string>
+							<string>meta.function-call.fish meta.redirection.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -2345,13 +2332,13 @@
 							<key>match</key>
 							<string>(?:[0-9]+)(?=$|[\s;&amp;)|&lt;&gt;])</string>
 							<key>name</key>
-							<string>meta.redirection.file-descriptor.fish constant.numeric.file-descriptor.fish</string>
+							<string>meta.function-call.fish meta.redirection.file-descriptor.fish constant.numeric.file-descriptor.fish</string>
 						</dict>
 						<dict>
 							<key>match</key>
 							<string>(?:-)(?=$|[\s;&amp;)|&lt;&gt;])</string>
 							<key>name</key>
-							<string>meta.redirection.file-descriptor.fish keyword.operator.redirect.close.fish</string>
+							<string>meta.function-call.fish meta.redirection.file-descriptor.fish keyword.operator.redirect.close.fish</string>
 						</dict>
 						<dict>
 							<key>comment</key>
@@ -2359,7 +2346,7 @@
 							<key>match</key>
 							<string>(?:\S+.*)$</string>
 							<key>name</key>
-							<string>meta.redirection.fish invalid.illegal.file-descriptor.fish</string>
+							<string>meta.function-call.fish meta.redirection.fish invalid.illegal.file-descriptor.fish</string>
 						</dict>
 					</array>
 				</dict>
@@ -2411,7 +2398,7 @@
 								</dict>
 							</dict>
 							<key>name</key>
-							<string>meta.redirection.fish</string>
+							<string>meta.function-call.fish meta.redirection.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -2426,7 +2413,7 @@
 							<key>end</key>
 							<string>(?!\\\n)</string>
 							<key>name</key>
-							<string>meta.redirection.fish</string>
+							<string>meta.function-call.fish meta.redirection.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -2443,7 +2430,7 @@
 							<key>end</key>
 							<string>(?!\()</string>
 							<key>name</key>
-							<string>meta.redirection.fish</string>
+							<string>meta.function-call.fish meta.redirection.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -2460,7 +2447,7 @@
 							<key>end</key>
 							<string>(?!\$)</string>
 							<key>name</key>
-							<string>meta.redirection.fish</string>
+							<string>meta.function-call.fish meta.redirection.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -2475,13 +2462,13 @@
 							<key>match</key>
 							<string>(?:[&amp;?]|[0-9]*[&lt;&gt;^]).*$</string>
 							<key>name</key>
-							<string>meta.redirection.fish invalid.illegal.path.fish</string>
+							<string>meta.function-call.fish meta.redirection.fish invalid.illegal.path.fish</string>
 						</dict>
 						<dict>
 							<key>match</key>
 							<string>\~</string>
 							<key>name</key>
-							<string>meta.redirection.path.fish keyword.operator.tilde.fish</string>
+							<string>meta.function-call.fish meta.redirection.path.fish keyword.operator.tilde.fish</string>
 						</dict>
 						<dict>
 							<key>comment</key>
@@ -2489,7 +2476,7 @@
 							<key>match</key>
 							<string>(?:\'(?:\\[\'\\]|[^\'\\])*\'|\"(?:\\[\"$\n\\]|[^\"$\n\\])*\"|(?:\\[abefnrtv $\\*?#(){}\[\]&lt;&gt;^&amp;;|"']|\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]|[^\s$\\*?~%#()&lt;&gt;&amp;|;"']|\\(?=[^abefnrtv\s$\\*?#(){}\[\]&lt;&gt;^&amp;;|"'xXuUc])|\\\n|[~%#])+)+</string>
 							<key>name</key>
-							<string>meta.redirection.path.fish</string>
+							<string>meta.function-call.fish meta.redirection.path.fish</string>
 						</dict>
 					</array>
 				</dict>

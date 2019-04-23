@@ -160,7 +160,7 @@ echo str \ # not-comment \  # comment
 
 echo arg \ arg \
 #! <- variable.function
-#! ^^^^^^^^^^^^^ meta.function-call
+#! ^^^^^^^^^^^^ meta.function-call
 #!   ^^^ meta.parameter.argument
 #!       ^ meta.parameter.argument
 #!             ^ constant.character.escape
@@ -1473,7 +1473,8 @@ bar
   body
 end
 
-function ~name; end
+function ~name --argument a -b c; end
+#! ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.function-call
 #!       ^ - keyword.operator.tilde
 
 # This executes without error
