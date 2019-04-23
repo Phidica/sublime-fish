@@ -19,6 +19,8 @@ Style guide
 
 In commit messages, use '' and "" to quote characters and commands, respectively. In `CHANGELOG.md` use \`\` for both.
 
+In commit messages, always use imperative forms of verbs ("add", "change", "fix", etc). In `CHANGELOG.md`, typically use imperative forms to describe new features, but describe fixed bugs in past tense.
+
 For collaborators cutting a new release
 =======================================
 
