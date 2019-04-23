@@ -581,6 +581,12 @@ echo out | echo out
 #!      ^ meta.function-call
 #!        ^ meta.function-call
 
+echo && echo &&& echo || echo ||| echo
+#!    ^ invalid.illegal.function-call
+#!            ^^ invalid.illegal.function-call
+#!                     ^ invalid.illegal.function-call
+#!                             ^^ invalid.illegal.function-call
+
 command echo out 2>| cat
 #!                ^^ meta.function-call.fish meta.pipe.fish keyword.operator
 
@@ -650,7 +656,7 @@ and echo arg | %fish
 
 not echo arg | | arg ; # comment
 #!           ^ meta.function-call keyword.operator.pipe
-#!             ^^^^^^^^^^^^^^^^^ meta.function-call invalid.illegal.function-call
+#!             ^ meta.function-call invalid.illegal.function-call
 
 echo out 1>|
 #!       ^^^ invalid.illegal.operator
@@ -785,7 +791,6 @@ true | cat
 echo out | >echo
 #!       ^ keyword.operator.pipe
 #!         ^ invalid.illegal.function-call
-#!          ^^^^ variable.function
 
 echo "string"(echo "inner string")" outer string"
 #!           ^^^^^^^^^^^^^^^^^^^^^ meta.parens.command-substitution

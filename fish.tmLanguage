@@ -2070,7 +2070,7 @@
 								<dict>
 									<key>begin</key>
 									<string>(?x)
-(?# Look ahead for piping followed by either control operators or piping)
+(?# Look ahead for piping followed by either control operators or redirection)
 (?=
   (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
   \s*
@@ -2079,11 +2079,11 @@
   |
     [\n;&amp;)]
   |
-    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
+    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)
   )
 )</string>
 									<key>comment</key>
-									<string>Match a pipe not followed by a command, hence a malformed segment of the pipeline</string>
+									<string>Match a pipe not followed by a command, hence a malformed segment of the pipeline. However, we make an exception for the case where a pipe is followed by another pipe, and match it further down</string>
 									<key>end</key>
 									<string>(?=\s*$|\s*[\n;&amp;)])</string>
 									<key>patterns</key>
@@ -2126,7 +2126,7 @@
 												</dict>
 											</dict>
 											<key>comment</key>
-											<string>If the pipeline would end with an explicit operator or encounter a second set of piping, then mark the first set of piping as valid and beyond as invalid</string>
+											<string>If the pipeline would end with an explicit operator or encounter anything that we determined was invalid above, then mark the first set of piping as valid and everything beyond as invalid</string>
 											<key>match</key>
 											<string>(?x)
 (?# Consume valid piping; captures 1 2 3 4)
@@ -2163,11 +2163,16 @@
 											<key>name</key>
 											<string>keyword.operator.pipe.fish</string>
 										</dict>
+										<key>5</key>
+										<dict>
+											<key>name</key>
+											<string>invalid.illegal.function-call.fish</string>
+										</dict>
 									</dict>
 									<key>comment</key>
-									<string>Pick up a legitimate pipe</string>
+									<string>Pick up extra pipes after the first and mark them invalid, but in fish 3 it's valid syntax so don't get greedy with the highlighting</string>
 									<key>match</key>
-									<string>(?:([0-9]+)?(&lt;|&gt;&gt;?)|(\^\^?))?(\|)</string>
+									<string>(?:([0-9]+)?(&lt;|&gt;&gt;?)|(\^\^?))?(\|)((?:\s*\|)+)?</string>
 									<key>name</key>
 									<string>meta.function-call.fish meta.pipe.fish</string>
 								</dict>

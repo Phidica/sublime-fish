@@ -273,10 +273,10 @@ repository:
               )
             end: (?=\s*[\n;&)])
             patterns:
-              - comment: Match a pipe not followed by a command, hence a malformed segment of the pipeline
+              - comment: Match a pipe not followed by a command, hence a malformed segment of the pipeline. However, we make an exception for the case where a pipe is followed by another pipe, and match it further down
                 begin: |-
                   (?x)
-                  (?# Look ahead for piping followed by either control operators or piping)
+                  (?# Look ahead for piping followed by either control operators or redirection)
                   (?=
                     (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|
                     \s*
@@ -285,7 +285,7 @@ repository:
                     |
                       [\n;&)]
                     |
-                      (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|
+                      (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)
                     )
                   )
                 end: (?=\s*$|\s*[\n;&)])
@@ -294,7 +294,7 @@ repository:
                     name: meta.function-call.fish invalid.illegal.operator.fish
                     match: (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|(?=\s*$|\s*[\n)])
 
-                  - comment: If the pipeline would end with an explicit operator or encounter a second set of piping, then mark the first set of piping as valid and beyond as invalid
+                  - comment: If the pipeline would end with an explicit operator or encounter anything that we determined was invalid above, then mark the first set of piping as valid and everything beyond as invalid
                     name: meta.function-call.fish
                     match: |-
                       (?x)
@@ -312,13 +312,15 @@ repository:
                       '5': {name: invalid.illegal.function-call.fish}
 
               - comment: Pick up a legitimate pipe
+                comment: Pick up extra pipes after the first and mark them invalid, but in fish 3 it's valid syntax so don't get greedy with the highlighting
                 name: meta.function-call.fish meta.pipe.fish
-                match: (?:([0-9]+)?(<|>>?)|(\^\^?))?(\|)
+                match: (?:([0-9]+)?(<|>>?)|(\^\^?))?(\|)((?:\s*\|)+)?
                 captures:
                   '1': {name: constant.numeric.file-descriptor.fish}
                   '2': {name: keyword.operator.pipe.redirect.fish}
                   '3': {name: keyword.operator.pipe.redirect.fish}
                   '4': {name: keyword.operator.pipe.fish}
+                  '5': {name: invalid.illegal.function-call.fish}
 
               - comment: After a pipe can't be a comment
                 name: meta.function-call.fish invalid.illegal.function-call.fish
