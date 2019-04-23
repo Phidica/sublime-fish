@@ -10,6 +10,7 @@ Bugfixes:
 - `and`/`or` weren't shown as invalid when they were used directly after a pipe
 - Redirection wasn't shown as invalid when it was used directly after a pipe
 - Backgrounding of `and`/`or`/`not` wasn't shown as invalid
+- Defining a function starting with `~` highlighted it as a special character
 
 2.4.0
 -----

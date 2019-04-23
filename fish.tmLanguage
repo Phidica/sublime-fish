@@ -1244,16 +1244,16 @@
 													<key>begin</key>
 													<string>(?!\s)</string>
 													<key>comment</key>
-													<string>Todo - This is a problem actually, because it means functions starting with '~' or '%' get highlighted weird since those symbols are treated special by</string>
+													<string>This is all the usual things a parameter is allowed to contain</string>
 													<key>end</key>
-													<string>(?=[\s;&amp;()|&lt;&gt;])</string>
+													<string>(?=[\s;&amp;|&lt;&gt;])</string>
 													<key>name</key>
-													<string>entity.name.function.fish</string>
+													<string>meta.parameter.argument.fish entity.name.function.fish</string>
 													<key>patterns</key>
 													<array>
 														<dict>
 															<key>include</key>
-															<string>#parameter</string>
+															<string>#parameter-patterns</string>
 														</dict>
 													</array>
 												</dict>

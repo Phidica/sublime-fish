@@ -1456,7 +1456,7 @@ function $cmd>out
 end
 
 function fo(echo "ooba")r
-#!       ^^^^^^^^^^^^^^^^ entity.name.function meta.parameter.argument
+#!       ^^^^^^^^^^^^^^^^ meta.parameter.argument entity.name.function
 #!         ^^^^^^^^^^^^^ meta.parens.command-substitution
   return (echo 1)
 end; foobar
@@ -1472,6 +1472,9 @@ bar
 #! <- entity.name.function
   body
 end
+
+function ~name; end
+#!       ^ - keyword.operator.tilde
 
 # This executes without error
 echo (function)

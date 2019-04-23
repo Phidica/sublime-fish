@@ -772,13 +772,12 @@ repository:
                     begin: (?!\\\n)
                     end: (?=[\s;&()|<>])
                     patterns:
-                      - comment: These patterns are similar to the scope around variable.function.fish in command-call-standard, except the defined name is expanded as a parameter
-                        comment: Todo - This is a problem actually, because it means functions starting with '~' or '%' get highlighted weird since those symbols are treated special by #parameter. We probably need to manually recreate #parameter here with those special cases excluded
-                        name: entity.name.function.fish
+                      - comment: This is all the usual things a parameter is allowed to contain
+                        name: meta.parameter.argument.fish entity.name.function.fish
                         begin: (?!\s)
-                        end: (?=[\s;&()|<>])
+                        end: (?=[\s;&|<>])
                         patterns:
-                          - include: '#parameter'
+                          - include: '#parameter-patterns'
 
               - comment: Anonymous scope - Capture whitespace which might be there, then match anything normal for a command call
                 contentName: meta.function-call.fish # Deanonymise the scope for now!
