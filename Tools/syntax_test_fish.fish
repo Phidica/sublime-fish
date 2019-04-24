@@ -363,7 +363,7 @@ echo one >? 1 >? 2<in.log
 echo one > $file* <? (echo in.log) >{a,b} ^ \
 #!       ^^^^^^^ meta.redirection
 #!       ^ keyword.operator.redirect
-#!         ^^^^^ variable.other
+#!         ^^^^^ meta.string.unquoted variable.other
 #!              ^ invalid.illegal.path
 #!                ^^^^^^^^^^^^^^^^ meta.redirection
 #!                ^^ keyword.operator.redirect
@@ -865,10 +865,10 @@ echo $var[(echo 1)] $var["2"] "str"
 
 echo $var[abc] (echo 1)[ 1 * {1,2}2 ]
 #!        ^^^ invalid.illegal.index
-#!                       ^ meta.string.unquoted constant.numeric
+#!                       ^ constant.numeric
 #!                         ^ invalid.illegal.index
 #!                           ^^^^^ invalid.illegal.index
-#!                                ^ meta.string.unquoted constant.numeric
+#!                                ^ constant.numeric
 
 echo 'str$str\$str\'str\\"str"'
 #!   ^ string.quoted.single punctuation.definition.string.begin

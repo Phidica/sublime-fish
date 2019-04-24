@@ -1640,10 +1640,12 @@
 							<string>#string-quoted</string>
 						</dict>
 						<dict>
+							<key>comment</key>
+							<string>There's no need to apply meta.string.unquoted to anything inside of an index expansion, as if it needs to be applied then it would have been handled already. The fact index expansion can appear inside of quotes (after a variable expansion) makes it tricky to decide what is or isn't "unquoted"</string>
 							<key>match</key>
 							<string>(?:[+-]?[0-9]+)(?=[\s;&amp;)|&lt;&gt;]|\]|\.\.)</string>
 							<key>name</key>
-							<string>meta.string.unquoted.fish constant.numeric.fish</string>
+							<string>constant.numeric.fish</string>
 						</dict>
 						<dict>
 							<key>comment</key>
@@ -1865,7 +1867,7 @@
 					<key>begin</key>
 					<string>(?=\$)</string>
 					<key>comment</key>
-					<string>Give variable expansion the unquoted string scope</string>
+					<string>Give variable expansion the unquoted string scope, since if it appears inside a string it gets the quoted string scope and we should mirror that</string>
 					<key>end</key>
 					<string>(?!\$)</string>
 					<key>name</key>
@@ -2503,11 +2505,11 @@
 							<key>begin</key>
 							<string>(?=\$)</string>
 							<key>comment</key>
-							<string>A raw path cannot begin with '$' since this undergoes variable expansion</string>
+							<string>We also make sure that variable expansion is scoped as an unquoted string, since if it appears inside quotes then it gets scoped as a quoted string and we should mirror that</string>
 							<key>end</key>
 							<string>(?!\$)</string>
 							<key>name</key>
-							<string>meta.function-call.fish meta.redirection.fish</string>
+							<string>meta.function-call.fish meta.redirection.fish meta.string.unquoted</string>
 							<key>patterns</key>
 							<array>
 								<dict>

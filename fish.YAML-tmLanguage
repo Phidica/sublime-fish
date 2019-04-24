@@ -120,7 +120,7 @@ repository:
     patterns:
       - include: '#command-substitution'
 
-      - comment: Give variable expansion the unquoted string scope
+      - comment: Give variable expansion the unquoted string scope, since if it appears inside a string it gets the quoted string scope and we should mirror that
         name: meta.string.unquoted.fish
         begin: (?=\$)
         end: (?!\$)
@@ -931,7 +931,8 @@ repository:
 
           - include: '#string-quoted'
 
-          - name: meta.string.unquoted.fish constant.numeric.fish
+          - comment: There's no need to apply meta.string.unquoted to anything inside of an index expansion, as if it needs to be applied then it would have been handled already. The fact index expansion can appear inside of quotes (after a variable expansion) makes it tricky to decide what is or isn't "unquoted"
+            name: constant.numeric.fish
             match: (?:[+-]?[0-9]+)(?=[\s;&)|<>]|\]|\.\.)
 
           - comment: Anything else is invalid
@@ -1073,7 +1074,8 @@ repository:
               - include: '#command-substitution'
 
           - comment: A raw path cannot begin with '$' since this undergoes variable expansion
-            name: meta.function-call.fish meta.redirection.fish
+            comment: We also make sure that variable expansion is scoped as an unquoted string, since if it appears inside quotes then it gets scoped as a quoted string and we should mirror that
+            name: meta.function-call.fish meta.redirection.fish meta.string.unquoted
             begin: (?=\$)
             end: (?!\$)
             patterns:
