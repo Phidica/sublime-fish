@@ -24,37 +24,28 @@ uuid: f9278d07-f7c1-4a9b-9581-ebcbc050fbfb
 
 patterns:
   # Base scope - Pick up '#' and "\\\n" before command-call sees them
+  # This will include comments that are alone on a line, or sit after a command that is terminated by a visible control operator
   - include: '#comment-external'
   - include: '#line-continuation'
 
-  - comment: The first command of a pipeline can't begin with a close parenthesis or be "end". We match this so exclusively early because the pipeline scope will end immediately if either is seen by its lookahead
-    comment: In an ideal world, command-call-standard would be performing this match because fish highlights the strings which follow as arguments. But we can't do that in a tmLanguage
-    name: meta.function-call.fish invalid.illegal.function-call.fish
+  - comment: The first command of a pipeline can't begin with a close parenthesis or be "end". We match this so exclusively early because the base pipeline scope will end immediately if either is seen by its lookahead
+    comment: In an ideal world, #command-call-standard would be performing this match because fish considers the strings which follow as parameters, not as new functions. But we can't do that in a tmLanguage
+    name: invalid.illegal.function-call.fish
     begin: \)|end
     end: (?=[\s;&)|<>])
 
-  - comment: Anonymous scope - Base scope pipeline goes up until one of the definitive ends (newline and ';') or the sequences that could be an end if we're actually inside a $self scope right now (')' and "end")
+  - comment: The first character of a pipeline can't be an '&', and the base pipeline scope won't be able to mark it as invalid so we have to do so here
+    name: invalid.illegal.function-call.fish
+    match: \&
+
+  - comment: Anonymous scope - Base scope pipeline, goes up until a definitive end (typical control operators) or the sequences that could be an end if we're actually inside a $self scope right now (')' and "end")
     begin: (?=\S)
-    end: (\n)|(;)|(?=\))|(?=end)
+    end: (\n)|([;&])|(?=\)|end)
     endCaptures:
       '1': {name: meta.function-call.operator.fish}
       '2': {name: meta.function-call.operator.fish keyword.operator.control.fish}
     patterns:
-      - comment: The first character of a pipeline can't be an '&' because the scope will end immediately with it being matched as valid
-        name: invalid.illegal.function-call.fish
-        match: \&
-
-      - comment: Anonymous scope - Base scope pipeline (up until a control operator)
-        begin: (?![\s#])
-        end: (?=[\n;)])|(&)
-        endCaptures:
-          '1': {name: meta.function-call.operator.fish keyword.operator.control.fish}
-        comment: We explicitly require '&' come after a full command (unlike ';' which can be alone on a line) so it is captured here
-        patterns:
-          - include: '#pipeline'
-
-      - comment: Pick up a comment after a backgrounded command
-        include: '#comment-internal-end'
+      - include: '#pipeline'
 
 repository:
   separator-whitespace:

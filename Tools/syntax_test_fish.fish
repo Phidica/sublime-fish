@@ -647,7 +647,7 @@ echo arg | # bad text
 
 echo arg | )paren
 #!       ^ invalid.illegal.operator
-#!         ^^^^^^ meta.function-call invalid.illegal.function-call
+#!         ^^^^^^ invalid.illegal.function-call
 
 and echo arg | %fish
 #!           ^ meta.function-call keyword.operator.pipe

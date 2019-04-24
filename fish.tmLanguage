@@ -30,19 +30,27 @@
 			<key>begin</key>
 			<string>\)|end</string>
 			<key>comment</key>
-			<string>In an ideal world, command-call-standard would be performing this match because fish highlights the strings which follow as arguments. But we can't do that in a tmLanguage</string>
+			<string>In an ideal world,</string>
 			<key>end</key>
 			<string>(?=[\s;&amp;)|&lt;&gt;])</string>
 			<key>name</key>
-			<string>meta.function-call.fish invalid.illegal.function-call.fish</string>
+			<string>invalid.illegal.function-call.fish</string>
+		</dict>
+		<dict>
+			<key>comment</key>
+			<string>The first character of a pipeline can't be an '&amp;', and the base pipeline scope won't be able to mark it as invalid so we have to do so here</string>
+			<key>match</key>
+			<string>\&amp;</string>
+			<key>name</key>
+			<string>invalid.illegal.function-call.fish</string>
 		</dict>
 		<dict>
 			<key>begin</key>
 			<string>(?=\S)</string>
 			<key>comment</key>
-			<string>Anonymous scope - Base scope pipeline goes up until one of the definitive ends (newline and ';') or the sequences that could be an end if we're actually inside a $self scope right now (')' and "end")</string>
+			<string>Anonymous scope - Base scope pipeline, goes up until a definitive end (typical control operators) or the sequences that could be an end if we're actually inside a $self scope right now (')' and "end")</string>
 			<key>end</key>
-			<string>(\n)|(;)|(?=\))|(?=end)</string>
+			<string>(\n)|([;&amp;])|(?=\)|end)</string>
 			<key>endCaptures</key>
 			<dict>
 				<key>1</key>
@@ -59,41 +67,8 @@
 			<key>patterns</key>
 			<array>
 				<dict>
-					<key>comment</key>
-					<string>The first character of a pipeline can't be an '&amp;' because the scope will end immediately with it being matched as valid</string>
-					<key>match</key>
-					<string>\&amp;</string>
-					<key>name</key>
-					<string>invalid.illegal.function-call.fish</string>
-				</dict>
-				<dict>
-					<key>begin</key>
-					<string>(?![\s#])</string>
-					<key>comment</key>
-					<string>We explicitly require '&amp;' come after a full command (unlike ';' which can be alone on a line) so it is captured here</string>
-					<key>end</key>
-					<string>(?=[\n;)])|(&amp;)</string>
-					<key>endCaptures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>meta.function-call.operator.fish keyword.operator.control.fish</string>
-						</dict>
-					</dict>
-					<key>patterns</key>
-					<array>
-						<dict>
-							<key>include</key>
-							<string>#pipeline</string>
-						</dict>
-					</array>
-				</dict>
-				<dict>
-					<key>comment</key>
-					<string>Pick up a comment after a backgrounded command</string>
 					<key>include</key>
-					<string>#comment-internal-end</string>
+					<string>#pipeline</string>
 				</dict>
 			</array>
 		</dict>
