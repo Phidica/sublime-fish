@@ -319,7 +319,7 @@ echo one 1>~/err.log two 2^err.log three^four five^6 7>? \
 #!       ^^^^^^^^^^^ meta.redirection
 #!       ^   constant.numeric.file-descriptor
 #!        ^   keyword.operator.redirect
-#!         ^^^^^^^^^ meta.redirection.path
+#!         ^^^^^^^^^ meta.redirection.path meta.string.unquoted
 #!                   ^^^ meta.parameter.argument
 #!                       ^^^^^^^^^ meta.parameter.argument
 #!                                 ^^^^^^^^^^ meta.parameter.argument
@@ -332,13 +332,14 @@ echo one 1>~/err.log two 2^err.log three^four five^6 7>? \
 #!        ^^^^^^^^^^^^ meta.redirection
 #!        ^ constant.numeric.file-descriptor
 #!         ^^ keyword.operator.redirect
-#!            ^^^^^^^^ meta.redirection.path
+#!            ^^^^^^^^ meta.redirection.path string.quoted.double
 #!                     ^^^^ meta.parameter.argument
 
 echo one ^err.log^'log' >out.log<in.log < \?in.log > ?out.log
 #!       ^^^^^^^^^^^^^^ meta.redirection
 #!       ^ keyword.operator.redirect
 #!        ^^^^^^^^^^^^^ meta.redirection.path
+#!                ^^^^^ string.quoted.single
 #!                      ^^^^^^^^^^^^^^^ meta.redirection
 #!                      ^ keyword.operator.redirect
 #!                       ^^^^^^^ meta.redirection.path
@@ -359,21 +360,25 @@ echo one >? 1 >? 2<in.log
 #!            ^^ keyword.operator.redirect
 #!               ^^^^^^^^ invalid.illegal.path
 
-echo one > $file <? (echo in.log) >{a,b} ^ \
-#!       ^^^^^^ meta.redirection
+echo one > $file* <? (echo in.log) >{a,b} ^ \
+#!       ^^^^^^^ meta.redirection
 #!       ^ keyword.operator.redirect
 #!         ^^^^^ variable.other
-#!               ^^^^^^^^^^^^^^^^ meta.redirection
-#!               ^^ keyword.operator.redirect
-#!                  ^^^^^^^^^^^^^ meta.parens.command-substitution
-#!                                ^^^^^^ meta.redirection
-#!                                ^ keyword.operator.redirect
-#!                                 ^^^^^ meta.redirection.path
-#!                                       ^^ meta.redirection
-#!                                       ^ keyword.operator.redirect
-#!                                         ^^ constant.character.escape
-  "err.log"
+#!              ^ invalid.illegal.path
+#!                ^^^^^^^^^^^^^^^^ meta.redirection
+#!                ^^ keyword.operator.redirect
+#!                   ^^^^^^^^^^^^^ meta.parens.command-substitution
+#!                                 ^^^^^^ meta.redirection
+#!                                 ^ keyword.operator.redirect
+#!                                  ^^^^^ meta.redirection invalid.illegal.path
+#!                                  ^^^^^ - meta.braces.brace-expansion
+#!                                        ^^ meta.redirection
+#!                                        ^ keyword.operator.redirect
+#!                                          ^^ constant.character.escape
+  "err.log"a? >out}a
 #! ^^^^^^^^ meta.redirection.path
+#!          ^ invalid.illegal.path
+#!                ^ invalid.illegal.path
 
 echo one ^&2 two three3>&4 four 5>& \
 #!       ^^^ meta.redirection

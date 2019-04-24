@@ -967,7 +967,7 @@ repository:
           - begin: (?:([0-9]+)(<|>>|>)|(>>|\^\^|[<>^]))(\&)\s*
             beginCaptures:
               '0': {name: meta.function-call.fish meta.redirection.fish}
-              '1': {name: constant.numeric.file-descriptor.fish}
+              '1': {name: meta.string.unquoted.fish constant.numeric.file-descriptor.fish}
               '2': {name: keyword.operator.redirect.fish}
               '3': {name: keyword.operator.redirect.fish}
               '4': {name: keyword.operator.redirect.dereference.fish}
@@ -1002,9 +1002,9 @@ repository:
             patterns:
               - include: '#string-quoted'
 
-          - name: meta.function-call.fish meta.redirection.file-descriptor.fish constant.numeric.file-descriptor.fish
+          - name: meta.function-call.fish meta.redirection.file-descriptor.fish meta.string.unquoted.fish constant.numeric.file-descriptor.fish
             match: (?:[0-9]+)(?=$|[\s;&)|<>])
-          - name: meta.function-call.fish meta.redirection.file-descriptor.fish keyword.operator.redirect.close.fish
+          - name: meta.function-call.fish meta.redirection.file-descriptor.fish meta.string.unquoted.fish keyword.operator.redirect.close.fish
             match: (?:-)(?=$|[\s;&)|<>])
 
           - comment: Anything else is illegal
@@ -1020,7 +1020,7 @@ repository:
           - begin: (?:([0-9]+)(<|>>|>)|(>>|\^\^|[<>^]))(\?)?\s*
             beginCaptures:
               '0': {name: meta.function-call.fish meta.redirection.fish}
-              '1': {name: constant.numeric.file-descriptor.fish}
+              '1': {name: meta.string.unquoted.fish constant.numeric.file-descriptor.fish}
               '2': {name: keyword.operator.redirect.fish}
               '3': {name: keyword.operator.redirect.fish}
               '4': {name: keyword.operator.redirect.clobber-test.fish}
@@ -1034,29 +1034,51 @@ repository:
 
           - include: '#line-continuation'
 
-          - comment: Evaluates to a string, so path cannot begin with '('
+          - comment: A redirection path cannot contain brace expansion
+            name: meta.function-call.fish meta.redirection.fish invalid.illegal.path.fish
+            begin: \{|(?=\})
+            end: '[\s;&)|}]'
+
+          - comment: A redirection path cannot contain wildcard expansion
+            name: meta.function-call.fish meta.redirection.fish invalid.illegal.path.fish
+            match: '[*?]'
+
+          - comment: Check for characters which are associated with redirection, so path cannot begin with them
+            name: meta.function-call.fish meta.redirection.fish invalid.illegal.path.fish
+            match: (?:[&?]|[0-9]*[<>^]).*$
+
+          # We reserve the meta.redirection.path scope only for redirection paths which may represent literal paths
+
+          - name: meta.function-call.fish meta.redirection.path.fish meta.string.unquoted.fish keyword.operator.tilde.fish
+            match: \~
+
+          - name: meta.function-call.fish meta.redirection.path.fish
+            begin: (?![\s;&()|<>${}*?])
+            end: (?=[\s;&()|<>${}*?])
+            comment: Use strings to build a file path, but break out if any invalid elements or elements that wouldn't form a literal path are encountered
+            patterns:
+              - include: '#string-quoted'
+
+              - comment: Should use the same patterns as the above begin/end, but also add the quotes so the #string-quoted rule can handle quoted strings
+                name: meta.string.unquoted.fish
+                begin: (?![\s;&()|<>${}*?]|['"])
+                end: (?=[\s;&()|<>${}*?]|['"])
+                patterns:
+                  - include: '#string-unquoted-patterns-escapes'
+
+          - comment: A raw path cannot begin with '(' since this undergoes command substitution
             name: meta.function-call.fish meta.redirection.fish
             begin: (?=\()
             end: (?!\()
             patterns:
               - include: '#command-substitution'
 
-          - comment: Evaluates to a string, so path cannot begin with '$'
+          - comment: A raw path cannot begin with '$' since this undergoes variable expansion
             name: meta.function-call.fish meta.redirection.fish
             begin: (?=\$)
             end: (?!\$)
             patterns:
               - include: '#variable-expansion'
-
-          - comment: Check for characters which are associated with redirection, so path cannot begin with them. Don't put them in the meta.redirection.path scope, so that only valid paths are in there
-            name: meta.function-call.fish meta.redirection.fish invalid.illegal.path.fish
-            match: (?:[&?]|[0-9]*[<>^]).*$
-
-          - name: meta.function-call.fish meta.redirection.path.fish keyword.operator.tilde.fish
-            match: \~
-          - comment: Use the function call match to build a file path, as the syntax is fairly similar (possibly identical, after exceptions caught above? I haven't checked)
-            name: meta.function-call.fish meta.redirection.path.fish
-            match: (?:\'(?:\\[\'\\]|[^\'\\])*\'|\"(?:\\[\"$\n\\]|[^\"$\n\\])*\"|(?:\\[abefnrtv $\\*?#(){}\[\]<>^&;|"']|\\[~%]|\\[xX][0-9A-Fa-f]{1,2}|\\[0-7]{1,3}|\\u[0-9A-Fa-f]{1,4}|\\U[0-9A-Fa-f]{1,8}|\\c[?-~]|[^\s$\\*?~%#()<>&|;"']|\\(?=[^abefnrtv\s$\\*?#(){}\[\]<>^&;|"'xXuUc])|\\\n|[~%#])+)+
 
   string:
     patterns:
@@ -1105,27 +1127,7 @@ repository:
   string-unquoted-patterns:
     comment: Describe contents of an unquoted string separately for ease of recursion
     patterns:
-      - comment: This list follows the order given in official fish documentation. Technically '~' and '%' only need escaping if they appear at the front of a parameter. If they are escaped within a parameter, then fish does not *highlight* the escape, however it does silently *parse* the escape and the backslash is removed before the parameter is passed to the command. So, we highlight these escapes as well since they are actually treated as valid escapes by fish
-        name: constant.character.escape.fish
-        match: |-
-          (?x)
-          \\[abefnrtv $\\*?#(){}\[\]<>^&|;"']
-          |
-          \\[~%]
-          |
-          \\[xX][0-9A-Fa-f]{1,2}
-          |
-          \\[0-7]{1,3}
-          |
-          \\u[0-9A-Fa-f]{1,4}
-          |
-          \\U[0-9A-Fa-f]{1,8}
-          |
-          \\c[?-~]
-
-      - comment: Just for convenience we separate the newline escape
-        name: constant.character.escape.fish
-        match: \\\n
+      - include: '#string-unquoted-patterns-escapes'
 
       - name: meta.braces.brace-expansion.fish
         begin: \{
@@ -1165,6 +1167,30 @@ repository:
           '1': {name: keyword.operator.double-star.fish}
           '2': {name: keyword.operator.single-star.fish}
           '3': {name: keyword.operator.question-mark.fish}
+
+  string-unquoted-patterns-escapes:
+    patterns:
+      - comment: This list follows the order given in official fish documentation. Technically '~' and '%' only need escaping if they appear at the front of a parameter. If they are escaped within a parameter, then fish does not *highlight* the escape, however it does silently *parse* the escape and the backslash is removed before the parameter is passed to the command. So, we highlight these escapes as well since they are actually treated as valid escapes by fish
+        name: constant.character.escape.fish
+        match: |-
+          (?x)
+          \\[abefnrtv $\\*?#(){}\[\]<>^&|;"']
+          |
+          \\[~%]
+          |
+          \\[xX][0-9A-Fa-f]{1,2}
+          |
+          \\[0-7]{1,3}
+          |
+          \\u[0-9A-Fa-f]{1,4}
+          |
+          \\U[0-9A-Fa-f]{1,8}
+          |
+          \\c[?-~]
+
+      - comment: Just for convenience we separate the newline escape
+        name: constant.character.escape.fish
+        match: \\\n
 
   variable-expansion:
     patterns:
