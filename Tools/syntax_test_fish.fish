@@ -489,14 +489,14 @@ foo\ bar
 #! ^^^^^ variable.function
 
 exec echo \
-#! <- meta.function-call support.function
+#! <- meta.function-call support.function meta.string.unquoted
 #!  ^ meta.function-call
 #!   ^^^^ meta.function-call variable.function
 arg
 #! <-meta.function-call meta.parameter.argument
 
 builtin echo &
-#! <- meta.function-call support.function
+#! <- meta.function-call support.function meta.string.unquoted
 #!      ^^^^ meta.function-call variable.function
 #!           ^ keyword.operator.control
 
@@ -505,12 +505,12 @@ builtin echo arg ; and echo arg
 #!      ^^^^ meta.function-call variable.function
 #!           ^^^ meta.function-call meta.parameter.argument
 #!               ^ keyword.operator.control
-#!                 ^^^ meta.function-call keyword.operator.word
+#!                 ^^^ meta.function-call keyword.operator.word meta.string.unquoted
 #!                     ^^^^ meta.function-call variable.function
 #!                          ^^^ meta.parameter.argument
 
 command  \
-#! <- meta.function-call support.function
+#! <- meta.function-call support.function meta.string.unquoted
 #!       ^ constant.character.escape
 echo  \
 #! <- meta.function-call variable.function
@@ -538,7 +538,7 @@ arg \
 #! <- meta.function-call keyword.operator.control
 
 not builtin case 1>/dev/null
-#! <- meta.function-call keyword.operator.word
+#! <- meta.function-call keyword.operator.word meta.string.unquoted
 #! ^ meta.function-call
 #!  ^^^^^^^ meta.function-call support.function
 #!          ^^^^ meta.function-call variable.function
@@ -602,7 +602,7 @@ and end; or %fish okay
 #! <- meta.function-call keyword.operator.word
 #!  ^^^ invalid.illegal.function-call
 #!     ^ keyword.operator.control
-#!       ^^ meta.function-call keyword.operator.word
+#!       ^^ meta.function-call keyword.operator.word meta.string.unquoted
 #!          ^^^^^ invalid.illegal.function-call
 
 echo arg | cat

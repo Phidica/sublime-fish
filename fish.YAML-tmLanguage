@@ -185,7 +185,7 @@ repository:
           - comment: If the command is followed by an "&", then that's invalid
             begin: (and|or)\b(?!\s*[\n;)-])
             beginCaptures:
-              '1': {name: meta.function-call.fish keyword.operator.word.fish}
+              '1': {name: meta.function-call.fish keyword.operator.word.fish meta.string.unquoted.fish}
             end: (?![^\n\S]|\&|\\\n)
             patterns:
               - include: '#separator-whitespace'
@@ -356,7 +356,7 @@ repository:
             )
           )
         beginCaptures:
-          '1': {name: meta.function-call.fish support.function.fish}
+          '1': {name: meta.function-call.fish support.function.fish meta.string.unquoted.fish}
         end: |-
           (?x)
           (?# Look ahead for control operations after whitespace)
@@ -382,7 +382,7 @@ repository:
           - comment: If the command is followed by an "&", then that's invalid
             begin: (not)\b(?!\s*[\n;)-])
             beginCaptures:
-              '1': {name: meta.function-call.fish keyword.operator.word.fish}
+              '1': {name: meta.function-call.fish keyword.operator.word.fish meta.string.unquoted.fish}
             end: (?![^\n\S]|\&|\\\n)
             patterns:
               - include: '#separator-whitespace'

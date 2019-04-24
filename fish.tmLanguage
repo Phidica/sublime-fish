@@ -205,7 +205,7 @@
 						<key>1</key>
 						<dict>
 							<key>name</key>
-							<string>meta.function-call.fish support.function.fish</string>
+							<string>meta.function-call.fish support.function.fish meta.string.unquoted.fish</string>
 						</dict>
 					</dict>
 					<key>comment</key>
@@ -255,7 +255,7 @@
 								<key>1</key>
 								<dict>
 									<key>name</key>
-									<string>meta.function-call.fish keyword.operator.word.fish</string>
+									<string>meta.function-call.fish keyword.operator.word.fish meta.string.unquoted.fish</string>
 								</dict>
 							</dict>
 							<key>comment</key>
@@ -1907,7 +1907,7 @@
 								<key>1</key>
 								<dict>
 									<key>name</key>
-									<string>meta.function-call.fish keyword.operator.word.fish</string>
+									<string>meta.function-call.fish keyword.operator.word.fish meta.string.unquoted.fish</string>
 								</dict>
 							</dict>
 							<key>comment</key>
