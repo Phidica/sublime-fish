@@ -929,15 +929,14 @@ repository:
 
           - include: '#variable-expansion'
 
-          # Manually recreate the string rule with a numeric match, extra logic in unquoted strings, and don't repeat the meta.string.unquoted scope
           - include: '#string-quoted'
-          - name: constant.numeric.fish
+
+          - name: meta.string.unquoted.fish constant.numeric.fish
             match: (?:[+-]?[0-9]+)(?=[\s;&)|<>]|\]|\.\.)
-          - begin: (?![\s'"]|\.\.)
-            end: (?=[\s;&)|<>'"]|\]|\.\.)
-            comment: Begin/end string as before with the addition of breaking at a ']' or ".."
-            patterns:
-              - include: '#string-unquoted-patterns'
+
+          - comment: Anything else is invalid
+            name: invalid.illegal.index.fish
+            match: \S
 
   line-continuation:
     comment: This rule should be included anywhere that escaping a newline and adding an arbitrary number of comment lines is permitted (which is pretty much everywhere in fish)

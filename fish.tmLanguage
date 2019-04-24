@@ -1643,22 +1643,15 @@
 							<key>match</key>
 							<string>(?:[+-]?[0-9]+)(?=[\s;&amp;)|&lt;&gt;]|\]|\.\.)</string>
 							<key>name</key>
-							<string>constant.numeric.fish</string>
+							<string>meta.string.unquoted.fish constant.numeric.fish</string>
 						</dict>
 						<dict>
-							<key>begin</key>
-							<string>(?![\s'"]|\.\.)</string>
 							<key>comment</key>
-							<string>Begin/end string as before with the addition of breaking at a ']' or ".."</string>
-							<key>end</key>
-							<string>(?=[\s;&amp;)|&lt;&gt;'"]|\]|\.\.)</string>
-							<key>patterns</key>
-							<array>
-								<dict>
-									<key>include</key>
-									<string>#string-unquoted-patterns</string>
-								</dict>
-							</array>
+							<string>Anything else is invalid</string>
+							<key>match</key>
+							<string>\S</string>
+							<key>name</key>
+							<string>invalid.illegal.index.fish</string>
 						</dict>
 					</array>
 				</dict>

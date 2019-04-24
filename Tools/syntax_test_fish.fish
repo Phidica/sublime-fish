@@ -850,7 +850,7 @@ echo $$var[ 1 ][ 1 ] $var[1.2]
 #!    ^^^^ variable.other
 #!        ^^^^^ meta.brackets.index-expansion
 #!             ^^^^^ meta.brackets.index-expansion
-#!                        ^^^ - constant.numeric
+#!                        ^^ - constant.numeric
 
 echo $var[+1..-1]
 #!        ^^ constant.numeric
@@ -862,6 +862,13 @@ echo $var[(echo 1)] $var["2"] "str"
 #!        ^^^^^^^^  meta.parens.command-substitution
 #!                       ^^^ string.quoted
 #!                            ^^^^^ string.quoted
+
+echo $var[abc] (echo 1)[ 1 * {1,2}2 ]
+#!        ^^^ invalid.illegal.index
+#!                       ^ meta.string.unquoted constant.numeric
+#!                         ^ invalid.illegal.index
+#!                           ^^^^^ invalid.illegal.index
+#!                                ^ meta.string.unquoted constant.numeric
 
 echo 'str$str\$str\'str\\"str"'
 #!   ^ string.quoted.single punctuation.definition.string.begin
