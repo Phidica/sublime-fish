@@ -436,7 +436,7 @@ repository:
               - comment: Look for loop/function control commands. We perform no checking on the validity of their scope (because only allowing them in the correct scope won't work if they are used within if-blocks) or parameters (because fish does that during execution not parsing)
                 match: (?:break|continue|return)(?=[\s;&)|<>])
                 captures:
-                  '0': {name: meta.function-call.fish keyword.control.conditional.fish}
+                  '0': {name: meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish}
 
               - comment: Anonymous scope - A generic name element
                 begin: (?!\s)
@@ -559,23 +559,23 @@ repository:
       - comment: Block commands cannot be backgrounded, piped, or redirected
         match: (begin|while|if|for|switch|function)\s*([&|<>])
         captures:
-          '1': {name: meta.function-call.fish variable.function.fish}
+          '1': {name: meta.function-call.fish variable.function.fish meta.string.unquoted.fish}
           '2': {name: invalid.illegal.operator.fish}
 
       - comment: The begin command uniquely cannot be the last command in a command substitution
         match: (begin)\s*(\))
         captures:
-          '1': {name: meta.function-call.fish variable.function.fish}
+          '1': {name: meta.function-call.fish variable.function.fish meta.string.unquoted.fish}
           '2': {name: invalid.illegal.operator.fish}
 
       - comment: The begin command can be alone on a line or followed by any command that doesn't start with a '-'. If a '-' is seen it shouldn't be treated as a block
         name: meta.block.begin.fish
         begin: begin(?=\s*$|\s*[\n;]|\s+[^\s-])
         beginCaptures:
-          '0': {name: meta.function-call.fish keyword.control.conditional.fish}
+          '0': {name: meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish}
         end: end(?=$|[\s;&)|<>])
         endCaptures:
-          '0': {name: meta.function-call.fish keyword.control.conditional.fish}
+          '0': {name: meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish}
         patterns:
           - include: $self
 
@@ -584,12 +584,12 @@ repository:
         comment: If the command name is followed by a valid string (not anything that closes the scope or a string starting with a '-') then open the scope
         end: end(?=$|[\s;&)|<>])
         endCaptures:
-          '0': {name: meta.function-call.fish keyword.control.conditional.fish}
+          '0': {name: meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish}
         patterns:
           - comment: Anonymous scope - Capture the command name we know is there, include a single instance of a pipeline, and end when an operator is seen
             begin: while
             beginCaptures:
-              '0': {name: meta.function-call.fish keyword.control.conditional.fish}
+              '0': {name: meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish}
             end: (?=[\n;&)])
             patterns:
               - include: '#line-continuation'
@@ -611,7 +611,7 @@ repository:
         comment: If the command name is followed by a valid string (not anything that closes the scope or a string starting with a '-') then open the scope
         end: end(?=$|[\s;&)|<>])
         endCaptures:
-          '0': {name: meta.function-call.fish keyword.control.conditional.fish}
+          '0': {name: meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish}
         patterns:
           # Note that this internal scope does not treat the closing parenthesis as a control operator, because a command substitution can't end in the middle of a block
           - include: '#command-call-standard-block-if-internal'
@@ -621,12 +621,12 @@ repository:
         comment: If the command name is followed by a valid string (not anything that closes the scope or a string starting with a '-') then open the scope
         end: end(?=$|[\s;&)|<>])
         endCaptures:
-          '0': {name: meta.function-call.fish keyword.control.conditional.fish}
+          '0': {name: meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish}
         patterns:
           - comment: Anonymous scope - Capture the command name we know is there, include a single instance of a parameter (the varname), and end when the whitespace after the varname is captured
             begin: (for)(\s+)
             beginCaptures:
-              '1': {name: meta.function-call.fish keyword.control.conditional.fish}
+              '1': {name: meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish}
               '2': {name: meta.function-call.fish}
             end: \s+
             endCaptures:
@@ -646,7 +646,7 @@ repository:
           - comment: Anonymous scope - Capture the command name which might be there, include an arbitrary number of arguments, and end when the control operator is seen
             begin: in(?=\s)
             beginCaptures:
-              '0': {name: meta.function-call.fish keyword.control.conditional.fish}
+              '0': {name: meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish}
             end: (?=[\n;&)])
             patterns:
               - include: '#separator-whitespace'
@@ -676,7 +676,7 @@ repository:
         comment: If the command name is followed by a valid string (not anything that closes the scope or a string starting with a '-') then open the scope
         end: end(?=$|[\s;&)|<>])
         endCaptures:
-          '0': {name: meta.function-call.fish keyword.control.conditional.fish}
+          '0': {name: meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish}
         patterns:
           - comment: Anonymous scope - Match the valid part of the switch statement, then look for an invalid part
             begin: (?=switch)
@@ -685,7 +685,7 @@ repository:
               - comment: Anonymous scope - Capture the command name we know is there, include a single instance of a parameter (the value), and end when whitespace or a control operator is seen
                 begin: (switch)(\s+)
                 beginCaptures:
-                  '1': {name: meta.function-call.fish keyword.control.conditional.fish}
+                  '1': {name: meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish}
                   '2': {name: meta.function-call.fish}
                 end: (?=[\s;&)])
                 patterns:
@@ -717,7 +717,7 @@ repository:
               - comment: Anonymous scope - Capture the command name which might be there, include an arbitrary number of arguments, and end when the control operator is captured
                 begin: case(?=[\s;&)])
                 beginCaptures:
-                  '0': {name: meta.function-call.fish keyword.control.conditional.fish}
+                  '0': {name: meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish}
                 comment: Todo - Double check this catches pipes, redirection into pipe, all that
                 end: (\n)|(;)|([&)])
                 endCaptures:
@@ -741,7 +741,7 @@ repository:
         comment: If the command name is followed by a valid string (not anything that closes the scope or a string starting with a '-') then open the scope
         end: end(?=$|[\s;&)|<>])
         endCaptures:
-          '0': {name: meta.function-call.fish keyword.control.conditional.fish}
+          '0': {name: meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish}
         patterns:
           - comment: Anonymous scope - Match the defined name of the function statement, then look for further parameters
             begin: (?=function)
@@ -762,7 +762,7 @@ repository:
                 begin: (function)\s+
                 beginCaptures:
                   '0': {name: meta.function-call.fish}
-                  '1': {name: keyword.control.conditional.fish}
+                  '1': {name: keyword.control.conditional.fish meta.string.unquoted.fish}
                 end: (?=[\s;&)|<>])
                 patterns:
                   - include: '#line-continuation' # Eats whitespace on next line!
@@ -825,7 +825,7 @@ repository:
           - comment: Anonymous scope - Match the command name we know is there, include a single instance of a pipeline, and end when a control operator is seen
             begin: if
             beginCaptures:
-              '0': {name: meta.function-call.fish keyword.control.conditional.fish}
+              '0': {name: meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish}
             end: (?=[\n;&])
             patterns:
               - include: '#line-continuation'
@@ -846,7 +846,7 @@ repository:
                   - comment: Anonymous scope - Match the `else` we know is there and any comment, and mark anything besides an `if` as illegal
                     begin: else(?=\s*[\s;])
                     beginCaptures:
-                      '0': {name: meta.function-call.fish keyword.control.conditional.fish}
+                      '0': {name: meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish}
                     end: (?=[\n;&]|if(?:\s*\n|\s+[^\s;]))
                     patterns:
                       - include: '#separator-whitespace'
