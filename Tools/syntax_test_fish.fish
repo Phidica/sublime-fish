@@ -324,7 +324,7 @@ echo one 1>~/err.log two 2^err.log three^four five^6 7>? \
 #!                       ^^^^^^^^^ meta.parameter.argument
 #!                                 ^^^^^^^^^^ meta.parameter.argument
 #!                                            ^^^^^^ meta.parameter.argument
-#!                                                   ^^^^^^ meta.redirection
+#!                                                   ^^^^ meta.redirection
 #!                                                   ^ constant.numeric.file-descriptor
 #!                                                    ^^ keyword.operator.redirect
   out.log 8<? "in.log" nine
@@ -369,11 +369,10 @@ echo one > $file <? (echo in.log) >{a,b} ^ \
 #!                                ^^^^^^ meta.redirection
 #!                                ^ keyword.operator.redirect
 #!                                 ^^^^^ meta.redirection.path
-#!                                       ^^^^ meta.redirection
+#!                                       ^^ meta.redirection
 #!                                       ^ keyword.operator.redirect
 #!                                         ^^ constant.character.escape
   "err.log"
-#! <- meta.redirection
 #! ^^^^^^^^ meta.redirection.path
 
 echo one ^&2 two three3>&4 four 5>& \
@@ -384,7 +383,7 @@ echo one ^&2 two three3>&4 four 5>& \
 #!                     ^^^ meta.redirection
 #!                     ^^ keyword.operator.redirect
 #!                       ^ constant.numeric.file-descriptor
-#!                              ^^^^^ meta.redirection
+#!                              ^^^^ meta.redirection
 #!                              ^ constant.numeric.file-descriptor
 #!                               ^^ keyword.operator.redirect
   - six 7<&->out.log 2> &1

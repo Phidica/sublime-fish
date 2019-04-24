@@ -969,6 +969,10 @@
 							<key>name</key>
 							<string>invalid.illegal.function-call.fish</string>
 						</dict>
+						<dict>
+							<key>include</key>
+							<string>#separator-whitespace</string>
+						</dict>
 					</array>
 				</dict>
 				<dict>
@@ -1438,6 +1442,10 @@
 											<string>(?=[\n;&amp;]|if(?:\s*\n|\s+[^\s;]))</string>
 											<key>patterns</key>
 											<array>
+												<dict>
+													<key>include</key>
+													<string>#separator-whitespace</string>
+												</dict>
 												<dict>
 													<key>include</key>
 													<string>#line-continuation</string>
@@ -2243,6 +2251,11 @@
 							<string>(?:([0-9]+)(&lt;|&gt;&gt;|&gt;)|(&gt;&gt;|\^\^|[&lt;&gt;^]))(\&amp;)\s*</string>
 							<key>beginCaptures</key>
 							<dict>
+								<key>0</key>
+								<dict>
+									<key>name</key>
+									<string>meta.function-call.fish meta.redirection.fish</string>
+								</dict>
 								<key>1</key>
 								<dict>
 									<key>name</key>
@@ -2270,14 +2283,17 @@
 							<string>(\&amp;.*$)|(?![&amp;\\])</string>
 							<key>endCaptures</key>
 							<dict>
+								<key>0</key>
+								<dict>
+									<key>name</key>
+									<string>meta.function-call.fish meta.redirection.fish</string>
+								</dict>
 								<key>1</key>
 								<dict>
 									<key>name</key>
 									<string>invalid.illegal.file-descriptor.fish</string>
 								</dict>
 							</dict>
-							<key>name</key>
-							<string>meta.function-call.fish meta.redirection.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -2287,19 +2303,8 @@
 							</array>
 						</dict>
 						<dict>
-							<key>begin</key>
-							<string>(?=\\\n)</string>
-							<key>end</key>
-							<string>(?!\\\n)</string>
-							<key>name</key>
-							<string>meta.function-call.fish meta.redirection.fish</string>
-							<key>patterns</key>
-							<array>
-								<dict>
-									<key>include</key>
-									<string>#line-continuation</string>
-								</dict>
-							</array>
+							<key>include</key>
+							<string>#line-continuation</string>
 						</dict>
 						<dict>
 							<key>begin</key>
@@ -2388,6 +2393,11 @@
 							<string>(?:([0-9]+)(&lt;|&gt;&gt;|&gt;)|(&gt;&gt;|\^\^|[&lt;&gt;^]))(\?)?\s*</string>
 							<key>beginCaptures</key>
 							<dict>
+								<key>0</key>
+								<dict>
+									<key>name</key>
+									<string>meta.function-call.fish meta.redirection.fish</string>
+								</dict>
 								<key>1</key>
 								<dict>
 									<key>name</key>
@@ -2415,14 +2425,17 @@
 							<string>((?:[&amp;?]|[0-9]*[&lt;&gt;^]).*$)|(?![&amp;?&lt;&gt;^])</string>
 							<key>endCaptures</key>
 							<dict>
+								<key>0</key>
+								<dict>
+									<key>name</key>
+									<string>meta.function-call.fish meta.redirection.fish</string>
+								</dict>
 								<key>1</key>
 								<dict>
 									<key>name</key>
 									<string>invalid.illegal.path.fish</string>
 								</dict>
 							</dict>
-							<key>name</key>
-							<string>meta.function-call.fish meta.redirection.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -2432,19 +2445,8 @@
 							</array>
 						</dict>
 						<dict>
-							<key>begin</key>
-							<string>(?=\\\n)</string>
-							<key>end</key>
-							<string>(?!\\\n)</string>
-							<key>name</key>
-							<string>meta.function-call.fish meta.redirection.fish</string>
-							<key>patterns</key>
-							<array>
-								<dict>
-									<key>include</key>
-									<string>#line-continuation</string>
-								</dict>
-							</array>
+							<key>include</key>
+							<string>#line-continuation</string>
 						</dict>
 						<dict>
 							<key>begin</key>

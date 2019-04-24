@@ -678,6 +678,8 @@ repository:
             name: invalid.illegal.function-call.fish
             match: \S+?(?=[\s;&)])
 
+          - include: '#separator-whitespace'
+
       - name: meta.block.switch.fish
         begin: (?=switch\s+[^\s;)-])
         comment: If the command name is followed by a valid string (not anything that closes the scope or a string starting with a '-') then open the scope
@@ -856,6 +858,7 @@ repository:
                       '0': {name: meta.function-call.fish keyword.control.conditional.fish}
                     end: (?=[\n;&]|if(?:\s*\n|\s+[^\s;]))
                     patterns:
+                      - include: '#separator-whitespace'
                       - include: '#line-continuation'
                       - include: '#comment-internal-end'
 
@@ -970,25 +973,22 @@ repository:
         end: (?=[\s;&)|]|(?:[0-9]+(?:<|>>|>)|>>|\^\^|[<>^])(?![&<>^]))
         comment: End at anything that would end a parameter, including redirections *if* they are *not* this same type of redirection (ie, have an '&'), in which case this scope stays open and we match the next one. The negative lookahead for <>^ at the end is to keep ST2 happy (not hanging)
         patterns:
-          - name: meta.function-call.fish meta.redirection.fish
-            begin: (?:([0-9]+)(<|>>|>)|(>>|\^\^|[<>^]))(\&)\s*
+          - begin: (?:([0-9]+)(<|>>|>)|(>>|\^\^|[<>^]))(\&)\s*
             beginCaptures:
+              '0': {name: meta.function-call.fish meta.redirection.fish}
               '1': {name: constant.numeric.file-descriptor.fish}
               '2': {name: keyword.operator.redirect.fish}
               '3': {name: keyword.operator.redirect.fish}
               '4': {name: keyword.operator.redirect.dereference.fish}
             end: (\&.*$)|(?![&\\])
             endCaptures:
+              '0': {name: meta.function-call.fish meta.redirection.fish}
               '1': {name: invalid.illegal.file-descriptor.fish}
             comment: We have to try and catch an '&' here because if it is seen by the outer end match then it will be considered a valid operator and the redirection scope will immediately terminate
             patterns:
               - include: '#line-continuation' # Eats whitespace on next line
 
-          - name: meta.function-call.fish meta.redirection.fish
-            begin: (?=\\\n)
-            end: (?!\\\n)
-            patterns:
-              - include: '#line-continuation'
+          - include: '#line-continuation'
 
           - comment: Evaluates to a string which may be an integer
             name: meta.function-call.fish meta.redirection.fish
@@ -1026,25 +1026,22 @@ repository:
         end: (?=[\s;&)|]|(?:[0-9]+(?:<|>>|>)|>>|\^\^|[<>^])[&|]) # todo: watch out for redirect into pipe?
         comment: End at anything that would end a parameter, including redirections *if* they are *not* this same type of redirection (ie, redirection into file descriptor, or into pipe), in which case this scope stays open and we match the next one
         patterns:
-          - name: meta.function-call.fish meta.redirection.fish
-            begin: (?:([0-9]+)(<|>>|>)|(>>|\^\^|[<>^]))(\?)?\s*
+          - begin: (?:([0-9]+)(<|>>|>)|(>>|\^\^|[<>^]))(\?)?\s*
             beginCaptures:
+              '0': {name: meta.function-call.fish meta.redirection.fish}
               '1': {name: constant.numeric.file-descriptor.fish}
               '2': {name: keyword.operator.redirect.fish}
               '3': {name: keyword.operator.redirect.fish}
               '4': {name: keyword.operator.redirect.clobber-test.fish}
             end: ((?:[&?]|[0-9]*[<>^]).*$)|(?![&?<>^])
             endCaptures:
+              '0': {name: meta.function-call.fish meta.redirection.fish}
               '1': {name: invalid.illegal.path.fish}
             comment: We have to try and catch bad operators here because if they are seen by the outer end match then they will be considered valid and the redirection scope will immediately terminate
             patterns:
               - include: '#line-continuation' # Eats whitespace on next line
 
-          - name: meta.function-call.fish meta.redirection.fish
-            begin: (?=\\\n)
-            end: (?!\\\n)
-            patterns:
-              - include: '#line-continuation'
+          - include: '#line-continuation'
 
           - comment: Evaluates to a string, so path cannot begin with '('
             name: meta.function-call.fish meta.redirection.fish
