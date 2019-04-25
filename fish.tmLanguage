@@ -519,7 +519,7 @@
 										</dict>
 										<dict>
 											<key>include</key>
-											<string>#comment-internal-end</string>
+											<string>#comment-internal</string>
 										</dict>
 										<dict>
 											<key>include</key>
@@ -594,7 +594,7 @@
 												</dict>
 												<dict>
 													<key>include</key>
-													<string>#comment-internal-end</string>
+													<string>#comment-internal</string>
 												</dict>
 												<dict>
 													<key>include</key>
@@ -895,7 +895,7 @@
 								</dict>
 								<dict>
 									<key>include</key>
-									<string>#comment-internal-end</string>
+									<string>#comment-internal</string>
 								</dict>
 								<dict>
 									<key>include</key>
@@ -1117,7 +1117,7 @@
 										</dict>
 										<dict>
 											<key>include</key>
-											<string>#comment-internal-end</string>
+											<string>#comment-internal</string>
 										</dict>
 										<dict>
 											<key>include</key>
@@ -1280,7 +1280,7 @@
 										</dict>
 										<dict>
 											<key>include</key>
-											<string>#comment-internal-end</string>
+											<string>#comment-internal</string>
 										</dict>
 										<dict>
 											<key>include</key>
@@ -1427,7 +1427,7 @@
 												</dict>
 												<dict>
 													<key>include</key>
-													<string>#comment-internal-end</string>
+													<string>#comment-internal</string>
 												</dict>
 												<dict>
 													<key>comment</key>
@@ -1566,7 +1566,7 @@
 				</dict>
 			</array>
 		</dict>
-		<key>comment-internal-end</key>
+		<key>comment-internal</key>
 		<dict>
 			<key>patterns</key>
 			<array>
@@ -1586,7 +1586,7 @@
 					<key>end</key>
 					<string>(?=\n)</string>
 					<key>name</key>
-					<string>comment.line.internal.end.fish</string>
+					<string>comment.line.internal.fish</string>
 				</dict>
 			</array>
 		</dict>
@@ -1681,20 +1681,8 @@
 							<string>constant.character.escape</string>
 						</dict>
 						<dict>
-							<key>begin</key>
-							<string>\#</string>
-							<key>beginCaptures</key>
-							<dict>
-								<key>0</key>
-								<dict>
-									<key>name</key>
-									<string>punctuation.definition.comment.fish</string>
-								</dict>
-							</dict>
-							<key>end</key>
-							<string>\n</string>
-							<key>name</key>
-							<string>comment.line.continuation.fish</string>
+							<key>include</key>
+							<string>#comment-external</string>
 						</dict>
 					</array>
 				</dict>

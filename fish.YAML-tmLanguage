@@ -264,6 +264,8 @@ repository:
               )
             end: (?=\s*[\n;&)])
             patterns:
+              # Todo - consider letting the #pipeline-segment scope handle anything that's invalid after a valid pipe
+
               - comment: Match a pipe not followed by a command, hence a malformed segment of the pipeline. However, we make an exception for the case where a pipe is followed by another pipe, and match it further down
                 begin: |-
                   (?x)
@@ -508,7 +510,7 @@ repository:
                 patterns:
                   - include: '#separator-whitespace'
                   - include: '#line-continuation'
-                  - include: '#comment-internal-end'
+                  - include: '#comment-internal'
                   - include: '#redirection'
                   - include: '#parameter'
 
@@ -550,7 +552,7 @@ repository:
                     patterns:
                       - include: '#separator-whitespace'
                       - include: '#line-continuation'
-                      - include: '#comment-internal-end'
+                      - include: '#comment-internal'
                       - include: '#redirection'
                       - include: '#argument'
 
@@ -651,7 +653,7 @@ repository:
             patterns:
               - include: '#separator-whitespace'
               - include: '#line-continuation'
-              - include: '#comment-internal-end'
+              - include: '#comment-internal'
               - include: '#argument'
 
           - comment: Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen
@@ -727,7 +729,7 @@ repository:
                 patterns:
                   - include: '#separator-whitespace'
                   - include: '#line-continuation'
-                  - include: '#comment-internal-end'
+                  - include: '#comment-internal'
                   - include: '#argument'
 
                   - comment: Anything else (eg, redirection) is illegal
@@ -803,7 +805,7 @@ repository:
                 patterns:
                   - include: '#separator-whitespace'
                   - include: '#line-continuation'
-                  - include: '#comment-internal-end'
+                  - include: '#comment-internal'
                   - include: '#parameter'
 
           - comment: Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen
@@ -851,7 +853,7 @@ repository:
                     patterns:
                       - include: '#separator-whitespace'
                       - include: '#line-continuation'
-                      - include: '#comment-internal-end'
+                      - include: '#comment-internal'
 
                       - comment: Anything else is illegal
                         name: invalid.illegal.string.fish
@@ -887,7 +889,7 @@ repository:
               '0': {name: punctuation.section.parens.end.fish}
             patterns:
               - comment: The inside of a command substitution is indistinguishable from a global scope
-                include: '$self'
+                include: $self
 
           - include: '#index-expansion'
 
@@ -900,10 +902,10 @@ repository:
           '0': {name: punctuation.definition.comment.fish}
         end: \n
 
-  comment-internal-end:
+  comment-internal:
     patterns:
       - comment: An inline comment at the end of a command call. Does not consume the newline, thus allowing the command call to capture it and end
-        name: comment.line.internal.end.fish
+        name: comment.line.internal.fish
         begin: \#
         beginCaptures:
           '0': {name: punctuation.definition.comment.fish}
@@ -950,11 +952,7 @@ repository:
           - name: constant.character.escape
             match: \\\n
 
-          - name: comment.line.continuation.fish
-            begin: \#
-            beginCaptures:
-              '0': {name: punctuation.definition.comment.fish}
-            end: \n
+          - include: '#comment-external'
 
   redirection:
     patterns:
