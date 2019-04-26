@@ -737,7 +737,7 @@
 						</dict>
 						<dict>
 							<key>begin</key>
-							<string>(\n)|(;)|([&amp;)])</string>
+							<string>(\n)|(;)|(?=[&amp;)])</string>
 							<key>beginCaptures</key>
 							<dict>
 								<key>1</key>
@@ -750,14 +750,9 @@
 									<key>name</key>
 									<string>meta.function-call.operator.fish keyword.operator.control.fish</string>
 								</dict>
-								<key>3</key>
-								<dict>
-									<key>name</key>
-									<string>invalid.illegal.operator.fish</string>
-								</dict>
 							</dict>
 							<key>comment</key>
-							<string>Todo - Let the $self scope handle invalid operators</string>
+							<string>Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen. Base scope handles any invalid operators</string>
 							<key>end</key>
 							<string>(?=end(?:$|[\s;&amp;)|&lt;&gt;]))</string>
 							<key>patterns</key>
@@ -905,7 +900,7 @@
 						</dict>
 						<dict>
 							<key>begin</key>
-							<string>(\n)|(;)|([&amp;)])</string>
+							<string>(\n)|(;)|(?=[&amp;)])</string>
 							<key>beginCaptures</key>
 							<dict>
 								<key>1</key>
@@ -918,14 +913,9 @@
 									<key>name</key>
 									<string>meta.function-call.operator.fish keyword.operator.control.fish</string>
 								</dict>
-								<key>3</key>
-								<dict>
-									<key>name</key>
-									<string>invalid.illegal.operator.fish</string>
-								</dict>
 							</dict>
 							<key>comment</key>
-							<string>Todo - Let the $self scope handle invalid operators</string>
+							<string>Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen. Base scope handles any invalid operators</string>
 							<key>end</key>
 							<string>(?=end(?:$|[\s;&amp;)|&lt;&gt;]))</string>
 							<key>patterns</key>
@@ -1047,7 +1037,7 @@
 						</dict>
 						<dict>
 							<key>begin</key>
-							<string>(\n)|(;)|([&amp;)])</string>
+							<string>(\n)|(;)|(?=[&amp;)])</string>
 							<key>beginCaptures</key>
 							<dict>
 								<key>1</key>
@@ -1060,14 +1050,9 @@
 									<key>name</key>
 									<string>meta.function-call.operator.fish keyword.operator.control.fish</string>
 								</dict>
-								<key>3</key>
-								<dict>
-									<key>name</key>
-									<string>invalid.illegal.operator.fish</string>
-								</dict>
 							</dict>
 							<key>comment</key>
-							<string>Todo - Let the $self scope handle invalid operators</string>
+							<string>Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen. Base scope handles any invalid operators</string>
 							<key>end</key>
 							<string>(?=end(?:$|[\s;&amp;)|&lt;&gt;]))</string>
 							<key>patterns</key>
@@ -1084,9 +1069,9 @@
 										</dict>
 									</dict>
 									<key>comment</key>
-									<string>Todo - Double check this catches pipes, redirection into pipe, all that</string>
+									<string>Anonymous scope - Capture the command name which might be there, include an arbitrary number of arguments, and end when the control operator is captured. Base scope further down handles any invalid operators used to end the scope</string>
 									<key>end</key>
-									<string>(\n)|(;)|([&amp;)])</string>
+									<string>(\n)|(;)|(?=[&amp;)|]|(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)</string>
 									<key>endCaptures</key>
 									<dict>
 										<key>1</key>
@@ -1098,11 +1083,6 @@
 										<dict>
 											<key>name</key>
 											<string>meta.function-call.operator.fish keyword.operator.control.fish</string>
-										</dict>
-										<key>3</key>
-										<dict>
-											<key>name</key>
-											<string>invalid.illegal.operator.fish</string>
 										</dict>
 									</dict>
 									<key>patterns</key>
@@ -1122,14 +1102,6 @@
 										<dict>
 											<key>include</key>
 											<string>#argument</string>
-										</dict>
-										<dict>
-											<key>comment</key>
-											<string>Anything else (eg, redirection) is illegal</string>
-											<key>match</key>
-											<string>\S+?(?=[\s;&amp;)])</string>
-											<key>name</key>
-											<string>invalid.illegal.operator.fish</string>
 										</dict>
 									</array>
 								</dict>
@@ -1307,7 +1279,7 @@
 								</dict>
 							</dict>
 							<key>comment</key>
-							<string>Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen</string>
+							<string>Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen. Base scope handles any invalid operators</string>
 							<key>end</key>
 							<string>(?=end(?:$|[\s;&amp;)|&lt;&gt;]))</string>
 							<key>patterns</key>
@@ -1366,7 +1338,7 @@
 						</dict>
 						<dict>
 							<key>begin</key>
-							<string>(\n)|(;)|(&amp;)</string>
+							<string>(\n)|(;)|(?=&amp;)</string>
 							<key>beginCaptures</key>
 							<dict>
 								<key>1</key>
@@ -1379,14 +1351,9 @@
 									<key>name</key>
 									<string>meta.function-call.operator.fish keyword.operator.control.fish</string>
 								</dict>
-								<key>3</key>
-								<dict>
-									<key>name</key>
-									<string>invalid.illegal.operator.fish</string>
-								</dict>
 							</dict>
 							<key>comment</key>
-							<string>Anonymous scope - Match the operator we know is there, then include the base scope or an `else` structure</string>
+							<string>Anonymous scope - Match the operator we know is there, then include the base scope or an `else` structure. Base scope handles any invalid operators</string>
 							<key>end</key>
 							<string>(?=end(?:$|[\s;&amp;)|&lt;&gt;]))</string>
 							<key>patterns</key>
@@ -1441,7 +1408,7 @@
 										</dict>
 										<dict>
 											<key>begin</key>
-											<string>(\n)|(;)|(&amp;)</string>
+											<string>(\n)|(;)|(?=&amp;)</string>
 											<key>beginCaptures</key>
 											<dict>
 												<key>1</key>
@@ -1454,14 +1421,9 @@
 													<key>name</key>
 													<string>meta.function-call.operator.fish keyword.operator.control.fish</string>
 												</dict>
-												<key>3</key>
-												<dict>
-													<key>name</key>
-													<string>invalid.illegal.operator.fish</string>
-												</dict>
 											</dict>
 											<key>comment</key>
-											<string>Anonymous scope - Match the operator which will be there if no `if` was seen, then include the base scope which marks further `else` commands as invalid</string>
+											<string>Anonymous scope - Match the operator which will be there if no `if` was seen, then include the base scope which marks further `else` commands as invalid. Base scope handles any invalid operators</string>
 											<key>end</key>
 											<string>(?=end(?:$|[\s;&amp;)|&lt;&gt;]))</string>
 											<key>patterns</key>

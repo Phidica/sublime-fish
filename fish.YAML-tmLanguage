@@ -551,13 +551,11 @@ repository:
               - include: '#line-continuation'
               - include: '#pipeline'
 
-          - comment: Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen
-            comment: Todo - Let the $self scope handle invalid operators
-            begin: (\n)|(;)|([&)])
+          - comment: Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen. Base scope handles any invalid operators
+            begin: (\n)|(;)|(?=[&)])
             beginCaptures:
               '1': {name: meta.function-call.operator.fish}
               '2': {name: meta.function-call.operator.fish keyword.operator.control.fish}
-              '3': {name: invalid.illegal.operator.fish}
             end: (?=end(?:$|[\s;&)|<>]))
             patterns:
               - include: $self
@@ -610,13 +608,11 @@ repository:
               - include: '#comment-internal'
               - include: '#argument'
 
-          - comment: Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen
-            comment: Todo - Let the $self scope handle invalid operators
-            begin: (\n)|(;)|([&)])
+          - comment: Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen. Base scope handles any invalid operators
+            begin: (\n)|(;)|(?=[&)])
             beginCaptures:
               '1': {name: meta.function-call.operator.fish}
               '2': {name: meta.function-call.operator.fish keyword.operator.control.fish}
-              '3': {name: invalid.illegal.operator.fish}
             end: (?=end(?:$|[\s;&)|<>]))
             patterns:
               - include: $self
@@ -661,34 +657,26 @@ repository:
                   - name: invalid.illegal.string.fish
                     match: \S+?(?=[\s;&)])
 
-          - comment: Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen
-            comment: Todo - Let the $self scope handle invalid operators
-            begin: (\n)|(;)|([&)])
+          - comment: Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen. Base scope handles any invalid operators
+            begin: (\n)|(;)|(?=[&)])
             beginCaptures:
               '1': {name: meta.function-call.operator.fish}
               '2': {name: meta.function-call.operator.fish keyword.operator.control.fish}
-              '3': {name: invalid.illegal.operator.fish}
             end: (?=end(?:$|[\s;&)|<>]))
             patterns:
-              - comment: Anonymous scope - Capture the command name which might be there, include an arbitrary number of arguments, and end when the control operator is captured
+              - comment: Anonymous scope - Capture the command name which might be there, include an arbitrary number of arguments, and end when the control operator is captured. Base scope further down handles any invalid operators used to end the scope
                 begin: case(?=[\s;&)])
                 beginCaptures:
                   '0': {name: meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish}
-                comment: Todo - Double check this catches pipes, redirection into pipe, all that
-                end: (\n)|(;)|([&)])
+                end: (\n)|(;)|(?=[&)|]|(?:[0-9]+)?(?:<|>>?)|\^\^?)
                 endCaptures:
                   '1': {name: meta.function-call.operator.fish}
                   '2': {name: meta.function-call.operator.fish keyword.operator.control.fish}
-                  '3': {name: invalid.illegal.operator.fish}
                 patterns:
                   - include: '#separator-whitespace'
                   - include: '#line-continuation'
                   - include: '#comment-internal'
                   - include: '#argument'
-
-                  - comment: Anything else (eg, redirection) is illegal
-                    name: invalid.illegal.operator.fish
-                    match: \S+?(?=[\s;&)])
 
               - include: $self
 
@@ -762,7 +750,7 @@ repository:
                   - include: '#comment-internal'
                   - include: '#parameter'
 
-          - comment: Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen
+          - comment: Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen. Base scope handles any invalid operators
             begin: (\n)|(;)|(?=[&)|]|(?:[0-9]+)?(?:<|>>?)|\^\^?)
             beginCaptures:
               '1': {name: meta.function-call.operator.fish}
@@ -787,12 +775,11 @@ repository:
               - include: '#line-continuation'
               - include: '#pipeline'
 
-          - comment: Anonymous scope - Match the operator we know is there, then include the base scope or an `else` structure
-            begin: (\n)|(;)|(&)
+          - comment: Anonymous scope - Match the operator we know is there, then include the base scope or an `else` structure. Base scope handles any invalid operators
+            begin: (\n)|(;)|(?=&)
             beginCaptures:
               '1': {name: meta.function-call.operator.fish}
               '2': {name: meta.function-call.operator.fish keyword.operator.control.fish}
-              '3': {name: invalid.illegal.operator.fish}
             end: (?=end(?:$|[\s;&)|<>]))
             patterns:
               - comment: Anonymous scope - Capture an `else` up to the control operator or the start of an `if` structure, then match from the control operator indefinitely or match an `if` structure
@@ -813,12 +800,11 @@ repository:
                         name: invalid.illegal.string.fish
                         match: \S+?(?=[\s;&])
 
-                  - comment: Anonymous scope - Match the operator which will be there if no `if` was seen, then include the base scope which marks further `else` commands as invalid
-                    begin: (\n)|(;)|(&)
+                  - comment: Anonymous scope - Match the operator which will be there if no `if` was seen, then include the base scope which marks further `else` commands as invalid. Base scope handles any invalid operators
+                    begin: (\n)|(;)|(?=&)
                     beginCaptures:
                       '1': {name: meta.function-call.operator.fish}
                       '2': {name: meta.function-call.operator.fish keyword.operator.control.fish}
-                      '3': {name: invalid.illegal.operator.fish}
                     end: (?=end(?:$|[\s;&)|<>]))
                     patterns:
                       - include: $self

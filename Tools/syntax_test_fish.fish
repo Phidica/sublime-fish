@@ -1160,18 +1160,18 @@ while true ; cmd arg ; end &
 #!                         ^ keyword.operator.control
 
 while true & cmd arg ; end ;
-#!         ^ invalid.illegal.operator
+#!         ^ invalid.illegal.function-call
 #!                     ^^^ keyword.control.conditional
 #!                         ^ keyword.operator.control
 
 while false ))arg; end
-#!          ^ invalid.illegal.operator
-#!           ^^^^ invalid.illegal.function-call
+#!          ^^^^^ invalid.illegal.function-call
 
-while cmd )end arg end; end
-#!        ^ invalid.illegal.operator
-#!         ^^^ keyword.control.conditional
-#!                      ^^^ invalid.illegal.function-call
+while cmd end )end arg end; end
+#!        ^^^ - keyword.control.conditional
+#!            ^^^^ invalid.illegal.function-call
+#!                     ^^^ - keyword.control.conditional
+#!                          ^^^ keyword.control.conditional
 
 # This executes without error
 echo (while)
@@ -1228,7 +1228,7 @@ else \
 #!   ^^ constant.character.escape
   if false
 else if test &
-#!           ^ invalid.illegal.operator
+#!           ^ invalid.illegal.function-call
   and test &# comment
 #!         ^ keyword.operator.control
   echo arg
@@ -1272,7 +1272,7 @@ end
 else a&
 #! <- meta.block.if keyword.control.conditional
 #!   ^ invalid.illegal.string
-#!    ^ invalid.illegal.operator
+#!    ^ invalid.illegal.function-call
 else
 #! <- invalid.illegal.function-call
 end
@@ -1352,7 +1352,7 @@ echo (for foo in bar) end)
 #!        ^^^ meta.parameter.argument
 #!            ^^ keyword.control.conditional
 #!               ^^^ meta.parameter.argument
-#!                  ^ invalid.illegal.operator
+#!                  ^ invalid.illegal.function-call
 #!                    ^^^ keyword.control.conditional
 
 switch value ; case wildcard ; command echo foo; end # comment
@@ -1366,16 +1366,19 @@ switch value ; case wildcard ; command echo foo; end # comment
 #!                                               ^^^ meta.block.switch meta.function-call keyword.control.conditional meta.string.unquoted
 #!                                                   ^ comment.line
 
-switch foo bar | echo
+switch foo bar | echo &
 #!     ^^^ meta.parameter.argument meta.string.unquoted
 #!         ^^^ invalid.illegal.string
 #!             ^ invalid.illegal.string
 #!               ^^^^ invalid.illegal.string
-  case foo | bar >out &
+#!                    ^ invalid.illegal.function-call
+  case foo 2>| cmd >out & cmd # literally how fish highlights this
 #!     ^^^ meta.parameter.argument meta.string.unquoted
-#!         ^ invalid.illegal.operator
-#!           ^^^ meta.parameter.argument meta.string.unquoted
-#!                    ^ invalid.illegal.operator
+#!         ^^^ invalid.illegal.function-call
+#!             ^^^ variable.function
+#!                 ^^^^ meta.redirection
+#!                      ^ keyword.operator.control
+#!                        ^^^ variable.function
     echo arg
 #!  ^^^^ variable.function
 end | cat
