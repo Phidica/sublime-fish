@@ -2035,11 +2035,15 @@
 							<array>
 								<dict>
 									<key>comment</key>
-									<string>Check for a malformed pipeline segment; if the pipeline would end with a control operator, then mark the pipe itself invalid</string>
+									<string>Check for a malformed pipeline segment; if the pipeline would end with a control operator (or a comment, which implies a newline), then mark the pipe itself invalid</string>
 									<key>match</key>
-									<string>(?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|(?=\s*(?:$|[\n;&amp;)]))</string>
+									<string>(?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|(?=\s*(?:$|[\n)#;&amp;]))</string>
 									<key>name</key>
 									<string>invalid.illegal.operator.fish</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#comment-internal</string>
 								</dict>
 								<dict>
 									<key>begin</key>
@@ -2078,16 +2082,6 @@
 									<string>(?=\s*[\n;&amp;)])</string>
 									<key>patterns</key>
 									<array>
-										<dict>
-											<key>begin</key>
-											<string>\#</string>
-											<key>comment</key>
-											<string>After a pipe can't be a comment, since that implies a newline</string>
-											<key>end</key>
-											<string>(?=[\n)])</string>
-											<key>name</key>
-											<string>invalid.illegal.function-call.fish</string>
-										</dict>
 										<dict>
 											<key>comment</key>
 											<string>This match should generally be pretty similar to the match which seeks a valid "and"/"or" in</string>

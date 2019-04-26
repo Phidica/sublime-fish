@@ -264,9 +264,11 @@ repository:
               )
             end: (?=\s*[\n;&)])
             patterns:
-              - comment: Check for a malformed pipeline segment; if the pipeline would end with a control operator, then mark the pipe itself invalid
+              - comment: Check for a malformed pipeline segment; if the pipeline would end with a control operator (or a comment, which implies a newline), then mark the pipe itself invalid
                 name: invalid.illegal.operator.fish
-                match: (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|(?=\s*(?:$|[\n;&)]))
+                match: (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|(?=\s*(?:$|[\n)#;&]))
+
+              - include: '#comment-internal'
 
               - comment: Otherwise, we'll say the pipe is okay and let the tests at the start of #pipeline-segment highlight any invalid commands (such as redirection)
                 begin: (?:([0-9]+)?(<|>>?)|(\^\^?))?(\|)
@@ -278,11 +280,6 @@ repository:
                   '4': {name: keyword.operator.pipe.fish}
                 end: (?=\s*[\n;&)])
                 patterns:
-                  - comment: After a pipe can't be a comment, since that implies a newline
-                    name: invalid.illegal.function-call.fish
-                    begin: \#
-                    end: (?=[\n)])
-
                   - comment: After a pipe can't be an "and" or "or" that is taking another command as its parameters
                     comment: This match should generally be pretty similar to the match which seeks a valid "and"/"or" in #pipeline, since the only difference is that here the same matched text is instead invalid. We can be a little simpler though, and not worry about marking an "&" as invalid since the word will be instead
                     name: meta.function-call.fish invalid.illegal.function-call.fish

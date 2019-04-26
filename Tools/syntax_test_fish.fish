@@ -646,15 +646,14 @@ echo (echo arg |) | cat
 #!             ^ invalid.illegal.operator
 #!                ^ meta.function-call keyword.operator
 
-echo arg | # bad text
-#!       ^ meta.function-call keyword.operator.pipe
-#!         ^^^^^^^^^^ invalid.illegal.function-call
+echo arg | # comment
+#!       ^ invalid.illegal.operator
 
 echo out one | \
 # comment
 #! <- comment.line
 #! <- - meta.function-call
-cat
+cat # we actually can't test if this command is here or not, but if it were absent then the pipeline would be invalid
 
 echo arg | & cat
 #!       ^ invalid.illegal.operator
