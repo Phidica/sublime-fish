@@ -2034,81 +2034,23 @@
 							<key>patterns</key>
 							<array>
 								<dict>
-									<key>begin</key>
-									<string>(?x)
-(?# Look ahead for piping followed by either control operators or redirection)
-(?=
-  (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
-  \s*
-  (?:
-    $
-  |
-    [\n;&amp;)]
-  |
-    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)
-  )
-)</string>
 									<key>comment</key>
-									<string>Match a pipe not followed by a command, hence a malformed segment of the pipeline. However, we make an exception for the case where a pipe is followed by another pipe, and match it further down</string>
-									<key>end</key>
-									<string>(?=\s*$|\s*[\n;&amp;)])</string>
-									<key>patterns</key>
-									<array>
-										<dict>
-											<key>comment</key>
-											<string>If the pipeline would end implicitly (ie, with a newline or close parenthesis), then mark the pipe itself invalid</string>
-											<key>match</key>
-											<string>(?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|(?=\s*$|\s*[\n)])</string>
-											<key>name</key>
-											<string>meta.function-call.fish invalid.illegal.operator.fish</string>
-										</dict>
-										<dict>
-											<key>captures</key>
-											<dict>
-												<key>1</key>
-												<dict>
-													<key>name</key>
-													<string>meta.pipe.fish constant.numeric.file-descriptor.fish</string>
-												</dict>
-												<key>2</key>
-												<dict>
-													<key>name</key>
-													<string>meta.pipe.fish keyword.operator.pipe.redirect.fish</string>
-												</dict>
-												<key>3</key>
-												<dict>
-													<key>name</key>
-													<string>meta.pipe.fish keyword.operator.pipe.redirect.fish</string>
-												</dict>
-												<key>4</key>
-												<dict>
-													<key>name</key>
-													<string>meta.pipe.fish keyword.operator.pipe.fish</string>
-												</dict>
-												<key>5</key>
-												<dict>
-													<key>name</key>
-													<string>invalid.illegal.function-call.fish</string>
-												</dict>
-											</dict>
-											<key>comment</key>
-											<string>If the pipeline would end with an explicit operator or encounter anything that we determined was invalid above, then mark the first set of piping as valid and everything beyond as invalid</string>
-											<key>match</key>
-											<string>(?x)
-(?# Consume valid piping; captures 1 2 3 4)
-(?:([0-9]+)?(&lt;|&gt;&gt;?)|(\^\^?))?(\|)
-(?# Consume whitespace)
-\s*
-(?# Consume remainder; capture 5)
-(.*)</string>
-											<key>name</key>
-											<string>meta.function-call.fish</string>
-										</dict>
-									</array>
+									<string>Check for a malformed pipeline segment; if the pipeline would end with a control operator, then mark the pipe itself invalid</string>
+									<key>match</key>
+									<string>(?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|(?=\s*(?:$|[\n;&amp;)]))</string>
+									<key>name</key>
+									<string>invalid.illegal.operator.fish</string>
 								</dict>
 								<dict>
+									<key>begin</key>
+									<string>(?:([0-9]+)?(&lt;|&gt;&gt;?)|(\^\^?))?(\|)</string>
 									<key>captures</key>
 									<dict>
+										<key>0</key>
+										<dict>
+											<key>name</key>
+											<string>meta.function-call.fish meta.pipe.fish</string>
+										</dict>
 										<key>1</key>
 										<dict>
 											<key>name</key>
@@ -2129,61 +2071,44 @@
 											<key>name</key>
 											<string>keyword.operator.pipe.fish</string>
 										</dict>
-										<key>5</key>
+									</dict>
+									<key>comment</key>
+									<string>Otherwise, we'll say the pipe is okay and let the tests at the start of</string>
+									<key>end</key>
+									<string>(?=\s*[\n;&amp;)])</string>
+									<key>patterns</key>
+									<array>
 										<dict>
+											<key>begin</key>
+											<string>\#</string>
+											<key>comment</key>
+											<string>After a pipe can't be a comment, since that implies a newline</string>
+											<key>end</key>
+											<string>(?=[\n)])</string>
 											<key>name</key>
 											<string>invalid.illegal.function-call.fish</string>
 										</dict>
-									</dict>
-									<key>comment</key>
-									<string>Pick up extra pipes after the first and mark them invalid, but in fish 3 it's valid syntax so don't get greedy with the highlighting</string>
-									<key>match</key>
-									<string>(?:([0-9]+)?(&lt;|&gt;&gt;?)|(\^\^?))?(\|)((?:\s*\|)+)?</string>
-									<key>name</key>
-									<string>meta.function-call.fish meta.pipe.fish</string>
-								</dict>
-								<dict>
-									<key>begin</key>
-									<string>\#</string>
-									<key>comment</key>
-									<string>After a pipe can't be a comment</string>
-									<key>end</key>
-									<string>(?=[\n)])</string>
-									<key>name</key>
-									<string>meta.function-call.fish invalid.illegal.function-call.fish</string>
-								</dict>
-								<dict>
-									<key>comment</key>
-									<string>This match should generally be pretty similar to the match which seeks a valid "and"/"or" in</string>
-									<key>match</key>
-									<string>(and|or)\b(?!\s*[\n;-])</string>
-									<key>name</key>
-									<string>meta.function-call.fish invalid.illegal.function-call.fish</string>
-								</dict>
-								<dict>
-									<key>include</key>
-									<string>#separator-whitespace</string>
-								</dict>
-								<dict>
-									<key>begin</key>
-									<string>(?=\\\n)</string>
-									<key>comment</key>
-									<string>Keep the scope going over escaped newlines and comments</string>
-									<key>end</key>
-									<string>(?!\\\n)</string>
-									<key>name</key>
-									<string>meta.function-call.fish</string>
-									<key>patterns</key>
-									<array>
+										<dict>
+											<key>comment</key>
+											<string>This match should generally be pretty similar to the match which seeks a valid "and"/"or" in</string>
+											<key>match</key>
+											<string>(and|or)\b(?!\s*[\n;-])</string>
+											<key>name</key>
+											<string>meta.function-call.fish invalid.illegal.function-call.fish</string>
+										</dict>
+										<dict>
+											<key>include</key>
+											<string>#separator-whitespace</string>
+										</dict>
 										<dict>
 											<key>include</key>
 											<string>#line-continuation</string>
 										</dict>
+										<dict>
+											<key>include</key>
+											<string>#pipeline-segment</string>
+										</dict>
 									</array>
-								</dict>
-								<dict>
-									<key>include</key>
-									<string>#pipeline-segment</string>
 								</dict>
 							</array>
 						</dict>

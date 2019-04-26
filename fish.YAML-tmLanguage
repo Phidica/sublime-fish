@@ -264,78 +264,35 @@ repository:
               )
             end: (?=\s*[\n;&)])
             patterns:
-              # Todo - consider letting the #pipeline-segment scope handle anything that's invalid after a valid pipe
+              - comment: Check for a malformed pipeline segment; if the pipeline would end with a control operator, then mark the pipe itself invalid
+                name: invalid.illegal.operator.fish
+                match: (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|(?=\s*(?:$|[\n;&)]))
 
-              - comment: Match a pipe not followed by a command, hence a malformed segment of the pipeline. However, we make an exception for the case where a pipe is followed by another pipe, and match it further down
-                begin: |-
-                  (?x)
-                  (?# Look ahead for piping followed by either control operators or redirection)
-                  (?=
-                    (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|
-                    \s*
-                    (?:
-                      $
-                    |
-                      [\n;&)]
-                    |
-                      (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)
-                    )
-                  )
-                end: (?=\s*$|\s*[\n;&)])
-                patterns:
-                  - comment: If the pipeline would end implicitly (ie, with a newline or close parenthesis), then mark the pipe itself invalid
-                    name: meta.function-call.fish invalid.illegal.operator.fish
-                    match: (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|(?=\s*$|\s*[\n)])
-
-                  - comment: If the pipeline would end with an explicit operator or encounter anything that we determined was invalid above, then mark the first set of piping as valid and everything beyond as invalid
-                    name: meta.function-call.fish
-                    match: |-
-                      (?x)
-                      (?# Consume valid piping; captures 1 2 3 4)
-                      (?:([0-9]+)?(<|>>?)|(\^\^?))?(\|)
-                      (?# Consume whitespace)
-                      \s*
-                      (?# Consume remainder; capture 5)
-                      (.*)
-                    captures:
-                      '1': {name: meta.pipe.fish constant.numeric.file-descriptor.fish}
-                      '2': {name: meta.pipe.fish keyword.operator.pipe.redirect.fish}
-                      '3': {name: meta.pipe.fish keyword.operator.pipe.redirect.fish}
-                      '4': {name: meta.pipe.fish keyword.operator.pipe.fish}
-                      '5': {name: invalid.illegal.function-call.fish}
-
-              - comment: Pick up a legitimate pipe
-                comment: Pick up extra pipes after the first and mark them invalid, but in fish 3 it's valid syntax so don't get greedy with the highlighting
-                name: meta.function-call.fish meta.pipe.fish
-                match: (?:([0-9]+)?(<|>>?)|(\^\^?))?(\|)((?:\s*\|)+)?
+              - comment: Otherwise, we'll say the pipe is okay and let the tests at the start of #pipeline-segment highlight any invalid commands (such as redirection)
+                begin: (?:([0-9]+)?(<|>>?)|(\^\^?))?(\|)
                 captures:
+                  '0': {name: meta.function-call.fish meta.pipe.fish}
                   '1': {name: constant.numeric.file-descriptor.fish}
                   '2': {name: keyword.operator.pipe.redirect.fish}
                   '3': {name: keyword.operator.pipe.redirect.fish}
                   '4': {name: keyword.operator.pipe.fish}
-                  '5': {name: invalid.illegal.function-call.fish}
-
-              - comment: After a pipe can't be a comment
-                name: meta.function-call.fish invalid.illegal.function-call.fish
-                begin: \#
-                end: (?=[\n)])
-
-              - comment: After a pipe can't be an "and" or "or" that is taking another command as its parameters
-                comment: This match should generally be pretty similar to the match which seeks a valid "and"/"or" in #pipeline, since the only difference is that here the same matched text is instead invalid. We can be a little simpler though, and not worry about marking an "&" as invalid since the word will be instead
-                name: meta.function-call.fish invalid.illegal.function-call.fish
-                match: (and|or)\b(?!\s*[\n;-])
-
-              - include: '#separator-whitespace'
-
-              - comment: Keep the scope going over escaped newlines and comments
-                name: meta.function-call.fish
-                begin: (?=\\\n)
-                end: (?!\\\n)
+                end: (?=\s*[\n;&)])
                 patterns:
+                  - comment: After a pipe can't be a comment, since that implies a newline
+                    name: invalid.illegal.function-call.fish
+                    begin: \#
+                    end: (?=[\n)])
+
+                  - comment: After a pipe can't be an "and" or "or" that is taking another command as its parameters
+                    comment: This match should generally be pretty similar to the match which seeks a valid "and"/"or" in #pipeline, since the only difference is that here the same matched text is instead invalid. We can be a little simpler though, and not worry about marking an "&" as invalid since the word will be instead
+                    name: meta.function-call.fish invalid.illegal.function-call.fish
+                    match: (and|or)\b(?!\s*[\n;-])
+
+                  - include: '#separator-whitespace'
                   - include: '#line-continuation'
 
-              # Match the next command
-              - include: '#pipeline-segment'
+                  # Match the next command
+                  - include: '#pipeline-segment'
 
   command-call-meta:
     comment: Check if the command is a builtin which takes another command as parameters, ie, a meta command. However, ignore the command if it is taking an option, being backgrounded/piped, or in some cases redirected, as in such a case it should be picked up by #command-call-standard instead

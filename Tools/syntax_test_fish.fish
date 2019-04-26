@@ -648,7 +648,16 @@ echo (echo arg |) | cat
 
 echo arg | # bad text
 #!       ^ meta.function-call keyword.operator.pipe
-#!         ^^^^^^^^^^ meta.function-call invalid.illegal.function-call
+#!         ^^^^^^^^^^ invalid.illegal.function-call
+
+echo out one | \
+# comment
+#! <- comment.line
+#! <- - meta.function-call
+cat
+
+echo arg | & cat
+#!       ^ invalid.illegal.operator
 
 echo arg | )paren
 #!       ^ invalid.illegal.operator
@@ -660,7 +669,7 @@ and echo arg | %fish
 
 not echo arg | | arg ; # comment
 #!           ^ meta.function-call keyword.operator.pipe
-#!             ^ meta.function-call invalid.illegal.function-call
+#!             ^ invalid.illegal.function-call
 
 echo out 1>|
 #!       ^^^ invalid.illegal.operator
