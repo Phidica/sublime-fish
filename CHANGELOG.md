@@ -6,6 +6,7 @@ Changelog
 
 Bugfix:
 - Comments immediately after builtin commands were not scoped correctly
+- Comments immediately after redirection into file were not shown as invalid
 
 2.4.1
 -----

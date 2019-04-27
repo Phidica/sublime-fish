@@ -2082,7 +2082,7 @@
 					<key>comment</key>
 					<string>End at anything that would end a parameter, including redirections *if* they are *not* this same type of redirection (ie, have an '&amp;'), in which case this scope stays open and we match the next one. The negative lookahead for &lt;&gt;^ at the end is to keep ST2 happy (not hanging)</string>
 					<key>end</key>
-					<string>(?=[\s;&amp;)|]|(?:[0-9]+(?:&lt;|&gt;&gt;|&gt;)|&gt;&gt;|\^\^|[&lt;&gt;^])(?![&amp;&lt;&gt;^]))</string>
+					<string>(?=[\s);&amp;|]|(?:[0-9]+(?:&lt;|&gt;&gt;|&gt;)|&gt;&gt;|\^\^|[&lt;&gt;^])(?![&amp;&lt;&gt;^]))</string>
 					<key>patterns</key>
 					<array>
 						<dict>
@@ -2119,7 +2119,7 @@
 							<key>comment</key>
 							<string>We have to try and catch an '&amp;' here because if it is seen by the outer end match then it will be considered a valid operator and the redirection scope will immediately terminate</string>
 							<key>end</key>
-							<string>(\&amp;.*$)|(?![&amp;\\])</string>
+							<string>([#&amp;]\S*)|(?![&amp;\\])</string>
 							<key>endCaptures</key>
 							<dict>
 								<key>0</key>
@@ -2198,13 +2198,13 @@
 						</dict>
 						<dict>
 							<key>match</key>
-							<string>(?:[0-9]+)(?=$|[\s;&amp;)|&lt;&gt;])</string>
+							<string>(?:[0-9]+)(?=$|[\s);&amp;|&lt;&gt;])</string>
 							<key>name</key>
 							<string>meta.function-call.fish meta.redirection.file-descriptor.fish meta.string.unquoted.fish constant.numeric.file-descriptor.fish</string>
 						</dict>
 						<dict>
 							<key>match</key>
-							<string>(?:-)(?=$|[\s;&amp;)|&lt;&gt;])</string>
+							<string>(?:-)(?=$|[\s);&amp;|&lt;&gt;])</string>
 							<key>name</key>
 							<string>meta.function-call.fish meta.redirection.file-descriptor.fish meta.string.unquoted.fish keyword.operator.redirect.close.fish</string>
 						</dict>
@@ -2212,7 +2212,7 @@
 							<key>comment</key>
 							<string>Anything else is illegal</string>
 							<key>match</key>
-							<string>(?:\S+.*)$</string>
+							<string>(?:\S+)</string>
 							<key>name</key>
 							<string>meta.function-call.fish meta.redirection.fish invalid.illegal.file-descriptor.fish</string>
 						</dict>
@@ -2224,7 +2224,7 @@
 					<key>comment</key>
 					<string>End at anything that would end a parameter, including redirections *if* they are *not* this same type of redirection (ie, redirection into file descriptor, or into pipe), in which case this scope stays open and we match the next one</string>
 					<key>end</key>
-					<string>(?=[\s;&amp;)|]|(?:[0-9]+(?:&lt;|&gt;&gt;|&gt;)|&gt;&gt;|\^\^|[&lt;&gt;^])[&amp;|])</string>
+					<string>(?=[\s);&amp;|]|(?:[0-9]+(?:&lt;|&gt;&gt;|&gt;)|&gt;&gt;|\^\^|[&lt;&gt;^])[&amp;|])</string>
 					<key>patterns</key>
 					<array>
 						<dict>
@@ -2261,7 +2261,7 @@
 							<key>comment</key>
 							<string>We have to try and catch bad operators here because if they are seen by the outer end match then they will be considered valid and the redirection scope will immediately terminate</string>
 							<key>end</key>
-							<string>((?:[&amp;?]|[0-9]*[&lt;&gt;^]).*$)|(?![&amp;?&lt;&gt;^])</string>
+							<string>((?:[#&amp;?]|[0-9]*[&lt;&gt;^])\S*)|(?![&amp;?&lt;&gt;^])</string>
 							<key>endCaptures</key>
 							<dict>
 								<key>0</key>

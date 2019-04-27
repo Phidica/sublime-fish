@@ -444,6 +444,10 @@ foo>bar
 #! <- meta.function-call variable.function
 #! ^^^^ meta.redirection
 
+echo out <#comment <&#comment
+#!        ^^^^^^^^ meta.redirection invalid.illegal.path
+#!                   ^^^^^^^^ meta.redirection invalid.illegal.file-descriptor
+
 echo (echo one \
 #!   ^^^^^^^^^^^ meta.parens.command-substitution
 #!             ^ constant.character.escape

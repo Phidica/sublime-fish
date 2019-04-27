@@ -909,7 +909,7 @@ repository:
       - comment: This redirection pattern connects a file descriptor (either explicit or implied) to another file descriptor. As the '&' is necessary to denote the target file descriptor, this is a more strict pattern match and must be attended to first
         begin: (?=(?:[0-9]+(?:<|>>|>)|>>|\^\^|[<>^])\&)
         comment: Begin at any of the redirections valid for a file descriptor (the '&' must be present). Note that the stderr redirect operator '^' cannot be preceded by a file descriptor. The parameter and argument rules are in charge of preventing '^' being treated as a redirection when it appears in the middle of a word
-        end: (?=[\s;&)|]|(?:[0-9]+(?:<|>>|>)|>>|\^\^|[<>^])(?![&<>^]))
+        end: (?=[\s);&|]|(?:[0-9]+(?:<|>>|>)|>>|\^\^|[<>^])(?![&<>^]))
         comment: End at anything that would end a parameter, including redirections *if* they are *not* this same type of redirection (ie, have an '&'), in which case this scope stays open and we match the next one. The negative lookahead for <>^ at the end is to keep ST2 happy (not hanging)
         patterns:
           - begin: (?:([0-9]+)(<|>>|>)|(>>|\^\^|[<>^]))(\&)\s*
@@ -919,7 +919,7 @@ repository:
               '2': {name: keyword.operator.redirect.fish}
               '3': {name: keyword.operator.redirect.fish}
               '4': {name: keyword.operator.redirect.dereference.fish}
-            end: (\&.*$)|(?![&\\])
+            end: ([#&]\S*)|(?![&\\])
             endCaptures:
               '0': {name: meta.function-call.fish meta.redirection.fish}
               '1': {name: invalid.illegal.file-descriptor.fish}
@@ -951,18 +951,18 @@ repository:
               - include: '#string-quoted'
 
           - name: meta.function-call.fish meta.redirection.file-descriptor.fish meta.string.unquoted.fish constant.numeric.file-descriptor.fish
-            match: (?:[0-9]+)(?=$|[\s;&)|<>])
+            match: (?:[0-9]+)(?=$|[\s);&|<>])
           - name: meta.function-call.fish meta.redirection.file-descriptor.fish meta.string.unquoted.fish keyword.operator.redirect.close.fish
-            match: (?:-)(?=$|[\s;&)|<>])
+            match: (?:-)(?=$|[\s);&|<>])
 
           - comment: Anything else is illegal
             name: meta.function-call.fish meta.redirection.fish invalid.illegal.file-descriptor.fish
-            match: (?:\S+.*)$
+            match: (?:\S+)
 
       - comment: This redirection pattern connects a file descriptor (either explicit or implied) and a file path
         begin: (?=(?:[0-9]+(?:<|>>|>)|>>|\^\^|[<>^])\??)
         comment: Begin at any of the redirections valid for a file path (the '?' may optionally be used to prevent clobber). See above comments on stderr redirect operator '^'
-        end: (?=[\s;&)|]|(?:[0-9]+(?:<|>>|>)|>>|\^\^|[<>^])[&|]) # todo: watch out for redirect into pipe?
+        end: (?=[\s);&|]|(?:[0-9]+(?:<|>>|>)|>>|\^\^|[<>^])[&|]) # todo: watch out for redirect into pipe?
         comment: End at anything that would end a parameter, including redirections *if* they are *not* this same type of redirection (ie, redirection into file descriptor, or into pipe), in which case this scope stays open and we match the next one
         patterns:
           - begin: (?:([0-9]+)(<|>>|>)|(>>|\^\^|[<>^]))(\?)?\s*
@@ -972,7 +972,7 @@ repository:
               '2': {name: keyword.operator.redirect.fish}
               '3': {name: keyword.operator.redirect.fish}
               '4': {name: keyword.operator.redirect.clobber-test.fish}
-            end: ((?:[&?]|[0-9]*[<>^]).*$)|(?![&?<>^])
+            end: ((?:[#&?]|[0-9]*[<>^])\S*)|(?![&?<>^])
             endCaptures:
               '0': {name: meta.function-call.fish meta.redirection.fish}
               '1': {name: invalid.illegal.path.fish}
