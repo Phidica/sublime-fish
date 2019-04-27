@@ -205,7 +205,7 @@
 						<key>1</key>
 						<dict>
 							<key>name</key>
-							<string>meta.function-call.fish support.function.fish meta.string.unquoted.fish</string>
+							<string>meta.function-call.name.fish support.function.fish meta.string.unquoted.fish</string>
 						</dict>
 					</dict>
 					<key>comment</key>
@@ -255,7 +255,7 @@
 								<key>1</key>
 								<dict>
 									<key>name</key>
-									<string>meta.function-call.fish keyword.operator.word.fish meta.string.unquoted.fish</string>
+									<string>meta.function-call.name.fish keyword.operator.word.fish meta.string.unquoted.fish</string>
 								</dict>
 							</dict>
 							<key>comment</key>
@@ -336,7 +336,7 @@
 										<key>0</key>
 										<dict>
 											<key>name</key>
-											<string>meta.function-call.fish support.function.test.begin.fish</string>
+											<string>meta.function-call.name.fish support.function.test.begin.fish</string>
 										</dict>
 									</dict>
 									<key>comment</key>
@@ -348,7 +348,7 @@
 										<key>1</key>
 										<dict>
 											<key>name</key>
-											<string>meta.function-call.fish support.function.test.end.fish</string>
+											<string>meta.function-call.name.fish support.function.test.end.fish</string>
 										</dict>
 										<key>2</key>
 										<dict>
@@ -382,7 +382,7 @@
 										<key>0</key>
 										<dict>
 											<key>name</key>
-											<string>meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish</string>
+											<string>meta.function-call.name.fish keyword.control.conditional.fish meta.string.unquoted.fish</string>
 										</dict>
 									</dict>
 									<key>comment</key>
@@ -426,7 +426,7 @@
 											<key>end</key>
 											<string>(?=[\s;&amp;()|&lt;&gt;])</string>
 											<key>name</key>
-											<string>meta.function-call.fish variable.function.fish</string>
+											<string>meta.function-call.name.fish variable.function.fish</string>
 											<key>patterns</key>
 											<array>
 												<dict>
@@ -624,7 +624,7 @@
 						<key>1</key>
 						<dict>
 							<key>name</key>
-							<string>meta.function-call.fish variable.function.fish meta.string.unquoted.fish</string>
+							<string>meta.function-call.name.fish variable.function.fish meta.string.unquoted.fish</string>
 						</dict>
 						<key>2</key>
 						<dict>
@@ -643,7 +643,7 @@
 						<key>1</key>
 						<dict>
 							<key>name</key>
-							<string>meta.function-call.fish variable.function.fish meta.string.unquoted.fish</string>
+							<string>meta.function-call.name.fish variable.function.fish meta.string.unquoted.fish</string>
 						</dict>
 						<key>2</key>
 						<dict>
@@ -664,7 +664,7 @@
 						<key>0</key>
 						<dict>
 							<key>name</key>
-							<string>meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish</string>
+							<string>meta.function-call.name.fish keyword.control.conditional.fish meta.string.unquoted.fish</string>
 						</dict>
 					</dict>
 					<key>comment</key>
@@ -676,7 +676,7 @@
 						<key>0</key>
 						<dict>
 							<key>name</key>
-							<string>meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish</string>
+							<string>meta.function-call.name.fish keyword.control.conditional.fish meta.string.unquoted.fish</string>
 						</dict>
 					</dict>
 					<key>name</key>
@@ -701,7 +701,7 @@
 						<key>0</key>
 						<dict>
 							<key>name</key>
-							<string>meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish</string>
+							<string>meta.function-call.name.fish keyword.control.conditional.fish meta.string.unquoted.fish</string>
 						</dict>
 					</dict>
 					<key>name</key>
@@ -716,7 +716,7 @@
 								<key>0</key>
 								<dict>
 									<key>name</key>
-									<string>meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish</string>
+									<string>meta.function-call.name.fish keyword.control.conditional.fish meta.string.unquoted.fish</string>
 								</dict>
 							</dict>
 							<key>comment</key>
@@ -777,7 +777,7 @@
 						<key>0</key>
 						<dict>
 							<key>name</key>
-							<string>meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish</string>
+							<string>meta.function-call.name.fish keyword.control.conditional.fish meta.string.unquoted.fish</string>
 						</dict>
 					</dict>
 					<key>name</key>
@@ -802,7 +802,7 @@
 						<key>0</key>
 						<dict>
 							<key>name</key>
-							<string>meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish</string>
+							<string>meta.function-call.name.fish keyword.control.conditional.fish meta.string.unquoted.fish</string>
 						</dict>
 					</dict>
 					<key>name</key>
@@ -817,7 +817,7 @@
 								<key>1</key>
 								<dict>
 									<key>name</key>
-									<string>meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish</string>
+									<string>meta.function-call.name.fish keyword.control.conditional.fish meta.string.unquoted.fish</string>
 								</dict>
 								<key>2</key>
 								<dict>
@@ -871,7 +871,7 @@
 								<key>0</key>
 								<dict>
 									<key>name</key>
-									<string>meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish</string>
+									<string>meta.function-call.name.fish keyword.control.conditional.fish meta.string.unquoted.fish</string>
 								</dict>
 							</dict>
 							<key>comment</key>
@@ -952,7 +952,7 @@
 						<key>0</key>
 						<dict>
 							<key>name</key>
-							<string>meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish</string>
+							<string>meta.function-call.name.fish keyword.control.conditional.fish meta.string.unquoted.fish</string>
 						</dict>
 					</dict>
 					<key>name</key>
@@ -976,7 +976,7 @@
 										<key>1</key>
 										<dict>
 											<key>name</key>
-											<string>meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish</string>
+											<string>meta.function-call.name.fish keyword.control.conditional.fish meta.string.unquoted.fish</string>
 										</dict>
 										<key>2</key>
 										<dict>
@@ -1065,7 +1065,7 @@
 										<key>0</key>
 										<dict>
 											<key>name</key>
-											<string>meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish</string>
+											<string>meta.function-call.name.fish keyword.control.conditional.fish meta.string.unquoted.fish</string>
 										</dict>
 									</dict>
 									<key>comment</key>
@@ -1125,7 +1125,7 @@
 						<key>0</key>
 						<dict>
 							<key>name</key>
-							<string>meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish</string>
+							<string>meta.function-call.name.fish keyword.control.conditional.fish meta.string.unquoted.fish</string>
 						</dict>
 					</dict>
 					<key>name</key>
@@ -1159,7 +1159,7 @@
 										<key>0</key>
 										<dict>
 											<key>name</key>
-											<string>meta.function-call.fish</string>
+											<string>meta.function-call.name.fish</string>
 										</dict>
 										<key>1</key>
 										<dict>
@@ -1317,7 +1317,7 @@
 								<key>0</key>
 								<dict>
 									<key>name</key>
-									<string>meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish</string>
+									<string>meta.function-call.name.fish keyword.control.conditional.fish meta.string.unquoted.fish</string>
 								</dict>
 							</dict>
 							<key>comment</key>
@@ -1375,7 +1375,7 @@
 												<key>0</key>
 												<dict>
 													<key>name</key>
-													<string>meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish</string>
+													<string>meta.function-call.name.fish keyword.control.conditional.fish meta.string.unquoted.fish</string>
 												</dict>
 											</dict>
 											<key>comment</key>
@@ -1859,7 +1859,7 @@
 								<key>1</key>
 								<dict>
 									<key>name</key>
-									<string>meta.function-call.fish keyword.operator.word.fish meta.string.unquoted.fish</string>
+									<string>meta.function-call.name.fish keyword.operator.word.fish meta.string.unquoted.fish</string>
 								</dict>
 							</dict>
 							<key>comment</key>

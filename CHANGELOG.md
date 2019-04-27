@@ -4,7 +4,10 @@ Changelog
 2.4.2
 -----
 
-Bugfix:
+Improvement:
+- Provide the `meta.function-call.name` scope to identify command names
+
+Bugfixes:
 - Comments immediately after builtin commands were not scoped correctly
 - Comments immediately after redirection into file were not shown as invalid
 

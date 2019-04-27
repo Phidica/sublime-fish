@@ -56,6 +56,7 @@ Exposed scopes
 
 | fish construct             | Scope name
 | :------------:             | :----------
+| Command name               | `meta.function-call.name`
 | Parameters                 | `meta.parameter.option`/`argument`
 | Unquoted string            | `meta.string.unquoted`
 | File path (in redirection) | `meta.redirection.path`
