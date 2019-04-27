@@ -525,6 +525,14 @@ command  &
 echo arg &
 #! <-meta.function-call variable.function
 
+builtin # comment
+#! <- variable.function
+#!      ^ comment.line
+
+command echo # comment
+#! <- support.function
+#!           ^ comment.line
+
 and \
 #! <- meta.function-call keyword.operator.word
 #! ^ meta.function-call
@@ -543,6 +551,22 @@ not builtin case 1>/dev/null
 #!  ^^^^^^^ meta.function-call support.function
 #!          ^^^^ meta.function-call variable.function
 #!               ^^^^^^^^^^^ meta.redirection
+
+not # comment
+#! <- variable.function
+#!  ^ comment.line
+
+not true # comment
+#! <- keyword.operator.word
+#!       ^ comment.line
+
+and # comment
+#! <- variable.function
+#!  ^ comment.line
+
+or true # comment
+#! <- keyword.operator.word
+#!      ^ comment.line
 
 and >out
 #!  ^ invalid.illegal.function-call

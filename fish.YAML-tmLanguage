@@ -24,7 +24,7 @@ uuid: f9278d07-f7c1-4a9b-9581-ebcbc050fbfb
 
 # - We recognise the existence of operator characters (which directly instruct shell behaviour) and pseudo-operator characters (which guide shell behaviour). The convention for the order of operators in expressions is:
 #   - (Pseudo-operator) Whitespace: '\s' (includes newline)
-#   - Control operators: newline '\n', ';', '&', and the implied newline of encountering ')'
+#   - Control operators: newline '\n', the implied newline of ')', the implied newline of '#', ';', '&'
 #   - (Pseudo-operator) Command substitution: '(' and ')'
 #   - Pipe operators (including redirection-into-pipe): '|', '<|', '>>|', '3>|', etc
 #   - Redirect operators: '<', '>', '^'
@@ -189,11 +189,11 @@ repository:
     patterns:
       - comment: This meta command acts as a unary operator on the command to the right, but it is only allowed at the beginning of a pipeline! Because it can't come after a pipe, it isn't in the more general #command-call-meta rule
         comment: If the command is followed by redirection, then the redirection is illegal so we have to open the scope and let it be caught by #pipeline. If the command is followed by any form of execution that just prints help text (ie, with an option or with an explicit or implicit newline), then don't open the scope
-        begin: (?=(and|or)\b(?!\s*[\n;)-]))
-        end: (?=[\n;&)])
+        begin: (?=(and|or)\b(?!\s*[\n)#;-]))
+        end: (?=[\n);&])
         patterns:
           - comment: If the command is followed by an "&", then that's invalid
-            begin: (and|or)\b(?!\s*[\n;)-])
+            begin: (and|or)\b(?!\s*[\n);-])
             beginCaptures:
               '1': {name: meta.function-call.fish keyword.operator.word.fish meta.string.unquoted.fish}
             end: (?![^\n\S]|\&|\\\n)
@@ -311,14 +311,14 @@ repository:
           (?# Look ahead for control operations after whitespace)
           (?!\s*
             (?:
-              (?# Find options)
-              -
-            |
               (?# Find simple control operations)
-              [\n;&)|]
+              [\n)#;&|]
             |
               (?# Find redirection, which may be into a pipe but we don't care)
               (?:[0-9]+)?(?:<|>>?)|\^\^?
+            |
+              (?# Find options)
+              -
             )
           )
         beginCaptures:
@@ -329,7 +329,7 @@ repository:
           (?=\s*
             (?:
               (?# Find simple control operations)
-              [\n;&)]
+              [\n);&]
             |
               (?# Find piping)
               (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|
@@ -342,11 +342,11 @@ repository:
 
       - comment: This meta command acts as a unary operator on the command to the right, which can also be a meta command. There is no restriction on where in a pipeline this command may appear
         comment: If the command is followed by redirection, then the redirection is illegal so we have to open the scope and let it be caught by #pipeline. If the command is followed by any form of execution that just prints help text (ie, with an option or with an explicit or implicit newline), then don't open the scope
-        begin: (?=(not)\b(?!\s*[\n;)-]))
-        end: (?=[\n;&)])
+        begin: (?=(not)\b(?!\s*[\n)#;-]))
+        end: (?=[\n);&])
         patterns:
           - comment: If the command is followed by an "&", then that's invalid
-            begin: (not)\b(?!\s*[\n;)-])
+            begin: (not)\b(?!\s*[\n);-])
             beginCaptures:
               '1': {name: meta.function-call.fish keyword.operator.word.fish meta.string.unquoted.fish}
             end: (?![^\n\S]|\&|\\\n)

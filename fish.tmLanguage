@@ -190,14 +190,14 @@
 (?# Look ahead for control operations after whitespace)
 (?!\s*
   (?:
-    (?# Find options)
-    -
-  |
     (?# Find simple control operations)
-    [\n;&amp;)|]
+    [\n)#;&amp;|]
   |
     (?# Find redirection, which may be into a pipe but we don't care)
     (?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?
+  |
+    (?# Find options)
+    -
   )
 )</string>
 					<key>beginCaptures</key>
@@ -216,7 +216,7 @@
 (?=\s*
   (?:
     (?# Find simple control operations)
-    [\n;&amp;)]
+    [\n);&amp;]
   |
     (?# Find piping)
     (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
@@ -240,16 +240,16 @@
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>(?=(not)\b(?!\s*[\n;)-]))</string>
+					<string>(?=(not)\b(?!\s*[\n)#;-]))</string>
 					<key>comment</key>
 					<string>If the command is followed by redirection, then the redirection is illegal so we have to open the scope and let it be caught by</string>
 					<key>end</key>
-					<string>(?=[\n;&amp;)])</string>
+					<string>(?=[\n);&amp;])</string>
 					<key>patterns</key>
 					<array>
 						<dict>
 							<key>begin</key>
-							<string>(not)\b(?!\s*[\n;)-])</string>
+							<string>(not)\b(?!\s*[\n);-])</string>
 							<key>beginCaptures</key>
 							<dict>
 								<key>1</key>
@@ -1844,16 +1844,16 @@
 			<array>
 				<dict>
 					<key>begin</key>
-					<string>(?=(and|or)\b(?!\s*[\n;)-]))</string>
+					<string>(?=(and|or)\b(?!\s*[\n)#;-]))</string>
 					<key>comment</key>
 					<string>If the command is followed by redirection, then the redirection is illegal so we have to open the scope and let it be caught by</string>
 					<key>end</key>
-					<string>(?=[\n;&amp;)])</string>
+					<string>(?=[\n);&amp;])</string>
 					<key>patterns</key>
 					<array>
 						<dict>
 							<key>begin</key>
-							<string>(and|or)\b(?!\s*[\n;)-])</string>
+							<string>(and|or)\b(?!\s*[\n);-])</string>
 							<key>beginCaptures</key>
 							<dict>
 								<key>1</key>

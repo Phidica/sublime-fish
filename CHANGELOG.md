@@ -1,6 +1,12 @@
 Changelog
 =========
 
+2.4.2
+-----
+
+Bugfix:
+- Comments after lone meta commands were not scoped correctly
+
 2.4.1
 -----
 
