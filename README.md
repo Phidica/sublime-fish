@@ -60,13 +60,13 @@ Exposed scopes
 | Parameters                 | `meta.function-call.parameter.option`/`argument`
 | File path (in argument)    | `meta.function-call.parameter.argument.path`
 | File path (in redirection) | `meta.function-call.operator.redirection.path`
+| Process expansion          | `meta.function-call.parameter.argument.process-expansion` and `punctuation.definition.process`
 | Variable expansion         | `meta.variable-expansion` and `punctuation.definition.variable`
-| Process expansion          | `meta.parameter.argument.process-expansion` and `punctuation.definition.process`
 | Command substitution       | `meta.parens.command-substitution` and `punctuation.section.parens.begin`/`end`
 | Index expansion            | `meta.brackets.index-expansion` and `punctuation.section.brackets.begin`/`end`
 | Brace expansion            | `meta.braces.brace-expansion` and `punctuation.section.braces.begin`/`separator`/`end`
-| Home directory expansion   | `meta.parameter.argument.path` and `keyword.operator.tilde`
 | Wildcard expansion         | `meta.wildcard-expansion` and `keyword.operator.question-mark`/`single-star`/`double-star`
+| Home directory expansion   | `keyword.operator.tilde`
 
 Contribution
 ------------
