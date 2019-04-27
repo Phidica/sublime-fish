@@ -423,8 +423,8 @@ echo foo ^^fp& echo foo ^^>fp
 #!                        ^ meta.function-call.operator.redirection invalid.illegal.path
 
 echo one >&1>|cat; echo two >out>|cat
-#!          ^^ meta.function-call meta.pipe
-#!                              ^^ meta.function-call meta.pipe
+#!          ^^ meta.function-call.operator.pipe
+#!                              ^^ meta.function-call.operator.pipe
 
 echo one >&1>?two<&2>&4five
 #!       ^^^ meta.function-call.operator.redirection
@@ -620,7 +620,7 @@ echo && echo &&& echo || echo ||| echo
 #!                             ^^ invalid.illegal.function-call
 
 command echo out 2>| cat
-#!                ^^ meta.function-call meta.pipe keyword.operator
+#!                ^^ meta.function-call.operator.pipe keyword.operator
 
 exec %fish
 #! <- meta.function-call.name support.function
@@ -664,7 +664,7 @@ arg
 #!                ^^^^ variable.function
 
 make fish 2>| less
-#!        ^^^ meta.pipe
+#!        ^^^ meta.function-call.operator.pipe
 #!        ^ constant.numeric.file-descriptor
 #!         ^ keyword.operator.pipe.redirect
 #!          ^ keyword.operator.pipe
@@ -702,14 +702,14 @@ echo out 1>|
 #!       ^^^ invalid.illegal.operator
 
 echo out >| 9>|
-#!       ^^ meta.pipe
+#!       ^^ meta.function-call.operator.pipe
 #!          ^^^ invalid.illegal.function-call
 
 echo out ^| cat ^^| cat
-#!       ^ meta.pipe keyword.operator.pipe.redirect
-#!        ^ meta.pipe keyword.operator.pipe
-#!              ^^ meta.pipe keyword.operator.pipe.redirect
-#!                ^ meta.pipe keyword.operator.pipe
+#!       ^ meta.function-call.operator.pipe keyword.operator.pipe.redirect
+#!        ^ meta.function-call.operator.pipe keyword.operator.pipe
+#!              ^^ meta.function-call.operator.pipe keyword.operator.pipe.redirect
+#!                ^ meta.function-call.operator.pipe keyword.operator.pipe
 
 command >| cat
 #! <- variable.function
@@ -1063,7 +1063,7 @@ begin >echo arg; end >out | cat
 #!    ^ invalid.illegal.operator
 #!               ^^^ invalid.illegal.function-call
 #!                   ^ invalid.illegal.function-call
-#!                        ^ meta.pipe keyword.operator.pipe
+#!                        ^ meta.function-call.operator.pipe keyword.operator.pipe
 #!                          ^^^ variable.function
 
 begin end # comment
@@ -1106,7 +1106,7 @@ echo one | begin
 end >&1 | cat
 #! <- meta.block.begin keyword.control.conditional
 #!  ^^^ meta.function-call.operator.redirection
-#!      ^ meta.pipe keyword.operator.pipe
+#!      ^ meta.function-call.operator.pipe keyword.operator.pipe
 #!        ^^^ variable.function
 
 begin; echo yes end | end ;
@@ -1338,7 +1338,7 @@ for arg arg in --foo bar ; break; end | cat
 #!                   ^^^ meta.parameter.argument meta.string.unquoted
 #!                     ^^^ meta.function-call
 #!                         ^^^^^ keyword.control.conditional
-#!                                    ^ meta.pipe keyword.operator.pipe
+#!                                    ^ meta.function-call.operator.pipe keyword.operator.pipe
 #!                                      ^^^ variable.function
 
 for in in in in (seq 5) in in # comment
@@ -1434,7 +1434,7 @@ switch foo bar | echo &
     echo arg
 #!  ^^^^ variable.function
 end | cat
-#!  ^ meta.pipe keyword.operator.pipe
+#!  ^ meta.function-call.operator.pipe keyword.operator.pipe
 #!    ^^^ variable.function
 
 switch \-h

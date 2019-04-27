@@ -5,9 +5,10 @@ Changelog
 -----
 
 Improvements:
-- Provide the `meta.function-call.name` scope to identify command names
+- Use `meta.function-call.name` for command names
 - Use `meta.function-call.operator.control` for control operators specifically
 - Use `meta.function-call.operator.redirection` for redirection
+- Use `meta.function-call.operator.pipe` for piping
 
 Bugfixes:
 - Comments immediately after builtin commands were not scoped correctly

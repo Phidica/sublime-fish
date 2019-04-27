@@ -283,7 +283,7 @@ repository:
               - comment: Otherwise, we'll say the pipe is okay and let the tests at the start of #pipeline-segment highlight any invalid commands (such as redirection)
                 begin: (?:([0-9]+)?(<|>>?)|(\^\^?))?(\|)
                 captures:
-                  '0': {name: meta.function-call.fish meta.pipe.fish}
+                  '0': {name: meta.function-call.operator.pipe.fish}
                   '1': {name: constant.numeric.file-descriptor.fish}
                   '2': {name: keyword.operator.pipe.redirect.fish}
                   '3': {name: keyword.operator.pipe.redirect.fish}
