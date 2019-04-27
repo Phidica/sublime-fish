@@ -4,8 +4,9 @@ Changelog
 2.4.2
 -----
 
-Improvement:
+Improvements:
 - Provide the `meta.function-call.name` scope to identify command names
+- Use `meta.function-call.operator.control` for control operators specifically
 
 Bugfixes:
 - Comments immediately after builtin commands were not scoped correctly

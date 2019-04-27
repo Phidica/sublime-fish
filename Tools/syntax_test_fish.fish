@@ -25,7 +25,7 @@ echo 'single-quoted' "double-quoted" unquoted
 echo a\tb	c
 #!   ^^^^ meta.parameter.argument meta.string.unquoted
 #!       ^ meta.function-call
-#!         ^ meta.function-call.operator
+#!         ^ meta.function-call.operator.control
 
 # The ~ and % are only special characters in need of escaping when at the front of arguments
 echo ~foo \~bar~\~ %foo \%bar%\%
@@ -411,7 +411,7 @@ echo out >&"1" ^&"one"
 ##               ^^^^^ Scanning this string to ensure it contains exactly one integer is too hard, sorry
 
 echo foo ^^&1& echo foo ^^&& 1
-#!           ^ meta.function-call.operator keyword.operator.control
+#!           ^ meta.function-call.operator.control keyword.operator.control
 #!                         ^ meta.redirection invalid.illegal.file-descriptor
 
 echo bar >&\
@@ -419,7 +419,7 @@ echo bar >&\
 #! <- meta.redirection invalid.illegal.file-descriptor
 
 echo foo ^^fp& echo foo ^^>fp
-#!           ^ meta.function-call.operator keyword.operator.control
+#!           ^ meta.function-call.operator.control keyword.operator.control
 #!                        ^ meta.redirection invalid.illegal.path
 
 echo one >&1>|cat; echo two >out>|cat
@@ -1186,13 +1186,14 @@ while while while while false; end ; end ; end ; end
 #!                                               ^^^ meta.block.while keyword.control.conditional
 
 while test
+#!        ^ meta.function-call.operator.control
 while &
 #! <- variable.function
 #!    ^ invalid.illegal.operator
 end
 
 while true ; cmd arg ; end &
-#!         ^ keyword.operator.control
+#!         ^ meta.function-call.operator.control keyword.operator.control
 #!                     ^^^ keyword.control.conditional
 #!                         ^ keyword.operator.control
 
@@ -1235,20 +1236,25 @@ end &
 if echo arg
 #! <- meta.block.if meta.function-call.name keyword.control.conditional meta.string.unquoted
 #! ^^^^^^^^^ meta.block.if meta.function-call
+#!         ^ meta.function-call.operator.control
   and echo arg
+#!            ^ meta.function-call.operator.control
   echo arg
-else if echo arg
+else if echo arg;
 #! <- meta.function-call.name keyword.control.conditional meta.string.unquoted
 #!   ^^ meta.function-call.name keyword.control.conditional meta.string.unquoted
+#!              ^ meta.function-call.operator.control
   and echo arg
   echo arg
 else; # comment
 #! <- meta.function-call.name keyword.control.conditional meta.string.unquoted
-#! ^^ meta.function-call
+#!  ^ meta.function-call.operator.control
 #!    ^^^^^^^^^ comment.line
   echo arg
   if echo arg
     # comment
+  else
+#!    ^ meta.function-call.operator.control
   end
 #! ^^ meta.function-call.name keyword.control.conditional
 else
@@ -1346,6 +1352,7 @@ for in in in in (seq 5) in in # comment
 #!                      ^^ meta.parameter.argument
 #!                         ^^ meta.parameter.argument
 #!                            ^^^^^^^^^ comment.line
+#!                                     ^ meta.function-call.operator.control
   echo arg
 #! ^^^ meta.function-call.name
   continue ;
@@ -1371,7 +1378,7 @@ for \
   three
 ) ;
 #! <- meta.parameter.argument meta.parens.command-substitution
-#!^ meta.function-call
+#!^ meta.function-call.operator.control
   echo arg arg
 #! ^^^ meta.function-call.name
 end
@@ -1403,10 +1410,10 @@ echo (for foo in bar) end)
 switch value ; case wildcard ; command echo foo; end # comment
 #! <- meta.block.switch meta.function-call.name keyword.control.conditional meta.string.unquoted
 #! ^^^^^^^^^^^ meta.block.switch meta.function-call
-#!           ^ meta.function-call.operator keyword.operator.control
+#!           ^ meta.function-call.operator.control keyword.operator.control
 #!             ^^^^^^^^^^^^^^^ meta.function-call
 #!             ^^^^ meta.function-call.name keyword.control.conditional meta.string.unquoted
-#!                           ^ meta.function-call.operator keyword.operator.control
+#!                           ^ meta.function-call.operator.control keyword.operator.control
 #!                                             ^ keyword.operator.control
 #!                                               ^^^ meta.block.switch meta.function-call.name keyword.control.conditional meta.string.unquoted
 #!                                                   ^ comment.line
@@ -1433,9 +1440,11 @@ end | cat
 switch \-h
 #!     ^^^ meta.parameter.argument meta.string.unquoted
 #!     ^^^ - variable.parameter
+#!        ^ meta.function-call.operator.control
   case -h
 #!     ^^ meta.parameter.argument meta.string.unquoted
 #!     ^^ - variable.parameter
+#!       ^ meta.function-call.operator.control
     echo "-h" # Haha, this doesn't actually work
 end
 
@@ -1495,6 +1504,7 @@ function foo --arg="bar"
 #! ^^^^^^^^^^^^^^^^^^^^^^ meta.function-call
 #!       ^^^ entity.name.function
 #!           ^^^^^^^^^^^ meta.parameter.option.long
+#!                      ^ meta.function-call.operator.control
   return 1
 #! ^^^^^ keyword.control.conditional meta.string.unquoted
   echo arg
@@ -1521,7 +1531,7 @@ end
 function inline; echo arg; end # comment
 #! <- meta.block.function keyword.control.conditional
 #!       ^^^^^^ entity.name.function
-#!             ^ keyword.operator.control
+#!             ^ meta.function-call.operator.control keyword.operator.control
 #!                       ^ keyword.operator.control
 #!                             ^^^^^^^^^ comment.line
 

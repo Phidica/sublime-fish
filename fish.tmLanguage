@@ -56,12 +56,12 @@
 				<key>1</key>
 				<dict>
 					<key>name</key>
-					<string>meta.function-call.operator.fish</string>
+					<string>meta.function-call.operator.control.fish</string>
 				</dict>
 				<key>2</key>
 				<dict>
 					<key>name</key>
-					<string>meta.function-call.operator.fish keyword.operator.control.fish</string>
+					<string>meta.function-call.operator.control.fish keyword.operator.control.fish</string>
 				</dict>
 			</dict>
 			<key>patterns</key>
@@ -743,12 +743,12 @@
 								<key>1</key>
 								<dict>
 									<key>name</key>
-									<string>meta.function-call.operator.fish</string>
+									<string>meta.function-call.operator.control.fish</string>
 								</dict>
 								<key>2</key>
 								<dict>
 									<key>name</key>
-									<string>meta.function-call.operator.fish keyword.operator.control.fish</string>
+									<string>meta.function-call.operator.control.fish keyword.operator.control.fish</string>
 								</dict>
 							</dict>
 							<key>comment</key>
@@ -906,12 +906,12 @@
 								<key>1</key>
 								<dict>
 									<key>name</key>
-									<string>meta.function-call.operator.fish</string>
+									<string>meta.function-call.operator.control.fish</string>
 								</dict>
 								<key>2</key>
 								<dict>
 									<key>name</key>
-									<string>meta.function-call.operator.fish keyword.operator.control.fish</string>
+									<string>meta.function-call.operator.control.fish keyword.operator.control.fish</string>
 								</dict>
 							</dict>
 							<key>comment</key>
@@ -1043,12 +1043,12 @@
 								<key>1</key>
 								<dict>
 									<key>name</key>
-									<string>meta.function-call.operator.fish</string>
+									<string>meta.function-call.operator.control.fish</string>
 								</dict>
 								<key>2</key>
 								<dict>
 									<key>name</key>
-									<string>meta.function-call.operator.fish keyword.operator.control.fish</string>
+									<string>meta.function-call.operator.control.fish keyword.operator.control.fish</string>
 								</dict>
 							</dict>
 							<key>comment</key>
@@ -1077,12 +1077,12 @@
 										<key>1</key>
 										<dict>
 											<key>name</key>
-											<string>meta.function-call.operator.fish</string>
+											<string>meta.function-call.operator.control.fish</string>
 										</dict>
 										<key>2</key>
 										<dict>
 											<key>name</key>
-											<string>meta.function-call.operator.fish keyword.operator.control.fish</string>
+											<string>meta.function-call.operator.control.fish keyword.operator.control.fish</string>
 										</dict>
 									</dict>
 									<key>patterns</key>
@@ -1270,12 +1270,12 @@
 								<key>1</key>
 								<dict>
 									<key>name</key>
-									<string>meta.function-call.operator.fish</string>
+									<string>meta.function-call.operator.control.fish</string>
 								</dict>
 								<key>2</key>
 								<dict>
 									<key>name</key>
-									<string>meta.function-call.operator.fish keyword.operator.control.fish</string>
+									<string>meta.function-call.operator.control.fish keyword.operator.control.fish</string>
 								</dict>
 							</dict>
 							<key>comment</key>
@@ -1344,12 +1344,12 @@
 								<key>1</key>
 								<dict>
 									<key>name</key>
-									<string>meta.function-call.operator.fish</string>
+									<string>meta.function-call.operator.control.fish</string>
 								</dict>
 								<key>2</key>
 								<dict>
 									<key>name</key>
-									<string>meta.function-call.operator.fish keyword.operator.control.fish</string>
+									<string>meta.function-call.operator.control.fish keyword.operator.control.fish</string>
 								</dict>
 							</dict>
 							<key>comment</key>
@@ -1414,12 +1414,12 @@
 												<key>1</key>
 												<dict>
 													<key>name</key>
-													<string>meta.function-call.operator.fish</string>
+													<string>meta.function-call.operator.control.fish</string>
 												</dict>
 												<key>2</key>
 												<dict>
 													<key>name</key>
-													<string>meta.function-call.operator.fish keyword.operator.control.fish</string>
+													<string>meta.function-call.operator.control.fish keyword.operator.control.fish</string>
 												</dict>
 											</dict>
 											<key>comment</key>
