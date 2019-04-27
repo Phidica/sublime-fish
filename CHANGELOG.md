@@ -5,7 +5,7 @@ Changelog
 -----
 
 Bugfix:
-- Comments after lone meta commands were not scoped correctly
+- Comments immediately after builtin commands were not scoped correctly
 
 2.4.1
 -----

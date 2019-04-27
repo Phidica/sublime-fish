@@ -1049,6 +1049,10 @@ begin &
 echo (begin))
 #!    ^^^^^ meta.function-call meta.function-call variable.function meta.string.unquoted
 
+begin # comment
+#! <- keyword.control.conditional
+end
+
 begin >echo arg; end >out | cat
 #! <- variable.function
 #!    ^ invalid.illegal.operator
@@ -1136,6 +1140,10 @@ while --true; end
 while &
 # comment
 #! <- comment.line
+
+while # comment;end
+#! <- variable.function
+#!    ^^^^^^^^^^^^^ comment.line
 
 while || true ; end
 #! ^^ variable.function
@@ -1268,6 +1276,10 @@ if --foobar; else;
 #!         ^ keyword.operator.control
 #!           ^^^^ invalid.illegal.function-call
 
+if # comment;end
+#! <- variable.function
+#! ^^^^^^^^^^^^^ comment.line
+
 # This really works in fish!
 if test
   else if --foobar
@@ -1364,6 +1376,10 @@ end
 echo (for)
 #!    ^^^ variable.function
 #!       ^ punctuation.section.parens.end
+
+for # comment;end
+#! <- variable.function
+#!  ^^^^^^^^^^^^^ comment.line
 
 # The second ')' and "end" are to catch the runaway scopes if needed
 echo (for foo) end)
@@ -1465,6 +1481,10 @@ echo (switch)
 #!    ^^^^^^ variable.function
 #!          ^ punctuation.section.parens.end
 
+switch # comment;end
+#! <- variable.function
+#!     ^^^^^^^^^^^^^ comment.line
+
 function foo --arg="bar"
 #! <- meta.block.function meta.function-call keyword.control.conditional meta.string.unquoted
 #! ^^^^^^^^^^^^^^^^^^^^^^ meta.function-call
@@ -1539,3 +1559,7 @@ function ~name --argument a -b c; end
 echo (function)
 #!    ^^^^^^^^ variable.function
 #!            ^ punctuation.section.parens.end
+
+function # comment;end
+#! <- variable.function
+#!       ^^^^^^^^^^^^^ comment.line

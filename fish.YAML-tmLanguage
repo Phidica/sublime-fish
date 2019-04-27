@@ -539,16 +539,16 @@ repository:
         begin: begin(?=\s*$|\s*[\n;]|\s+[^\s-])
         beginCaptures:
           '0': {name: meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish}
-        end: end(?=$|[\s;&)|<>])
+        end: end(?=$|[\s);&|<>])
         endCaptures:
           '0': {name: meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish}
         patterns:
           - include: $self
 
       - name: meta.block.while.fish
-        begin: (?=while\s+[^\s;)-])
+        begin: (?=while\s+[^\s)#;-])
         comment: If the command name is followed by a valid string (not anything that closes the scope or a string starting with a '-') then open the scope
-        end: end(?=$|[\s;&)|<>])
+        end: end(?=$|[\s);&|<>])
         endCaptures:
           '0': {name: meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish}
         patterns:
@@ -556,24 +556,24 @@ repository:
             begin: while
             beginCaptures:
               '0': {name: meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish}
-            end: (?=[\n;&)])
+            end: (?=[\n);&])
             patterns:
               - include: '#line-continuation'
               - include: '#pipeline'
 
           - comment: Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen. Base scope handles any invalid operators
-            begin: (\n)|(;)|(?=[&)])
+            begin: (\n)|(;)|(?=[)&])
             beginCaptures:
               '1': {name: meta.function-call.operator.fish}
               '2': {name: meta.function-call.operator.fish keyword.operator.control.fish}
-            end: (?=end(?:$|[\s;&)|<>]))
+            end: (?=end(?:$|[\s);&|<>]))
             patterns:
               - include: $self
 
       - name: meta.block.if.fish
-        begin: (?=if\s+[^\s;)-])
+        begin: (?=if\s+[^\s)#;-])
         comment: If the command name is followed by a valid string (not anything that closes the scope or a string starting with a '-') then open the scope
-        end: end(?=$|[\s;&)|<>])
+        end: end(?=$|[\s);&|<>])
         endCaptures:
           '0': {name: meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish}
         patterns:
@@ -581,9 +581,9 @@ repository:
           - include: '#command-call-standard-block-if-internal'
 
       - name: meta.block.for-in.fish
-        begin: (?=for\s+[^\s;)-])
+        begin: (?=for\s+[^\s)#;-])
         comment: If the command name is followed by a valid string (not anything that closes the scope or a string starting with a '-') then open the scope
-        end: end(?=$|[\s;&)|<>])
+        end: end(?=$|[\s);&|<>])
         endCaptures:
           '0': {name: meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish}
         patterns:
@@ -611,7 +611,7 @@ repository:
             begin: in(?=\s)
             beginCaptures:
               '0': {name: meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish}
-            end: (?=[\n;&)])
+            end: (?=[\n);&])
             patterns:
               - include: '#separator-whitespace'
               - include: '#line-continuation'
@@ -619,37 +619,37 @@ repository:
               - include: '#argument'
 
           - comment: Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen. Base scope handles any invalid operators
-            begin: (\n)|(;)|(?=[&)])
+            begin: (\n)|(;)|(?=[)&])
             beginCaptures:
               '1': {name: meta.function-call.operator.fish}
               '2': {name: meta.function-call.operator.fish keyword.operator.control.fish}
-            end: (?=end(?:$|[\s;&)|<>]))
+            end: (?=end(?:$|[\s);&|<>]))
             patterns:
               - include: $self
 
           - comment: Anything beside line continuation, "in", or a control operator is invalid
             name: invalid.illegal.function-call.fish
-            match: \S+?(?=[\s;&)])
+            match: \S+?(?=[\s);&])
 
           - include: '#separator-whitespace'
 
       - name: meta.block.switch.fish
-        begin: (?=switch\s+[^\s;)-])
+        begin: (?=switch\s+[^\s)#;-])
         comment: If the command name is followed by a valid string (not anything that closes the scope or a string starting with a '-') then open the scope
-        end: end(?=$|[\s;&)|<>])
+        end: end(?=$|[\s);&|<>])
         endCaptures:
           '0': {name: meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish}
         patterns:
           - comment: Anonymous scope - Match the valid part of the switch statement, then look for an invalid part
             begin: (?=switch)
-            end: (?=[\n;&)])
+            end: (?=[\n);&])
             patterns:
               - comment: Anonymous scope - Capture the command name we know is there, include a single instance of a parameter (the value), and end when whitespace or a control operator is seen
                 begin: (switch)(\s+)
                 beginCaptures:
                   '1': {name: meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish}
                   '2': {name: meta.function-call.fish}
-                end: (?=[\s;&)])
+                end: (?=[\s);&])
                 patterns:
                   - include: '#line-continuation' # Eats whitespace on next line!
                   - include: '#parameter'
@@ -662,23 +662,23 @@ repository:
                 begin: \s+
                 beginCaptures:
                   '0': {name: meta.function-call.fish}
-                end: (?=[\n;&)])
+                end: (?=[\n);&])
                 patterns:
                   - name: invalid.illegal.string.fish
-                    match: \S+?(?=[\s;&)])
+                    match: \S+?(?=[\s);&])
 
           - comment: Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen. Base scope handles any invalid operators
-            begin: (\n)|(;)|(?=[&)])
+            begin: (\n)|(;)|(?=[)&])
             beginCaptures:
               '1': {name: meta.function-call.operator.fish}
               '2': {name: meta.function-call.operator.fish keyword.operator.control.fish}
-            end: (?=end(?:$|[\s;&)|<>]))
+            end: (?=end(?:$|[\s);&|<>]))
             patterns:
               - comment: Anonymous scope - Capture the command name which might be there, include an arbitrary number of arguments, and end when the control operator is captured. Base scope further down handles any invalid operators used to end the scope
-                begin: case(?=[\s;&)])
+                begin: case(?=[\s);&])
                 beginCaptures:
                   '0': {name: meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish}
-                end: (\n)|(;)|(?=[&)|]|(?:[0-9]+)?(?:<|>>?)|\^\^?)
+                end: (\n)|(;)|(?=[)&|]|(?:[0-9]+)?(?:<|>>?)|\^\^?)
                 endCaptures:
                   '1': {name: meta.function-call.operator.fish}
                   '2': {name: meta.function-call.operator.fish keyword.operator.control.fish}
@@ -691,9 +691,9 @@ repository:
               - include: $self
 
       - name: meta.block.function.fish
-        begin: (?=function\s+[^\s;)-])
+        begin: (?=function\s+[^\s)#;-])
         comment: If the command name is followed by a valid string (not anything that closes the scope or a string starting with a '-') then open the scope
-        end: end(?=$|[\s;&)|<>])
+        end: end(?=$|[\s);&|<>])
         endCaptures:
           '0': {name: meta.function-call.fish keyword.control.conditional.fish meta.string.unquoted.fish}
         patterns:
@@ -705,7 +705,7 @@ repository:
               (?=
                 (?:
                   (?# Find a control operator)
-                  [\n;&)]
+                  [\n);&]
                 |
                   (?# Find a redirect or pipe operator)
                   (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)\|?
@@ -717,13 +717,13 @@ repository:
                 beginCaptures:
                   '0': {name: meta.function-call.fish}
                   '1': {name: keyword.control.conditional.fish meta.string.unquoted.fish}
-                end: (?=[\s;&)|<>])
+                end: (?=[\s);&|<>])
                 patterns:
                   - include: '#line-continuation' # Eats whitespace on next line!
 
                   - name: invalid.illegal.string.fish
                     begin: '[|<>]'
-                    end: (?=[\s;&)])
+                    end: (?=[\s);&])
 
                   - comment: Anonymous scope - Start when an escaped newline isn't present, and end when whitespace or an operator is seen
                     begin: (?!\\\n)
@@ -732,7 +732,7 @@ repository:
                       - comment: This is all the usual things a parameter is allowed to contain
                         name: meta.function-call.fish meta.parameter.argument.fish entity.name.function.fish
                         begin: (?![\s)])
-                        end: (?=[\s;&)|<>])
+                        end: (?=[\s);&|<>])
                         patterns:
                           - include: '#parameter-patterns'
 
@@ -748,7 +748,7 @@ repository:
                   (?=
                     (?:
                       (?# Find a control operator)
-                      [\n;&)]
+                      [\n);&]
                     |
                       (?# Find a redirect or pipe operator)
                       (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)\|?
@@ -761,11 +761,11 @@ repository:
                   - include: '#parameter'
 
           - comment: Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen. Base scope handles any invalid operators
-            begin: (\n)|(;)|(?=[&)|]|(?:[0-9]+)?(?:<|>>?)|\^\^?)
+            begin: (\n)|(;)|(?=[)&|]|(?:[0-9]+)?(?:<|>>?)|\^\^?)
             beginCaptures:
               '1': {name: meta.function-call.operator.fish}
               '2': {name: meta.function-call.operator.fish keyword.operator.control.fish}
-            end: (?=end(?:$|[\s;&)|<>]))
+            end: (?=end(?:$|[\s);&|<>]))
             patterns:
               - include: $self
 
@@ -774,7 +774,7 @@ repository:
     patterns:
       - comment: Anonymous scope - Capture an `if` and the command up to the control operator, then capture from the control operator indefinitely
         begin: (?=if(?:\s*\n|\s+[^\s;]))
-        end: (?=end(?:$|[\s;&)|<>]))
+        end: (?=end(?:$|[\s);&|<>]))
         patterns:
           - comment: Anonymous scope - Match the command name we know is there, include a single instance of a pipeline, and end when a control operator is seen
             begin: if
@@ -790,11 +790,11 @@ repository:
             beginCaptures:
               '1': {name: meta.function-call.operator.fish}
               '2': {name: meta.function-call.operator.fish keyword.operator.control.fish}
-            end: (?=end(?:$|[\s;&)|<>]))
+            end: (?=end(?:$|[\s);&|<>]))
             patterns:
               - comment: Anonymous scope - Capture an `else` up to the control operator or the start of an `if` structure, then match from the control operator indefinitely or match an `if` structure
                 begin: (?=else\s*[\s;])
-                end: (?=end(?:$|[\s;&)|<>]))
+                end: (?=end(?:$|[\s);&|<>]))
                 patterns:
                   - comment: Anonymous scope - Match the `else` we know is there and any comment, and mark anything besides an `if` as illegal
                     begin: else(?=\s*[\s;])
@@ -815,7 +815,7 @@ repository:
                     beginCaptures:
                       '1': {name: meta.function-call.operator.fish}
                       '2': {name: meta.function-call.operator.fish keyword.operator.control.fish}
-                    end: (?=end(?:$|[\s;&)|<>]))
+                    end: (?=end(?:$|[\s);&|<>]))
                     patterns:
                       - include: $self
 

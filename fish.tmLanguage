@@ -670,7 +670,7 @@
 					<key>comment</key>
 					<string>The begin command can be alone on a line or followed by any command that doesn't start with a '-'. If a '-' is seen it shouldn't be treated as a block</string>
 					<key>end</key>
-					<string>end(?=$|[\s;&amp;)|&lt;&gt;])</string>
+					<string>end(?=$|[\s);&amp;|&lt;&gt;])</string>
 					<key>endCaptures</key>
 					<dict>
 						<key>0</key>
@@ -691,11 +691,11 @@
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>(?=while\s+[^\s;)-])</string>
+					<string>(?=while\s+[^\s)#;-])</string>
 					<key>comment</key>
 					<string>If the command name is followed by a valid string (not anything that closes the scope or a string starting with a '-') then open the scope</string>
 					<key>end</key>
-					<string>end(?=$|[\s;&amp;)|&lt;&gt;])</string>
+					<string>end(?=$|[\s);&amp;|&lt;&gt;])</string>
 					<key>endCaptures</key>
 					<dict>
 						<key>0</key>
@@ -722,7 +722,7 @@
 							<key>comment</key>
 							<string>Anonymous scope - Capture the command name we know is there, include a single instance of a pipeline, and end when an operator is seen</string>
 							<key>end</key>
-							<string>(?=[\n;&amp;)])</string>
+							<string>(?=[\n);&amp;])</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -737,7 +737,7 @@
 						</dict>
 						<dict>
 							<key>begin</key>
-							<string>(\n)|(;)|(?=[&amp;)])</string>
+							<string>(\n)|(;)|(?=[)&amp;])</string>
 							<key>beginCaptures</key>
 							<dict>
 								<key>1</key>
@@ -754,7 +754,7 @@
 							<key>comment</key>
 							<string>Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen. Base scope handles any invalid operators</string>
 							<key>end</key>
-							<string>(?=end(?:$|[\s;&amp;)|&lt;&gt;]))</string>
+							<string>(?=end(?:$|[\s);&amp;|&lt;&gt;]))</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -767,11 +767,11 @@
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>(?=if\s+[^\s;)-])</string>
+					<string>(?=if\s+[^\s)#;-])</string>
 					<key>comment</key>
 					<string>If the command name is followed by a valid string (not anything that closes the scope or a string starting with a '-') then open the scope</string>
 					<key>end</key>
-					<string>end(?=$|[\s;&amp;)|&lt;&gt;])</string>
+					<string>end(?=$|[\s);&amp;|&lt;&gt;])</string>
 					<key>endCaptures</key>
 					<dict>
 						<key>0</key>
@@ -792,11 +792,11 @@
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>(?=for\s+[^\s;)-])</string>
+					<string>(?=for\s+[^\s)#;-])</string>
 					<key>comment</key>
 					<string>If the command name is followed by a valid string (not anything that closes the scope or a string starting with a '-') then open the scope</string>
 					<key>end</key>
-					<string>end(?=$|[\s;&amp;)|&lt;&gt;])</string>
+					<string>end(?=$|[\s);&amp;|&lt;&gt;])</string>
 					<key>endCaptures</key>
 					<dict>
 						<key>0</key>
@@ -877,7 +877,7 @@
 							<key>comment</key>
 							<string>Anonymous scope - Capture the command name which might be there, include an arbitrary number of arguments, and end when the control operator is seen</string>
 							<key>end</key>
-							<string>(?=[\n;&amp;)])</string>
+							<string>(?=[\n);&amp;])</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -900,7 +900,7 @@
 						</dict>
 						<dict>
 							<key>begin</key>
-							<string>(\n)|(;)|(?=[&amp;)])</string>
+							<string>(\n)|(;)|(?=[)&amp;])</string>
 							<key>beginCaptures</key>
 							<dict>
 								<key>1</key>
@@ -917,7 +917,7 @@
 							<key>comment</key>
 							<string>Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen. Base scope handles any invalid operators</string>
 							<key>end</key>
-							<string>(?=end(?:$|[\s;&amp;)|&lt;&gt;]))</string>
+							<string>(?=end(?:$|[\s);&amp;|&lt;&gt;]))</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -930,7 +930,7 @@
 							<key>comment</key>
 							<string>Anything beside line continuation, "in", or a control operator is invalid</string>
 							<key>match</key>
-							<string>\S+?(?=[\s;&amp;)])</string>
+							<string>\S+?(?=[\s);&amp;])</string>
 							<key>name</key>
 							<string>invalid.illegal.function-call.fish</string>
 						</dict>
@@ -942,11 +942,11 @@
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>(?=switch\s+[^\s;)-])</string>
+					<string>(?=switch\s+[^\s)#;-])</string>
 					<key>comment</key>
 					<string>If the command name is followed by a valid string (not anything that closes the scope or a string starting with a '-') then open the scope</string>
 					<key>end</key>
-					<string>end(?=$|[\s;&amp;)|&lt;&gt;])</string>
+					<string>end(?=$|[\s);&amp;|&lt;&gt;])</string>
 					<key>endCaptures</key>
 					<dict>
 						<key>0</key>
@@ -965,7 +965,7 @@
 							<key>comment</key>
 							<string>Anonymous scope - Match the valid part of the switch statement, then look for an invalid part</string>
 							<key>end</key>
-							<string>(?=[\n;&amp;)])</string>
+							<string>(?=[\n);&amp;])</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -987,7 +987,7 @@
 									<key>comment</key>
 									<string>Anonymous scope - Capture the command name we know is there, include a single instance of a parameter (the value), and end when whitespace or a control operator is seen</string>
 									<key>end</key>
-									<string>(?=[\s;&amp;)])</string>
+									<string>(?=[\s);&amp;])</string>
 									<key>patterns</key>
 									<array>
 										<dict>
@@ -1022,12 +1022,12 @@
 									<key>comment</key>
 									<string>Anonymous scope - Capture whitespace which might be there, match any non-control-operator strings as invalid, and end when a control operator is seen</string>
 									<key>end</key>
-									<string>(?=[\n;&amp;)])</string>
+									<string>(?=[\n);&amp;])</string>
 									<key>patterns</key>
 									<array>
 										<dict>
 											<key>match</key>
-											<string>\S+?(?=[\s;&amp;)])</string>
+											<string>\S+?(?=[\s);&amp;])</string>
 											<key>name</key>
 											<string>invalid.illegal.string.fish</string>
 										</dict>
@@ -1037,7 +1037,7 @@
 						</dict>
 						<dict>
 							<key>begin</key>
-							<string>(\n)|(;)|(?=[&amp;)])</string>
+							<string>(\n)|(;)|(?=[)&amp;])</string>
 							<key>beginCaptures</key>
 							<dict>
 								<key>1</key>
@@ -1054,12 +1054,12 @@
 							<key>comment</key>
 							<string>Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen. Base scope handles any invalid operators</string>
 							<key>end</key>
-							<string>(?=end(?:$|[\s;&amp;)|&lt;&gt;]))</string>
+							<string>(?=end(?:$|[\s);&amp;|&lt;&gt;]))</string>
 							<key>patterns</key>
 							<array>
 								<dict>
 									<key>begin</key>
-									<string>case(?=[\s;&amp;)])</string>
+									<string>case(?=[\s);&amp;])</string>
 									<key>beginCaptures</key>
 									<dict>
 										<key>0</key>
@@ -1071,7 +1071,7 @@
 									<key>comment</key>
 									<string>Anonymous scope - Capture the command name which might be there, include an arbitrary number of arguments, and end when the control operator is captured. Base scope further down handles any invalid operators used to end the scope</string>
 									<key>end</key>
-									<string>(\n)|(;)|(?=[&amp;)|]|(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)</string>
+									<string>(\n)|(;)|(?=[)&amp;|]|(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)</string>
 									<key>endCaptures</key>
 									<dict>
 										<key>1</key>
@@ -1115,11 +1115,11 @@
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>(?=function\s+[^\s;)-])</string>
+					<string>(?=function\s+[^\s)#;-])</string>
 					<key>comment</key>
 					<string>If the command name is followed by a valid string (not anything that closes the scope or a string starting with a '-') then open the scope</string>
 					<key>end</key>
-					<string>end(?=$|[\s;&amp;)|&lt;&gt;])</string>
+					<string>end(?=$|[\s);&amp;|&lt;&gt;])</string>
 					<key>endCaptures</key>
 					<dict>
 						<key>0</key>
@@ -1143,7 +1143,7 @@
 (?=
   (?:
     (?# Find a control operator)
-    [\n;&amp;)]
+    [\n);&amp;]
   |
     (?# Find a redirect or pipe operator)
     (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)\|?
@@ -1170,7 +1170,7 @@
 									<key>comment</key>
 									<string>Anonymous scope - Capture the command name we know is there, include a single instance of a parameter (the value), and end when whitespace or a control operator is seen</string>
 									<key>end</key>
-									<string>(?=[\s;&amp;)|&lt;&gt;])</string>
+									<string>(?=[\s);&amp;|&lt;&gt;])</string>
 									<key>patterns</key>
 									<array>
 										<dict>
@@ -1181,7 +1181,7 @@
 											<key>begin</key>
 											<string>[|&lt;&gt;]</string>
 											<key>end</key>
-											<string>(?=[\s;&amp;)])</string>
+											<string>(?=[\s);&amp;])</string>
 											<key>name</key>
 											<string>invalid.illegal.string.fish</string>
 										</dict>
@@ -1200,7 +1200,7 @@
 													<key>comment</key>
 													<string>This is all the usual things a parameter is allowed to contain</string>
 													<key>end</key>
-													<string>(?=[\s;&amp;)|&lt;&gt;])</string>
+													<string>(?=[\s);&amp;|&lt;&gt;])</string>
 													<key>name</key>
 													<string>meta.function-call.fish meta.parameter.argument.fish entity.name.function.fish</string>
 													<key>patterns</key>
@@ -1234,7 +1234,7 @@
 (?=
   (?:
     (?# Find a control operator)
-    [\n;&amp;)]
+    [\n);&amp;]
   |
     (?# Find a redirect or pipe operator)
     (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)\|?
@@ -1264,7 +1264,7 @@
 						</dict>
 						<dict>
 							<key>begin</key>
-							<string>(\n)|(;)|(?=[&amp;)|]|(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)</string>
+							<string>(\n)|(;)|(?=[)&amp;|]|(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)</string>
 							<key>beginCaptures</key>
 							<dict>
 								<key>1</key>
@@ -1281,7 +1281,7 @@
 							<key>comment</key>
 							<string>Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen. Base scope handles any invalid operators</string>
 							<key>end</key>
-							<string>(?=end(?:$|[\s;&amp;)|&lt;&gt;]))</string>
+							<string>(?=end(?:$|[\s);&amp;|&lt;&gt;]))</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -1306,7 +1306,7 @@
 					<key>comment</key>
 					<string>Anonymous scope - Capture an `if` and the command up to the control operator, then capture from the control operator indefinitely</string>
 					<key>end</key>
-					<string>(?=end(?:$|[\s;&amp;)|&lt;&gt;]))</string>
+					<string>(?=end(?:$|[\s);&amp;|&lt;&gt;]))</string>
 					<key>patterns</key>
 					<array>
 						<dict>
@@ -1355,7 +1355,7 @@
 							<key>comment</key>
 							<string>Anonymous scope - Match the operator we know is there, then include the base scope or an `else` structure. Base scope handles any invalid operators</string>
 							<key>end</key>
-							<string>(?=end(?:$|[\s;&amp;)|&lt;&gt;]))</string>
+							<string>(?=end(?:$|[\s);&amp;|&lt;&gt;]))</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -1364,7 +1364,7 @@
 									<key>comment</key>
 									<string>Anonymous scope - Capture an `else` up to the control operator or the start of an `if` structure, then match from the control operator indefinitely or match an `if` structure</string>
 									<key>end</key>
-									<string>(?=end(?:$|[\s;&amp;)|&lt;&gt;]))</string>
+									<string>(?=end(?:$|[\s);&amp;|&lt;&gt;]))</string>
 									<key>patterns</key>
 									<array>
 										<dict>
@@ -1425,7 +1425,7 @@
 											<key>comment</key>
 											<string>Anonymous scope - Match the operator which will be there if no `if` was seen, then include the base scope which marks further `else` commands as invalid. Base scope handles any invalid operators</string>
 											<key>end</key>
-											<string>(?=end(?:$|[\s;&amp;)|&lt;&gt;]))</string>
+											<string>(?=end(?:$|[\s);&amp;|&lt;&gt;]))</string>
 											<key>patterns</key>
 											<array>
 												<dict>
