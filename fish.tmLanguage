@@ -455,14 +455,7 @@
 							<key>end</key>
 							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
 							<key>name</key>
-							<string>meta.function-call.fish invalid.illegal.function-call.fish</string>
-							<key>patterns</key>
-							<array>
-								<dict>
-									<key>include</key>
-									<string>#string</string>
-								</dict>
-							</array>
+							<string>invalid.illegal.function-call.fish</string>
 						</dict>
 						<dict>
 							<key>include</key>
@@ -2050,7 +2043,7 @@
 											<key>match</key>
 											<string>(and|or)\b(?!\s*[\n;-])</string>
 											<key>name</key>
-											<string>meta.function-call.fish invalid.illegal.function-call.fish</string>
+											<string>invalid.illegal.function-call.fish</string>
 										</dict>
 										<dict>
 											<key>include</key>

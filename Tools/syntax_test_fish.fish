@@ -624,7 +624,7 @@ command echo out 2>| cat
 
 exec %fish
 #! <- meta.function-call.name support.function
-#!   ^^^^^ meta.function-call invalid.illegal.function-call
+#!   ^^^^^ invalid.illegal.function-call
 
 and end; or %fish okay
 #! <- meta.function-call.name keyword.operator.word
@@ -692,7 +692,7 @@ echo arg | )paren
 
 and echo arg | %fish
 #!           ^ meta.function-call keyword.operator.pipe
-#!             ^^^^^ meta.function-call invalid.illegal.function-call
+#!             ^^^^^ invalid.illegal.function-call
 
 not echo arg | | arg ; # comment
 #!           ^ meta.function-call keyword.operator.pipe

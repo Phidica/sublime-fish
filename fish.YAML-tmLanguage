@@ -292,7 +292,7 @@ repository:
                 patterns:
                   - comment: After a pipe can't be an "and" or "or" that is taking another command as its parameters
                     comment: This match should generally be pretty similar to the match which seeks a valid "and"/"or" in #pipeline, since the only difference is that here the same matched text is instead invalid. We can be a little simpler though, and not worry about marking an "&" as invalid since the word will be instead
-                    name: meta.function-call.fish invalid.illegal.function-call.fish
+                    name: invalid.illegal.function-call.fish
                     match: (and|or)\b(?!\s*[\n;-])
 
                   - include: '#separator-whitespace'
@@ -429,11 +429,9 @@ repository:
                       - include: '#string'
 
           - comment: A command name can't begin with a process expansion operator (however the variable expansion operator '$' is allowed)
-            name: meta.function-call.fish invalid.illegal.function-call.fish
+            name: invalid.illegal.function-call.fish
             begin: \%
             end: (?=[\s;&)|<>])
-            patterns:
-              - include: '#string'
 
           # Redirection can immediately follow the command name, without whitespace separation
           - include: '#redirection'
