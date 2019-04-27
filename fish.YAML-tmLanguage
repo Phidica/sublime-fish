@@ -914,14 +914,14 @@ repository:
         patterns:
           - begin: (?:([0-9]+)(<|>>|>)|(>>|\^\^|[<>^]))(\&)\s*
             beginCaptures:
-              '0': {name: meta.function-call.fish meta.redirection.fish}
+              '0': {name: meta.function-call.operator.redirection.fish}
               '1': {name: meta.string.unquoted.fish constant.numeric.file-descriptor.fish}
               '2': {name: keyword.operator.redirect.fish}
               '3': {name: keyword.operator.redirect.fish}
               '4': {name: keyword.operator.redirect.dereference.fish}
             end: ([#&]\S*)|(?![&\\])
             endCaptures:
-              '0': {name: meta.function-call.fish meta.redirection.fish}
+              '0': {name: meta.function-call.operator.redirection.fish}
               '1': {name: invalid.illegal.file-descriptor.fish}
             comment: We have to try and catch an '&' here because if it is seen by the outer end match then it will be considered a valid operator and the redirection scope will immediately terminate
             patterns:
@@ -930,33 +930,33 @@ repository:
           - include: '#line-continuation'
 
           - comment: Evaluates to a string which may be an integer
-            name: meta.function-call.fish meta.redirection.fish
+            name: meta.function-call.operator.redirection.fish
             begin: (?=\()
             end: (?!\()
             patterns:
               - include: '#command-substitution'
 
           - comment: Evaluates to a string which may be an integer
-            name: meta.function-call.fish meta.redirection.fish
+            name: meta.function-call.operator.redirection.fish
             begin: (?=\$)
             end: (?!\$)
             patterns:
               - include: '#variable-expansion'
 
           - comment: May be a quoted integer, which is allowed
-            name: meta.function-call.fish meta.redirection.fish
+            name: meta.function-call.operator.redirection.fish
             begin: (?=['"])
             end: (?!['"])
             patterns:
               - include: '#string-quoted'
 
-          - name: meta.function-call.fish meta.redirection.file-descriptor.fish meta.string.unquoted.fish constant.numeric.file-descriptor.fish
+          - name: meta.function-call.operator.redirection.file-descriptor.fish meta.string.unquoted.fish constant.numeric.file-descriptor.fish
             match: (?:[0-9]+)(?=$|[\s);&|<>])
-          - name: meta.function-call.fish meta.redirection.file-descriptor.fish meta.string.unquoted.fish keyword.operator.redirect.close.fish
+          - name: meta.function-call.operator.redirection.file-descriptor.fish meta.string.unquoted.fish keyword.operator.redirect.close.fish
             match: (?:-)(?=$|[\s);&|<>])
 
           - comment: Anything else is illegal
-            name: meta.function-call.fish meta.redirection.fish invalid.illegal.file-descriptor.fish
+            name: meta.function-call.operator.redirection.fish invalid.illegal.file-descriptor.fish
             match: (?:\S+)
 
       - comment: This redirection pattern connects a file descriptor (either explicit or implied) and a file path
@@ -967,14 +967,14 @@ repository:
         patterns:
           - begin: (?:([0-9]+)(<|>>|>)|(>>|\^\^|[<>^]))(\?)?\s*
             beginCaptures:
-              '0': {name: meta.function-call.fish meta.redirection.fish}
+              '0': {name: meta.function-call.operator.redirection.fish}
               '1': {name: meta.string.unquoted.fish constant.numeric.file-descriptor.fish}
               '2': {name: keyword.operator.redirect.fish}
               '3': {name: keyword.operator.redirect.fish}
               '4': {name: keyword.operator.redirect.clobber-test.fish}
             end: ((?:[#&?]|[0-9]*[<>^])\S*)|(?![&?<>^])
             endCaptures:
-              '0': {name: meta.function-call.fish meta.redirection.fish}
+              '0': {name: meta.function-call.operator.redirection.fish}
               '1': {name: invalid.illegal.path.fish}
             comment: We have to try and catch bad operators here because if they are seen by the outer end match then they will be considered valid and the redirection scope will immediately terminate
             patterns:
@@ -983,24 +983,24 @@ repository:
           - include: '#line-continuation'
 
           - comment: A redirection path cannot contain brace expansion
-            name: meta.function-call.fish meta.redirection.fish invalid.illegal.path.fish
+            name: meta.function-call.operator.redirection.fish invalid.illegal.path.fish
             begin: \{|(?=\})
             end: '[\s;&)|}]'
 
           - comment: A redirection path cannot contain wildcard expansion
-            name: meta.function-call.fish meta.redirection.fish invalid.illegal.path.fish
+            name: meta.function-call.operator.redirection.fish invalid.illegal.path.fish
             match: '[*?]'
 
           - comment: Check for characters which are associated with redirection, so path cannot begin with them
-            name: meta.function-call.fish meta.redirection.fish invalid.illegal.path.fish
+            name: meta.function-call.operator.redirection.fish invalid.illegal.path.fish
             match: (?:[&?]|[0-9]*[<>^]).*$
 
           # We reserve the meta.redirection.path scope only for redirection paths which may represent literal paths
 
-          - name: meta.function-call.fish meta.redirection.path.fish meta.string.unquoted.fish keyword.operator.tilde.fish
+          - name: meta.function-call.operator.redirection.path.fish meta.string.unquoted.fish keyword.operator.tilde.fish
             match: \~
 
-          - name: meta.function-call.fish meta.redirection.path.fish
+          - name: meta.function-call.operator.redirection.path.fish
             begin: (?![\s;&()|<>${}*?])
             end: (?=[\s;&()|<>${}*?])
             comment: Use strings to build a file path, but break out if any invalid elements or elements that wouldn't form a literal path are encountered
@@ -1015,7 +1015,7 @@ repository:
                   - include: '#string-unquoted-patterns-escapes'
 
           - comment: A raw path cannot begin with '(' since this undergoes command substitution
-            name: meta.function-call.fish meta.redirection.fish
+            name: meta.function-call.operator.redirection.fish
             begin: (?=\()
             end: (?!\()
             patterns:
@@ -1023,7 +1023,7 @@ repository:
 
           - comment: A raw path cannot begin with '$' since this undergoes variable expansion
             comment: We also make sure that variable expansion is scoped as an unquoted string, since if it appears inside quotes then it gets scoped as a quoted string and we should mirror that
-            name: meta.function-call.fish meta.redirection.fish meta.string.unquoted
+            name: meta.function-call.operator.redirection.fish meta.string.unquoted
             begin: (?=\$)
             end: (?!\$)
             patterns:

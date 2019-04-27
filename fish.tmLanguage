@@ -2093,7 +2093,7 @@
 								<key>0</key>
 								<dict>
 									<key>name</key>
-									<string>meta.function-call.fish meta.redirection.fish</string>
+									<string>meta.function-call.operator.redirection.fish</string>
 								</dict>
 								<key>1</key>
 								<dict>
@@ -2125,7 +2125,7 @@
 								<key>0</key>
 								<dict>
 									<key>name</key>
-									<string>meta.function-call.fish meta.redirection.fish</string>
+									<string>meta.function-call.operator.redirection.fish</string>
 								</dict>
 								<key>1</key>
 								<dict>
@@ -2153,7 +2153,7 @@
 							<key>end</key>
 							<string>(?!\()</string>
 							<key>name</key>
-							<string>meta.function-call.fish meta.redirection.fish</string>
+							<string>meta.function-call.operator.redirection.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -2170,7 +2170,7 @@
 							<key>end</key>
 							<string>(?!\$)</string>
 							<key>name</key>
-							<string>meta.function-call.fish meta.redirection.fish</string>
+							<string>meta.function-call.operator.redirection.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -2187,7 +2187,7 @@
 							<key>end</key>
 							<string>(?!['"])</string>
 							<key>name</key>
-							<string>meta.function-call.fish meta.redirection.fish</string>
+							<string>meta.function-call.operator.redirection.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -2200,13 +2200,13 @@
 							<key>match</key>
 							<string>(?:[0-9]+)(?=$|[\s);&amp;|&lt;&gt;])</string>
 							<key>name</key>
-							<string>meta.function-call.fish meta.redirection.file-descriptor.fish meta.string.unquoted.fish constant.numeric.file-descriptor.fish</string>
+							<string>meta.function-call.operator.redirection.file-descriptor.fish meta.string.unquoted.fish constant.numeric.file-descriptor.fish</string>
 						</dict>
 						<dict>
 							<key>match</key>
 							<string>(?:-)(?=$|[\s);&amp;|&lt;&gt;])</string>
 							<key>name</key>
-							<string>meta.function-call.fish meta.redirection.file-descriptor.fish meta.string.unquoted.fish keyword.operator.redirect.close.fish</string>
+							<string>meta.function-call.operator.redirection.file-descriptor.fish meta.string.unquoted.fish keyword.operator.redirect.close.fish</string>
 						</dict>
 						<dict>
 							<key>comment</key>
@@ -2214,7 +2214,7 @@
 							<key>match</key>
 							<string>(?:\S+)</string>
 							<key>name</key>
-							<string>meta.function-call.fish meta.redirection.fish invalid.illegal.file-descriptor.fish</string>
+							<string>meta.function-call.operator.redirection.fish invalid.illegal.file-descriptor.fish</string>
 						</dict>
 					</array>
 				</dict>
@@ -2235,7 +2235,7 @@
 								<key>0</key>
 								<dict>
 									<key>name</key>
-									<string>meta.function-call.fish meta.redirection.fish</string>
+									<string>meta.function-call.operator.redirection.fish</string>
 								</dict>
 								<key>1</key>
 								<dict>
@@ -2267,7 +2267,7 @@
 								<key>0</key>
 								<dict>
 									<key>name</key>
-									<string>meta.function-call.fish meta.redirection.fish</string>
+									<string>meta.function-call.operator.redirection.fish</string>
 								</dict>
 								<key>1</key>
 								<dict>
@@ -2295,7 +2295,7 @@
 							<key>end</key>
 							<string>[\s;&amp;)|}]</string>
 							<key>name</key>
-							<string>meta.function-call.fish meta.redirection.fish invalid.illegal.path.fish</string>
+							<string>meta.function-call.operator.redirection.fish invalid.illegal.path.fish</string>
 						</dict>
 						<dict>
 							<key>comment</key>
@@ -2303,7 +2303,7 @@
 							<key>match</key>
 							<string>[*?]</string>
 							<key>name</key>
-							<string>meta.function-call.fish meta.redirection.fish invalid.illegal.path.fish</string>
+							<string>meta.function-call.operator.redirection.fish invalid.illegal.path.fish</string>
 						</dict>
 						<dict>
 							<key>comment</key>
@@ -2311,13 +2311,13 @@
 							<key>match</key>
 							<string>(?:[&amp;?]|[0-9]*[&lt;&gt;^]).*$</string>
 							<key>name</key>
-							<string>meta.function-call.fish meta.redirection.fish invalid.illegal.path.fish</string>
+							<string>meta.function-call.operator.redirection.fish invalid.illegal.path.fish</string>
 						</dict>
 						<dict>
 							<key>match</key>
 							<string>\~</string>
 							<key>name</key>
-							<string>meta.function-call.fish meta.redirection.path.fish meta.string.unquoted.fish keyword.operator.tilde.fish</string>
+							<string>meta.function-call.operator.redirection.path.fish meta.string.unquoted.fish keyword.operator.tilde.fish</string>
 						</dict>
 						<dict>
 							<key>begin</key>
@@ -2327,7 +2327,7 @@
 							<key>end</key>
 							<string>(?=[\s;&amp;()|&lt;&gt;${}*?])</string>
 							<key>name</key>
-							<string>meta.function-call.fish meta.redirection.path.fish</string>
+							<string>meta.function-call.operator.redirection.path.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -2361,7 +2361,7 @@
 							<key>end</key>
 							<string>(?!\()</string>
 							<key>name</key>
-							<string>meta.function-call.fish meta.redirection.fish</string>
+							<string>meta.function-call.operator.redirection.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -2378,7 +2378,7 @@
 							<key>end</key>
 							<string>(?!\$)</string>
 							<key>name</key>
-							<string>meta.function-call.fish meta.redirection.fish meta.string.unquoted</string>
+							<string>meta.function-call.operator.redirection.fish meta.string.unquoted</string>
 							<key>patterns</key>
 							<array>
 								<dict>

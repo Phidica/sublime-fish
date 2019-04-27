@@ -1,12 +1,13 @@
 Changelog
 =========
 
-2.4.2
+2.5.0
 -----
 
 Improvements:
 - Provide the `meta.function-call.name` scope to identify command names
 - Use `meta.function-call.operator.control` for control operators specifically
+- Use `meta.function-call.operator.redirection` for redirection
 
 Bugfixes:
 - Comments immediately after builtin commands were not scoped correctly

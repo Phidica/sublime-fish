@@ -56,10 +56,10 @@ Exposed scopes
 
 | fish construct             | Scope name
 | :------------:             | :----------
+| Unquoted string            | `meta.string.unquoted`
 | Command name               | `meta.function-call.name`
 | Parameters                 | `meta.parameter.option`/`argument`
-| Unquoted string            | `meta.string.unquoted`
-| File path (in redirection) | `meta.redirection.path`
+| File path (in redirection) | `meta.function-call.operator.redirection.path`
 | Variable expansion         | `meta.variable-expansion` and `punctuation.definition.variable`
 | Process expansion          | `meta.parameter.argument.process-expansion` and `punctuation.definition.process`
 | Command substitution       | `meta.parens.command-substitution` and `punctuation.section.parens.begin`/`end`
