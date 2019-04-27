@@ -6,6 +6,7 @@ Changelog
 
 Improvements:
 - Use `meta.function-call.name` for command names
+- Use `meta.function-call.parameter` for all parameters
 - Use `meta.function-call.operator.control` for control operators specifically
 - Use `meta.function-call.operator.redirection` for redirection
 - Use `meta.function-call.operator.pipe` for piping

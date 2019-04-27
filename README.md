@@ -9,7 +9,6 @@ To do:
 
 - Rewrite for `.sublime-syntax`
 - Support fish 3
-- Optimise scope nesting
 
 Features
 --------
@@ -58,7 +57,8 @@ Exposed scopes
 | :------------:             | :----------
 | Unquoted string            | `meta.string.unquoted`
 | Command name               | `meta.function-call.name`
-| Parameters                 | `meta.parameter.option`/`argument`
+| Parameters                 | `meta.function-call.parameter.option`/`argument`
+| File path (in argument)    | `meta.function-call.parameter.argument.path`
 | File path (in redirection) | `meta.function-call.operator.redirection.path`
 | Variable expansion         | `meta.variable-expansion` and `punctuation.definition.variable`
 | Process expansion          | `meta.parameter.argument.process-expansion` and `punctuation.definition.process`

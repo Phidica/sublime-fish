@@ -13,9 +13,9 @@ uuid: f9278d07-f7c1-4a9b-9581-ebcbc050fbfb
 # - fish recognises three types of strings: single-quoted, double-quoted, and unquoted. As such, every character of a command call besides whitespace and control operators should have one and only one of the following names: string.quoted.single, string.quoted.double, or meta.string.unquoted. We consider the actual quote characters around a quoted string to be of the same type as the string they enclose, so they highlight usefully. We don't consider whitespace to be an unquoted string.
 # - There should never be an unquoted string scope inside of a quoted string, and this leads to a corner case with the numbers inside an index expansion because index expansion can appear after a variable inside or outside of quotes, so we never try to apply any sort of string scope to the indices specifically; we just wrap up the whole variable and index expansion in one big meta.string.unquoted scope when it appears outside of strings, even though there may be whitespace in it and we did just say we shouldn't put meta.string.unquoted on whitespace.
 
-# - We want the meta.function-call scope to extend across the entirety of every command call, including the whitespace. Interesting elements of the command call get further unique names on top of this.
-# - By analogy to the official recommendation that "meta.function.php meta.function.parameters.php" should never occur, we use a single meta.function-call scope and name the parameter scope "meta.parameter" not "meta.function-call.parameter".
+# - We want the meta.function-call scope to extend across the entirety of every command call, including the whitespace. The official recommendation is that for example "meta.function.php meta.function.parameters.php" should never occur, so we take care to analyse every element and decide what sort of "meta.function-call.<type>.<subtype>" name it should have, so that "meta.function-call" is common to every element, but only appears once on every element.
 # - fish functions (defined with a call to the `function` builtin) cannot begin with a hyphen, however commands (any executable files on the user's $PATH) can begin with a hyphen and are executed without trouble. To this end, we never forbid a command call from beginning with a hyphen.
+# - fish performs an extra level of parsing we can never hope to replicate: any builtin command can be constructed of arbitrarily quoted and unquoted strings and may also contain escaped newlines. We can't parse that in any reasonable way, and it's highly unlikely users ever do it anyway, so we don't even attempt it.
 
 # - keyword.control.conditional is applied to all control keywords that are actually words (if, else, end, function, etc.)
 # - support.function is applied to any fish builtins that we have to treat uniquely, however variable.function is used for everything else including other shell builtins.
@@ -71,11 +71,11 @@ repository:
         end: (?=[\s;&)|<>])
         patterns:
           - comment: End of options (parameter of just two hyphens)
-            name: meta.function-call.fish meta.parameter.option.end.fish variable.parameter.fish punctuation.definition.option.end.fish meta.string.unquoted.fish
+            name: meta.function-call.parameter.option.end.fish variable.parameter.fish punctuation.definition.option.end.fish meta.string.unquoted.fish
             match: (?:--)(?=[\s;&)|<>])
 
           - comment: Long option (parameter starting with two hyphens)
-            name: meta.function-call.fish meta.parameter.option.long.fish
+            name: meta.function-call.parameter.option.long.fish
             begin: (?=--)
             end: (?=[\s;&)|<>])
             patterns:
@@ -114,7 +114,7 @@ repository:
                   - include: '#parameter-patterns'
 
           - comment: Short option (parameter starting with one hyphen)
-            name: meta.function-call.fish meta.parameter.option.short.fish variable.parameter.fish
+            name: meta.function-call.parameter.option.short.fish variable.parameter.fish
             begin: (?:-)(?=[^\s;&)|<>])
             beginCaptures:
               '0': {name: punctuation.definition.option.short.fish meta.string.unquoted.fish}
@@ -150,7 +150,7 @@ repository:
         comment: End arg if it precedes whitespace or operators (excluding stderr redirect '^' due to a fish quirk)
         patterns:
           - comment: Process expansion only occurs if the '%' is at the front of the argument, and continues for the entire argument
-            name: meta.function-call.fish meta.parameter.argument.process-expansion.fish
+            name: meta.function-call.parameter.argument.process-expansion.fish
             begin: \%
             beginCaptures:
               '0': {name: meta.string.unquoted.fish punctuation.definition.process.fish}
@@ -163,11 +163,11 @@ repository:
               - include: '#parameter-patterns'
 
           - comment: Treat a sequence of integers (with possible sign and decimal separator) as a standalone constant. Do this separate to the #string-unquoted-patterns rule so we can ensure it is a string solely of numbers
-            name: meta.function-call.fish meta.parameter.argument.numeric.fish meta.string.unquoted.fish constant.numeric.fish
+            name: meta.function-call.parameter.argument.numeric.fish meta.string.unquoted.fish constant.numeric.fish
             match: (?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=$|[\s;&)|<>])
 
           - comment: This scope can be used by plugins to locate arguments which don't *start* with command substitution or variable expansion and may directly resolve to file paths. Of course, they could have command substitution or variable expansion further on in them, but looking ahead for that too is nontrivial
-            name: meta.function-call.fish meta.parameter.argument.path.fish
+            name: meta.function-call.parameter.argument.path.fish
             begin: (?![\s($])
             end: (?=[\s;&)|<>])
             patterns:
@@ -178,7 +178,7 @@ repository:
               - include: '#parameter-patterns'
 
           - comment: Use standard parameter patterns for whatever doesn't match the above
-            name: meta.function-call.fish meta.parameter.argument.fish
+            name: meta.function-call.parameter.argument.fish
             begin: (?!\s)
             end: (?=[\s;&)|<>])
             patterns:
@@ -730,7 +730,7 @@ repository:
                     end: (?=[\s;&|<>])
                     patterns:
                       - comment: This is all the usual things a parameter is allowed to contain
-                        name: meta.function-call.fish meta.parameter.argument.fish entity.name.function.fish
+                        name: meta.function-call.parameter.argument.fish entity.name.function.fish
                         begin: (?![\s)])
                         end: (?=[\s);&|<>])
                         patterns:

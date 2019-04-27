@@ -106,7 +106,7 @@
 							<key>end</key>
 							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
 							<key>name</key>
-							<string>meta.function-call.fish meta.parameter.argument.process-expansion.fish</string>
+							<string>meta.function-call.parameter.argument.process-expansion.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -129,7 +129,7 @@
 							<key>match</key>
 							<string>(?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=$|[\s;&amp;)|&lt;&gt;])</string>
 							<key>name</key>
-							<string>meta.function-call.fish meta.parameter.argument.numeric.fish meta.string.unquoted.fish constant.numeric.fish</string>
+							<string>meta.function-call.parameter.argument.numeric.fish meta.string.unquoted.fish constant.numeric.fish</string>
 						</dict>
 						<dict>
 							<key>begin</key>
@@ -139,7 +139,7 @@
 							<key>end</key>
 							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
 							<key>name</key>
-							<string>meta.function-call.fish meta.parameter.argument.path.fish</string>
+							<string>meta.function-call.parameter.argument.path.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -164,7 +164,7 @@
 							<key>end</key>
 							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
 							<key>name</key>
-							<string>meta.function-call.fish meta.parameter.argument.fish</string>
+							<string>meta.function-call.parameter.argument.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -1202,7 +1202,7 @@
 													<key>end</key>
 													<string>(?=[\s);&amp;|&lt;&gt;])</string>
 													<key>name</key>
-													<string>meta.function-call.fish meta.parameter.argument.fish entity.name.function.fish</string>
+													<string>meta.function-call.parameter.argument.fish entity.name.function.fish</string>
 													<key>patterns</key>
 													<array>
 														<dict>
@@ -1669,7 +1669,7 @@
 							<key>match</key>
 							<string>(?:--)(?=[\s;&amp;)|&lt;&gt;])</string>
 							<key>name</key>
-							<string>meta.function-call.fish meta.parameter.option.end.fish variable.parameter.fish punctuation.definition.option.end.fish meta.string.unquoted.fish</string>
+							<string>meta.function-call.parameter.option.end.fish variable.parameter.fish punctuation.definition.option.end.fish meta.string.unquoted.fish</string>
 						</dict>
 						<dict>
 							<key>begin</key>
@@ -1679,7 +1679,7 @@
 							<key>end</key>
 							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
 							<key>name</key>
-							<string>meta.function-call.fish meta.parameter.option.long.fish</string>
+							<string>meta.function-call.parameter.option.long.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -1786,7 +1786,7 @@
 							<key>end</key>
 							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
 							<key>name</key>
-							<string>meta.function-call.fish meta.parameter.option.short.fish variable.parameter.fish</string>
+							<string>meta.function-call.parameter.option.short.fish variable.parameter.fish</string>
 							<key>patterns</key>
 							<array>
 								<dict>
