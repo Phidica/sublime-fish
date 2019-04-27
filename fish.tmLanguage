@@ -1640,7 +1640,7 @@
 							<key>match</key>
 							<string>\\\n</string>
 							<key>name</key>
-							<string>constant.character.escape</string>
+							<string>constant.character.escape.newline</string>
 						</dict>
 						<dict>
 							<key>include</key>

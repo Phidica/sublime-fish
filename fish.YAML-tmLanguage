@@ -5,13 +5,23 @@ fileTypes: [fish]
 uuid: f9278d07-f7c1-4a9b-9581-ebcbc050fbfb
 
 # Style guide:
-# - The fish docs for `complete` define the fundamental units passed to commands as "parameters", where those which start with a hyphen are "options" and those which don't are "arguments". For optimum usefulness to the user, only options receive the variable.parameter scope
-# - `keyword.control.conditional` is applied to all control keywords that are actually words (if, else, end, function, etc.)
-# - `support.function` is applied to any fish builtins that we have to treat uniquely, however `variable.function` is used for everything else including other shell builtins
-# - `constant.character.escape` is used for the backslash at the end of a line which causes line continuation because technically that backslash is "escaping" the literal newline which appears in the unquoted string environment which the shell assumes you are in. In this sense, the backslash is indeed an escape character
-# - `constant.character.escape` is used for \x?? and \0?? escape codes rather than `constant.numeric.{hex,octal}` because even though the user inputs a numeric value in hex or octal, the codes serve the purpose of making characters not numbers
-# - By analogy to the recommendation that `meta.function.php meta.function.parameters.php` should never occur, we use a single `meta.function-call` scope and name the parameter scope `meta.parameter` not `meta.function-call.parameter`. Furthermore, a single `meta.function-call` scope continues from the first command name until the consumption of a ';', '&', or '\n'. The same scope continues through '|' because we have no other way to ensure that a command follows a '|'
-# - Every character outside of comments should be scoped as `meta.string.unquoted`, `string.quoted.single`, or `string.quoted.double`. Furthermore, there is no concept of an unquoted string inside a quoted string or vice-versa
+
+# - Everything in fish is either a command call, a comment, or the empty, unscoped space between. The appearance of a comment character prevents anything else being read as a command call on that line. The appearance of a backslash at the end of the line allows the user to temporarily leave the command call and start adding full line comments, before resuming the command call on the next line that starts without any comment character. As such, the following three names are mutually exclusive in the base scope: meta.function-call, comment.line, and constant.character.escape.newline. However, meta.function-call is allowed to overlap with comment.line or constant.character.escape.newline when two layers of command calls are active, such as in blocks and command substitution.
+
+# - The fish docs for `complete` define the fundamental units passed to commands as "parameters", where those which start with a hyphen are "options" and those which don't are "arguments". For optimum usefulness to the user, only options receive the variable.parameter scope.
+
+# - fish recognises three types of strings: single-quoted, double-quoted, and unquoted. As such, every character of a command call besides whitespace and control operators should have one and only one of the following names: string.quoted.single, string.quoted.double, or meta.string.unquoted. We consider the actual quote characters around a quoted string to be of the same type as the string they enclose, so they highlight usefully. We don't consider whitespace to be an unquoted string.
+# - There should never be an unquoted string scope inside of a quoted string, and this leads to a corner case with the numbers inside an index expansion because index expansion can appear after a variable inside or outside of quotes, so we never try to apply any sort of string scope to the indices specifically; we just wrap up the whole variable and index expansion in one big meta.string.unquoted scope when it appears outside of strings, even though there may be whitespace in it and we did just say we shouldn't put meta.string.unquoted on whitespace.
+
+# - We want the meta.function-call scope to extend across the entirety of every command call, including the whitespace. Interesting elements of the command call get further unique names on top of this.
+# - By analogy to the official recommendation that "meta.function.php meta.function.parameters.php" should never occur, we use a single meta.function-call scope and name the parameter scope "meta.parameter" not "meta.function-call.parameter".
+# - fish functions (defined with a call to the `function` builtin) cannot begin with a hyphen, however commands (any executable files on the user's $PATH) can begin with a hyphen and are executed without trouble. To this end, we never forbid a command call from beginning with a hyphen.
+
+# - keyword.control.conditional is applied to all control keywords that are actually words (if, else, end, function, etc.)
+# - support.function is applied to any fish builtins that we have to treat uniquely, however variable.function is used for everything else including other shell builtins.
+# - constant.character.escape is used for the backslash at the end of a line which causes line continuation because technically that backslash is "escaping" the literal newline which fish otherwise treats as an operator. In this sense, the backslash is indeed an escape character.
+# - constant.character.escape is used for \x?? and \0?? escape codes rather than constant.numeric.{hex,octal} because even though the user inputs a numeric value in hex or octal, the codes serve the purpose of making characters not numbers.
+
 # - We recognise the existence of operator characters (which directly instruct shell behaviour) and pseudo-operator characters (which guide shell behaviour). The convention for the order of operators in expressions is:
 #   - (Pseudo-operator) Whitespace: '\s' (includes newline)
 #   - Control operators: newline '\n', ';', '&', and the implied newline of encountering ')'
@@ -19,8 +29,8 @@ uuid: f9278d07-f7c1-4a9b-9581-ebcbc050fbfb
 #   - Pipe operators (including redirection-into-pipe): '|', '<|', '>>|', '3>|', etc
 #   - Redirect operators: '<', '>', '^'
 #   - (Pseudo-operator) Option: '-'
-# - fish functions (defined with a call to the `function` builtin) cannot begin with a hyphen, however commands (any executable files on the user's $PATH) can begin with a hyphen and are executed without trouble. To this end, we never forbid a command call from beginning with a hyphen
-# - When I talk about "anonymous" scopes in this document I'm referring to the absence of a "name:" element on a begin/end pattern that encompasses a pretty particular concept that one might expect to have a name on it. Sometimes the lack of a name is better for recursion, other times it's so that even better, more specific names can be exclusively assigned to the contents
+
+# - When we talk about "anonymous" scopes in this document we're referring to the absence of a "name:" element on a begin/end pattern that encompasses a pretty particular concept that one might expect to have a name on it. Sometimes the lack of a name is better for recursion, other times it's so that more specific names can be exclusively assigned to the contents.
 
 patterns:
   # Base scope - Pick up '#' and "\\\n" before command-call sees them
@@ -889,7 +899,7 @@ repository:
         end: (?=\n)|^(?![\s\#\\])|\s(?![\s\#])
         comment: End when an unescaped newline is seen, the first character of a line isn't whitespace or a comment character or the escaped newline itself, or if the next character after some consumed whitespace isn't more whitespace or a comment character
         patterns:
-          - name: constant.character.escape
+          - name: constant.character.escape.newline
             match: \\\n
 
           - include: '#comment-external'
