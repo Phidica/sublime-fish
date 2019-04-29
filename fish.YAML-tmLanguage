@@ -6,7 +6,7 @@ uuid: f9278d07-f7c1-4a9b-9581-ebcbc050fbfb
 
 # Style guide:
 
-# - Everything in fish is either a command call, a comment, or the empty, unscoped space between. The appearance of a comment character prevents anything else being read as a command call on that line. The appearance of a backslash at the end of the line allows the user to temporarily leave the command call and start adding full line comments, before resuming the command call on the next line that starts without any comment character. As such, the following three names are mutually exclusive in the base scope: meta.function-call, comment.line, and constant.character.escape.newline. However, meta.function-call is allowed to overlap with comment.line or constant.character.escape.newline when two layers of command calls are active, such as in blocks and command substitution.
+# - Everything in fish is either a command call, a comment, or the empty, unscoped space between. The appearance of a comment prevents anything else being read as a command call on that line. The appearance of a backslash at the end of the line allows the user to temporarily leave the command call and start adding full line comments, before resuming the command call on the next line that starts without any comment character. As such, the following three names are mutually exclusive in the base scope: meta.function-call, comment.line, and constant.character.escape.newline. However, meta.function-call is allowed to overlap with comment.line or constant.character.escape.newline when two layers of command calls are active, such as in blocks and command substitution. Additionally, an escaped newline can also appear midway through any unquoted string, and in such a case it *will* overlap with the meta.function-call scope, but only because it is also in the meta.string.unquoted scope. These sorts of escaped newlines cannot be used to insert full line comments, as the parameter they interrupted will resume at the start of the next line and if that character is a '#' it will be treated literally
 
 # - The fish docs for `complete` define the fundamental units passed to commands as "parameters", where those which start with a hyphen are "options" and those which don't are "arguments". For optimum usefulness to the user, only options receive the variable.parameter scope.
 
@@ -1120,7 +1120,7 @@ repository:
           \\c[?-~]
 
       - comment: Just for convenience we separate the newline escape
-        name: constant.character.escape.fish
+        name: constant.character.escape.newline.fish
         match: \\\n
 
   variable-expansion:

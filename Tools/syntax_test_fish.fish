@@ -79,6 +79,16 @@ g # comment
 #! <- meta.function-call.parameter.argument meta.string.unquoted
 #! ^^^^^^^^ comment.line
 
+# If the '#' comes right at the start of the line, it will be part of the parameter!
+echo out\
+# not a comment!
+#! <- meta.function-call.parameter.argument meta.string.unquoted
+
+# But if we have any space at all, then a comment can begin
+echo out\
+ # comment
+#! ^^^^^^^^ comment.line
+
 echo str1 2 3str
 #!   ^^^^ meta.string.unquoted
 #!      ^ - constant.numeric

@@ -2617,7 +2617,7 @@
 					<key>match</key>
 					<string>\\\n</string>
 					<key>name</key>
-					<string>constant.character.escape.fish</string>
+					<string>constant.character.escape.newline.fish</string>
 				</dict>
 			</array>
 		</dict>
