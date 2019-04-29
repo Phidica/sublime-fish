@@ -50,7 +50,7 @@
 			<key>comment</key>
 			<string>Anonymous scope - Base scope pipeline, goes up until a definitive end (typical control operators) or the sequences that could be an end if we're actually inside a $self scope right now (')' and "end")</string>
 			<key>end</key>
-			<string>(\n)|([;&amp;])|(?=\)|end)</string>
+			<string>(\n)|([;&amp;])|(?=\)|#|end)</string>
 			<key>endCaptures</key>
 			<dict>
 				<key>1</key>
@@ -216,7 +216,7 @@
 (?=\s*
   (?:
     (?# Find simple control operations)
-    [\n);&amp;]
+    [\n)#;&amp;]
   |
     (?# Find piping)
     (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
@@ -244,7 +244,7 @@
 					<key>comment</key>
 					<string>If the command is followed by redirection, then the redirection is illegal so we have to open the scope and let it be caught by</string>
 					<key>end</key>
-					<string>(?=[\n);&amp;])</string>
+					<string>(?=[\n)#;&amp;])</string>
 					<key>patterns</key>
 					<array>
 						<dict>
@@ -305,7 +305,7 @@
 (?=
   (?:
     (?# Find a control operator)
-    [\n);&amp;]
+    [\n)#;&amp;]
   |
     (?# Find a pipe operator)
     (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
@@ -472,7 +472,7 @@
 (?=
   (?:
     (?# Find a control operator)
-    [\n);&amp;]
+    [\n)#;&amp;]
   |
     (?# Find a pipe operator)
     (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
@@ -491,7 +491,7 @@
 (?=
   (?:
     (?# Find a control operator)
-    [\n);&amp;]
+    [\n)#;&amp;]
   |
     (?# Find a pipe operator)
     (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
@@ -509,10 +509,6 @@
 										<dict>
 											<key>include</key>
 											<string>#line-continuation</string>
-										</dict>
-										<dict>
-											<key>include</key>
-											<string>#comment-internal</string>
 										</dict>
 										<dict>
 											<key>include</key>
@@ -535,7 +531,7 @@
 (?=
   (?:
     (?# Find a control operator)
-    [\n);&amp;]
+    [\n)#;&amp;]
   |
     (?# Find a pipe operator)
     (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
@@ -569,7 +565,7 @@
 (?=
   (?:
     (?# Find a control operator)
-    [\n);&amp;]
+    [\n)#;&amp;]
   |
     (?# Find a pipe operator)
     (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
@@ -584,10 +580,6 @@
 												<dict>
 													<key>include</key>
 													<string>#line-continuation</string>
-												</dict>
-												<dict>
-													<key>include</key>
-													<string>#comment-internal</string>
 												</dict>
 												<dict>
 													<key>include</key>
@@ -870,7 +862,7 @@
 							<key>comment</key>
 							<string>Anonymous scope - Capture the command name which might be there, include an arbitrary number of arguments, and end when the control operator is seen</string>
 							<key>end</key>
-							<string>(?=[\n);&amp;])</string>
+							<string>(?=[\n)#;&amp;])</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -883,17 +875,13 @@
 								</dict>
 								<dict>
 									<key>include</key>
-									<string>#comment-internal</string>
-								</dict>
-								<dict>
-									<key>include</key>
 									<string>#argument</string>
 								</dict>
 							</array>
 						</dict>
 						<dict>
 							<key>begin</key>
-							<string>(\n)|(;)|(?=[)&amp;])</string>
+							<string>(\n)|(;)|(?=[)#&amp;])</string>
 							<key>beginCaptures</key>
 							<dict>
 								<key>1</key>
@@ -1064,7 +1052,7 @@
 									<key>comment</key>
 									<string>Anonymous scope - Capture the command name which might be there, include an arbitrary number of arguments, and end when the control operator is captured. Base scope further down handles any invalid operators used to end the scope</string>
 									<key>end</key>
-									<string>(\n)|(;)|(?=[)&amp;|]|(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)</string>
+									<string>(\n)|(;)|(?=[)#&amp;|]|(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)</string>
 									<key>endCaptures</key>
 									<dict>
 										<key>1</key>
@@ -1087,10 +1075,6 @@
 										<dict>
 											<key>include</key>
 											<string>#line-continuation</string>
-										</dict>
-										<dict>
-											<key>include</key>
-											<string>#comment-internal</string>
 										</dict>
 										<dict>
 											<key>include</key>
@@ -1136,7 +1120,7 @@
 (?=
   (?:
     (?# Find a control operator)
-    [\n);&amp;]
+    [\n)#;&amp;]
   |
     (?# Find a redirect or pipe operator)
     (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)\|?
@@ -1227,7 +1211,7 @@
 (?=
   (?:
     (?# Find a control operator)
-    [\n);&amp;]
+    [\n)#;&amp;]
   |
     (?# Find a redirect or pipe operator)
     (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)\|?
@@ -1245,10 +1229,6 @@
 										</dict>
 										<dict>
 											<key>include</key>
-											<string>#comment-internal</string>
-										</dict>
-										<dict>
-											<key>include</key>
 											<string>#parameter</string>
 										</dict>
 									</array>
@@ -1257,7 +1237,7 @@
 						</dict>
 						<dict>
 							<key>begin</key>
-							<string>(\n)|(;)|(?=[)&amp;|]|(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)</string>
+							<string>(\n)|(;)|(?=[)#&amp;|]|(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)</string>
 							<key>beginCaptures</key>
 							<dict>
 								<key>1</key>
@@ -1316,7 +1296,7 @@
 							<key>comment</key>
 							<string>Anonymous scope - Match the command name we know is there, include a single instance of a pipeline, and end when a control operator is seen</string>
 							<key>end</key>
-							<string>(?=[\n;&amp;])</string>
+							<string>(?=[\n#;&amp;])</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -1331,7 +1311,7 @@
 						</dict>
 						<dict>
 							<key>begin</key>
-							<string>(\n)|(;)|(?=&amp;)</string>
+							<string>(\n)|(;)|(?=[#&amp;])</string>
 							<key>beginCaptures</key>
 							<dict>
 								<key>1</key>
@@ -1374,7 +1354,7 @@
 											<key>comment</key>
 											<string>Anonymous scope - Match the `else` we know is there and any comment, and mark anything besides an `if` as illegal</string>
 											<key>end</key>
-											<string>(?=[\n;&amp;]|if(?:\s*\n|\s+[^\s;]))</string>
+											<string>(?=[\n#;&amp;]|if(?:\s*\n|\s+[^\s;]))</string>
 											<key>patterns</key>
 											<array>
 												<dict>
@@ -1384,10 +1364,6 @@
 												<dict>
 													<key>include</key>
 													<string>#line-continuation</string>
-												</dict>
-												<dict>
-													<key>include</key>
-													<string>#comment-internal</string>
 												</dict>
 												<dict>
 													<key>comment</key>
@@ -1401,7 +1377,7 @@
 										</dict>
 										<dict>
 											<key>begin</key>
-											<string>(\n)|(;)|(?=&amp;)</string>
+											<string>(\n)|(;)|(?=[#&amp;])</string>
 											<key>beginCaptures</key>
 											<dict>
 												<key>1</key>
@@ -1518,30 +1494,6 @@
 					<string>\n</string>
 					<key>name</key>
 					<string>comment.line.external.fish</string>
-				</dict>
-			</array>
-		</dict>
-		<key>comment-internal</key>
-		<dict>
-			<key>patterns</key>
-			<array>
-				<dict>
-					<key>begin</key>
-					<string>\#</string>
-					<key>beginCaptures</key>
-					<dict>
-						<key>0</key>
-						<dict>
-							<key>name</key>
-							<string>punctuation.definition.comment.fish</string>
-						</dict>
-					</dict>
-					<key>comment</key>
-					<string>An inline comment at the end of a command call. Does not consume the newline, thus allowing the command call to capture it and end</string>
-					<key>end</key>
-					<string>(?=\n)</string>
-					<key>name</key>
-					<string>comment.line.internal.fish</string>
 				</dict>
 			</array>
 		</dict>
@@ -1841,7 +1793,7 @@
 					<key>comment</key>
 					<string>If the command is followed by redirection, then the redirection is illegal so we have to open the scope and let it be caught by</string>
 					<key>end</key>
-					<string>(?=[\n);&amp;])</string>
+					<string>(?=[\n)#;&amp;])</string>
 					<key>patterns</key>
 					<array>
 						<dict>
@@ -1939,7 +1891,7 @@
 					<key>comment</key>
 					<string>Anonymous scope - A pipeline which may be one command call or multiple command calls linked by pipe operators ('|', '2&gt;|', etc). The pipeline terminates at the first encounter of any control operator</string>
 					<key>end</key>
-					<string>(?=[\n);&amp;])</string>
+					<string>(?=[\n)#;&amp;])</string>
 					<key>patterns</key>
 					<array>
 						<dict>
@@ -1957,7 +1909,7 @@
 (?=\s*
   (?:
     (?# Find a control operator)
-    [\n);&amp;]
+    [\n)#;&amp;]
   |
     (?# Find a pipe operator)
     (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
@@ -1985,7 +1937,7 @@
 							<key>comment</key>
 							<string>Anonymous scope - Match piping which may lead to a second command, and if it does recurse into</string>
 							<key>end</key>
-							<string>(?=\s*[\n);&amp;])</string>
+							<string>(?=[\n)#;&amp;])</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -1995,10 +1947,6 @@
 									<string>(?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|(?=\s*(?:$|[\n)#;&amp;]))</string>
 									<key>name</key>
 									<string>invalid.illegal.operator.fish</string>
-								</dict>
-								<dict>
-									<key>include</key>
-									<string>#comment-internal</string>
 								</dict>
 								<dict>
 									<key>begin</key>
@@ -2034,7 +1982,7 @@
 									<key>comment</key>
 									<string>Otherwise, we'll say the pipe is okay and let the tests at the start of</string>
 									<key>end</key>
-									<string>(?=\s*[\n);&amp;])</string>
+									<string>(?=[\n)#;&amp;])</string>
 									<key>patterns</key>
 									<array>
 										<dict>

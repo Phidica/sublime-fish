@@ -1281,6 +1281,14 @@ else cmd arg; echo &
 #!            ^^^^ variable.function
 end
 
+if false # comment
+#!       ^^^^^^^^^ comment.line
+else if not true # comment
+#!               ^^^^^^^^^ comment.line
+else # comment
+#!   ^^^^^^^^^ comment.line
+end
+
 if --foobar; else;
 #! <- meta.function-call.name variable.function
 #! ^^^^^^^^ meta.function-call.parameter.option.long
@@ -1341,6 +1349,10 @@ for arg arg in --foo bar ; break; end | cat
 #!                                    ^ meta.function-call.operator.pipe keyword.operator.pipe
 #!                                      ^^^ variable.function
 
+for a in b c d
+#!            ^ meta.function-call.operator.control
+end
+
 for in in in in (seq 5) in in # comment
 #! <- meta.block.for-in meta.function-call.name keyword.control.conditional meta.string.unquoted
 #!^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.function-call
@@ -1352,7 +1364,6 @@ for in in in in (seq 5) in in # comment
 #!                      ^^ meta.function-call.parameter.argument
 #!                         ^^ meta.function-call.parameter.argument
 #!                            ^^^^^^^^^ comment.line
-#!                                     ^ meta.function-call.operator.control
   echo arg
 #! ^^^ meta.function-call.name
   continue ;
@@ -1451,10 +1462,11 @@ end
 switch (echo $var)
 #! <- meta.block.switch keyword.control.conditional
 #!     ^^^^^^^^^^^ meta.block.switch meta.function-call.parameter.argument
-  case foo baz
+  case foo baz # comment
 #! ^^^ keyword.control.conditional
 #!     ^^^ meta.function-call.parameter.argument
 #!         ^^^ meta.function-call.parameter.argument
+#!             ^^^^^^^^^ comment.line
     echo bar
   case bar
 #! ^^^ keyword.control.conditional

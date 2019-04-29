@@ -50,7 +50,7 @@ patterns:
 
   - comment: Anonymous scope - Base scope pipeline, goes up until a definitive end (typical control operators) or the sequences that could be an end if we're actually inside a $self scope right now (')' and "end")
     begin: (?=\S)
-    end: (\n)|([;&])|(?=\)|end)
+    end: (\n)|([;&])|(?=\)|#|end)
     endCaptures:
       '1': {name: meta.function-call.operator.control.fish}
       '2': {name: meta.function-call.operator.control.fish keyword.operator.control.fish}
@@ -190,7 +190,7 @@ repository:
       - comment: This meta command acts as a unary operator on the command to the right, but it is only allowed at the beginning of a pipeline! Because it can't come after a pipe, it isn't in the more general #command-call-meta rule
         comment: If the command is followed by redirection, then the redirection is illegal so we have to open the scope and let it be caught by #pipeline. If the command is followed by any form of execution that just prints help text (ie, with an option or with an explicit or implicit newline), then don't open the scope
         begin: (?=(and|or)\b(?!\s*[\n)#;-]))
-        end: (?=[\n);&])
+        end: (?=[\n)#;&])
         patterns:
           - comment: If the command is followed by an "&", then that's invalid
             begin: (and|or)\b(?!\s*[\n);-])
@@ -239,7 +239,7 @@ repository:
 
       - comment: Anonymous scope - A pipeline which may be one command call or multiple command calls linked by pipe operators ('|', '2>|', etc). The pipeline terminates at the first encounter of any control operator
         begin: (?=[^\s#])
-        end: (?=[\n);&])
+        end: (?=[\n)#;&])
         patterns:
           - comment: Anonymous scope - Match the command of a pipeline segment
             begin: |-
@@ -254,7 +254,7 @@ repository:
               (?=\s*
                 (?:
                   (?# Find a control operator)
-                  [\n);&]
+                  [\n)#;&]
                 |
                   (?# Find a pipe operator)
                   (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|
@@ -272,13 +272,11 @@ repository:
               (?=
                 (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|
               )
-            end: (?=\s*[\n);&])
+            end: (?=[\n)#;&])
             patterns:
               - comment: Check for a malformed pipeline segment; if the pipeline would end with a control operator (or a comment, which implies a newline), then mark the pipe itself invalid
                 name: invalid.illegal.operator.fish
                 match: (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|(?=\s*(?:$|[\n)#;&]))
-
-              - include: '#comment-internal'
 
               - comment: Otherwise, we'll say the pipe is okay and let the tests at the start of #pipeline-segment highlight any invalid commands (such as redirection)
                 begin: (?:([0-9]+)?(<|>>?)|(\^\^?))?(\|)
@@ -288,7 +286,7 @@ repository:
                   '2': {name: keyword.operator.pipe.redirect.fish}
                   '3': {name: keyword.operator.pipe.redirect.fish}
                   '4': {name: keyword.operator.pipe.fish}
-                end: (?=\s*[\n);&])
+                end: (?=[\n)#;&])
                 patterns:
                   - comment: After a pipe can't be an "and" or "or" that is taking another command as its parameters
                     comment: This match should generally be pretty similar to the match which seeks a valid "and"/"or" in #pipeline, since the only difference is that here the same matched text is instead invalid. We can be a little simpler though, and not worry about marking an "&" as invalid since the word will be instead
@@ -329,7 +327,7 @@ repository:
           (?=\s*
             (?:
               (?# Find simple control operations)
-              [\n);&]
+              [\n)#;&]
             |
               (?# Find piping)
               (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|
@@ -343,7 +341,7 @@ repository:
       - comment: This meta command acts as a unary operator on the command to the right, which can also be a meta command. There is no restriction on where in a pipeline this command may appear
         comment: If the command is followed by redirection, then the redirection is illegal so we have to open the scope and let it be caught by #pipeline. If the command is followed by any form of execution that just prints help text (ie, with an option or with an explicit or implicit newline), then don't open the scope
         begin: (?=(not)\b(?!\s*[\n)#;-]))
-        end: (?=[\n);&])
+        end: (?=[\n)#;&])
         patterns:
           - comment: If the command is followed by an "&", then that's invalid
             begin: (not)\b(?!\s*[\n);-])
@@ -371,7 +369,7 @@ repository:
           (?=
             (?:
               (?# Find a control operator)
-              [\n);&]
+              [\n)#;&]
             |
               (?# Find a pipe operator)
               (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|
@@ -445,7 +443,7 @@ repository:
               (?=
                 (?:
                   (?# Find a control operator)
-                  [\n);&]
+                  [\n)#;&]
                 |
                   (?# Find a pipe operator)
                   (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|
@@ -460,7 +458,7 @@ repository:
                   (?=
                     (?:
                       (?# Find a control operator)
-                      [\n);&]
+                      [\n)#;&]
                     |
                       (?# Find a pipe operator)
                       (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|
@@ -472,7 +470,6 @@ repository:
                 patterns:
                   - include: '#separator-whitespace'
                   - include: '#line-continuation'
-                  - include: '#comment-internal'
                   - include: '#redirection'
                   - include: '#parameter'
 
@@ -484,7 +481,7 @@ repository:
                   (?=
                     (?:
                       (?# Find a control operator)
-                      [\n);&]
+                      [\n)#;&]
                     |
                       (?# Find a pipe operator)
                       (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|
@@ -505,7 +502,7 @@ repository:
                       (?=
                         (?:
                           (?# Find a control operator)
-                          [\n);&]
+                          [\n)#;&]
                         |
                           (?# Find a pipe operator)
                           (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|
@@ -514,7 +511,6 @@ repository:
                     patterns:
                       - include: '#separator-whitespace'
                       - include: '#line-continuation'
-                      - include: '#comment-internal'
                       - include: '#redirection'
                       - include: '#argument'
 
@@ -609,15 +605,14 @@ repository:
             begin: in(?=\s)
             beginCaptures:
               '0': {name: meta.function-call.name.fish keyword.control.conditional.fish meta.string.unquoted.fish}
-            end: (?=[\n);&])
+            end: (?=[\n)#;&])
             patterns:
               - include: '#separator-whitespace'
               - include: '#line-continuation'
-              - include: '#comment-internal'
               - include: '#argument'
 
           - comment: Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen. Base scope handles any invalid operators
-            begin: (\n)|(;)|(?=[)&])
+            begin: (\n)|(;)|(?=[)#&])
             beginCaptures:
               '1': {name: meta.function-call.operator.control.fish}
               '2': {name: meta.function-call.operator.control.fish keyword.operator.control.fish}
@@ -676,14 +671,13 @@ repository:
                 begin: case(?=[\s);&])
                 beginCaptures:
                   '0': {name: meta.function-call.name.fish keyword.control.conditional.fish meta.string.unquoted.fish}
-                end: (\n)|(;)|(?=[)&|]|(?:[0-9]+)?(?:<|>>?)|\^\^?)
+                end: (\n)|(;)|(?=[)#&|]|(?:[0-9]+)?(?:<|>>?)|\^\^?)
                 endCaptures:
                   '1': {name: meta.function-call.operator.control.fish}
                   '2': {name: meta.function-call.operator.control.fish keyword.operator.control.fish}
                 patterns:
                   - include: '#separator-whitespace'
                   - include: '#line-continuation'
-                  - include: '#comment-internal'
                   - include: '#argument'
 
               - include: $self
@@ -703,7 +697,7 @@ repository:
               (?=
                 (?:
                   (?# Find a control operator)
-                  [\n);&]
+                  [\n)#;&]
                 |
                   (?# Find a redirect or pipe operator)
                   (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)\|?
@@ -746,7 +740,7 @@ repository:
                   (?=
                     (?:
                       (?# Find a control operator)
-                      [\n);&]
+                      [\n)#;&]
                     |
                       (?# Find a redirect or pipe operator)
                       (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)\|?
@@ -755,11 +749,10 @@ repository:
                 patterns:
                   - include: '#separator-whitespace'
                   - include: '#line-continuation'
-                  - include: '#comment-internal'
                   - include: '#parameter'
 
           - comment: Anonymous scope - Capture the operator we know is there, include the base scope, and end when an `end` command is seen. Base scope handles any invalid operators
-            begin: (\n)|(;)|(?=[)&|]|(?:[0-9]+)?(?:<|>>?)|\^\^?)
+            begin: (\n)|(;)|(?=[)#&|]|(?:[0-9]+)?(?:<|>>?)|\^\^?)
             beginCaptures:
               '1': {name: meta.function-call.operator.control.fish}
               '2': {name: meta.function-call.operator.control.fish keyword.operator.control.fish}
@@ -778,13 +771,13 @@ repository:
             begin: if
             beginCaptures:
               '0': {name: meta.function-call.name.fish keyword.control.conditional.fish meta.string.unquoted.fish}
-            end: (?=[\n;&])
+            end: (?=[\n#;&])
             patterns:
               - include: '#line-continuation'
               - include: '#pipeline'
 
           - comment: Anonymous scope - Match the operator we know is there, then include the base scope or an `else` structure. Base scope handles any invalid operators
-            begin: (\n)|(;)|(?=&)
+            begin: (\n)|(;)|(?=[#&])
             beginCaptures:
               '1': {name: meta.function-call.operator.control.fish}
               '2': {name: meta.function-call.operator.control.fish keyword.operator.control.fish}
@@ -798,18 +791,17 @@ repository:
                     begin: else(?=\s*[\s;])
                     beginCaptures:
                       '0': {name: meta.function-call.name.fish keyword.control.conditional.fish meta.string.unquoted.fish}
-                    end: (?=[\n;&]|if(?:\s*\n|\s+[^\s;]))
+                    end: (?=[\n#;&]|if(?:\s*\n|\s+[^\s;]))
                     patterns:
                       - include: '#separator-whitespace'
                       - include: '#line-continuation'
-                      - include: '#comment-internal'
 
                       - comment: Anything else is illegal
                         name: invalid.illegal.string.fish
                         match: \S+?(?=[\s;&])
 
                   - comment: Anonymous scope - Match the operator which will be there if no `if` was seen, then include the base scope which marks further `else` commands as invalid. Base scope handles any invalid operators
-                    begin: (\n)|(;)|(?=&)
+                    begin: (\n)|(;)|(?=[#&])
                     beginCaptures:
                       '1': {name: meta.function-call.operator.control.fish}
                       '2': {name: meta.function-call.operator.control.fish keyword.operator.control.fish}
@@ -849,15 +841,6 @@ repository:
         beginCaptures:
           '0': {name: punctuation.definition.comment.fish}
         end: \n
-
-  comment-internal:
-    patterns:
-      - comment: An inline comment at the end of a command call. Does not consume the newline, thus allowing the command call to capture it and end
-        name: comment.line.internal.fish
-        begin: \#
-        beginCaptures:
-          '0': {name: punctuation.definition.comment.fish}
-        end: (?=\n)
 
   index-expansion:
     patterns:
