@@ -32,7 +32,7 @@
 			<key>comment</key>
 			<string>In an ideal world,</string>
 			<key>end</key>
-			<string>(?=[\s;&amp;)|&lt;&gt;])</string>
+			<string>(?=[\s);&amp;|&lt;&gt;])</string>
 			<key>name</key>
 			<string>invalid.illegal.function-call.fish</string>
 		</dict>
@@ -83,11 +83,11 @@
 			<array>
 				<dict>
 					<key>begin</key>
-					<string>(?![\s;&amp;)|&lt;&gt;^])</string>
+					<string>(?![\s);&amp;|&lt;&gt;^])</string>
 					<key>comment</key>
 					<string>End arg if it precedes whitespace or operators (excluding stderr redirect '^' due to a fish quirk)</string>
 					<key>end</key>
-					<string>(?=[\s;&amp;)|&lt;&gt;])</string>
+					<string>(?=[\s);&amp;|&lt;&gt;])</string>
 					<key>patterns</key>
 					<array>
 						<dict>
@@ -104,7 +104,7 @@
 							<key>comment</key>
 							<string>Process expansion only occurs if the '%' is at the front of the argument, and continues for the entire argument</string>
 							<key>end</key>
-							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
+							<string>(?=[\s);&amp;|&lt;&gt;])</string>
 							<key>name</key>
 							<string>meta.function-call.parameter.argument.process-expansion.fish</string>
 							<key>patterns</key>
@@ -113,7 +113,7 @@
 									<key>comment</key>
 									<string>Match special process names. By a convention that I'm making up, scope them as a type of variable</string>
 									<key>match</key>
-									<string>(?:self|last)(?=$|[\s;&amp;)|&lt;&gt;])</string>
+									<string>(?:self|last)(?=$|[\s);&amp;|&lt;&gt;])</string>
 									<key>name</key>
 									<string>meta.string.unquoted.fish variable.language.fish</string>
 								</dict>
@@ -127,7 +127,7 @@
 							<key>comment</key>
 							<string>Treat a sequence of integers (with possible sign and decimal separator) as a standalone constant. Do this separate to the</string>
 							<key>match</key>
-							<string>(?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=$|[\s;&amp;)|&lt;&gt;])</string>
+							<string>(?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=$|[\s);&amp;|&lt;&gt;])</string>
 							<key>name</key>
 							<string>meta.function-call.parameter.argument.numeric.fish meta.string.unquoted.fish constant.numeric.fish</string>
 						</dict>
@@ -137,7 +137,7 @@
 							<key>comment</key>
 							<string>This scope can be used by plugins to locate arguments which don't *start* with command substitution or variable expansion and may directly resolve to file paths. Of course, they could have command substitution or variable expansion further on in them, but looking ahead for that too is nontrivial</string>
 							<key>end</key>
-							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
+							<string>(?=[\s);&amp;|&lt;&gt;])</string>
 							<key>name</key>
 							<string>meta.function-call.parameter.argument.path.fish</string>
 							<key>patterns</key>
@@ -162,7 +162,7 @@
 							<key>comment</key>
 							<string>Use standard parameter patterns for whatever doesn't match the above</string>
 							<key>end</key>
-							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
+							<string>(?=[\s);&amp;|&lt;&gt;])</string>
 							<key>name</key>
 							<string>meta.function-call.parameter.argument.fish</string>
 							<key>patterns</key>
@@ -305,7 +305,7 @@
 (?=
   (?:
     (?# Find a control operator)
-    [\n;&amp;)]
+    [\n);&amp;]
   |
     (?# Find a pipe operator)
     (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
@@ -319,7 +319,7 @@
 							<key>comment</key>
 							<string>Anonymous scope - A name or block element. If a block is found, everything up to the `end` command is captured here. Note that redirection and process expansion can't start the element</string>
 							<key>end</key>
-							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
+							<string>(?=[\s);&amp;|&lt;&gt;])</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -388,7 +388,7 @@
 									<key>comment</key>
 									<string>Look for loop/function control commands. We perform no checking on the validity of their scope (because only allowing them in the correct scope won't work if they are used within if-blocks) or parameters (because fish does that during execution not parsing)</string>
 									<key>match</key>
-									<string>(?:break|continue|return)(?=[\s;&amp;)|&lt;&gt;])</string>
+									<string>(?:break|continue|return)(?=[\s);&amp;|&lt;&gt;])</string>
 								</dict>
 								<dict>
 									<key>begin</key>
@@ -396,7 +396,7 @@
 									<key>comment</key>
 									<string>Anonymous scope - A generic name element</string>
 									<key>end</key>
-									<string>(?=[\s;&amp;)|&lt;&gt;])</string>
+									<string>(?=[\s);&amp;|&lt;&gt;])</string>
 									<key>patterns</key>
 									<array>
 										<dict>
@@ -405,7 +405,7 @@
 											<key>comment</key>
 											<string>fish would match the whole command name invalid if there was a command substitution anywhere in it, but we can't look ahead that effectively</string>
 											<key>end</key>
-											<string>(?=[\s;&amp;)|&lt;&gt;])</string>
+											<string>(?=[\s);&amp;|&lt;&gt;])</string>
 											<key>name</key>
 											<string>invalid.illegal.function-call.fish</string>
 											<key>patterns</key>
@@ -414,7 +414,7 @@
 													<key>begin</key>
 													<string>\(</string>
 													<key>end</key>
-													<string>\)|(?=[\n;&amp;)|&lt;&gt;])</string>
+													<string>\)|(?=[\n);&amp;|&lt;&gt;])</string>
 												</dict>
 											</array>
 										</dict>
@@ -424,7 +424,7 @@
 											<key>comment</key>
 											<string>Otherwise, treat the element as a fraction of a name made of arbitrary strings (which breaks at an escaped newline)</string>
 											<key>end</key>
-											<string>(?=[\s;&amp;()|&lt;&gt;])</string>
+											<string>(?=[\s);&amp;(|&lt;&gt;])</string>
 											<key>name</key>
 											<string>meta.function-call.name.fish variable.function.fish</string>
 											<key>patterns</key>
@@ -453,7 +453,7 @@
 							<key>comment</key>
 							<string>A command name can't begin with a process expansion operator (however the variable expansion operator '$' is allowed)</string>
 							<key>end</key>
-							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
+							<string>(?=[\s);&amp;|&lt;&gt;])</string>
 							<key>name</key>
 							<string>invalid.illegal.function-call.fish</string>
 						</dict>
@@ -472,7 +472,7 @@
 (?=
   (?:
     (?# Find a control operator)
-    [\n;&amp;)]
+    [\n);&amp;]
   |
     (?# Find a pipe operator)
     (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
@@ -482,7 +482,7 @@
 							<array>
 								<dict>
 									<key>begin</key>
-									<string>(?!--[\s;&amp;)|&lt;&gt;])</string>
+									<string>(?!--[\s);&amp;|&lt;&gt;])</string>
 									<key>comment</key>
 									<string>A list of elements that does not start with an end-of-options parameter</string>
 									<key>end</key>
@@ -491,13 +491,13 @@
 (?=
   (?:
     (?# Find a control operator)
-    [\n;&amp;)]
+    [\n);&amp;]
   |
     (?# Find a pipe operator)
     (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
   |
     (?# Find a double hyphen)
-    --[\s;&amp;)|&lt;&gt;]
+    --[\s);&amp;|&lt;&gt;]
   )
 )</string>
 									<key>patterns</key>
@@ -526,7 +526,7 @@
 								</dict>
 								<dict>
 									<key>begin</key>
-									<string>(?=--[\s;&amp;)|&lt;&gt;])</string>
+									<string>(?=--[\s);&amp;|&lt;&gt;])</string>
 									<key>comment</key>
 									<string>A list of elements that starts with an end-of-options parameter</string>
 									<key>end</key>
@@ -535,7 +535,7 @@
 (?=
   (?:
     (?# Find a control operator)
-    [\n;&amp;)]
+    [\n);&amp;]
   |
     (?# Find a pipe operator)
     (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
@@ -545,11 +545,11 @@
 									<array>
 										<dict>
 											<key>begin</key>
-											<string>(?=--[\s;&amp;)|&lt;&gt;])</string>
+											<string>(?=--[\s);&amp;|&lt;&gt;])</string>
 											<key>comment</key>
 											<string>Contain just the end-of-options parameter and give it the normal scope</string>
 											<key>end</key>
-											<string>(?=[\s;&amp;)|&lt;&gt;])</string>
+											<string>(?=[\s);&amp;|&lt;&gt;])</string>
 											<key>patterns</key>
 											<array>
 												<dict>
@@ -569,7 +569,7 @@
 (?=
   (?:
     (?# Find a control operator)
-    [\n;&amp;)]
+    [\n);&amp;]
   |
     (?# Find a pipe operator)
     (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
@@ -1598,7 +1598,7 @@
 							<key>comment</key>
 							<string>There's no need to apply meta.string.unquoted to anything inside of an index expansion, as if it needs to be applied then it would have been handled already. The fact index expansion can appear inside of quotes (after a variable expansion) makes it tricky to decide what is or isn't "unquoted"</string>
 							<key>match</key>
-							<string>(?:[+-]?[0-9]+)(?=[\s;&amp;)|&lt;&gt;]|\]|\.\.)</string>
+							<string>(?:[+-]?[0-9]+)(?=[\s);&amp;|&lt;&gt;]|\]|\.\.)</string>
 							<key>name</key>
 							<string>constant.numeric.fish</string>
 						</dict>
@@ -1649,18 +1649,18 @@
 			<array>
 				<dict>
 					<key>begin</key>
-					<string>(?![\s;&amp;)|&lt;&gt;^])</string>
+					<string>(?![\s);&amp;|&lt;&gt;^])</string>
 					<key>comment</key>
 					<string>See the argument rule for more general information on parameters</string>
 					<key>end</key>
-					<string>(?=[\s;&amp;)|&lt;&gt;])</string>
+					<string>(?=[\s);&amp;|&lt;&gt;])</string>
 					<key>patterns</key>
 					<array>
 						<dict>
 							<key>comment</key>
 							<string>End of options (parameter of just two hyphens)</string>
 							<key>match</key>
-							<string>(?:--)(?=[\s;&amp;)|&lt;&gt;])</string>
+							<string>(?:--)(?=[\s);&amp;|&lt;&gt;])</string>
 							<key>name</key>
 							<string>meta.function-call.parameter.option.end.fish variable.parameter.fish punctuation.definition.option.end.fish meta.string.unquoted.fish</string>
 						</dict>
@@ -1670,7 +1670,7 @@
 							<key>comment</key>
 							<string>Long option (parameter starting with two hyphens)</string>
 							<key>end</key>
-							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
+							<string>(?=[\s);&amp;|&lt;&gt;])</string>
 							<key>name</key>
 							<string>meta.function-call.parameter.option.long.fish</string>
 							<key>patterns</key>
@@ -1687,7 +1687,7 @@
 										</dict>
 									</dict>
 									<key>end</key>
-									<string>(?=[\s;&amp;)|&lt;&gt;]|=)</string>
+									<string>(?=[\s);&amp;|&lt;&gt;]|=)</string>
 									<key>name</key>
 									<string>variable.parameter.fish</string>
 									<key>patterns</key>
@@ -1719,7 +1719,7 @@
 											<key>begin</key>
 											<string>(?!['"])</string>
 											<key>end</key>
-											<string>(?=[\s;&amp;()|&lt;&gt;'"$]|\=)</string>
+											<string>(?=[\s);&amp;(|&lt;&gt;'"$]|\=)</string>
 											<key>name</key>
 											<string>meta.string.unquoted.fish</string>
 											<key>patterns</key>
@@ -1746,12 +1746,12 @@
 									<key>comment</key>
 									<string>Consume the '=' and then use standard parameter patterns as well as numerics</string>
 									<key>end</key>
-									<string>(?=[\s;&amp;)|&lt;&gt;])</string>
+									<string>(?=[\s);&amp;|&lt;&gt;])</string>
 									<key>patterns</key>
 									<array>
 										<dict>
 											<key>match</key>
-											<string>(?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=$|[\s;&amp;)|&lt;&gt;])</string>
+											<string>(?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=$|[\s);&amp;|&lt;&gt;])</string>
 											<key>name</key>
 											<string>meta.string.unquoted.fish constant.numeric.fish</string>
 										</dict>
@@ -1765,7 +1765,7 @@
 						</dict>
 						<dict>
 							<key>begin</key>
-							<string>(?:-)(?=[^\s;&amp;)|&lt;&gt;])</string>
+							<string>(?:-)(?=[^\s);&amp;|&lt;&gt;])</string>
 							<key>beginCaptures</key>
 							<dict>
 								<key>0</key>
@@ -1777,7 +1777,7 @@
 							<key>comment</key>
 							<string>Short option (parameter starting with one hyphen)</string>
 							<key>end</key>
-							<string>(?=[\s;&amp;)|&lt;&gt;])</string>
+							<string>(?=[\s);&amp;|&lt;&gt;])</string>
 							<key>name</key>
 							<string>meta.function-call.parameter.option.short.fish variable.parameter.fish</string>
 							<key>patterns</key>
@@ -1909,7 +1909,7 @@
   \s*
   (?:
     (?# Find a control operator)
-    [\n;&amp;)|]
+    [\n);&amp;|]
   |
     (?# Find a pipe operator)
     (?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?
@@ -1929,7 +1929,7 @@
 					<key>comment</key>
 					<string>Match a command which is illegal in the base scope</string>
 					<key>match</key>
-					<string>(?:case|else|end)(?=[\s;&amp;)|&lt;&gt;])</string>
+					<string>(?:case|else|end)(?=[\s);&amp;|&lt;&gt;])</string>
 					<key>name</key>
 					<string>invalid.illegal.function-call.fish</string>
 				</dict>
@@ -1939,7 +1939,7 @@
 					<key>comment</key>
 					<string>Anonymous scope - A pipeline which may be one command call or multiple command calls linked by pipe operators ('|', '2&gt;|', etc). The pipeline terminates at the first encounter of any control operator</string>
 					<key>end</key>
-					<string>(?=[\n;&amp;)])</string>
+					<string>(?=[\n);&amp;])</string>
 					<key>patterns</key>
 					<array>
 						<dict>
@@ -1957,7 +1957,7 @@
 (?=\s*
   (?:
     (?# Find a control operator)
-    [\n;&amp;)]
+    [\n);&amp;]
   |
     (?# Find a pipe operator)
     (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)?\|
@@ -1985,7 +1985,7 @@
 							<key>comment</key>
 							<string>Anonymous scope - Match piping which may lead to a second command, and if it does recurse into</string>
 							<key>end</key>
-							<string>(?=\s*[\n;&amp;)])</string>
+							<string>(?=\s*[\n);&amp;])</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -2034,7 +2034,7 @@
 									<key>comment</key>
 									<string>Otherwise, we'll say the pipe is okay and let the tests at the start of</string>
 									<key>end</key>
-									<string>(?=\s*[\n;&amp;)])</string>
+									<string>(?=\s*[\n);&amp;])</string>
 									<key>patterns</key>
 									<array>
 										<dict>
@@ -2286,7 +2286,7 @@
 							<key>comment</key>
 							<string>A redirection path cannot contain brace expansion</string>
 							<key>end</key>
-							<string>[\s;&amp;)|}]</string>
+							<string>[\s);&amp;|}]</string>
 							<key>name</key>
 							<string>meta.function-call.operator.redirection.fish invalid.illegal.path.fish</string>
 						</dict>
@@ -2314,11 +2314,11 @@
 						</dict>
 						<dict>
 							<key>begin</key>
-							<string>(?![\s;&amp;()|&lt;&gt;${}*?])</string>
+							<string>(?![\s);&amp;(|&lt;&gt;${}*?])</string>
 							<key>comment</key>
 							<string>Use strings to build a file path, but break out if any invalid elements or elements that wouldn't form a literal path are encountered</string>
 							<key>end</key>
-							<string>(?=[\s;&amp;()|&lt;&gt;${}*?])</string>
+							<string>(?=[\s);&amp;(|&lt;&gt;${}*?])</string>
 							<key>name</key>
 							<string>meta.function-call.operator.redirection.path.fish</string>
 							<key>patterns</key>
@@ -2329,11 +2329,11 @@
 								</dict>
 								<dict>
 									<key>begin</key>
-									<string>(?![\s;&amp;()|&lt;&gt;${}*?]|['"])</string>
+									<string>(?![\s);&amp;(|&lt;&gt;${}*?]|['"])</string>
 									<key>comment</key>
 									<string>Should use the same patterns as the above begin/end, but also add the quotes so the</string>
 									<key>end</key>
-									<string>(?=[\s;&amp;()|&lt;&gt;${}*?]|['"])</string>
+									<string>(?=[\s);&amp;(|&lt;&gt;${}*?]|['"])</string>
 									<key>name</key>
 									<string>meta.string.unquoted.fish</string>
 									<key>patterns</key>
@@ -2500,11 +2500,11 @@
 			<array>
 				<dict>
 					<key>begin</key>
-					<string>(?![\s;&amp;()|&lt;&gt;'"$])</string>
+					<string>(?![\s);&amp;(|&lt;&gt;'"$])</string>
 					<key>comment</key>
 					<string>End unquoted string at anything that can't be in one</string>
 					<key>end</key>
-					<string>(?=[\s;&amp;()|&lt;&gt;'"$])</string>
+					<string>(?=[\s);&amp;(|&lt;&gt;'"$])</string>
 					<key>name</key>
 					<string>meta.string.unquoted.fish</string>
 					<key>patterns</key>
@@ -2585,17 +2585,17 @@
 						</dict>
 						<dict>
 							<key>match</key>
-							<string>(?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=$|[\s;&amp;)|&lt;&gt;]|\}|\,)</string>
+							<string>(?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=$|[\s);&amp;|&lt;&gt;]|\}|\,)</string>
 							<key>name</key>
 							<string>constant.numeric.fish</string>
 						</dict>
 						<dict>
 							<key>begin</key>
-							<string>(?![\s;&amp;)|&lt;&gt;'"])</string>
+							<string>(?![\s);&amp;|&lt;&gt;'"])</string>
 							<key>comment</key>
 							<string>Begin/end string as before with the addition of breaking at a '}' or ','</string>
 							<key>end</key>
-							<string>(?=[\s;&amp;)|&lt;&gt;'"]|\}|\,)</string>
+							<string>(?=[\s);&amp;|&lt;&gt;'"]|\}|\,)</string>
 							<key>patterns</key>
 							<array>
 								<dict>
@@ -2737,7 +2737,7 @@
 					<key>comment</key>
 					<string>A lone '$' in a scope, or an attempt to expand a variable starting with a nonword character, is an error. These boundaries are the same as for meta.string.unquoted</string>
 					<key>match</key>
-					<string>\$(?:(?=[,'"\]}\s;&amp;)|])|[^\w\$][^$,'"\]}\s;&amp;)|]*)</string>
+					<string>\$(?:(?=[,'"\]}\s);&amp;|])|[^\w\$][^$,'"\]}\s);&amp;|]*)</string>
 					<key>name</key>
 					<string>invalid.illegal.variable-expansion.fish</string>
 				</dict>

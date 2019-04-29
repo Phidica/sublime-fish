@@ -42,7 +42,7 @@ patterns:
     comment: In an ideal world, #command-call-standard would be performing this match because fish considers the strings which follow as parameters, not as new functions. But we can't do that in a tmLanguage
     name: invalid.illegal.function-call.fish
     begin: \)|end
-    end: (?=[\s;&)|<>])
+    end: (?=[\s);&|<>])
 
   - comment: The first character of a pipeline can't be an '&', and the base pipeline scope won't be able to mark it as invalid so we have to do so here
     name: invalid.illegal.function-call.fish
@@ -67,23 +67,23 @@ repository:
   parameter:
     patterns:
       - comment: See the argument rule for more general information on parameters
-        begin: (?![\s;&)|<>^])
-        end: (?=[\s;&)|<>])
+        begin: (?![\s);&|<>^])
+        end: (?=[\s);&|<>])
         patterns:
           - comment: End of options (parameter of just two hyphens)
             name: meta.function-call.parameter.option.end.fish variable.parameter.fish punctuation.definition.option.end.fish meta.string.unquoted.fish
-            match: (?:--)(?=[\s;&)|<>])
+            match: (?:--)(?=[\s);&|<>])
 
           - comment: Long option (parameter starting with two hyphens)
             name: meta.function-call.parameter.option.long.fish
             begin: (?=--)
-            end: (?=[\s;&)|<>])
+            end: (?=[\s);&|<>])
             patterns:
               - name: variable.parameter.fish
                 begin: (?:--)
                 beginCaptures:
                   '0': {name: punctuation.definition.option.long.begin.fish meta.string.unquoted.fish}
-                end: (?=[\s;&)|<>]|=)
+                end: (?=[\s);&|<>]|=)
                 patterns:
                   # We mimic the parameter-patterns rule but use a tweaked unquoted string pattern which excludes '='
                   - include: '#command-substitution'
@@ -98,7 +98,7 @@ repository:
 
                   - name: meta.string.unquoted.fish
                     begin: (?!['"])
-                    end: (?=[\s;&()|<>'"$]|\=)
+                    end: (?=[\s);&(|<>'"$]|\=)
                     patterns:
                       - include: '#string-unquoted-patterns'
 
@@ -106,19 +106,19 @@ repository:
                 begin: (?:=)
                 beginCaptures:
                   '0': {name: variable.parameter.fish punctuation.definition.option.long.separator.fish meta.string.unquoted.fish }
-                end: (?=[\s;&)|<>])
+                end: (?=[\s);&|<>])
                 patterns:
                   - name: meta.string.unquoted.fish constant.numeric.fish
-                    match: (?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=$|[\s;&)|<>])
+                    match: (?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=$|[\s);&|<>])
 
                   - include: '#parameter-patterns'
 
           - comment: Short option (parameter starting with one hyphen)
             name: meta.function-call.parameter.option.short.fish variable.parameter.fish
-            begin: (?:-)(?=[^\s;&)|<>])
+            begin: (?:-)(?=[^\s);&|<>])
             beginCaptures:
               '0': {name: punctuation.definition.option.short.fish meta.string.unquoted.fish}
-            end: (?=[\s;&)|<>])
+            end: (?=[\s);&|<>])
             patterns:
               - include: '#parameter-patterns'
 
@@ -144,9 +144,9 @@ repository:
     comment: This rule must be entirely standalone because it is used in scopes where parameters starting with hyphens are explicitly interpreted as arguments rather than as options
     patterns:
       - comment: A parameter is a fundamental unit of a command call, defined as a sequence of non-operator characters separated by unescaped and unscoped whitespace
-        begin: (?![\s;&)|<>^])
+        begin: (?![\s);&|<>^])
         comment: Begin arg if it does not precede whitespace or an operator
-        end: (?=[\s;&)|<>])
+        end: (?=[\s);&|<>])
         comment: End arg if it precedes whitespace or operators (excluding stderr redirect '^' due to a fish quirk)
         patterns:
           - comment: Process expansion only occurs if the '%' is at the front of the argument, and continues for the entire argument
@@ -154,22 +154,22 @@ repository:
             begin: \%
             beginCaptures:
               '0': {name: meta.string.unquoted.fish punctuation.definition.process.fish}
-            end: (?=[\s;&)|<>])
+            end: (?=[\s);&|<>])
             patterns:
               - comment: Match special process names. By a convention that I'm making up, scope them as a type of variable
                 name: meta.string.unquoted.fish variable.language.fish
-                match: (?:self|last)(?=$|[\s;&)|<>])
+                match: (?:self|last)(?=$|[\s);&|<>])
 
               - include: '#parameter-patterns'
 
           - comment: Treat a sequence of integers (with possible sign and decimal separator) as a standalone constant. Do this separate to the #string-unquoted-patterns rule so we can ensure it is a string solely of numbers
             name: meta.function-call.parameter.argument.numeric.fish meta.string.unquoted.fish constant.numeric.fish
-            match: (?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=$|[\s;&)|<>])
+            match: (?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=$|[\s);&|<>])
 
           - comment: This scope can be used by plugins to locate arguments which don't *start* with command substitution or variable expansion and may directly resolve to file paths. Of course, they could have command substitution or variable expansion further on in them, but looking ahead for that too is nontrivial
             name: meta.function-call.parameter.argument.path.fish
             begin: (?![\s($])
-            end: (?=[\s;&)|<>])
+            end: (?=[\s);&|<>])
             patterns:
               - comment: Home directory expansion only occurs if the '~' is at the front of the argument, so check it first
                 name: meta.string.unquoted.fish keyword.operator.tilde.fish
@@ -180,7 +180,7 @@ repository:
           - comment: Use standard parameter patterns for whatever doesn't match the above
             name: meta.function-call.parameter.argument.fish
             begin: (?!\s)
-            end: (?=[\s;&)|<>])
+            end: (?=[\s);&|<>])
             patterns:
               - include: '#parameter-patterns'
 
@@ -223,7 +223,7 @@ repository:
             \s*
             (?:
               (?# Find a control operator)
-              [\n;&)|]
+              [\n);&|]
             |
               (?# Find a pipe operator)
               (?:[0-9]+)?(?:<|>>?)|\^\^?
@@ -235,11 +235,11 @@ repository:
 
       - comment: Match a command which is illegal in the base scope
         name: invalid.illegal.function-call.fish
-        match: (?:case|else|end)(?=[\s;&)|<>])
+        match: (?:case|else|end)(?=[\s);&|<>])
 
       - comment: Anonymous scope - A pipeline which may be one command call or multiple command calls linked by pipe operators ('|', '2>|', etc). The pipeline terminates at the first encounter of any control operator
         begin: (?=[^\s#])
-        end: (?=[\n;&)])
+        end: (?=[\n);&])
         patterns:
           - comment: Anonymous scope - Match the command of a pipeline segment
             begin: |-
@@ -254,7 +254,7 @@ repository:
               (?=\s*
                 (?:
                   (?# Find a control operator)
-                  [\n;&)]
+                  [\n);&]
                 |
                   (?# Find a pipe operator)
                   (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|
@@ -272,7 +272,7 @@ repository:
               (?=
                 (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|
               )
-            end: (?=\s*[\n;&)])
+            end: (?=\s*[\n);&])
             patterns:
               - comment: Check for a malformed pipeline segment; if the pipeline would end with a control operator (or a comment, which implies a newline), then mark the pipe itself invalid
                 name: invalid.illegal.operator.fish
@@ -288,7 +288,7 @@ repository:
                   '2': {name: keyword.operator.pipe.redirect.fish}
                   '3': {name: keyword.operator.pipe.redirect.fish}
                   '4': {name: keyword.operator.pipe.fish}
-                end: (?=\s*[\n;&)])
+                end: (?=\s*[\n);&])
                 patterns:
                   - comment: After a pipe can't be an "and" or "or" that is taking another command as its parameters
                     comment: This match should generally be pretty similar to the match which seeks a valid "and"/"or" in #pipeline, since the only difference is that here the same matched text is instead invalid. We can be a little simpler though, and not worry about marking an "&" as invalid since the word will be instead
@@ -371,7 +371,7 @@ repository:
           (?=
             (?:
               (?# Find a control operator)
-              [\n;&)]
+              [\n);&]
             |
               (?# Find a pipe operator)
               (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|
@@ -380,7 +380,7 @@ repository:
         patterns:
           - comment: Anonymous scope - A name or block element. If a block is found, everything up to the `end` command is captured here. Note that redirection and process expansion can't start the element
             begin: (?![\s<>^%])
-            end: (?=[\s;&)|<>])
+            end: (?=[\s);&|<>])
             patterns:
               - comment: Look for block structures
                 include: '#command-call-standard-block'
@@ -400,27 +400,27 @@ repository:
                   - include: '#redirection'
 
               - comment: Look for loop/function control commands. We perform no checking on the validity of their scope (because only allowing them in the correct scope won't work if they are used within if-blocks) or parameters (because fish does that during execution not parsing)
-                match: (?:break|continue|return)(?=[\s;&)|<>])
+                match: (?:break|continue|return)(?=[\s);&|<>])
                 captures:
                   '0': {name: meta.function-call.name.fish keyword.control.conditional.fish meta.string.unquoted.fish}
 
               - comment: Anonymous scope - A generic name element
                 begin: (?!\s)
-                end: (?=[\s;&)|<>])
+                end: (?=[\s);&|<>])
                 patterns:
                   - comment: A command name can't contain a command substitution. We match the whole line if no closing parenthesis is found, or until the end of the command name if the command substitution gets closed
                     comment: fish would match the whole command name invalid if there was a command substitution anywhere in it, but we can't look ahead that effectively
                     name: invalid.illegal.function-call.fish
                     begin: (?=\()
-                    end: (?=[\s;&)|<>])
+                    end: (?=[\s);&|<>])
                     patterns:
                       - begin: \(
-                        end: \)|(?=[\n;&)|<>])
+                        end: \)|(?=[\n);&|<>])
 
                   - comment: Otherwise, treat the element as a fraction of a name made of arbitrary strings (which breaks at an escaped newline)
                     name: meta.function-call.name.fish variable.function.fish
                     begin: (?!\s)
-                    end: (?=[\s;&()|<>])
+                    end: (?=[\s);&(|<>])
                     patterns:
                       - comment: The string scope explicitly forbids '$' so that the argument rule can pick it up as a variable expansion, but '$' is treated as a literal in command names, so we have to match it separately
                         name: meta.string.unquoted.fish
@@ -431,7 +431,7 @@ repository:
           - comment: A command name can't begin with a process expansion operator (however the variable expansion operator '$' is allowed)
             name: invalid.illegal.function-call.fish
             begin: \%
-            end: (?=[\s;&)|<>])
+            end: (?=[\s);&|<>])
 
           # Redirection can immediately follow the command name, without whitespace separation
           - include: '#redirection'
@@ -445,7 +445,7 @@ repository:
               (?=
                 (?:
                   (?# Find a control operator)
-                  [\n;&)]
+                  [\n);&]
                 |
                   (?# Find a pipe operator)
                   (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|
@@ -453,20 +453,20 @@ repository:
               )
             patterns:
               - comment: A list of elements that does not start with an end-of-options parameter
-                begin: (?!--[\s;&)|<>])
+                begin: (?!--[\s);&|<>])
                 end: |-
                   (?x)
                   (?# Look ahead for operators or the end of options)
                   (?=
                     (?:
                       (?# Find a control operator)
-                      [\n;&)]
+                      [\n);&]
                     |
                       (?# Find a pipe operator)
                       (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|
                     |
                       (?# Find a double hyphen)
-                      --[\s;&)|<>]
+                      --[\s);&|<>]
                     )
                   )
                 patterns:
@@ -477,14 +477,14 @@ repository:
                   - include: '#parameter'
 
               - comment: A list of elements that starts with an end-of-options parameter
-                begin: (?=--[\s;&)|<>])
+                begin: (?=--[\s);&|<>])
                 end: |-
                   (?x)
                   (?# Look ahead for operators)
                   (?=
                     (?:
                       (?# Find a control operator)
-                      [\n;&)]
+                      [\n);&]
                     |
                       (?# Find a pipe operator)
                       (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|
@@ -492,8 +492,8 @@ repository:
                   )
                 patterns:
                   - comment: Contain just the end-of-options parameter and give it the normal scope
-                    begin: (?=--[\s;&)|<>])
-                    end: (?=[\s;&)|<>])
+                    begin: (?=--[\s);&|<>])
+                    end: (?=[\s);&|<>])
                     patterns:
                       - include: '#parameter'
 
@@ -505,7 +505,7 @@ repository:
                       (?=
                         (?:
                           (?# Find a control operator)
-                          [\n;&)]
+                          [\n);&]
                         |
                           (?# Find a pipe operator)
                           (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)?\|
@@ -883,7 +883,7 @@ repository:
 
           - comment: There's no need to apply meta.string.unquoted to anything inside of an index expansion, as if it needs to be applied then it would have been handled already. The fact index expansion can appear inside of quotes (after a variable expansion) makes it tricky to decide what is or isn't "unquoted"
             name: constant.numeric.fish
-            match: (?:[+-]?[0-9]+)(?=[\s;&)|<>]|\]|\.\.)
+            match: (?:[+-]?[0-9]+)(?=[\s);&|<>]|\]|\.\.)
 
           - comment: Anything else is invalid
             name: invalid.illegal.index.fish
@@ -983,7 +983,7 @@ repository:
           - comment: A redirection path cannot contain brace expansion
             name: meta.function-call.operator.redirection.fish invalid.illegal.path.fish
             begin: \{|(?=\})
-            end: '[\s;&)|}]'
+            end: '[\s);&|}]'
 
           - comment: A redirection path cannot contain wildcard expansion
             name: meta.function-call.operator.redirection.fish invalid.illegal.path.fish
@@ -999,16 +999,16 @@ repository:
             match: \~
 
           - name: meta.function-call.operator.redirection.path.fish
-            begin: (?![\s;&()|<>${}*?])
-            end: (?=[\s;&()|<>${}*?])
+            begin: (?![\s);&(|<>${}*?])
+            end: (?=[\s);&(|<>${}*?])
             comment: Use strings to build a file path, but break out if any invalid elements or elements that wouldn't form a literal path are encountered
             patterns:
               - include: '#string-quoted'
 
               - comment: Should use the same patterns as the above begin/end, but also add the quotes so the #string-quoted rule can handle quoted strings
                 name: meta.string.unquoted.fish
-                begin: (?![\s;&()|<>${}*?]|['"])
-                end: (?=[\s;&()|<>${}*?]|['"])
+                begin: (?![\s);&(|<>${}*?]|['"])
+                end: (?=[\s);&(|<>${}*?]|['"])
                 patterns:
                   - include: '#string-unquoted-patterns-escapes'
 
@@ -1064,9 +1064,9 @@ repository:
   string-unquoted:
     patterns:
       - name: meta.string.unquoted.fish
-        begin: (?![\s;&()|<>'"$])
+        begin: (?![\s);&(|<>'"$])
         comment: Begin unquoted string if not whitespace, control operator, quoted string, or variable expansion
-        end: (?=[\s;&()|<>'"$])
+        end: (?=[\s);&(|<>'"$])
         comment: End unquoted string at anything that can't be in one
         patterns:
           - include: '#string-unquoted-patterns'
@@ -1099,9 +1099,9 @@ repository:
           # Manually recreate the string rule with a numeric match, extra logic in unquoted strings, and don't repeat the meta.string.unquoted scope
           - include: '#string-quoted'
           - name: constant.numeric.fish
-            match: (?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=$|[\s;&)|<>]|\}|\,)
-          - begin: (?![\s;&)|<>'"])
-            end: (?=[\s;&)|<>'"]|\}|\,)
+            match: (?:[+-]?)(?:[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+)(?=$|[\s);&|<>]|\}|\,)
+          - begin: (?![\s);&|<>'"])
+            end: (?=[\s);&|<>'"]|\}|\,)
             comment: Begin/end string as before with the addition of breaking at a '}' or ','
             patterns:
               - name: constant.character.escape.fish
@@ -1178,7 +1178,7 @@ repository:
     patterns:
       - comment: A lone '$' in a scope, or an attempt to expand a variable starting with a nonword character, is an error. These boundaries are the same as for meta.string.unquoted
         name: invalid.illegal.variable-expansion.fish
-        match: \$(?:(?=[,'"\]}\s;&)|])|[^\w\$][^$,'"\]}\s;&)|]*)
+        match: \$(?:(?=[,'"\]}\s);&|])|[^\w\$][^$,'"\]}\s);&|]*)
 
 firstLineMatch: ^#!.*\b(fish)|^#\s*-\*-[^*]*mode:\s*shell-script[^*]*-\*-
 foldingStartMarker: \b(begin|case|for|if|else|function|switch|while)\b|(\{)$
