@@ -29,13 +29,14 @@ uuid: f9278d07-f7c1-4a9b-9581-ebcbc050fbfb
 #   - Pipe operators (including redirection-into-pipe): '|', '<|', '>>|', '3>|', etc
 #   - Redirect operators: '<', '>', '^'
 #   - (Pseudo-operator) Option: '-'
+# - Note that the comment character '#' is special only if it is preceded by the start of the line or by whitespace. If it appears within a parameter, it will be treated as a literal character. This makes it a weak operator; it only works sometimes. In fish, if a comment comes after a command then the command will terminate on that line, so we just have to treat seeing the start of a comment as being like seeing a literal newline. There are only a few places we ever really need to look ahead for it, namely any time we look ahead for literal newlines
 
 # - When we talk about "anonymous" scopes in this document we're referring to the absence of a "name:" element on a begin/end pattern that encompasses a pretty particular concept that one might expect to have a name on it. Sometimes the lack of a name is better for recursion, other times it's so that more specific names can be exclusively assigned to the contents.
 
 patterns:
   # Base scope - Pick up '#' and "\\\n" before command-call sees them
-  # This will include comments that are alone on a line, or sit after a command that is terminated by a visible control operator
-  - include: '#comment-external'
+  # This (and within #line-continuation) should be the only places necessary to capture a comment, as the '#' is treated as a special character whenever it could end a line and used as the end of the command
+  - include: '#comment'
   - include: '#line-continuation'
 
   - comment: The first command of a pipeline can't begin with a close parenthesis or be "end". We match this so exclusively early because the base pipeline scope will end immediately if either is seen by its lookahead
@@ -48,7 +49,7 @@ patterns:
     name: invalid.illegal.function-call.fish
     match: \&
 
-  - comment: Anonymous scope - Base scope pipeline, goes up until a definitive end (typical control operators) or the sequences that could be an end if we're actually inside a $self scope right now (')' and "end")
+  - comment: Anonymous scope - Base scope pipeline, goes up until a definitive end (typical control operators, or a comment to finish the line) or the sequences that could be an end if we're actually inside a $self scope right now (')' and "end")
     begin: (?=\S)
     end: (\n)|([;&])|(?=\)|#|end)
     endCaptures:
@@ -185,7 +186,7 @@ repository:
               - include: '#parameter-patterns'
 
   pipeline:
-    comment: The pipeline rule is nonterminating, meaning that it will not consume a *valid* control operator ('\n', ';', or '&'). It *will* consume control operators that appear in invalid locations
+    comment: The pipeline rule is nonterminating, meaning that it will not consume a *valid* control operator ('\n', ')', '#', ';', or '&'). It *will* consume control operators that appear in invalid locations
     patterns:
       - comment: This meta command acts as a unary operator on the command to the right, but it is only allowed at the beginning of a pipeline! Because it can't come after a pipe, it isn't in the more general #command-call-meta rule
         comment: If the command is followed by redirection, then the redirection is illegal so we have to open the scope and let it be caught by #pipeline. If the command is followed by any form of execution that just prints help text (ie, with an option or with an explicit or implicit newline), then don't open the scope
@@ -833,10 +834,10 @@ repository:
 
           - include: '#index-expansion'
 
-  comment-external:
+  comment:
     patterns:
       - comment: A full or inline comment outside of any command call
-        name: comment.line.external.fish
+        name: comment.line.fish
         begin: \#
         beginCaptures:
           '0': {name: punctuation.definition.comment.fish}
@@ -883,7 +884,7 @@ repository:
           - name: constant.character.escape.newline
             match: \\\n
 
-          - include: '#comment-external'
+          - include: '#comment'
 
   redirection:
     patterns:

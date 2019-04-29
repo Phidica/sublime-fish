@@ -20,7 +20,7 @@
 	<array>
 		<dict>
 			<key>include</key>
-			<string>#comment-external</string>
+			<string>#comment</string>
 		</dict>
 		<dict>
 			<key>include</key>
@@ -48,7 +48,7 @@
 			<key>begin</key>
 			<string>(?=\S)</string>
 			<key>comment</key>
-			<string>Anonymous scope - Base scope pipeline, goes up until a definitive end (typical control operators) or the sequences that could be an end if we're actually inside a $self scope right now (')' and "end")</string>
+			<string>Anonymous scope - Base scope pipeline, goes up until a definitive end (typical control operators, or a comment to finish the line) or the sequences that could be an end if we're actually inside a $self scope right now (')' and "end")</string>
 			<key>end</key>
 			<string>(\n)|([;&amp;])|(?=\)|#|end)</string>
 			<key>endCaptures</key>
@@ -1473,7 +1473,7 @@
 				</dict>
 			</array>
 		</dict>
-		<key>comment-external</key>
+		<key>comment</key>
 		<dict>
 			<key>patterns</key>
 			<array>
@@ -1493,7 +1493,7 @@
 					<key>end</key>
 					<string>\n</string>
 					<key>name</key>
-					<string>comment.line.external.fish</string>
+					<string>comment.line.fish</string>
 				</dict>
 			</array>
 		</dict>
@@ -1589,7 +1589,7 @@
 						</dict>
 						<dict>
 							<key>include</key>
-							<string>#comment-external</string>
+							<string>#comment</string>
 						</dict>
 					</array>
 				</dict>
@@ -1784,7 +1784,7 @@
 		<key>pipeline</key>
 		<dict>
 			<key>comment</key>
-			<string>The pipeline rule is nonterminating, meaning that it will not consume a *valid* control operator ('\n', ';', or '&amp;'). It *will* consume control operators that appear in invalid locations</string>
+			<string>The pipeline rule is nonterminating, meaning that it will not consume a *valid* control operator ('\n', ')', '#', ';', or '&amp;'). It *will* consume control operators that appear in invalid locations</string>
 			<key>patterns</key>
 			<array>
 				<dict>
