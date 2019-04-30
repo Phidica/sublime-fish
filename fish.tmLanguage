@@ -2612,6 +2612,16 @@
 					<string>constant.character.escape.fish</string>
 				</dict>
 				<dict>
+					<key>include</key>
+					<string>#string-unquoted-patterns-escapes-newline</string>
+				</dict>
+			</array>
+		</dict>
+		<key>string-unquoted-patterns-escapes-newline</key>
+		<dict>
+			<key>patterns</key>
+			<array>
+				<dict>
 					<key>comment</key>
 					<string>Just for convenience we separate the newline escape</string>
 					<key>match</key>
@@ -2635,37 +2645,14 @@
 					<key>comment</key>
 					<string>Capture "$foo" or "$foo[]" or "$$foo[][]" etc</string>
 					<key>end</key>
-					<string>(?=[^\$\w\[])</string>
+					<string>(?=[^\$\[])</string>
 					<key>name</key>
 					<string>meta.variable-expansion.fish</string>
 					<key>patterns</key>
 					<array>
 						<dict>
-							<key>begin</key>
-							<string>\$</string>
-							<key>beginCaptures</key>
-							<dict>
-								<key>0</key>
-								<dict>
-									<key>name</key>
-									<string>punctuation.definition.variable.fish</string>
-								</dict>
-							</dict>
-							<key>end</key>
-							<string>(?=[^\$\w])</string>
-							<key>name</key>
-							<string>variable.other.fish</string>
-							<key>patterns</key>
-							<array>
-								<dict>
-									<key>include</key>
-									<string>#variable-expansion-illegal</string>
-								</dict>
-								<dict>
-									<key>include</key>
-									<string>#variable-expansion-simple</string>
-								</dict>
-							</array>
+							<key>include</key>
+							<string>#variable-expansion-simple</string>
 						</dict>
 						<dict>
 							<key>include</key>
@@ -2709,11 +2696,15 @@
 						</dict>
 					</dict>
 					<key>end</key>
-					<string>(?=[^\$\w])</string>
+					<string>(?=[^\$\w])(?!\\\n)</string>
 					<key>name</key>
 					<string>variable.other.fish</string>
 					<key>patterns</key>
 					<array>
+						<dict>
+							<key>include</key>
+							<string>#string-unquoted-patterns-escapes-newline</string>
+						</dict>
 						<dict>
 							<key>include</key>
 							<string>#variable-expansion-illegal</string>

@@ -860,6 +860,10 @@ echo $var $ $$"str" $var $$var $
 #!                        ^^^^ variable.other variable.other
 #!                             ^ invalid.illegal.variable-expansion
 
+echo $foo\
+bar
+#! <- meta.variable-expansion variable.other
+
 echo $var$ (echo $) $$!bad_var # comment
 #!   ^^^^ variable.other
 #!   ^ punctuation.definition.variable
