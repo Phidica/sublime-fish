@@ -7,13 +7,7 @@
 		<string>fish</string>
 	</array>
 	<key>firstLineMatch</key>
-	<string>^#!.*\b(fish)|^#\s*-\*-[^*]*mode:\s*shell-script[^*]*-\*-</string>
-	<key>foldingStartMarker</key>
-	<string>\b(begin|case|for|if|else|function|switch|while)\b|(\{)$</string>
-	<key>foldingStopMarker</key>
-	<string>^\s*(\}|(case|else|end)\b)</string>
-	<key>keyEquivalent</key>
-	<string>^~S</string>
+	<string>^#!.*\b(fish)\b</string>
 	<key>name</key>
 	<string>friendly interactive shell (fish)</string>
 	<key>patterns</key>

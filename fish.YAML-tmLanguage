@@ -1162,7 +1162,4 @@ repository:
         name: invalid.illegal.variable-expansion.fish
         match: \$(?:(?=[,'"\]}\s);&|])|[^\w\$][^$,'"\]}\s);&|]*)
 
-firstLineMatch: ^#!.*\b(fish)|^#\s*-\*-[^*]*mode:\s*shell-script[^*]*-\*-
-foldingStartMarker: \b(begin|case|for|if|else|function|switch|while)\b|(\{)$
-foldingStopMarker: ^\s*(\}|(case|else|end)\b)
-keyEquivalent: ^~S
+firstLineMatch: ^#!.*\b(fish)\b
