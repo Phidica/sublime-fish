@@ -5,8 +5,8 @@ import subprocess
 # Only a TextCommand can use replace()
 class DoFishIndentCommand(sublime_plugin.TextCommand):
   def is_enabled(self):
-    # We are very incompatible with ST1 and probably ST4 one day
-    return 2 <= int(sublime.version()[0]) <= 3
+    # We are very incompatible with ST1, and kind of with ST2
+    return int(sublime.version()[0]) == 3
 
   def is_visible(self):
     # Syntax will be like "Packages/fish/fish.tmLanguage"
@@ -16,8 +16,6 @@ class DoFishIndentCommand(sublime_plugin.TextCommand):
     return 'Indent and Prettify'
 
   def run(self, edit):
-    versionAPI = int(sublime.version()[0])
-
     # Check for executable, expanding search to valid fish installs on Windows
     exe = 'fish_indent'
     pathToDir = self.view.settings().get('fish_indent_directory')
@@ -79,7 +77,7 @@ class DoFishIndentCommand(sublime_plugin.TextCommand):
         p = subprocess.Popen(exe, stdin = subprocess.PIPE, stdout = subprocess.PIPE,
           stderr = subprocess.PIPE)
         out, err = p.communicate(input = inputContent.encode(enc))
-      except OSError: # Soft compatibility with Python 2
+      except FileNotFoundError:
         msg = "Couldn't find {0}".format(exe)
         if not pathToDir:
           msg += ". Specify a nonstandard install location in Preferences > " \
@@ -139,10 +137,7 @@ class DoFishIndentCommand(sublime_plugin.TextCommand):
     if restoreSelection:
       # Put back the original zero-width regions of the selection
       self.view.sel().clear()
-      if versionAPI == 3:
-        self.view.sel().add_all(restoreSelection)
-      elif versionAPI == 2:
-        map(self.view.sel().add, restoreSelection)
+      self.view.sel().add_all(restoreSelection)
 
     # Ensure view doesn't drift off with repeated runs
     self.view.show(self.view.visible_region(), False)
@@ -152,23 +147,14 @@ class DoFishIndentBuildCommand(sublime_plugin.WindowCommand):
   def run(self):
     self.window.run_command('do_fish_indent')
 
-if sublime.version()[0] == '3':
-  class DoFishIndentOnSave(sublime_plugin.ViewEventListener):
-    def is_applicable(self):
-      # In non-fish files the setting is unset (hence, we ask for False), or if
-      #   the user set it to False then it will be False even in fish files
-      return self.get('indent_on_save', False)
+class DoFishIndentOnSave(sublime_plugin.ViewEventListener):
+  def is_applicable(self):
+    # In non-fish files the setting is unset (hence, we ask for False), or if
+    #   the user set it to False then it will be False even in fish files
+    return self.get('indent_on_save', False)
 
-    def on_pre_save(self):
-      # Skip blacklisted files
-      if self.view.window().extract_variables()['file_name'] in self.view.settings().get('blacklist'):
-        return
-      self.view.run_command('do_fish_indent')
-elif sublime.version()[0] == '2':
-  class DoFishIndentOnSave(sublime_plugin.EventListener):
-    def on_pre_save(self, view):
-      if view.settings().get('indent_on_save') is not True:
-        return
-      if view.settings().has('blacklist') and os.path.basename(view.file_name()) in view.settings().get('blacklist'):
-        return
-      view.run_command('do_fish_indent')
+  def on_pre_save(self):
+    # Skip blacklisted files
+    if self.view.window().extract_variables()['file_name'] in self.view.settings().get('blacklist'):
+      return
+    self.view.run_command('do_fish_indent')
