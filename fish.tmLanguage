@@ -1114,10 +1114,10 @@
 (?=
   (?:
     (?# Find a control operator)
-    [\n)#;&amp;]
+    [\n)#;&amp;|]
   |
     (?# Find a redirect or pipe operator)
-    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)\|?
+    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)
   )
 )</string>
 							<key>patterns</key>
@@ -1162,7 +1162,7 @@
 											<key>comment</key>
 											<string>Anonymous scope - Start when an escaped newline isn't present, and end when whitespace or an operator is seen</string>
 											<key>end</key>
-											<string>(?=[\s;&amp;|&lt;&gt;])</string>
+											<string>(?=[\s);&amp;|&lt;&gt;])</string>
 											<key>patterns</key>
 											<array>
 												<dict>
@@ -1182,14 +1182,6 @@
 														</dict>
 													</array>
 												</dict>
-												<dict>
-													<key>comment</key>
-													<string>fish sees a closing parenthesis as mismatched, since command substitution is allowed</string>
-													<key>match</key>
-													<string>\)</string>
-													<key>name</key>
-													<string>invalid.illegal.string.fish</string>
-												</dict>
 											</array>
 										</dict>
 									</array>
@@ -1205,10 +1197,10 @@
 (?=
   (?:
     (?# Find a control operator)
-    [\n)#;&amp;]
+    [\n)#;&amp;|]
   |
     (?# Find a redirect or pipe operator)
-    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)\|?
+    (?:(?:[0-9]+)?(?:&lt;|&gt;&gt;?)|\^\^?)
   )
 )</string>
 									<key>patterns</key>

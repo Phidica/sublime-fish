@@ -1573,9 +1573,12 @@ function fo(echo "ooba")r
   return (echo 1)
 end; foobar
 
+function foo | bar;  end
+#!           ^ invalid.illegal.function-call
+
 function (echo f)oo)bar 2> & | --arg ; end
 #!       ^^^^^^^^ meta.function-call.parameter.argument entity.name.function meta.parens.command-substitution
-#!                 ^ invalid.illegal.string
+#!                 ^ invalid.illegal.function-call
 #!                      ^^ invalid.illegal.function-call
 #!                         ^ invalid.illegal.function-call
 #!                           ^ invalid.illegal.function-call

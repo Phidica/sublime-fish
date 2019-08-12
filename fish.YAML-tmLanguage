@@ -698,10 +698,10 @@ repository:
               (?=
                 (?:
                   (?# Find a control operator)
-                  [\n)#;&]
+                  [\n)#;&|]
                 |
                   (?# Find a redirect or pipe operator)
-                  (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)\|?
+                  (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)
                 )
               )
             patterns:
@@ -720,7 +720,7 @@ repository:
 
                   - comment: Anonymous scope - Start when an escaped newline isn't present, and end when whitespace or an operator is seen
                     begin: (?!\\\n)
-                    end: (?=[\s;&|<>])
+                    end: (?=[\s);&|<>])
                     patterns:
                       - comment: This is all the usual things a parameter is allowed to contain
                         name: meta.function-call.parameter.argument.fish entity.name.function.fish
@@ -728,10 +728,6 @@ repository:
                         end: (?=[\s);&|<>])
                         patterns:
                           - include: '#parameter-patterns'
-
-                      - comment: fish sees a closing parenthesis as mismatched, since command substitution is allowed
-                        name: invalid.illegal.string.fish
-                        match: \)
 
               - comment: Anonymous scope - Capture whitespace which might be there, then match anything normal for a command call, except redirections!
                 begin: (?=[^\n\S])
@@ -741,10 +737,10 @@ repository:
                   (?=
                     (?:
                       (?# Find a control operator)
-                      [\n)#;&]
+                      [\n)#;&|]
                     |
                       (?# Find a redirect or pipe operator)
-                      (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)\|?
+                      (?:(?:[0-9]+)?(?:<|>>?)|\^\^?)
                     )
                   )
                 patterns:
