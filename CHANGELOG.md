@@ -1,8 +1,10 @@
 Changelog
 =========
 
-2.5.0
------
+2.5.0 (ST2 and ST3)
+-------------------
+
+This is the first version of the package to support ST2 and ST3 from separate development branches. Meaning, it exists in two different forms which each implement all the following improvements and bugfixes.
 
 Improvements:
 - Use `meta.function-call.name` for command names

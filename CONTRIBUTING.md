@@ -6,11 +6,11 @@ Before starting work on significant contributions, please open an issue to discu
 Developing
 ==========
 
-- Check there are no silent errors in the console (``ctrl+` ``) after conversion from YAML-tmLanguage to tmLanguage, especially from "comment" elements being where they aren't actually allowed.
+- (ST2 development only) Check there are no silent errors in the console (``ctrl+` ``) after conversion from YAML-tmLanguage to tmLanguage, especially from "comment" elements being where they aren't actually allowed.
+
+- (ST2 development only) Check syntax test file doesn't crash in ST2 (caused by infinite recursion in the old regex engine).
 
 - Check all syntax tests pass.
-
-- Check syntax test file doesn't crash in ST2 (caused by infinite recursion in the old regex engine)
 
 - Check all commit messages pass basic gitlint tests.
 
