@@ -1,5 +1,5 @@
 # [PackageDev] target_format: plist, ext: tmLanguage
-name: friendly interactive shell (fish)
+name: Friendly Interactive Shell (fish)
 scopeName: source.shell.fish
 fileTypes: [fish]
 uuid: f9278d07-f7c1-4a9b-9581-ebcbc050fbfb

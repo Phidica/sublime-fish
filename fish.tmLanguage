@@ -9,7 +9,7 @@
 	<key>firstLineMatch</key>
 	<string>^#!.*\b(fish)\b</string>
 	<key>name</key>
-	<string>friendly interactive shell (fish)</string>
+	<string>Friendly Interactive Shell (fish)</string>
 	<key>patterns</key>
 	<array>
 		<dict>
