@@ -1,6 +1,12 @@
 Changelog
 =========
 
+3.0.0 (ST3 only)
+----------------
+
+Support for fish 3.0:
+- A literal `{}` now "expands" to itself, rather than undergoing brace expansion to an empty string
+
 2.5.0 (ST2 and ST3)
 -------------------
 

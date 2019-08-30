@@ -953,6 +953,7 @@ echo $var{,'brace',"expansion",he{e,$e}re\,}"str"
 #!   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.string.unquoted
 #!   ^^^^ variable.other
 #!   ^ punctuation.definition.variable
+#!       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.braces.brace-expansion
 #!       ^ punctuation.section.braces.begin
 #!        ^ punctuation.section.braces.separator
 #!                ^ punctuation.section.braces.separator
@@ -974,6 +975,10 @@ echo 1{1.2,2a}3
 echo one{, ,\ }two
 #!        ^ invalid.illegal.whitespace
 #!          ^^ constant.character.escape
+
+cmd a{}b { } c
+#!   ^^ meta.braces.brace-expansion.empty
+#!       ^^^ meta.braces.brace-expansion.empty
 
 echo %"fish" one%two %%percent
 #!   ^^^^^^^ meta.function-call.parameter.argument.process-expansion

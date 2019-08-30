@@ -1180,6 +1180,11 @@ contexts:
 
     - include: string-unquoted-patterns-escapes
 
+    # Changed in fish 3.0, an empty set of braces will "expand" to itself literally
+    - match: \{{{ws_sep}}*\}
+      scope: meta.braces.brace-expansion.empty.fish
+
+    # Real brace expansion
     - match: \{
       scope: punctuation.section.braces.begin.fish
       push:
