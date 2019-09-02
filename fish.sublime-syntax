@@ -802,12 +802,7 @@ contexts:
 
                 - include: line-continuation # Eats whitespace on next line!
 
-                # TODO: Is this even doing anything? Most illegal function name termination is rejected via ?={{param_sep}} and caught by main scope anyway
-                - match: '[{{pipe_s}}{{redir_s}}]'
-                  push:
-                    - meta_scope: invalid.illegal.string.fish
-                    - match: (?=[{{ws_sep}}{{nl_s}}{{op_s}}])
-                      pop: true
+                # Illegal control characters are rejected via ?={{param_sep}} and marked invalid by main scope inclusion further down
 
                 # Start when an escaped newline isn't present, and end when whitespace or an operator is seen
                 - match: (?!\\\n)
