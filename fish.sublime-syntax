@@ -613,13 +613,13 @@ contexts:
             keyword.control.conditional.fish
             meta.string.unquoted.fish
           push:
-            - match: (?=[{{nl_s}}{{op_s}}])
+            - match: (?=[{{op_w}}])
               pop: true
             - include: line-continuation
             - include: pipeline
 
         # Capture the operator we know is there, include the main context, and end when an `end` command is seen. The main context handles any invalid operators
-        - match: (\n)|(;)|(?=[)&])
+        - match: (\n)|(;)|(?=[#)&])
           captures:
             1: meta.function-call.operator.control.fish
             2: meta.function-call.operator.control.fish keyword.operator.control.fish
@@ -717,7 +717,7 @@ contexts:
         # Match the valid part of the switch statement, then look for an invalid part
         - match: (?=switch)
           push:
-            - match: (?=[{{nl_s}};])
+            - match: (?=[{{nl_w}};])
               pop: true
 
             # Capture the command name we know is there, include a single instance of a parameter (the value), and end when whitespace or a control operator is seen
@@ -740,7 +740,7 @@ contexts:
             - match: \s+
               scope: meta.function-call.fish
               push:
-                - match: (?=[{{nl_s}};])
+                - match: (?=[{{nl_w}};])
                   pop: true
 
                 - match: \S+?

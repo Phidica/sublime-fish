@@ -8,6 +8,9 @@ Support for fish 3.0:
 - A literal `{}` now "expands" to itself, rather than undergoing brace expansion to an empty string
 - Commands may be linked by `&&` and `||` to form conditional pipelines
 
+Bugfixes:
+- Inline comments after `switch var` and `while cmd` statements were not scoped correctly
+
 2.5.0 (ST2 and ST3)
 -------------------
 

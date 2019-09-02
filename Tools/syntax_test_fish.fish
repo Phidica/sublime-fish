@@ -1291,6 +1291,10 @@ while cmd end )end arg end; end
 #!                     ^^^ - keyword.control.conditional
 #!                          ^^^ keyword.control.conditional
 
+while true # comment
+#!         ^^^^^^^^^^ comment.line
+end
+
 true | true || true
 #!          ^^ meta.function-call.operator.control keyword.operator.control.double-bar
 
@@ -1622,6 +1626,11 @@ switch --help; case;
 switch--help arg
 #! <- meta.function-call.name variable.function
 #! ^^^^^^^^^ meta.function-call variable.function
+
+switch abc # comment
+#!         ^^^^^^^^^ comment.line
+  case a # comment
+end
 
 switch a || case
 #!       ^^ meta.block.switch invalid.illegal.string
