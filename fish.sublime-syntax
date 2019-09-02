@@ -113,6 +113,8 @@ contexts:
       push:
         - match: (\n)|([{{op_s}}])|(?=\)|#|end)
           captures:
+            # Redirection uses the meta.function-call.operator prefix, so we have it here too despite it being redundant
+            # TODO: Add more detail to the op_s operators
             1: meta.function-call.operator.control.fish
             2: meta.function-call.operator.control.fish keyword.operator.control.fish
           pop: true
@@ -318,9 +320,9 @@ contexts:
     - include: pipeline-segment
 
   pipeline-segment:
-    # The pipeline-segment context is agnostic of where it appears in an overall pipeline, but it does perform checks on what can appear after a pipe (if there is one) before it will recurse into itself
+    # The pipeline-segment context is agnostic of where it appears in an overall pipeline, but it does perform checks on what can appear after pipe/logic operators (if they appear) before it will recurse into itself
 
-    # Match operators (background, pipe, and redirect) which cannot start a pipeline because they must be consumed within or after a pipeline
+    # Match operators (background, pipe, redirect, and logic) which cannot start a pipeline because they must be consumed within or after a pipeline
     # This is done in a weird way so that we can mark '&' as invalid instead of letting it naturally close the pipeline scope and be marked as valid
     - match: (?=[&{{pipe_s}}]|{{redir_w}})
       push:
@@ -335,15 +337,16 @@ contexts:
     - match: (?:case|else|end)(?=[{{param_sep}}])
       scope: invalid.illegal.function-call.fish
 
-    # A pipeline which may be one command call or multiple command calls linked by pipe operators ('|', '2>|', etc). The pipeline terminates at the first encounter of any control operator
+    # A pipeline which may be one command call or multiple command calls linked by pipe operators ('|', '2>|', etc) or logic operators ('&&' and '||')
     - match: (?=[^\s#])
       push:
-        - match: (?={{op_w}})
+        # The pipeline terminates at the first encounter of any control operator, but not '&&'
+        - match: (?={{op_w}})(?!&&)
           pop: true
 
         # Match the command of a pipeline segment
-        # Ensure no whitespace, comments, piping
-        - match: (?![\s#]|{{pipe_w}})
+        # Ensure no whitespace, comments, background, piping
+        - match: (?![\s#&]|{{pipe_w}})
           push:
             - match: (?={{op_w_pipe}})
               pop: true
@@ -351,38 +354,45 @@ contexts:
             - include: command-call-meta
             - include: command-call-standard
 
-        # Match piping which may lead to a second command, and if it does recurse into the pipeline-segment context again
-        # Look ahead for redirection into pipe
-        - match: (?={{pipe_w}})
+        # Look for piping/logic which may lead to a second command, and if it does recurse into the pipeline-segment context again
+        - match: (?=&&|\|\||{{pipe_w}})
           push:
-            - match: (?={{op_w}})
+            - match: (?={{op_w}})(?!&&)
               pop: true
 
-            # Check for a malformed pipeline segment; if the pipeline would end with a control operator (or a comment, which implies a newline), then mark the pipe itself invalid
+            # Check for a malformed pipeline segment
+            # If a logic operator would be followed with a control operator (or a comment, which implies a newline), then mark the logic operator invalid
+            - match: (?:&&|\|\|)(?=\s*(?:$|{{op_w}}|{{pipe_s}}))
+              scope: invalid.illegal.operator.fish
+            # If a pipe would be followed by a control operator (or a comment, which implies a newline), then mark the pipe invalid
             - match: '{{pipe_w}}(?=\s*(?:$|{{op_w}}))'
               scope: invalid.illegal.operator.fish
 
-            # Otherwise, we'll say the pipe is okay and let the tests at the start of the pipeline-segment context highlight any invalid commands (such as redirection)
-            # Refer to {{pipe_w}} for the mirror description of these elements
-            - match: (?:([0-9]+)?(<|>>?)|(\^\^?))?(\|)
+            # Say the piping/logic is okay; the tests at the start of pipeline-segment will highlight any invalid commands (eg, redirection)
+            # Refer to {{pipe_w}} for the non-matching description of the piping elements
+            - match: ((&&)|(\|\|))|((?:([0-9]+)?(<|>>?)|(\^\^?))?(\|))
               captures:
-                0: meta.function-call.operator.pipe.fish
-                1: constant.numeric.file-descriptor.fish
-                2: keyword.operator.pipe.redirect.fish
-                3: keyword.operator.pipe.redirect.fish
-                4: keyword.operator.pipe.fish
+                1: meta.function-call.operator.control.fish
+                2: keyword.operator.control.double-ampersand.fish
+                3: keyword.operator.control.double-bar.fish
+
+                4: meta.function-call.operator.pipe.fish
+                5: constant.numeric.file-descriptor.fish
+                6: keyword.operator.pipe.redirect.fish
+                7: keyword.operator.pipe.redirect.fish
+                8: keyword.operator.pipe.fish
               push:
                 - match: (?={{op_w}})
                   pop: true
 
-                # After a pipe can't be an "and" or "or" that is taking another command as its parameters. This regex should resemble the match which seeks a valid "and"/"or" in the pipeline context, since the only difference is that here the same matched text is instead invalid. We can be a little simpler though, and not worry about marking an '&'' as invalid since the word will be instead
+                # After piping/logic can't be an "and" or "or" that is taking another command as its parameters. This regex should resemble the match which seeks a valid "and"/"or" in the pipeline context, since the only difference is that here the same matched text is instead invalid. We can be a little simpler though, and not worry about marking an '&' as invalid since the word will be instead
                 - match: (and|or)\b(?!\s*[\n;-])
                   scope: invalid.illegal.function-call.fish
 
                 - include: separator-whitespace
                 - include: line-continuation
 
-                # Match the next command
+                # Match the next command and any piping/logic which follows it, and so on
                 - include: pipeline-segment
 
   command-call-meta:
@@ -558,7 +568,7 @@ contexts:
 
   command-call-standard-block:
     # Block commands cannot be backgrounded, piped, or redirected
-    - match: (begin|while|if|for|switch|function)\s*([&{{pipe_s}}{{redir_s}}])
+    - match: (begin|while|if|for|switch|function)\s*([&{{pipe_s}}{{redir_s}}]+)
       captures:
         1: meta.function-call.name.fish variable.function.fish meta.string.unquoted.fish
         2: invalid.illegal.operator.fish
@@ -670,7 +680,7 @@ contexts:
             keyword.control.conditional.fish
             meta.string.unquoted.fish
           push:
-            - match: (?={{op_w}})
+            - match: (?={{op_w}}|{{pipe_s}})
               pop: true
 
             - include: separator-whitespace
@@ -678,7 +688,7 @@ contexts:
             - include: argument
 
         # Capture the operator we know is there, include the main context, and end when an `end` command is seen. The main context handles any invalid operators
-        - match: (\n)|(;)|(?=[)#&])
+        - match: (\n)|(;)|(?=[)#])
           captures:
             1: meta.function-call.operator.control.fish
             2: meta.function-call.operator.control.fish keyword.operator.control.fish
@@ -707,7 +717,7 @@ contexts:
         # Match the valid part of the switch statement, then look for an invalid part
         - match: (?=switch)
           push:
-            - match: (?=[{{nl_s}}{{op_s}}])
+            - match: (?=[{{nl_s}};])
               pop: true
 
             # Capture the command name we know is there, include a single instance of a parameter (the value), and end when whitespace or a control operator is seen
@@ -726,18 +736,18 @@ contexts:
                 - match: \S+
                   scope: invalid.illegal.operator.fish
 
-            # Capture whitespace which might be there, match any other strings as invalid, and end when a control operator is seen
+            # Capture whitespace which might be there, match any other strings as invalid, and end when a valid control operator is seen
             - match: \s+
               scope: meta.function-call.fish
               push:
-                - match: (?=[{{nl_s}}{{op_s}}])
+                - match: (?=[{{nl_s}};])
                   pop: true
 
                 - match: \S+?
                   scope: invalid.illegal.string.fish
 
         # Capture the operator we know is there, include the main context, and end when an `end` command is seen. The main context handles any invalid operators
-        - match: (\n)|(;)|(?=[)&])
+        - match: (\n)|(;)|(?=[#)])
           captures:
             1: meta.function-call.operator.control.fish
             2: meta.function-call.operator.control.fish keyword.operator.control.fish
@@ -792,6 +802,7 @@ contexts:
 
                 - include: line-continuation # Eats whitespace on next line!
 
+                # TODO: Is this even doing anything? Most illegal function name termination is rejected via ?={{param_sep}} and caught by main scope anyway
                 - match: '[{{pipe_s}}{{redir_s}}]'
                   push:
                     - meta_scope: invalid.illegal.string.fish
@@ -878,7 +889,7 @@ contexts:
                     keyword.control.conditional.fish
                     meta.string.unquoted.fish
                   push:
-                    - match: (?=[\n#{{op_s}}]|if(?:\s*\n|\s+[^\s;]))
+                    - match: (?=[\n#{{op_s}}{{pipe_s}}]|if(?:\s*\n|\s+[^\s;]))
                       pop: true
 
                     - include: separator-whitespace
@@ -889,7 +900,7 @@ contexts:
                       scope: invalid.illegal.string.fish
 
                 # Match the operator which will be there if no `if` was seen, then include the main context which marks further `else` commands as invalid. The main context handles any invalid operators
-                - match: (\n)|(;)|(?=[#&])
+                - match: (\n)|(;)|(?=[#&|])
                   captures:
                     1: meta.function-call.operator.control.fish
                     2: meta.function-call.operator.control.fish keyword.operator.control.fish

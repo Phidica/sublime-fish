@@ -623,11 +623,20 @@ echo out | echo out
 #!      ^ meta.function-call
 #!        ^ meta.function-call
 
-echo && echo &&& echo || echo ||| echo
-#!    ^ invalid.illegal.function-call
-#!            ^^ invalid.illegal.function-call
-#!                     ^ invalid.illegal.function-call
-#!                             ^^ invalid.illegal.function-call
+echo & echo && echo &&& echo || echo ||| echo
+#!          ^^ keyword.operator.control.double-ampersand
+#!                  ^^ invalid.illegal.operator
+#!                           ^^ keyword.operator.control.double-bar
+#!                                   ^^ invalid.illegal.operator
+
+echo | cmd || true
+#!         ^^ keyword.operator.control.double-bar
+
+not cmd || out
+#!      ^^ meta.function-call.operator.control keyword.operator.control.double-bar
+
+and cmd && cmd
+#!      ^^ meta.function-call.operator.control keyword.operator.control.double-ampersand
 
 command echo out 2>| cat
 #!                ^^ meta.function-call.operator.pipe keyword.operator
@@ -667,6 +676,18 @@ arg
 #! <- invalid.illegal.function-call
 #! ^^ variable.function
 
+&& true
+#! <- invalid.illegal.function-call
+
+|| false
+#! <- invalid.illegal.function-call
+
+true &&
+#!   ^^ invalid.illegal.operator
+
+false ||
+#!    ^^ invalid.illegal.operator
+
 2>echo; 2>&>&|>&>|echo
 #! <- invalid.illegal.function-call
 #! ^^^ variable.function
@@ -691,7 +712,7 @@ echo out one | \
 # comment
 #! <- comment.line
 #! <- - meta.function-call
-cat # we actually can't test if this command is here or not, but if it were absent then the pipeline would be invalid
+cat # we actually can't test if this command is part of the pipeline or not, but if it were absent then the pipeline would be invalid
 
 echo arg | & cat
 #!       ^ invalid.illegal.operator
@@ -790,9 +811,25 @@ and>cat
 #! ^ invalid.illegal.function-call
 #!  ^^^ meta.function-call.name variable.function
 
-echo || cat # comment
-#!   ^ meta.function-call keyword.operator.pipe
+not true && true ; or true || not true
+#!       ^^ meta.function-call.operator.control keyword.operator.control.double-ampersand
+#!                         ^^ meta.function-call.operator.control keyword.operator.control.double-bar
+
+# At least in fish 3.0 the parser makes it look like this would be okay, but it really doesn't work
+true && and true; false || or false
+#!      ^^^ invalid.illegal.function-call
+#!                         ^^ invalid.illegal.function-call
+
+echo &| cat # comment
+#!   ^ meta.function-call keyword.operator.control
 #!    ^ invalid.illegal
+#!          ^^^^^^^^^ comment.line
+
+# Kinda funky but that's just how our parsing goes, preferring to accept & and reject |
+echo |& cat # comment
+#!   ^ invalid.illegal
+#!    ^ meta.function-call keyword.operator.control
+#!          ^^^^^^^^^ comment.line
 
 echo arg | not echo arg
 #!       ^ meta.function-call keyword.operator.pipe
@@ -838,8 +875,14 @@ true | cat
 #!   ^ meta.function-call keyword.operator.pipe
 #!     ^^^ meta.function-call.name variable.function
 
+builtin true || true
+#!           ^^ meta.function-call.operator.control keyword.operator.control.double-bar
+
 echo out | >echo
 #!       ^ keyword.operator.pipe
+#!         ^ invalid.illegal.function-call
+
+echo out >|| true
 #!         ^ invalid.illegal.function-call
 
 echo "string"(echo "inner string")" outer string"
@@ -1047,6 +1090,15 @@ echo arg
 #! ^ meta.function-call.parameter.argument
 #!                ^ invalid.illegal.function-call
 
+[ 1 -eq 1 || 2 -eq 2]
+#!        ^^^^^^^^^^^ invalid.illegal.function-call
+
+[ 1 -eq 1 && 2 -eq 2]
+#!        ^^^^^^^^^^^ invalid.illegal.function-call
+
+[ 1 -eq 2 ] || [ 2 -eq 2 ]
+#!          ^^ meta.function-call.operator.control keyword.operator.control.double-bar
+
 return
 #! <- meta.function-call.name keyword.control.conditional meta.string.unquoted
 
@@ -1137,6 +1189,15 @@ begin
 end & echo next | cat
 #!  ^ keyword.operator.control
 
+begin || true; end
+#!    ^^ invalid.illegal.operator
+
+begin && false; end
+#!    ^^ invalid.illegal.operator
+
+begin >> redir; end
+#!    ^^ invalid.illegal.operator
+
 # "echo (begin)" will error
 # The second ')' and "end" are to catch the runaway scopes if needed
 echo (begin) end)
@@ -1172,7 +1233,7 @@ while # comment;end
 while || true ; end
 #! ^^ variable.function
 #!    ^ invalid.illegal.operator
-#!       ^^^^ variable.function
+#!       ^^^^ meta.function-call.parameter.argument
 #!              ^^^ invalid.illegal.function-call
 
 while>out arg;end
@@ -1229,6 +1290,18 @@ while cmd end )end arg end; end
 #!            ^^^^ invalid.illegal.function-call
 #!                     ^^^ - keyword.control.conditional
 #!                          ^^^ keyword.control.conditional
+
+true | true || true
+#!          ^^ meta.function-call.operator.control keyword.operator.control.double-bar
+
+while true | true || true
+#!                ^^ keyword.operator.control.double-bar
+  true
+  while true && false
+#!           ^^ keyword.operator.control.double-ampersand
+    false
+  end
+end
 
 # This executes without error
 echo (while)
@@ -1352,6 +1425,25 @@ else
 end
 #! <- meta.block.if keyword.control.conditional
 
+if true || false
+#!      ^^ keyword.operator.control.double-bar
+  true
+  if false && true
+#!         ^^ keyword.operator.control.double-ampersand
+    false
+  end
+end
+
+if true
+else && fail
+#!   ^^ meta.block.if invalid.illegal.function-call
+end
+
+if true
+else || fail
+#!   ^^ meta.block.if invalid.illegal.function-call
+end
+
 # This executes without error
 echo (if)
 #!    ^^ variable.function
@@ -1414,6 +1506,16 @@ for \
 end
 #! <- keyword.control.conditional
 
+for amp && in amp && echo
+#!      ^^ meta.block.for-in invalid.illegal.function-call
+#!                ^^ meta.block.for-in invalid.illegal.function-call
+end
+
+for bar || in bar || echo
+#!      ^^ meta.block.for-in invalid.illegal.function-call
+#!                ^^ meta.block.for-in invalid.illegal.function-call
+end
+
 # This executes without error
 echo (for)
 #!    ^^^ variable.function
@@ -1453,7 +1555,7 @@ switch foo bar | echo &
 #!         ^^^ invalid.illegal.string
 #!             ^ invalid.illegal.string
 #!               ^^^^ invalid.illegal.string
-#!                    ^ invalid.illegal.function-call
+#!                    ^ invalid.illegal.string
   case foo 2>| cmd >out & cmd # literally how fish highlights this
 #!     ^^^ meta.function-call.parameter.argument meta.string.unquoted
 #!         ^^^ invalid.illegal.function-call
@@ -1520,6 +1622,21 @@ switch --help; case;
 switch--help arg
 #! <- meta.function-call.name variable.function
 #! ^^^^^^^^^ meta.function-call variable.function
+
+switch a || case
+#!       ^^ meta.block.switch invalid.illegal.string
+#!          ^^^^ meta.block.switch invalid.illegal.string
+  case abc||
+#!        ^^ meta.block.switch invalid.illegal.function-call
+    fail
+end
+
+switch b && case
+#!       ^^ meta.block.switch invalid.illegal.string
+#!          ^^^^ meta.block.switch invalid.illegal.string
+  case def&&
+#!        ^^ meta.block.switch invalid.illegal.function-call
+end
 
 # This executes without error
 echo (switch)
@@ -1603,6 +1720,14 @@ end
 function ~name --argument a -b c; end
 #! ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.function-call
 #!       ^ - keyword.operator.tilde
+
+function amp && echo
+#!           ^^ meta.block.function invalid.illegal.function-call
+end
+
+function bar || echo
+#!           ^^ meta.block.function invalid.illegal.function-call
+end
 
 # This executes without error
 echo (function)
