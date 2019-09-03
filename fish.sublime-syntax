@@ -414,23 +414,25 @@ contexts:
         - include: command-call-standard
 
     # This meta command acts as a unary operator on the command to the right, which can also be a meta command. There is no restriction on where in a pipeline this command may appear. If the command is followed by any form of execution that just prints help text (ie, with an option or with an explicit or implicit newline), then don't open the scope
-    - match: (?=not\b(?!\s*[{{nl_w}};-]))
+    # Note that both forms require whitespace separation from the next command
+    - match: (?=(not|!){{ws_sep}}(?!\s*[{{nl_w}};-]))
       push:
         - match: (?={{op_w}})
           pop: true
 
-        - match: not\b(?!\s*[{{nl_s}};-])
-          comment: If the command is followed by an "&", then that's invalid
-          scope:
-            meta.function-call.name.fish
-            keyword.operator.word.fish
-            meta.string.unquoted.fish
+        - match: ((not)|(!))(?={{ws_sep}}(?!\s*[{{nl_w}};-]))
+          # Still scoping '!' as a "word" operator, because it isn't as strong as a control operator. It has to be followed by whitespace, ie, it has to be a word!
+          captures:
+            1: meta.function-call.name.fish
+            2: keyword.operator.word.not.fish meta.string.unquoted.fish
+            3: keyword.operator.word.bang.fish meta.string.unquoted.fish
           push:
             - match: (?!{{ws_sep}}|\&|\\\n)
               pop: true
 
             - include: separator-whitespace
 
+            # If the command is followed by an "&" that's invalid and we need to pick it up here
             - match: \&
               scope: invalid.illegal.function-call.fish
 

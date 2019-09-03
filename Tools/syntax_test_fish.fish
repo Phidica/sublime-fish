@@ -574,6 +574,30 @@ not true # comment
 #! <- keyword.operator.word
 #!       ^ comment.line
 
+notecho out
+#! <- meta.function-call.name variable.function
+
+not notecho
+#!  ^^^^^^^ meta.function-call.name variable.function
+
+! command true
+#! <- keyword.operator.word
+#!^^^^^^^ meta.function-call.name support.function
+#!        ^^^^ meta.function-call.name variable.function
+
+! # comment
+#! <- variable.function
+#! ^^^^^^^^^ comment.line
+
+! -h
+#! <- variable.function
+
+!echo
+#! <- variable.function
+
+! !echo
+#!^^^^ meta.function-call.name variable.function
+
 and # comment
 #! <- variable.function
 #!  ^ comment.line
@@ -841,9 +865,6 @@ true; not and builtin true
 #!        ^^^ meta.function-call.name keyword.operator.word
 #!            ^^^^^^^ meta.function-call.name support.function
 #!                    ^^^^ meta.function-call.name variable.function
-
-notecho out
-#! <- meta.function-call.name variable.function
 
 and -h
 #! <- meta.function-call.name variable.function
