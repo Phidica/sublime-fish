@@ -978,9 +978,7 @@ contexts:
         - match: (?=\n)|^(?![\s\#\\])|\s(?![\s\#])
           pop: true
 
-        - match: \\\n
-          scope: constant.character.escape.newline
-
+        - include: string-unquoted-patterns-escapes-newline
         - include: comment
 
   redirection:
