@@ -377,7 +377,7 @@ contexts:
                 3: keyword.operator.control.double-bar.fish
 
                 4: meta.function-call.operator.pipe.fish
-                5: constant.numeric.file-descriptor.fish
+                5: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
                 6: keyword.operator.pipe.redirect.fish
                 7: keyword.operator.pipe.redirect.fish
                 8: keyword.operator.pipe.fish
@@ -464,10 +464,11 @@ contexts:
               scope:
                 meta.function-call.name.fish
                 support.function.test.begin.fish
+                meta.string.unquoted.fish
               push:
                 - match: (\])|([{{nl_s}}{{op_s}}{{pipe_s}}].*)
                   captures:
-                    1: meta.function-call.name.fish support.function.test.end.fish
+                    1: meta.function-call.name.fish support.function.test.end.fish meta.string.unquoted.fish
                     2: invalid.illegal.function-call.fish
                   pop: true
 
