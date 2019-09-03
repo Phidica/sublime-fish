@@ -291,6 +291,7 @@ contexts:
     # The pipeline context is nonterminating, meaning that it will not consume a *valid* control operator ('\n', ')', '#', ';', or '&'). It *will* consume control operators that appear in invalid locations
 
     # This meta command acts as a unary operator on the command to the right, but it is only allowed at the beginning of a pipeline! It can't come after a pipe, so it isn't in the more general command-call-meta context. If the command is followed by any form of execution that just prints help text (ie, with an option or with an explicit or implicit newline), then don't open the scope
+    # Within fish 3.0, these two commands are "decorators" and intentionally apply their logic to an entire "job conjunction" which we call a logic pipeline
     - match: (?=(and|or)\b(?!\s*[{{nl_w}};-]))
       push:
         - match: (?={{op_w}})
@@ -400,6 +401,7 @@ contexts:
 
     # These three meta commands force the parameter to behave as a standard command. They stop when their subcommand is piped. Notably, if the command is followed by redirection, then the redirection is legal and the command just prints its help text, so in that case we avoid opening this scope so that the command is caught elsewhere as a standard command
     # Check no control operation or option after whitespace
+    # Within fish, these three commands are referred to as "decorators"
     - match: (?:builtin|command|exec)\b(?!\s*(?:{{op_w_pipe_redir}}|-))
       scope:
         meta.function-call.name.fish
