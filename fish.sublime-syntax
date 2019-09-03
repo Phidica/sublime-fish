@@ -512,9 +512,13 @@ contexts:
                     - match: (?=[{{param_sep}}(])
                       pop: true
 
-                    # The string scope explicitly forbids '$' so that the argument context can pick it up as a variable expansion, but '$' is treated as a literal in command names, so we have to match it separately
-                    - match: \$
-                      scope: meta.string.unquoted.fish
+                    # Give variable expansion the unquoted string scope
+                    - match: (?=\$)
+                      push:
+                        - meta_scope: meta.string.unquoted.fish
+                        - match: (?!\$)
+                          pop: true
+                        - include: variable-expansion
 
                     - include: string
 

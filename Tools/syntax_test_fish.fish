@@ -1735,11 +1735,19 @@ function (echo f)oo)bar 2> & | --arg ; end
 #!                         ^ invalid.illegal.function-call
 #!                           ^ invalid.illegal.function-call
 
-function '$cmd$'; echo $argv; end; $cmd$ arg1 arg2
+function '$cmd$'; echo $argv; end; \$cmd\$ arg1 arg2
 #!       ^^^^^^ entity.name.function
 #!                               ^ keyword.operator.control
-#!                                 ^^^^^ variable.function
-#!                                       ^^^^ meta.function-call.parameter.argument
+#!                                 ^^^^^^^ variable.function
+#!                                         ^^^^ meta.function-call.parameter.argument
+
+$path/cmd arg
+#! <- meta.function-call.name variable.function meta.string.unquoted meta.variable-expansion variable.other
+#!   ^^^^ meta.function-call.name variable.function meta.string.unquoted
+
+cmd$name$ arg
+#! ^^^^^ meta.function-call.name variable.function meta.string.unquoted meta.variable-expansion variable.other
+#!      ^ invalid.illegal.variable-expansion
 
 function foo\
 bar
