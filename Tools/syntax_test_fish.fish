@@ -1749,6 +1749,13 @@ cmd$name$ arg
 #! ^^^^^ meta.function-call.name variable.function meta.string.unquoted meta.variable-expansion variable.other
 #!      ^ invalid.illegal.variable-expansion
 
+# This wasn't allowed in fish 2.7, but is from fish 3.0
+ech{o,a}
+#! <- meta.function-call.name variable.function
+#! ^^^^^ meta.function-call.name variable.function meta.braces.brace-expansion
+#!  ^ meta.function-call.name variable.function
+#!    ^ meta.function-call.name variable.function
+
 function foo\
 bar
 #! <- entity.name.function
