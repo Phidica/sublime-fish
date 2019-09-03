@@ -1135,7 +1135,7 @@ contexts:
           push:
             - meta_scope:
                 meta.function-call.operator.redirection.fish
-                meta.string.unquoted
+                meta.string.unquoted.fish
             - match: (?!\$)
               pop: true
             - include: variable-expansion
