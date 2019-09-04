@@ -356,22 +356,41 @@ contexts:
             - include: command-call-standard
 
         # Look for piping/logic which may lead to a second command, and if it does recurse into the pipeline-segment context again
+        # TODO: Use the scope stack to better control the unlimited number of optional newlines and comments that can follow a pipe/logic operation
         - match: (?=&&|\|\||{{pipe_w}})
           push:
             - match: (?={{op_w}})(?!&&)
               pop: true
 
-            # Check for a malformed pipeline segment
-            # If a logic operator would be followed with a control operator (or a comment, which implies a newline), then mark the logic operator invalid
-            - match: (?:&&|\|\|)(?=\s*(?:$|{{op_w}}|{{pipe_s}}))
+            # Check for a malformed pipeline segment, however since fish 3.0 there is allowed to be a newline or comment after these
+            # If logic operator would be followed by a control operator mark the logic operator invalid
+            - match: (?:&&|\|\|)(?=\s*[\){{op_s}}{{pipe_s}}])
               scope: invalid.illegal.operator.fish
-            # If a pipe would be followed by a control operator (or a comment, which implies a newline), then mark the pipe invalid
-            - match: '{{pipe_w}}(?=\s*(?:$|{{op_w}}))'
+            # If pipe would be followed by a control operator mark the pipe invalid
+            - match: '{{pipe_w}}(?=\s*[\){{op_s}}])'
               scope: invalid.illegal.operator.fish
 
             # Say the piping/logic is okay; the tests at the start of pipeline-segment will highlight any invalid commands (eg, redirection)
             # Refer to {{pipe_w}} for the non-matching description of the piping elements
-            - match: ((&&)|(\|\|))|((?:([0-9]+)?(<|>>?)|(\^\^?))?(\|))
+            # We consume the whitespace because a pipeline is permitted to continue on the next line with unescaped newlines in between (though we can only catch one)
+            - match: |-
+                (?x)
+                (?# Find piping/logic, and any whitespace after it)
+                (?:
+                  (?# Logic)
+                  (
+                    (&&)
+                  |
+                    (\|\|)
+                  )
+                |
+                  (?# Piping)
+                  (
+                    (?:
+                      ([0-9]+)?(<|>>?)|(\^\^?)
+                    )?(\|)
+                  )
+                )({{ws_sep}}*)(\n?)
               captures:
                 1: meta.function-call.operator.control.fish
                 2: keyword.operator.control.double-ampersand.fish
@@ -382,8 +401,11 @@ contexts:
                 6: keyword.operator.pipe.redirect.fish
                 7: keyword.operator.pipe.redirect.fish
                 8: keyword.operator.pipe.fish
+
+                9:  meta.function-call.fish
+                10: meta.function-call.operator.control.newline.ignored.fish
               push:
-                - match: (?={{op_w}})
+                - match: (?=[{{nl_s}}{{op_s}}])
                   pop: true
 
                 # After piping/logic can't be an "and" or "or" that is taking another command as its parameters. This regex should resemble the match which seeks a valid "and"/"or" in the pipeline context, since the only difference is that here the same matched text is instead invalid. We can be a little simpler though, and not worry about marking an '&' as invalid since the word will be instead
@@ -392,6 +414,7 @@ contexts:
 
                 - include: separator-whitespace
                 - include: line-continuation
+                - include: comment
 
                 # Match the next command and any piping/logic which follows it, and so on
                 - include: pipeline-segment

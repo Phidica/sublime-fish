@@ -707,10 +707,14 @@ arg
 #! <- invalid.illegal.function-call
 
 true &&
-#!   ^^ invalid.illegal.operator
+#!   ^^ meta.function-call.operator.control keyword.operator.control.double-ampersand
+and false
+#! <- invalid.illegal.function-call
 
 false ||
-#!    ^^ invalid.illegal.operator
+#!    ^^ meta.function-call.operator.control keyword.operator.control.double-bar
+or true
+#! <- invalid.illegal.function-call
 
 2>echo; 2>&>&|>&>|echo
 #! <- invalid.illegal.function-call
@@ -729,8 +733,11 @@ echo (echo arg |) | cat
 #!             ^ invalid.illegal.operator
 #!                ^ meta.function-call keyword.operator
 
+# Since fish 3.0
 echo arg | # comment
-#!       ^ invalid.illegal.operator
+#!       ^ meta.function-call.operator.pipe keyword.operator.pipe
+#!         ^^^^^^^^^ comment.line
+cat
 
 echo out one | \
 # comment
@@ -754,7 +761,8 @@ not echo arg | | arg ; # comment
 #!             ^ invalid.illegal.function-call
 
 echo out 1>|
-#!       ^^^ invalid.illegal.operator
+#!       ^^^ meta.function-call.operator.pipe
+cat
 
 echo out >| 9>|
 #!       ^^ meta.function-call.operator.pipe
@@ -818,7 +826,8 @@ not 1^out
 #!  ^^^^^ variable.function
 
 echo out ^|
-#!       ^^ invalid.illegal.operator
+#!       ^^ meta.function-call.operator.pipe
+cat
 
 echo out 1>>out
 #!       ^^^^^^ meta.function-call.operator.redirection
