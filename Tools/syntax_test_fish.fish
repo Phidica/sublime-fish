@@ -1039,6 +1039,11 @@ echo $var{,'brace',"expansion",he{e,$e}re\,}"str"
 #!                                         ^ punctuation.section.braces.end
 #!                                          ^^^^^ string.quoted
 
+echo {$foo(echo bar)}
+#!   ^^^^^^^^^^^^^^^^ meta.braces.brace-expansion
+#!    ^^^^ variable.other
+#!        ^^^^^^^^^^ meta.parens.command-substitution
+
 echo 1{1.2,2a}3
 #!   ^ - constant.numeric
 #!     ^^^ constant.numeric
@@ -1046,12 +1051,28 @@ echo 1{1.2,2a}3
 #!            ^ - constant.numeric
 
 echo one{, ,\ }two
-#!        ^ invalid.illegal.whitespace
+#!        ^ meta.braces.brace-expansion.ignored-whitespace.fish
 #!          ^^ constant.character.escape
 
+for var in {foo, #not comment
+#bar}
+#! <- -comment.line
+#!  ^ punctuation.section.braces.end
+  echo $var
+end
+
 cmd a{}b { } c
-#!   ^^ meta.braces.brace-expansion.empty
-#!       ^^^ meta.braces.brace-expansion.empty
+#!   ^^ meta.braces.brace-expansion.empty.no-whitespace
+#!       ^^^ meta.braces.brace-expansion
+#!        ^ meta.braces.brace-expansion.ignored-whitespace
+
+echo {{},{}}
+#!   ^^^^^^^ meta.function-call.parameter.argument.path meta.string.unquoted meta.braces.brace-expansion
+#!   ^ punctuation.section.braces.begin
+#!    ^^ meta.braces.brace-expansion.empty
+#!      ^ punctuation.section.braces.separator
+#!       ^^ meta.braces.brace-expansion.empty
+#!         ^ punctuation.section.braces.end
 
 echo %"fish" one%two %%percent
 #!   ^^^^^^^ meta.function-call.parameter.argument.process-expansion
