@@ -78,10 +78,10 @@ class DoFishIndentCommand(sublime_plugin.TextCommand):
           stderr = subprocess.PIPE)
         out, err = p.communicate(input = inputContent.encode(enc))
       except FileNotFoundError:
-        msg = "Couldn't find {0}".format(exe)
+        msg = "Couldn't find {0}.".format(exe)
         if not pathToDir:
-          msg += ". Specify a nonstandard install location in Preferences > " \
-            "Package Settings > friendly interactive shell > Settings"
+          msg += " Specify a nonstandard install location in Preferences > " \
+            "Package Settings > Fish > Settings."
         sublime.error_message(msg)
         return
 
