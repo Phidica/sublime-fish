@@ -1020,21 +1020,7 @@ contexts:
         - match: (?=[{{param_sep}}])
           pop: true
 
-        # We have to try and catch an '&' here because if it is seen by the outer end match then it will be considered a valid operator and the redirection scope will immediately terminate
-        - match: (?:([0-9]+)(<|>>|>)|(>>|\^\^|[<>^]))(\&)\s*
-          captures:
-            0: meta.function-call.operator.redirection.fish
-            1: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
-            2: keyword.operator.redirect.fish
-            3: keyword.operator.redirect.fish
-            4: keyword.operator.redirect.dereference.fish
-          push:
-            - match: ([#&]\S*)|(?![&\\])
-              scope:
-                meta.function-call.operator.redirection.fish
-                invalid.illegal.file-descriptor.fish
-              pop: true
-            - include: line-continuation # Eats whitespace on next line
+        - include: redirection-to-file-descriptor-match
 
         - include: line-continuation
 
@@ -1151,7 +1137,7 @@ contexts:
                   pop: true
                 - include: string-unquoted-patterns-escapes
 
-        # A raw path cannot begin with '(' since this undergoes command substitution
+        # A literal path cannot begin with '(' since this undergoes command substitution
         - match: (?=\()
           push:
             - meta_scope: meta.function-call.operator.redirection.fish
@@ -1159,7 +1145,7 @@ contexts:
               pop: true
             - include: command-substitution
 
-        # A raw path cannot begin with '$' since this undergoes variable expansion
+        # A literal path cannot begin with '$' since this undergoes variable expansion
         # We also make sure that variable expansion is scoped as an unquoted string, since if it appears inside quotes then it gets scoped as a quoted string and we should mirror that
         - match: (?=\$)
           push:
@@ -1169,6 +1155,56 @@ contexts:
             - match: (?!\$)
               pop: true
             - include: variable-expansion
+
+  redirection-to-file-descriptor-match:
+    # We have to consume the '&' in any match or it will be seen as a valid command call terminator
+
+    - match: (?:((0)(<))|(<))((\&)\s*)
+      captures:
+        1: meta.function-call.operator.redirection.stdin.explicit.fish
+        2: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
+        3: keyword.operator.redirect.fish
+        4: meta.function-call.operator.redirection.stdin.implicit.fish keyword.operator.redirect.fish
+        5: meta.function-call.operator.redirection.fish
+        6: keyword.operator.redirect.dereference.fish
+      push: redirection-to-file-descriptor-pop
+
+    - match: (?:((1)(>>?))|(>>?))((\&)\s*)
+      captures:
+        1: meta.function-call.operator.redirection.stdout.explicit.fish
+        2: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
+        3: keyword.operator.redirect.fish
+        4: meta.function-call.operator.redirection.stdout.implicit.fish keyword.operator.redirect.fish
+        5: meta.function-call.operator.redirection.fish
+        6: keyword.operator.redirect.dereference.fish
+      push: redirection-to-file-descriptor-pop
+
+    - match: (?:((2)(>>?))|(\^\^?))((\&)\s*)
+      captures:
+        1: meta.function-call.operator.redirection.stderr.explicit.fish
+        2: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
+        3: keyword.operator.redirect.fish
+        4: meta.function-call.operator.redirection.stderr.implicit.fish keyword.operator.redirect.fish
+        5: meta.function-call.operator.redirection.fish
+        6: keyword.operator.redirect.dereference.fish
+      push: redirection-to-file-descriptor-pop
+
+    - match: (([0-9]+)(<|>>|>))((\&)\s*)
+      captures:
+        1: meta.function-call.operator.redirection.other.fish
+        2: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
+        3: keyword.operator.redirect.fish
+        4: meta.function-call.operator.redirection.fish
+        5: keyword.operator.redirect.dereference.fish
+      push: redirection-to-file-descriptor-pop
+
+  redirection-to-file-descriptor-pop:
+    - match: ([#&]\S*)|(?![&\\])
+      scope:
+        meta.function-call.operator.redirection.fish
+        invalid.illegal.file-descriptor.fish
+      pop: true
+    - include: line-continuation # Eats whitespace on next line
 
   string:
     - include: string-quoted
