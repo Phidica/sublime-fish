@@ -1097,6 +1097,12 @@ echo %self foo %(set foo "fi"; echo $foo)sh "bar"
 #!                                       ^^ meta.function-call.parameter.argument.process-expansion
 #!                                          ^^^^^ string.quoted
 
+echo %11 %1a %a1 %aa
+#!   ^^^ meta.function-call.parameter.argument.job-expansion
+#!       ^^^ meta.function-call.parameter.argument.process-expansion
+#!           ^^^ meta.function-call.parameter.argument.process-expansion
+#!               ^^^ meta.function-call.parameter.argument.process-expansion
+
 echo %self>out
 #!    ^^^^ variable.language
 

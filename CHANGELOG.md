@@ -14,6 +14,7 @@ Support for fish 3.0:
 
 Improvements:
 - Use `meta.function-call.operator.redirection.`{`stdin`,`stdout`,`stderr`}`.`{`explicit`,`implicit`} for different types of redirections
+- Distinguish job expansion and process expansion
 
 Bugfixes:
 - Inline comments after `switch var` and `while cmd` statements were not scoped correctly

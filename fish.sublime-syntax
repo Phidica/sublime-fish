@@ -238,23 +238,36 @@ contexts:
         - match: (?=[{{param_sep}}])
           pop: true
 
-        # Process expansion only occurs if the '%' is at the front of the argument, and continues for the entire argument
+        # Job and process expansions only occur if the '%' is at the front of the argument, and continue for the entire argument
+
+        # Job expansion if the whole argument is an integer
+        - match: (\%)[0-9]+(?=$|[{{param_sep}}])
+          captures:
+            0: meta.function-call.parameter.argument.job-expansion.fish meta.string.unquoted.fish
+            1: punctuation.definition.job.fish
+
+        # Special process expansions. By a convention that I'm making up, scope them as a type of variable
+        - match: (\%)(self)(?=$|[{{param_sep}}])
+          captures:
+            0: meta.function-call.parameter.argument.process-expansion.self.fish meta.string.unquoted.fish
+            1: punctuation.definition.process.fish
+            2: variable.language.fish
+
+        - match: (\%)(last)(?=$|[{{param_sep}}])
+          captures:
+            0: meta.function-call.parameter.argument.process-expansion.last.fish meta.string.unquoted.fish
+            1: punctuation.definition.process.fish
+            2: variable.language.fish
+
+        # Normal process expansion
         - match: \%
           scope:
             meta.string.unquoted.fish
             punctuation.definition.process.fish
           push:
-            - meta_scope: meta.function-call.parameter.argument.process-expansion.fish
+            - meta_scope: meta.function-call.parameter.argument.process-expansion.other.fish
             - match: (?=[{{param_sep}}])
               pop: true
-
-            # Match special process names. By a convention that I'm making up, scope them as a type of variable
-            - match: (?:self|last)(?=$|[{{param_sep}}])
-              scope:
-                meta.string.unquoted.fish
-                variable.language.fish
-
-            # For allowable expansions and unquoted strings
             - include: parameter-patterns
 
         # Treat a sequence of integers (with possible sign and decimal separator) as a standalone constant. Don't do this in the string-unquoted-patterns context, so that we can ensure it is a string solely of numbers
