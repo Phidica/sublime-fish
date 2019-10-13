@@ -725,7 +725,7 @@ or true
 make fish 2>| less
 #!        ^^^ meta.function-call.operator.pipe
 #!        ^ constant.numeric.file-descriptor
-#!         ^ keyword.operator.pipe.redirect
+#!         ^ keyword.operator.redirect
 #!          ^ keyword.operator.pipe
 #!            ^^^^ variable.function
 
@@ -769,9 +769,9 @@ echo out >| 9>|
 #!          ^^^ invalid.illegal.function-call
 
 echo out ^| cat ^^| cat
-#!       ^ meta.function-call.operator.pipe keyword.operator.pipe.redirect
+#!       ^ meta.function-call.operator.pipe keyword.operator.redirect
 #!        ^ meta.function-call.operator.pipe keyword.operator.pipe
-#!              ^^ meta.function-call.operator.pipe keyword.operator.pipe.redirect
+#!              ^^ meta.function-call.operator.pipe keyword.operator.redirect
 #!                ^ meta.function-call.operator.pipe keyword.operator.pipe
 
 command >| cat

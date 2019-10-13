@@ -385,25 +385,51 @@ contexts:
                   )
                 |
                   (?# Piping)
-                  (
+                  (?:
                     (?:
-                      ([0-9]+)?(<|>>?)|(\^\^?)
-                    )?(\|)
-                  )
+                      ((0)(<))|(<)
+                    )
+                  |
+                    (?:
+                      ((1)(>>?))|(>>?)
+                    )
+                  |
+                    (?:
+                      ((2)(>>?))|(\^\^?)
+                    )
+                  |
+                    (([0-9]+)(<|>>|>))
+                  )?(\|)
                 )({{ws_sep}}*)(\n?)
               captures:
+                # TODO: Please do this properly and avoid this nightmare
+
                 1: meta.function-call.operator.control.fish
                 2: keyword.operator.control.double-ampersand.fish
                 3: keyword.operator.control.double-bar.fish
 
-                4: meta.function-call.operator.pipe.fish
+                4: meta.function-call.operator.pipe.stdin.explicit.fish
                 5: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
-                6: keyword.operator.pipe.redirect.fish
-                7: keyword.operator.pipe.redirect.fish
-                8: keyword.operator.pipe.fish
+                6: keyword.operator.redirect.fish
+                7: meta.function-call.operator.pipe.stdin.implicit.fish keyword.operator.redirect.fish
 
-                9:  meta.function-call.fish
-                10: meta.function-call.operator.control.newline.ignored.fish
+                8: meta.function-call.operator.pipe.stdout.explicit.fish
+                9: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
+                10: keyword.operator.redirect.fish
+                11: meta.function-call.operator.pipe.stdout.implicit.fish keyword.operator.redirect.fish
+
+                12: meta.function-call.operator.pipe.stderr.explicit.fish
+                13: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
+                14: keyword.operator.redirect.fish
+                15: meta.function-call.operator.pipe.stderr.implicit.fish keyword.operator.redirect.fish
+
+                16: meta.function-call.operator.pipe.other.fish
+                17: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
+                18: keyword.operator.redirect.fish
+
+                19: meta.function-call.operator.pipe.fish keyword.operator.pipe.fish
+                20: meta.function-call.fish
+                21: meta.function-call.operator.control.newline.ignored.fish
               push:
                 - match: (?=[{{nl_s}}{{op_s}}])
                   pop: true
