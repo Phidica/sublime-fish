@@ -12,6 +12,11 @@ Support for fish 3.0:
 - Command names may contain variable expansion
 - `&&`, `||`, and `|` may be used for line continuation (to continue a pipeline to the next line)
 
+New feature:
+- Path highlighter - Underline valid file paths in fish scripts:
+  - Imitates native fish behaviour for underlining valid paths
+  - Compatible with all platforms, depending only on how Python's os.path library interprets absolute paths
+
 Improvements:
 - Use `meta.function-call.operator.redirection.`{`stdin`,`stdout`,`stderr`}`.`{`explicit`,`implicit`} for different types of redirections
 - Distinguish job expansion and process expansion

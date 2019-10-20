@@ -10,4 +10,16 @@
   // (Only if indent_on_save is true)
   // List of file names not to indent when saving
   "indent_on_save_blacklist": ["syntax_test_fish.fish"],
+
+  // Which highlighters to enable
+  "enabled_highlighters": ["path"],
+
+  // (Applies to all enabled highlighters)
+  // Turn on debug/informational output in the console.
+  // Must reload plugins for change to take effect
+  "highlighter_debugging": false,
+
+  // (Applies to all enabled highlighters)
+  // List of file names not to mark up with highlighters
+  "highlighter_blacklist": ["syntax_test_fish.fish"],
 }
