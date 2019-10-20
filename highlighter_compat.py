@@ -291,7 +291,7 @@ class CompatHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
       return self.settingsFishVer
 
   def _cache_settings_fish_version(self):
-    versionStr = self.view.settings().get('compat_highlighter_fish_version')
+    versionStr = self.view.settings().get('compat_highlighter_fish_version', '')
     if versionStr == 'auto':
       if CompatHighlighter.sysFishVer == 'not found':
         self.settingsFishVer = None
@@ -309,11 +309,11 @@ class CompatHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
       else:
         self.settingsFishVer = CompatHighlighter.sysFishVer
         self.logger.debug("Settings fish version is {} (system)".format(self.settingsFishVer))
-    elif re.match(r'[0-9]+\.[0-9]+\.[0-9]+\Z', versionStr):
+    elif versionStr and re.match(r'[0-9]+\.[0-9]+\.[0-9]+\Z', versionStr):
       self.settingsFishVer = versionStr
       self.logger.debug("Settings fish version is {}".format(self.settingsFishVer))
     else:
-      sublime.error_message("Error in fish.sublime-settings: Invalid value '{}' for fish_version.".format(versionStr))
+      sublime.error_message("Error in fish.sublime-settings: Invalid value '{}' for compat_highlighter_fish_version.".format(versionStr))
       self.settingsFishVer = None
 
   def _cache_local_fish_version(self):
