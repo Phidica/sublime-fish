@@ -1,5 +1,6 @@
 import os.path
 import logging
+import re
 import sublime, sublime_plugin
 
 from fish.highlighter_base import BaseHighlighter
@@ -98,6 +99,20 @@ class PathHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
       # Keep an absolute path, otherwise assume we have a relative one
       if text.startswith('/'):
         testPath = text
+      elif sublime.platform() == 'windows':
+        # Fish can handle native Windows paths, but we have to take a little care
+        if re.match(r'([A-z]:)?\\\\', text):
+          # This is an absolute path with a double backslash. If a drive wasn't given, os.path will insert the drive of the viewDir
+          testPath = os.path.join(self.viewDir, text)
+        elif re.match(r'\\', text):
+          # This is only one backslash, which to fish looks like a character escape and not a path
+          return None
+        elif any(c in text for c in [':', '*', '?']):
+          # True Windows files can't contain these symbols. In Cygwin/MSYS2 they could, but we're agnostic of those subsystems
+          return None
+        else:
+          # Otherwise just a regular relative path
+          testPath = os.path.join(self.viewDir, text)
       else:
         testPath = os.path.join(self.viewDir, text)
 
