@@ -1,6 +1,7 @@
 import os.path
 import logging
 import abc
+import re
 
 import sublime, sublime_plugin
 
@@ -273,8 +274,12 @@ class BaseHighlighter(metaclass = abc.ABCMeta):
           countAsrtFail += 1
           countAsrtTotal += 1
 
-    # Sort by the line and column numbers only, by converting them to a unified int (column number can't exceed 999)
-    errorResults.sort(key = lambda s: int(s.split(':')[1])*1000 + int(s.split(':')[2]))
+    # Sort by the line and column numbers only, by converting them to a unified int (column number can't exceed 9999)
+    # Use regex matching instead of simple string splitting because filename may contain a ':' on Windows
+    def rowColInt(s):
+      match = re.match(r'(.*):([0-9]+):([0-9]+):', s)
+      return int(match.group(2))*10000 + int(match.group(3))
+    errorResults.sort(key = rowColInt)
     print_panel(errorResults)
 
     if countAsrtFail == 0:
