@@ -1,0 +1,4 @@
+{
+  "target": "run_highlighter_test",
+  "file_patterns": ["highlighter_test_*.fish"],
+}
