@@ -1,0 +1,132 @@
+# Strings used for the "problem" field in popups.
+# Each value used for the "change" in the "issues" list must appear here
+changes:
+  # When a structure won't work until a later version
+  added: Added in fish {}
+  # When a structure won't behave the way the syntax highlighting shows until a later version
+  behaviour: Behaviour changed in fish {}
+  # When a structure was marked for removal
+  deprecated: Deprecated in fish {}
+  # When a structure was removed or intentionally broken
+  removed: Removed in fish {}
+
+# For now I'm only specifying version numbers to two fields (eg "3.0"), under
+#   the assumption that patch releases (the third field) will never make
+#   major changes. But, if that ever happens, the compatibility highlighter ought
+#   to have no problem with it because internally I am always padding out the
+#   version number to three fields with extra zeroes anyway
+
+# List of conflicting structures between fish versions.
+# Each issue must have one or more scope selectors ("selector") used to pick
+#   candidate structures from the source file. The full text of each
+#   structure is then tested against the given regular expression ("match").
+#   Alternatively, if the expression is "true" then no testing is done
+#   and the candidate is immediately accepted. (This is much more efficient,
+#   because we can have all the regex matching done instead during syntax
+#   parsing. To this end, regex testing may be removed entirely in future.)
+#   If the candidate is accepted, then the fish version being
+#   targeted by the plugin is compared to each individual state
+#   throughout the "history" of the issue. If a conflict is determined
+#   (eg, the plugin is targeting fish 2.7 but the issue history indicates
+#   the structure was only added in fish 3.0) then the full extent of the
+#   structure will be highlighted. Hovering over the region will reveal
+#   the "hint" that suggests alternative structures to resolve the conflict
+issues:
+  op-bang:
+    selector: meta.function-call.name keyword.operator.word.bang
+    match: true
+    history:
+      - change: added
+        version: 3.0
+    hint: Use <code>not</code>.
+
+  op-double-ampersand:
+    selector: meta.function-call.operator.control keyword.operator.control.double-ampersand
+    match: true
+    history:
+      - change: added
+        version: 3.0
+    hint: Use <code>; and</code>.
+
+  op-double-bar:
+    selector: meta.function-call.operator.control keyword.operator.control.double-bar
+    match: true
+    history:
+      - change: added
+        version: 3.0
+    hint: Use <code>; or</code>.
+
+  op-newline-in-pipeline:
+    selector: meta.function-call.operator.control.newline.ignored
+    match: true
+    history:
+      - change: added
+        version: 3.0
+    hint: Insert <code>\</code>.
+
+  op-stderr-nocaret:
+    selector: [
+      meta.function-call.operator.pipe.stderr.implicit,
+      meta.function-call.operator.redirection.stderr.implicit,
+    ]
+    match: true
+    history:
+      - change: deprecated
+        version: 3.0
+    hint: Consider using <code>2></code>.
+
+  op-qmark-noglob:
+    selector: keyword.operator.question-mark
+    match: true
+    history:
+      - change: deprecated
+        version: 3.0
+    hint: Consider using <code>*</code>.
+
+  cmd-brace-expansion:
+    selector: meta.function-call.name meta.braces.brace-expansion
+    match: true
+    history:
+      - change: added
+        version: 3.0
+    hint: Try using <code>eval</code>.
+
+  cmd-variable-expansion:
+    selector: meta.function-call.name meta.variable-expansion
+    match: true
+    history:
+      - change: added
+        version: 3.0
+    hint: Try using <code>eval</code>.
+
+  arg-braces-empty:
+    selector: meta.braces.brace-expansion.empty.no-whitespace
+    match: true
+    history:
+      - change: behaviour
+        version: 3.0
+    hint: This will expand to an empty string.
+
+  arg-braces-space:
+    selector: meta.braces.brace-expansion.ignored-whitespace
+    match: true
+    history:
+      - change: added
+        version: 3.0
+    hint: Delete extra spaces.
+
+  arg-process-expansion-last:
+    selector: meta.function-call.parameter.argument.process-expansion.last
+    match: true
+    history:
+      - change: removed
+        version: 3.0
+    hint: Use <code>$last_pid</code>.
+
+  arg-process-expansion:
+    selector: meta.function-call.parameter.argument.process-expansion.other
+    match: true
+    history:
+      - change: removed
+        version: 3.0
+    hint: Try using <code>pgrep</code>, etc.

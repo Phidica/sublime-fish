@@ -1,6 +1,6 @@
 {
   // Absolute file path to directory containing fish binaries (fish, fish_indent).
-  // Only need to specify for nonstandard fish installs! On Windows, the Cygwin/MinGW arch is assumed to be the same as that of Sublime Text.
+  // Only need to specify for nonstandard fish installs! On Windows, the Cygwin/MSYS2 arch is assumed to be the same as that of Sublime Text.
   // E.g., for 32-bit Cygwin on Windows with 64-bit Sublime Text, this would be "C:/cygwin/bin"
   "fish_directory": "",
 
@@ -12,7 +12,7 @@
   "indent_on_save_blacklist": ["syntax_test_fish.fish"],
 
   // Which highlighters to enable
-  "enabled_highlighters": ["path"],
+  "enabled_highlighters": ["path", "compatibility"],
 
   // (Applies to all enabled highlighters)
   // Turn on debug/informational output in the console.
@@ -22,4 +22,22 @@
   // (Applies to all enabled highlighters)
   // List of file names not to mark up with highlighters
   "highlighter_blacklist": ["syntax_test_fish.fish"],
+
+  // (Applies to compatibility highlighter)
+  // The version of fish which scripts will be targeted to, highlighting anything inconsistent or incompatible with that version.
+  // May be "auto" to read the version of fish installed on the system, or a version number of the form "X[.Y[.Z]]" where X, Y, and Z are integers and Y and Z are optional and assumed to be "0" if not given.
+  // E.g., "2.7.1", "2.7", or "3"
+  "compat_highlighter_fish_version": "auto",
+
+  // (Applies to compatibility highlighter)
+  // List of types of compatibility issues to highlight.
+  // Types of issues are:
+  //   - "error" (structure doesn't exist in targeted fish version)
+  //   - "behaviour" (structure behaves differently in targeted fish version than the syntax indicates)
+  //   - "deprecated" (structure is deprecated as of targeted fish version)
+  "compat_highlighter_types": [
+    "error",
+    "behaviour",
+    "deprecated",
+  ],
 }
