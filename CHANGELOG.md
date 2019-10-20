@@ -16,6 +16,10 @@ Improvements:
 - Use `meta.function-call.operator.redirection.`{`stdin`,`stdout`,`stderr`}`.`{`explicit`,`implicit`} for different types of redirections
 - Distinguish job expansion and process expansion
 
+Settings changes:
+- `fish_indent_directory` renamed to `fish_directory`
+- `blacklist` renamed to `indent_on_save_blacklist`
+
 Bugfixes:
 - Inline comments after `switch var` and `while cmd` statements were not scoped correctly
 - Some scope names were not applied entirely consistently, or named consistently

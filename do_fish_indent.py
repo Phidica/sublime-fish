@@ -2,6 +2,8 @@ import sublime, sublime_plugin
 import os.path
 import subprocess
 
+from fish.Tools.misc import getFishOutput
+
 # Only a TextCommand can use replace()
 class DoFishIndentCommand(sublime_plugin.TextCommand):
   def is_enabled(self):
@@ -16,21 +18,6 @@ class DoFishIndentCommand(sublime_plugin.TextCommand):
     return 'Indent and Prettify'
 
   def run(self, edit):
-    # Check for executable, expanding search to valid fish installs on Windows
-    exe = 'fish_indent'
-    pathToDir = self.view.settings().get('fish_indent_directory')
-    if not pathToDir and sublime.platform() == 'windows':
-      if sublime.arch() == 'x32':
-        testPaths = ('C:/cygwin/bin', 'C:/msys32/usr/bin')
-      elif sublime.arch() == 'x64':
-        testPaths = ('C:/cygwin64/bin', 'C:/msys64/usr/bin')
-      for p in testPaths:
-        if os.path.exists(p):
-          pathToDir = p
-          break
-    if pathToDir:
-      exe = os.path.join(pathToDir, exe)
-
     # Note the user's current settings for this buffer
     indentUsingSpaces = self.view.settings().get('translate_tabs_to_spaces')
     tabSize = self.view.settings().get('tab_size')
@@ -46,13 +33,11 @@ class DoFishIndentCommand(sublime_plugin.TextCommand):
     if not indentUsingSpaces or not tabSize == 4:
       self.view.run_command('unexpand_tabs')
 
-    # Note the file encoding, converting to lowercase as expected by Python
-    # However, fish_indent assumes UTF-8 encoding so the user may get
-    #   unexpected results if this file's encoding is different
+    # fish_indent assumes UTF-8 encoding so the user may get unexpected results
+    #   if this file's encoding is different
     enc = self.view.encoding().lower()
-    if enc == 'undefined': # ie, temp file
-      enc = 'utf-8'
-    print('Running {0} on file with encoding {1}'.format(exe, enc))
+    if enc != 'undefined' and enc != 'utf-8': # "undefined" is for a temp file
+      print('Warning! fish_indent may be unreliable on file with encoding {}'.format(enc))
 
     # If user only has simple cursor placements (zero-width regions), indent whole file
     # Otherwise, we'll iterate over and test all the regions in the selection
@@ -70,29 +55,17 @@ class DoFishIndentCommand(sublime_plugin.TextCommand):
         continue
 
       inputContent = self.view.substr(inputRegion)
-
-      # Run the program, which is searched for on PATH if necessary
-      try:
-        # Pipe the file content into fish_indent and catch the outputs
-        p = subprocess.Popen(exe, stdin = subprocess.PIPE, stdout = subprocess.PIPE,
-          stderr = subprocess.PIPE)
-        out, err = p.communicate(input = inputContent.encode(enc))
-      except FileNotFoundError:
-        msg = "Couldn't find {0}.".format(exe)
-        if not pathToDir:
-          msg += " Specify a nonstandard install location in Preferences > " \
-            "Package Settings > Fish > Settings."
-        sublime.error_message(msg)
+      out,err = getFishOutput(['fish_indent'], self.view.settings(), inputContent)
+      if not out:
         return
-
-      outputContent = out.decode(enc)
+      outputContent = out
 
       # Trim a trailing newline
       # if outputContent[-1] == '\n':
       #   outputContent = outputContent[:-1]
 
       if err:
-        sublime.message_dialog(err.decode('utf-8'))
+        sublime.error_message(err)
 
       # Replace the contents of the region with the output of fish_indent
       self.view.replace(edit, inputRegion, outputContent)
@@ -155,6 +128,6 @@ class DoFishIndentOnSave(sublime_plugin.ViewEventListener):
 
   def on_pre_save(self):
     # Skip blacklisted files
-    if self.view.window().extract_variables()['file_name'] in self.view.settings().get('blacklist'):
+    if os.path.basename(self.view.file_name()) in self.view.settings().get('indent_on_save_blacklist'):
       return
     self.view.run_command('do_fish_indent')

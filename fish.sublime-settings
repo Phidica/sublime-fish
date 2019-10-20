@@ -1,10 +1,13 @@
 {
-  // Only for nonstandard fish installs: Absolute file path to the directory containing the fish_indent binary. For example, if using 32-bit Cygwin on Windows with 64-bit Sublime Text, this would be "C:/cygwin/bin"
-  "fish_indent_directory": "",
+  // Absolute file path to directory containing fish binaries (fish, fish_indent).
+  // Only need to specify for nonstandard fish installs! On Windows, the Cygwin/MinGW arch is assumed to be the same as that of Sublime Text.
+  // E.g., for 32-bit Cygwin on Windows with 64-bit Sublime Text, this would be "C:/cygwin/bin"
+  "fish_directory": "",
 
   // Indent the current fish file immediately prior to each save
   "indent_on_save": false,
 
-  // Only if indent_on_save is true: List of files not to indent when saving
-  "blacklist": ["syntax_test_fish.fish"]
+  // (Only if indent_on_save is true)
+  // List of file names not to indent when saving
+  "indent_on_save_blacklist": ["syntax_test_fish.fish"],
 }
