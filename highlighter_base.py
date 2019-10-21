@@ -10,7 +10,10 @@ class BaseHighlighter(metaclass = abc.ABCMeta):
   def __init__(self, view):
     self.drawnRegions = dict()
     self.nextKeyID = 0
-    self.baseName = os.path.basename(self.view.file_name())
+    if self.view.file_name() is None:
+      self.baseName = 'untitled'
+    else:
+      self.baseName = os.path.basename(self.view.file_name())
 
     logging.basicConfig()
     self.logger = logging.getLogger(self.__class__.__name__ + ':' + self.baseName)
