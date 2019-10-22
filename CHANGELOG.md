@@ -13,13 +13,13 @@ Support for fish 3.0:
 - `&&`, `||`, and `|` may be used for line continuation (to continue a pipeline to the next line)
 
 New features:
-- Path highlighter - Underline valid file paths in fish scripts:
-  - Imitates native fish behaviour for underlining valid paths
-  - Compatible with all platforms, depending only on how Python's os.path library interprets absolute paths
 - Compatibility highlighter - Outline structures in fish scripts that are incompatible with the targeted version:
   - Complements the normal syntax highlighting to spot subtle mistakes
   - The version of fish to target can be given on the first line of the file, or is otherwise taken from the settings
     - Settings can specify a particular version, or `auto` to use the version installed on the system
+- Path highlighter - Underline valid file paths in fish scripts:
+  - Imitates native fish behaviour for underlining valid paths
+  - Compatible with all platforms, depending only on how Python's os.path library interprets absolute paths
 
 Improvements:
 - Use `meta.function-call.operator.redirection.`{`stdin`,`stdout`,`stderr`}`.`{`explicit`,`implicit`} for different types of redirections

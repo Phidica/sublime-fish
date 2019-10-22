@@ -1,26 +1,24 @@
-friendly interactive shell (fish)
+Friendly Interactive Shell (fish)
 =================================
 
-A Sublime Text 2/3 package for the [friendly interactive shell](https://github.com/fish-shell/fish-shell). It features a robust syntax highlighting scheme that mimics the native highlighting behaviour of fish.
+A Sublime Text 2/3 package for the [friendly interactive shell](https://github.com/fish-shell/fish-shell).
+It features a robust syntax highlighting scheme that mimics the native highlighting behaviour of fish.
 
-All the syntax of fish 2.7 is completely implemented. fish 3.0 support is in development. Suggestions and bug reports are welcome.
+The package currently supports up to fish version: **3.0**
 
-ST2 support and ST3 support is separated between two branches:
-- `st2`: Plugins only compatible with ST2, syntax uses `tmLanguage` scheme, and provides highlighting for fish 2.7 *only*.
-- `master`: Plugins only compatible with ST3, syntax uses `sublime-syntax` scheme, and provides highlighting for fish 2.7 (and eventually fish 3.0).
-
-The 2.x.x series of releases (on both ST support branches) only support fish 2.7.
-The coming 3.x.x series of releases (on the `master` branch alone) will include support for fish 3.0.
+Note: ST2 support is capped at fish version 2.7.
 
 Features
 --------
 
-- Extensive syntax highlighting.
 - Snippets for common constructs.
+- Extensive syntax highlighting:
+  - Paths to existing files are underlined, just like in the fish shell.
+  - Code that is incompatible with the targeted version of fish is outlined.
 - Indentation and prettification of the active file (with `fish_indent`):
-  - Use `ctrl+alt+i` or your build system shortcut (eg, `ctrl+b`)
-  - Optional setting to run automatically on save
-  - More information [here](Messages/news-2.3.0.md)
+  - Use `ctrl+alt+i` or your build system shortcut (eg, `ctrl+b`).
+  - Optional setting to run automatically on save.
+  - More information [here](Messages/news-2.3.0.md).
 
 Installation
 ------------
@@ -72,10 +70,23 @@ Exposed scopes
 | Wildcard expansion         | `meta.wildcard-expansion` and `keyword.operator.question-mark`/`single-star`/`double-star`
 | Home directory expansion   | `keyword.operator.tilde`
 
+Branches and releases
+---------------------
+
+ST2 support and ST3 support is separated between two branches:
+
+- `st2`: Plugins only compatible with ST2, syntax uses `tmLanguage` scheme, and provides highlighting for fish 2.7 *only*.
+- `master`: Plugins only compatible with ST3, syntax uses `sublime-syntax` scheme, and provides highlighting up to the currently supported version of fish.
+
+The 2.x.x series of releases (on both ST support branches) only support fish 2.7.
+
+The 3.x.x series of releases (on the `master` branch alone) includes support for fish 3.0 and beyond.
+
 Contribution
 ------------
 
 Requirements:
+
 - [PackageDev](https://github.com/SublimeText/PackageDev), only for ST2 development and changing the `tmPreferences` file.
 
 ST2 development: The source file of the syntax is `fish.YAML-tmLanguage`. When editing this file, "compile" it with the PackageDev build system to automatically generate the `fish.tmLanguage` file which is used by Sublime Text 2.

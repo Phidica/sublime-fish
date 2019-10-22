@@ -7,4 +7,4 @@ Press `ctrl+alt+i` to trigger indentation and prettification in current document
 
 This feature is available on all platforms, and no configuration is necessary if your system has a standard fish install.
 
-If fish is installed in an unusual way on your system, you can configure its install directory in Preferences > Package Settings > friendly interactive shell > Settings. On Windows, the Cygwin or MSYS2 architecture is assumed to be the same as the Sublime Text architecture; if this is not the case then configure the directory manually in the settings.
+If fish is installed in an unusual way on your system, you can configure its install directory in Preferences > Package Settings > Fish > Settings. On Windows, the Cygwin or MSYS2 architecture is assumed to be the same as the Sublime Text architecture; if this is not the case then configure the directory manually in the settings.

@@ -12,11 +12,11 @@
   "indent_on_save_blacklist": ["syntax_test_fish.fish"],
 
   // Which highlighters to enable
-  "enabled_highlighters": ["path", "compatibility"],
+  "enabled_highlighters": ["compatibility", "path"],
 
   // (Applies to all enabled highlighters)
   // Turn on debug/informational output in the console.
-  // Must reload plugins for change to take effect
+  // Must restart ST or reload plugins for change to take effect
   "highlighter_debugging": false,
 
   // (Applies to all enabled highlighters)
