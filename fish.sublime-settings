@@ -1,7 +1,7 @@
 {
   // Absolute file path to directory containing fish binaries (fish, fish_indent).
-  // Only need to specify for nonstandard fish installs! On Windows, the Cygwin/MSYS2 arch is assumed to be the same as that of Sublime Text.
-  // E.g., for 32-bit Cygwin on Windows with 64-bit Sublime Text, this would be "C:/cygwin/bin"
+  // Only need to specify for nonstandard fish installs! On Windows, the Cygwin/MSYS2 arch is assumed to be the same as that of the system.
+  // E.g., for a default 32-bit Cygwin install on 64-bit Windows you must set to "C:/cygwin/bin"
   "fish_directory": "",
 
   // Indent the current fish file immediately prior to each save
