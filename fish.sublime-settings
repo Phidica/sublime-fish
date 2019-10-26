@@ -15,13 +15,13 @@
   "enabled_highlighters": ["compatibility", "path"],
 
   // (Applies to all enabled highlighters)
+  // List of file names not to mark up with highlighters
+  "highlighter_blacklist": ["syntax_test_fish.fish"],
+
+  // (Applies to all enabled highlighters)
   // Turn on debug/informational output in the console.
   // Must restart ST or reload plugins for change to take effect
   "highlighter_debugging": false,
-
-  // (Applies to all enabled highlighters)
-  // List of file names not to mark up with highlighters
-  "highlighter_blacklist": ["syntax_test_fish.fish"],
 
   // (Applies to compatibility highlighter)
   // The version of fish which scripts will be targeted to, highlighting anything inconsistent or incompatible with that version.
