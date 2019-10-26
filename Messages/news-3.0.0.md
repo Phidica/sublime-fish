@@ -13,13 +13,14 @@ Important! Some settings keys have changed!
 If you previously customised these settings, please update them.
 
 You may now notice bright borders around snippets of text in your scripts.
-Hover over any text thusly outlined to see more information. Generally this
+Hover over any such outline to see more information. Generally this
 is to alert you to code that is incompatible with the version of fish
 that will execute the script, or syntax that has been deprecated. The
-hovertext will offer a hint on how to resolve the issue.
+popup will offer a hint on how to resolve the issue.
 
 You may also notice that some file paths within your fish scripts
 appear underlined. This verifies they are valid paths to existing files.
 
 Take a look at the new [wiki](https://github.com/Phidica/sublime-fish/wiki)
-to read more about these features and their customisations.
+(shortcut at Preferences > Package Settings > Fish > Documentation) to read
+more about these features and their customisations.

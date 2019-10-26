@@ -6,19 +6,18 @@ It features a robust syntax highlighting scheme that mimics the native highlight
 
 The package currently supports up to fish version: **3.0**
 
-Note: ST2 support is capped at fish version 2.7.
+Note: ST2 support is capped at fish version 2.7, with a limited set of the following features.
 
 Features
 --------
 
 - Snippets for common constructs.
 - Extensive syntax highlighting:
-  - Paths to existing files are underlined, just like in the fish shell.
-  - Code that is incompatible with the targeted version of fish is outlined.
-- Indentation and prettification of the active file (with `fish_indent`):
+  - [Path highlighter](https://github.com/Phidica/sublime-fish/wiki/Path-highlighter): Paths to existing files are underlined, just like in the fish shell.
+  - [Compatibility highlighter](https://github.com/Phidica/sublime-fish/wiki/Compatibility-highlighter): Code that is incompatible with the targeted version of fish is outlined.
+- [Indent and prettify](https://github.com/Phidica/sublime-fish/wiki/Indent-and-prettify): Reformat the active file with `fish_indent`:
   - Use `ctrl+alt+i` or your build system shortcut (eg, `ctrl+b`).
-  - Optional setting to run automatically on save.
-  - More information [here](Messages/news-2.3.0.md).
+  - Optional setting to run automatically when file is saved.
 
 Installation
 ------------
@@ -40,13 +39,13 @@ Open a `.fish` file and verify the selected syntax is "Friendly Interactive Shel
 Screenshots
 -----------
 
-As of version 2.1.0, a fish script (for example, `fish-shell/share/functions/ls.fish`) will look something like:
+As of release 3.0.0, a fish script (for example, `fish-shell/share/functions/ls.fish`) will look something like:
 
-![Screenshot of text in Monokai](https://imgur.com/UUrDBSl.png)
+![Screenshot of text in Monokai](https://imgur.com/JXyEMna.png)
 
 Figure 1: Default Monokai colour scheme
 
-![Screenshot of text in custom Monokai](https://imgur.com/oX51Ku7.png)
+![Screenshot of text in custom Monokai](https://imgur.com/qeyw0ld.png)
 
 Figure 2: Example custom Monokai colour scheme formatting additional scopes
 

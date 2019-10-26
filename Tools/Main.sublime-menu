@@ -8,6 +8,15 @@
           "caption": "Fish",
           "children": [
             {
+              "caption": "Settings",
+              "command": "edit_settings",
+              "args": {
+                "base_file": "${packages}/fish/fish.sublime-settings",
+                "default": "{\n\t$0\n}\n"
+              }
+            }, {
+              "caption": "-"
+            }, {
               "caption": "Readme",
               "command": "open_file",
               "args": {
@@ -22,14 +31,11 @@
             }, {
               "caption": "-"
             }, {
-              "caption": "Settings",
-              "command": "edit_settings",
+              "caption": "Documentation",
+              "command": "open_url",
               "args": {
-                "base_file": "${packages}/fish/fish.sublime-settings",
-                "default": "{\n\t$0\n}\n"
+                "url": "https://github.com/Phidica/sublime-fish/wiki"
               }
-            }, {
-              "caption": "-"
             }, {
               "caption": "Report a bug",
               "command": "open_url",
