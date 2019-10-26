@@ -65,14 +65,14 @@ class PathHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
     # If view is not backed by a file on disk then we have no directory reference
     filePath = self.view.file_name()
     if filePath is None:
-      self.logger.warning("Refusing to mark up unsaved buffer")
+      self.logger.info("Refusing to mark up unsaved buffer")
       return False
 
     # First time we have a file path, note the directory
     # Assumes directory cannot change while view is open (is this true?)
     if self.viewDir is None:
       self.viewDir = os.path.dirname(filePath)
-      self.logger.debug("Active directory = {}".format(self.viewDir))
+      self.logger.info("Active directory = {}".format(self.viewDir))
 
     return True
 

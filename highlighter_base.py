@@ -36,7 +36,7 @@ class BaseHighlighter(metaclass = abc.ABCMeta):
 
     # Check our conditions
     if self.baseName in self.view.settings().get('highlighter_blacklist'):
-      self.logger.warning("Refusing to mark up because file in blacklist")
+      self.logger.info("Refusing to mark up because file in blacklist")
       return
 
     if self.selectors is None:

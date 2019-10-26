@@ -198,7 +198,7 @@ class CompatHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
 
   def _should_markup(self):
     if self._fish_version() is None:
-      self.logger.warning("Refusing to mark up because targeted fish version unknown")
+      self.logger.info("Refusing to mark up because targeted fish version unknown")
       return False
     else:
       return True
@@ -271,7 +271,7 @@ class CompatHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
 
     # Skip any change types that aren't enabled, unless this is a highlighter test
     if not self._is_highlighter_test() and changeType not in self.view.settings().get('compat_highlighter_types'):
-      self.logger.warning("Skipping issue with change of disabled type: {}".format(changeType))
+      self.logger.info("Skipping issue with change of disabled type: {}".format(changeType))
       return None
 
     drawStyle = sublime.DRAW_NO_FILL
@@ -308,10 +308,10 @@ class CompatHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
         )
       else:
         self.settingsFishVer = CompatHighlighter.sysFishVer
-        self.logger.debug("Settings fish version is {} (system)".format(self.settingsFishVer))
+        self.logger.info("Settings fish version is {} (system)".format(self.settingsFishVer))
     elif versionStr and re.match(r'[0-9]+\.[0-9]+\.[0-9]+\Z', versionStr):
       self.settingsFishVer = versionStr
-      self.logger.debug("Settings fish version is {}".format(self.settingsFishVer))
+      self.logger.info("Settings fish version is {}".format(self.settingsFishVer))
     else:
       sublime.error_message("Error in fish.sublime-settings: Invalid value '{}' for compat_highlighter_fish_version.".format(versionStr))
       self.settingsFishVer = None
@@ -324,6 +324,6 @@ class CompatHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
     )
     if match:
       self.localFishVer = match.group(1)
-      self.logger.debug("Local fish version is {}".format(self.localFishVer))
+      self.logger.info("Local fish version is {}".format(self.localFishVer))
     else:
       self.localFishVer = None
