@@ -44,5 +44,9 @@ def getFishOutput(args, settings, pipeInput = None):
       msg += " Specify a nonstandard install location in Preferences > " \
         "Package Settings > Fish > Settings."
     sublime.error_message(msg)
+  except OSError as ex:
+    # Right now I only know of this happening when fish is in WSL.
+    # That's not meant to be supported, so keep the error quiet
+    print("Error: Couldn't run {}, system reports '{}'".format(command, ex))
 
   return (out,err)
