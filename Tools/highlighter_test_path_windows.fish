@@ -16,5 +16,9 @@ ls \\Windows
 ls C: C:\  C:\\ C:\\Windows
 #!         ^^^^ ^^^^^^^^^^^ path
 
+# Slash notation is also compatible with drive specifiers
+ls C:/ C:/Windows
+#! ^^^ ^^^^^^^^^^ path
+
 cat dir\\file dir/file
 #!  ^^^^^^^^^ ^^^^^^^^ path

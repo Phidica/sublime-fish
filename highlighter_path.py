@@ -101,8 +101,9 @@ class PathHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
         testPath = text
       elif sublime.platform() == 'windows':
         # Fish can handle native Windows paths, but we have to take a little care
-        if re.match(r'([A-z]:)?\\\\', text):
-          # This is an absolute path with a double backslash. If a drive wasn't given, os.path will insert the drive of the viewDir
+        if re.match(r'([A-z]:)?(\\\\|/)', text):
+          # This is an absolute path with an optional drive and double backslash or single slash.
+          # If a drive wasn't given, os.path will insert the drive of the viewDir
           testPath = os.path.join(self.viewDir, text)
         elif re.match(r'\\', text):
           # This is only one backslash, which to fish looks like a character escape and not a path
