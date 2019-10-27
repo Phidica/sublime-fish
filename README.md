@@ -13,8 +13,8 @@ Features
 
 - Snippets for common constructs.
 - Extensive syntax highlighting:
-  - [Path highlighter](https://github.com/Phidica/sublime-fish/wiki/Path-highlighter): Paths to existing files are underlined, just like in the fish shell.
   - [Compatibility highlighter](https://github.com/Phidica/sublime-fish/wiki/Compatibility-highlighter): Code that is incompatible with the targeted version of fish is outlined.
+  - [Path highlighter](https://github.com/Phidica/sublime-fish/wiki/Path-highlighter): Paths to existing files are underlined, just like in the fish shell.
 - [Indent and prettify](https://github.com/Phidica/sublime-fish/wiki/Indent-and-prettify): Reformat the active file with `fish_indent`:
   - Use `ctrl+alt+i` or your build system shortcut (eg, `ctrl+b`).
   - Optional setting to run automatically when file is saved.
