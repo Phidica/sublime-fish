@@ -158,6 +158,13 @@ class CompatHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
         self.logger.error("Unknown change {} from issue {}".format(state['change'], issueID))
         continue
 
+      # In most cases, align popup to the first character of the region.
+      # However if the region is on a newline, popup must be one character back or it will draw on the wrong line
+      location = region.begin() + 1
+      regChar = self.view.substr( region.begin() )
+      if regChar == '\n':
+        location -= 1
+
       self.view.show_popup(
         """
           <body id = "compatibility_highlight">
@@ -188,7 +195,7 @@ class CompatHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
           </body>
         """.format(problem, self._fish_version(), issue['hint']),
         flags = sublime.HIDE_ON_MOUSE_MOVE_AWAY,
-        location = region.begin() + 1,
+        location = location,
       )
       break
 
