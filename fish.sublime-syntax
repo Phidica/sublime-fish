@@ -289,6 +289,10 @@ contexts:
               scope:
                 meta.string.unquoted.fish
                 keyword.operator.tilde.fish
+              push:
+                - match: (?=[{{param_sep}}])
+                  pop: true
+                - include: parameter-patterns
 
             - include: parameter-patterns
 

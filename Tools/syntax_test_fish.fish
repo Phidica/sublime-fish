@@ -57,6 +57,11 @@ echo ~/foo/*.bar /**.bar foo.?\?r ***.bar foo/*\**
 #!                                             ^^ constant.character.escape
 #!                                               ^ keyword.operator.single-star
 
+echo ~tilde ~~tilde
+#!   ^ keyword.operator.tilde
+#!          ^ keyword.operator.tilde
+#!           ^ - keyword.operator.tilde
+
 echo str\a str\x12345 str\X12345 str\012345
 #!   ^^^^^ meta.string.unquoted
 #!      ^^ constant.character.escape

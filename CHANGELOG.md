@@ -1,6 +1,12 @@
 Changelog
 =========
 
+3.0.1 (ST3 only)
+----------------
+
+Bugfix:
+- Consecutive tildes were treated as keywords when only the first should have been
+
 3.0.0 (ST3 only)
 ----------------
 
