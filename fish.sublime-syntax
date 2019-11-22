@@ -408,14 +408,14 @@ contexts:
                     )
                   |
                     (?:
-                      ((1)(>>?))|(>>?)
+                      ((1)(?:(>>)|(>)))|(>>)|(>)
                     )
                   |
                     (?:
-                      ((2)(>>?))|(\^\^?)
+                      ((2)(?:(>>)|(>)))|(\^\^)|(\^)
                     )
                   |
-                    (([0-9]+)(<|>>|>))
+                    (([0-9]+)(?:(>>)|(<|>)))
                   )?(\|)
                 )({{ws_sep}}*)(\n?)
               captures:
@@ -427,26 +427,31 @@ contexts:
 
                 4: meta.function-call.operator.pipe.stdin.explicit.fish
                 5: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
-                6: keyword.operator.redirect.fish
-                7: meta.function-call.operator.pipe.stdin.implicit.fish keyword.operator.redirect.fish
+                6: keyword.operator.redirect.truncate.fish
+                7: meta.function-call.operator.pipe.stdin.implicit.fish keyword.operator.redirect.truncate.fish
 
                 8: meta.function-call.operator.pipe.stdout.explicit.fish
                 9: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
-                10: keyword.operator.redirect.fish
-                11: meta.function-call.operator.pipe.stdout.implicit.fish keyword.operator.redirect.fish
+                10: keyword.operator.redirect.append.fish
+                11: keyword.operator.redirect.truncate.fish
+                12: meta.function-call.operator.pipe.stdout.implicit.fish keyword.operator.redirect.append.fish
+                13: meta.function-call.operator.pipe.stdout.implicit.fish keyword.operator.redirect.truncate.fish
 
-                12: meta.function-call.operator.pipe.stderr.explicit.fish
-                13: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
-                14: keyword.operator.redirect.fish
-                15: meta.function-call.operator.pipe.stderr.implicit.fish keyword.operator.redirect.fish
+                14: meta.function-call.operator.pipe.stderr.explicit.fish
+                15: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
+                16: keyword.operator.redirect.append.fish
+                17: keyword.operator.redirect.truncate.fish
+                18: meta.function-call.operator.pipe.stderr.implicit.fish keyword.operator.redirect.append.fish
+                19: meta.function-call.operator.pipe.stderr.implicit.fish keyword.operator.redirect.truncate.fish
 
-                16: meta.function-call.operator.pipe.other.fish
-                17: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
-                18: keyword.operator.redirect.fish
+                20: meta.function-call.operator.pipe.other.fish
+                21: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
+                22: keyword.operator.redirect.append.fish
+                23: keyword.operator.redirect.truncate.fish
 
-                19: meta.function-call.operator.pipe.fish keyword.operator.pipe.fish
-                20: meta.function-call.fish
-                21: meta.function-call.operator.control.newline.ignored.fish
+                24: meta.function-call.operator.pipe.fish keyword.operator.pipe.fish
+                25: meta.function-call.fish
+                26: meta.function-call.operator.control.newline.ignored.fish
               push:
                 - match: (?=[{{nl_s}}{{op_s}}])
                   pop: true
@@ -1192,39 +1197,44 @@ contexts:
       captures:
         1: meta.function-call.operator.redirection.stdin.explicit.fish
         2: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
-        3: keyword.operator.redirect.fish
-        4: meta.function-call.operator.redirection.stdin.implicit.fish keyword.operator.redirect.fish
+        3: keyword.operator.redirect.truncate.fish
+        4: meta.function-call.operator.redirection.stdin.implicit.fish keyword.operator.redirect.truncate.fish
         5: meta.function-call.operator.redirection.fish
         6: keyword.operator.redirect.dereference.fish
       push: redirection-to-file-descriptor-pop
 
-    - match: (?:((1)(>>?))|(>>?))((\&)\s*)
+    - match: (?:((1)(?:(>>)|(>)))|(?:(>>)|(>)))((\&)\s*)
       captures:
         1: meta.function-call.operator.redirection.stdout.explicit.fish
         2: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
-        3: keyword.operator.redirect.fish
-        4: meta.function-call.operator.redirection.stdout.implicit.fish keyword.operator.redirect.fish
-        5: meta.function-call.operator.redirection.fish
-        6: keyword.operator.redirect.dereference.fish
+        3: keyword.operator.redirect.append.fish
+        4: keyword.operator.redirect.truncate.fish
+        5: meta.function-call.operator.redirection.stdout.implicit.fish keyword.operator.redirect.append.fish
+        6: meta.function-call.operator.redirection.stdout.implicit.fish keyword.operator.redirect.truncate.fish
+        7: meta.function-call.operator.redirection.fish
+        8: keyword.operator.redirect.dereference.fish
       push: redirection-to-file-descriptor-pop
 
-    - match: (?:((2)(>>?))|(\^\^?))((\&)\s*)
+    - match: (?:((2)(?:(>>)|(>)))|(?:(\^\^)|(\^)))((\&)\s*)
       captures:
         1: meta.function-call.operator.redirection.stderr.explicit.fish
         2: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
-        3: keyword.operator.redirect.fish
-        4: meta.function-call.operator.redirection.stderr.implicit.fish keyword.operator.redirect.fish
-        5: meta.function-call.operator.redirection.fish
-        6: keyword.operator.redirect.dereference.fish
+        3: keyword.operator.redirect.append.fish
+        4: keyword.operator.redirect.truncate.fish
+        5: meta.function-call.operator.redirection.stderr.implicit.fish keyword.operator.redirect.append.fish
+        6: meta.function-call.operator.redirection.stderr.implicit.fish keyword.operator.redirect.truncate.fish
+        7: meta.function-call.operator.redirection.fish
+        8: keyword.operator.redirect.dereference.fish
       push: redirection-to-file-descriptor-pop
 
-    - match: (([0-9]+)(<|>>|>))((\&)\s*)
+    - match: (([0-9]+)(?:(>>)|(<|>)))((\&)\s*)
       captures:
         1: meta.function-call.operator.redirection.other.fish
         2: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
-        3: keyword.operator.redirect.fish
-        4: meta.function-call.operator.redirection.fish
-        5: keyword.operator.redirect.dereference.fish
+        3: keyword.operator.redirect.append.fish
+        4: keyword.operator.redirect.truncate.fish
+        5: meta.function-call.operator.redirection.fish
+        6: keyword.operator.redirect.dereference.fish
       push: redirection-to-file-descriptor-pop
 
   redirection-to-file-descriptor-pop:
@@ -1240,39 +1250,44 @@ contexts:
       captures:
         1: meta.function-call.operator.redirection.stdin.explicit.fish
         2: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
-        3: keyword.operator.redirect.fish
-        4: meta.function-call.operator.redirection.stdin.implicit.fish keyword.operator.redirect.fish
+        3: keyword.operator.redirect.truncate.fish
+        4: meta.function-call.operator.redirection.stdin.implicit.fish keyword.operator.redirect.truncate.fish
         5: meta.function-call.operator.redirection.fish
         6: keyword.operator.redirect.clobber-test.fish
       push: redirection-to-file-path-pop
 
-    - match: (?:((1)(>>?))|(>>?))((\?)?\s*)
+    - match: (?:((1)(?:(>>)|(>)))|(?:(>>)|(>)))((\?)?\s*)
       captures:
         1: meta.function-call.operator.redirection.stdout.explicit.fish
         2: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
-        3: keyword.operator.redirect.fish
-        4: meta.function-call.operator.redirection.stdout.implicit.fish keyword.operator.redirect.fish
-        5: meta.function-call.operator.redirection.fish
-        6: keyword.operator.redirect.clobber-test.fish
+        3: keyword.operator.redirect.append.fish
+        4: keyword.operator.redirect.truncate.fish
+        5: meta.function-call.operator.redirection.stdout.implicit.fish keyword.operator.redirect.append.fish
+        6: meta.function-call.operator.redirection.stdout.implicit.fish keyword.operator.redirect.truncate.fish
+        7: meta.function-call.operator.redirection.fish
+        8: keyword.operator.redirect.clobber-test.fish
       push: redirection-to-file-path-pop
 
-    - match: (?:((2)(>>?))|(\^\^?))((\?)?\s*)
+    - match: (?:((2)(?:(>>)|(>)))|(?:(\^\^)|(\^)))((\?)?\s*)
       captures:
         1: meta.function-call.operator.redirection.stderr.explicit.fish
         2: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
-        3: keyword.operator.redirect.fish
-        4: meta.function-call.operator.redirection.stderr.implicit.fish keyword.operator.redirect.fish
-        5: meta.function-call.operator.redirection.fish
-        6: keyword.operator.redirect.clobber-test.fish
+        3: keyword.operator.redirect.append.fish
+        4: keyword.operator.redirect.truncate.fish
+        5: meta.function-call.operator.redirection.stderr.implicit.fish keyword.operator.redirect.append.fish
+        6: meta.function-call.operator.redirection.stderr.implicit.fish keyword.operator.redirect.truncate.fish
+        7: meta.function-call.operator.redirection.fish
+        8: keyword.operator.redirect.clobber-test.fish
       push: redirection-to-file-path-pop
 
-    - match: (([0-9]+)(<|>>|>))((\?)?\s*)
+    - match: (([0-9]+)(?:(>>)|(<|>)))((\?)?\s*)
       captures:
         1: meta.function-call.operator.redirection.other.fish
         2: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
-        3: keyword.operator.redirect.fish
-        4: meta.function-call.operator.redirection.fish
-        5: keyword.operator.redirect.clobber-test.fish
+        3: keyword.operator.redirect.append.fish
+        4: keyword.operator.redirect.truncate.fish
+        5: meta.function-call.operator.redirection.fish
+        6: keyword.operator.redirect.clobber-test.fish
       push: redirection-to-file-path-pop
 
   redirection-to-file-path-pop:

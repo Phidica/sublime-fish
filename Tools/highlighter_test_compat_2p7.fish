@@ -38,10 +38,10 @@ and same pipe ||
 and same pipe
 
 # No regions (3.0)
-echo arg ^&11 ^^&12 2>&13 2>>&14 \
-  ^a ^^b 2>c 2>>d \
-  ^?e ^^?f 2>?g 2>>?h \
-  ^|i ^^|j 2>|k 2>>|l
+echo arg ^&11 2>&12 ^^&13 2>>&14 \
+  ^a 2>b ^^c 2>>d \
+  ^?e 2>?f ^^?g 2>>?h \
+  ^|i 2>|j ^^|k 2>>|l
 
 # No regions (3.0)
 echo star* qmark? foo??r

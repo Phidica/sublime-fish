@@ -11,19 +11,27 @@ and same pipe ||
 and same pipe
 
 # No regions here (stdout only)
-echo arg >&11 >>&12 1>&13 1>>&14 \
-  >a >>b 1>c 1>>d \
-  >?e >>?f 1>?g 1>>?h \
-  >|i >>|j 1>|k 1>>|l&
+echo arg >&11 1>&12 >>&13 1>>&14 \
+  >a 1>b >>c 1>>d \
+  >?e 1>?f >>?g 1>>?h \
+  >|i 1>|j >>|k 1>>|l
 
-echo arg ^&11 ^^&12 2>&13 2>>&14 \
-#!       ^    ^^ op-stderr-nocaret
-  ^a ^^b 2>c 2>>d \
-#!^  ^^ op-stderr-nocaret
-  ^?e ^^?f 2>?g 2>>?h \
-#!^   ^^ op-stderr-nocaret
-  ^|i ^^|j 2>|k 2>>|l
-#!^   ^^ op-stderr-nocaret
+echo arg ^&11 2>&12 \
+#!       ^ op-stderr-nocaret-truncate
+  ^^&13 2>>&14 \
+#!^^ op-stderr-nocaret-append
+  ^a 2>b \
+#!^ op-stderr-nocaret-truncate
+  ^^c 2>>d \
+#!^^ op-stderr-nocaret-append
+  ^?e 2>?f \
+#!^ op-stderr-nocaret-truncate
+  ^^?g 2>>?h \
+#!^^ op-stderr-nocaret-append
+  ^|i 2>|j \
+#!^ op-stderr-nocaret-truncate
+  ^^|k 2>>|l
+#!^^ op-stderr-nocaret-append
 
 echo star* qmark? foo??r
 #!              ^    ^^ op-qmark-noglob

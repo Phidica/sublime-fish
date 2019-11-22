@@ -4,8 +4,12 @@ Changelog
 3.0.1 (ST3 only)
 ----------------
 
-Bugfix:
+Improvement:
+- Use `keyword.operator.redirect.`{`truncate`,`append`} depending on whether the redirection symbol appears once or twice, respectively
+
+Bugfixes:
 - Consecutive tildes were treated as keywords when only the first should have been
+- The compatibility highlighter suggested replacing the deprecated `^^` with `2>` when `2>>` is more appropriate (#23)
 
 3.0.0 (ST3 only)
 ----------------

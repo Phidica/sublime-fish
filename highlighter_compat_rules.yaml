@@ -64,10 +64,21 @@ issues:
         version: 3.0
     hint: Insert <code>\</code>.
 
-  op-stderr-nocaret:
+  op-stderr-nocaret-append:
     selector: [
-      meta.function-call.operator.pipe.stderr.implicit,
-      meta.function-call.operator.redirection.stderr.implicit,
+      meta.function-call.operator.pipe.stderr.implicit keyword.operator.redirect.append,
+      meta.function-call.operator.redirection.stderr.implicit keyword.operator.redirect.append,
+    ]
+    match: true
+    history:
+      - change: deprecated
+        version: 3.0
+    hint: Consider using <code>2>></code>.
+
+  op-stderr-nocaret-truncate:
+    selector: [
+      meta.function-call.operator.pipe.stderr.implicit keyword.operator.redirect.truncate,
+      meta.function-call.operator.redirection.stderr.implicit keyword.operator.redirect.truncate,
     ]
     match: true
     history:

@@ -59,7 +59,7 @@ Exposed scopes
 | Parameters                 | `meta.function-call.parameter.option`/`argument`
 | File path (in argument)    | `meta.function-call.parameter.argument.path`
 | File path (in redirection) | `meta.function-call.operator.redirection.path`
-| Redirection                | `meta.function-call.operator.redirection.`{`stdin`,`stdout`,`stderr`}`.`{`explicit`,`implicit`}
+| Redirection                | `meta.function-call.operator.redirection.`{`stdin`,`stdout`,`stderr`}`.`{`explicit`,`implicit`} and `keyword.operator.redirect.`{`truncate`,`append`}
 | Job expansion              | `meta.function-call.parameter.argument.job-expansion` and `punctuation.definition.job`
 | Process expansion          | `meta.function-call.parameter.argument.process-expansion` and `punctuation.definition.process`
 | Variable expansion         | `meta.variable-expansion` and `punctuation.definition.variable`
