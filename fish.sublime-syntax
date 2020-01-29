@@ -743,10 +743,34 @@ contexts:
               scope: meta.function-call.fish
               pop: true
 
-            - include: line-continuation # Eats whitespace on next line!
-            - include: parameter
+            # Manually define this parameter, because it must be something that evaluates to a valid variable name. That means that we need to include most parameter patterns, but rather than blindly accepting all unquoted strings we will only accept word characters
+            - match: (?![{{param_sep}}])
+              push:
+                - meta_scope: meta.function-call.parameter.argument.fish
+                - match: (?=[{{param_sep}}])
+                  pop: true
 
-            # Capture anything that a parameter explicitly rejects, which is mostly operators
+                - include: line-continuation # Eats whitespace on next line!
+
+                # Subset of the parameter-patterns rule
+                - include: command-substitution
+                - match: (?=\$)
+                  push:
+                    - meta_scope: meta.string.unquoted.fish
+                    - match: (?!\$)
+                      pop: true
+                    - include: variable-expansion
+                - include: string-quoted
+
+                # The only unquoted strings should be word characters
+                - match: \w
+                  scope: meta.string.unquoted.fish
+
+                # If we get to here, we have an illegal character for variables
+                - match: \W
+                  scope: invalid.illegal.string.fish
+
+            # Capture any operators
             - match: \S+
               scope: invalid.illegal.operator.fish
 

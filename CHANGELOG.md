@@ -1,6 +1,12 @@
 Changelog
 =========
 
+3.1.0 (ST3 only)
+----------------
+
+Bugfix:
+- `for` now validates the variable name (fish-shell/fish-shell#5800)
+
 3.0.1 (ST3 only)
 ----------------
 

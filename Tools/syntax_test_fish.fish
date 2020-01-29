@@ -1582,6 +1582,15 @@ for bar || in bar || echo
 #!                ^^ meta.block.for-in invalid.illegal.function-call
 end
 
+for a,b in a b; echo $a,b; end
+#!   ^ invalid.illegal.string
+
+for a@\
+#!   ^ invalid.illegal.string
+#!    ^^ constant.character.escape.newline
+  b(echo c) in a b; echo $abc; end
+#! ^^^^^^^^ meta.parens.command-substitution
+
 # This executes without error
 echo (for)
 #!    ^^^ variable.function
