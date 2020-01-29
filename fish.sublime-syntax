@@ -1451,7 +1451,6 @@ contexts:
       scope: constant.character.escape.newline.fish
 
   variable-expansion:
-    - include: variable-expansion-illegal
 
     # Capture "$foo" or "$foo[]" or "$$foo[][]" etc
     - match: (?=\$)
@@ -1467,15 +1466,17 @@ contexts:
   variable-expansion-simple:
     # Describe variable expansion that has no index expansion separately
 
+    - include: variable-expansion-illegal
+
     - match: \$
       scope: punctuation.definition.variable.fish
       push:
+        # Variables can only be made of word characters or other variables
         - meta_scope: variable.other.fish
         - match: (?=[^\$\w])(?!\\\n)
           pop: true
 
         - include: string-unquoted-patterns-escapes-newline
-        - include: variable-expansion-illegal
         - include: variable-expansion-simple
 
   variable-expansion-illegal:
