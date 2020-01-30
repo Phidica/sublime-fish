@@ -1093,6 +1093,28 @@ echo {foo$bar} {foo(echo bar)}
 #!       ^^^^ meta.variable-expansion variable.other
 #!                 ^^^^^^^^^^ meta.parens.command-substitution
 
+git reset HEAD@{0}
+#!             ^^^ meta.braces.brace-expansion.no-expansion
+#!             ^ - punctuation.section.braces.begin
+
+echo ab{$cd}ef
+#!     ^^^^^ meta.braces.brace-expansion
+#!     ^ meta.braces.brace-expansion punctuation.section.braces.begin
+#!      ^^^ meta.variable-expansion variable.other
+#!         ^ meta.braces.brace-expansion punctuation.section.braces.end
+
+echo {foo
+}
+#!<- meta.braces.brace-expansion.no-expansion
+
+echo {foo \
+}
+#!<- meta.braces.brace-expansion.no-expansion
+
+echo {foo | echo out
+#!   ^^^^ meta.braces.brace-expansion.no-expansion
+#!        ^^^^^^^^^^ invalid.illegal.operator
+
 echo %"fish" one%two %%percent
 #!   ^^^^^^^ meta.function-call.parameter.argument.process-expansion
 #!   ^ punctuation.definition.process

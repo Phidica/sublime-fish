@@ -6,6 +6,7 @@ Changelog
 
 Support for fish 3.1:
 - Add the `time` builtin (fish-shell/fish-shell#117, fish-shell/fish-shell#6446)
+- Brace expansion will not occur unless the braces contain a `,` or a variable expansion (fish-shell/fish-shell#5869)
 
 Bugfixes:
 - `for` did not validate the variable name (fish-shell/fish-shell#5800)

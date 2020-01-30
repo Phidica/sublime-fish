@@ -1395,6 +1395,19 @@ contexts:
         2: meta.braces.brace-expansion.ignored-whitespace.fish
         3: meta.braces.brace-expansion.empty.with-whitespace.fish
 
+    # Changed in fish 3.1, a set of braces that doesn't contain ',' or a variable expansion will "expand" to itself, literally
+    - match: \{(?=[^,$\{]+(?:\n|\\\n|\}))
+      push:
+        - meta_scope: meta.braces.brace-expansion.no-expansion.fish
+        - match: \}|([\){{op_s}}{{pipe_s}}].*)
+          captures:
+            1: invalid.illegal.operator.fish
+          pop: true
+
+        - include: command-substitution
+        - include: variable-expansion
+        - include: string-unquoted-patterns
+
     # Real brace expansion
     # Since fish 3.0, all whitespace including newlines is permitted
     - match: \{
