@@ -486,6 +486,21 @@ contexts:
         - include: line-continuation
         - include: command-call-standard
 
+    # (fish 3.1) This meta command is different, because it *must* accept a valid function or command name as the arguments, and rejects options or attempts to execute it alone
+    # TODO: "time" is allowed after a logic pipe (eg "&&") but not a regular pipe ('|'), and currently this implementation allows it to be in either location. Something to fix up when you overhaul piping
+    - match: 'time\b'
+      scope:
+        meta.function-call.name.fish
+        support.function.fish
+        meta.string.unquoted.fish
+      push:
+        - match: (?={{op_w_pipe}})
+          pop: true
+
+        - include: separator-whitespace
+        - include: line-continuation
+        - include: command-call-standard
+
     # This meta command acts as a unary operator on the command to the right, which can also be a meta command. There is no restriction on where in a pipeline this command may appear. If the command is followed by any form of execution that just prints help text (ie, with an option or with an explicit or implicit newline), then don't open the scope
     # Note that both forms require whitespace separation from the next command
     - match: (?=(not|!){{ws_sep}}(?!\s*[{{nl_w}};-]))

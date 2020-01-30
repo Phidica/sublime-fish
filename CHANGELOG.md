@@ -4,6 +4,9 @@ Changelog
 3.1.0 (ST3 only)
 ----------------
 
+Support for fish 3.1:
+- Add the `time` builtin (fish-shell/fish-shell#117, fish-shell/fish-shell#6446)
+
 Bugfix:
 - `for` now validates the variable name (fish-shell/fish-shell#5800)
 

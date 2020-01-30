@@ -681,6 +681,16 @@ and end; or %fish okay
 #!       ^^ meta.function-call.name keyword.operator.word meta.string.unquoted
 #!          ^^^^^ invalid.illegal.function-call
 
+# Technically we should only support the first and second instances!
+time echo out && time echo out | time echo true
+#! <- meta.function-call support.function
+#!               ^^^^ meta.function-call.name support.function
+#!                               ^^^^ meta.function-call.name support.function
+
+time begin echo out; end
+#! <- meta.function-call support.function
+#!   ^^^^^ meta.block.begin keyword.control.conditional
+
 echo arg | cat
 #! <- meta.function-call.name variable.function
 #!       ^ meta.function-call keyword.operator.pipe
