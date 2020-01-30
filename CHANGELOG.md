@@ -7,8 +7,9 @@ Changelog
 Support for fish 3.1:
 - Add the `time` builtin (fish-shell/fish-shell#117, fish-shell/fish-shell#6446)
 
-Bugfix:
-- `for` now validates the variable name (fish-shell/fish-shell#5800)
+Bugfixes:
+- `for` did not validate the variable name (fish-shell/fish-shell#5800)
+- In some cases, command substitution and variable expansion weren't recognised when inside of brace expansion
 
 3.0.1 (ST3 only)
 ----------------

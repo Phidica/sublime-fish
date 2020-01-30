@@ -1413,20 +1413,6 @@ contexts:
             meta.braces.brace-expansion.fish
             punctuation.section.braces.separator.fish
 
-        - match: (?=\()
-          push:
-            - meta_scope: meta.braces.brace-expansion.fish
-            - match: (?!\()
-              pop: true
-            - include: command-substitution
-
-        - match: (?=\$)
-          push:
-            - meta_scope: meta.braces.brace-expansion.fish
-            - match: (?!\$)
-              pop: true
-            - include: variable-expansion
-
         # I want a unique name on this. Sad that getting it requires making every other include so complicated
         - match: \s+
           scope: meta.braces.brace-expansion.ignored-whitespace.fish
@@ -1454,6 +1440,9 @@ contexts:
 
             - match: \\\,
               scope: constant.character.escape.fish
+
+            - include: command-substitution
+            - include: variable-expansion
             - include: string-unquoted-patterns
 
     - match: (\*\*)|(\*)|(\?)

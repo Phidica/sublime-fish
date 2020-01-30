@@ -1089,6 +1089,10 @@ echo {{},{}}
 #!       ^^ meta.braces.brace-expansion.empty
 #!         ^ punctuation.section.braces.end
 
+echo {foo$bar} {foo(echo bar)}
+#!       ^^^^ meta.variable-expansion variable.other
+#!                 ^^^^^^^^^^ meta.parens.command-substitution
+
 echo %"fish" one%two %%percent
 #!   ^^^^^^^ meta.function-call.parameter.argument.process-expansion
 #!   ^ punctuation.definition.process
