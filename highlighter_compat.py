@@ -196,6 +196,8 @@ class CompatHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
         """.format(problem, self._fish_version(), issue['hint']),
         flags = sublime.HIDE_ON_MOUSE_MOVE_AWAY,
         location = location,
+        # Sublime does not extend the popup box vertically when text is automatically wrapped (https://github.com/sublimehq/sublime_text/issues/2854). There are two possible workarounds: let max_width be very large so there is no need for lines to wrap (only works as long as we have fairly brief hints, which is the idea), or manually insert HTML breaks <br /> into the hint text. For now, just let the popup be wider
+        max_width = min(1000, self.view.viewport_extent()[0]),
       )
       break
 
