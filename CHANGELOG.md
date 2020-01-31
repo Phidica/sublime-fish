@@ -8,6 +8,10 @@ Support for fish 3.1:
 - Add the `time` builtin (fish-shell/fish-shell#117, fish-shell/fish-shell#6446)
 - Brace expansion will not occur unless the braces contain a `,` or a variable expansion (fish-shell/fish-shell#5869)
 
+New feature:
+- Compatibility highlighter can show a summary of the issues in the current file using the status bar (bottom left of the Sublime Text window):
+  - This is enabled by default, but you can tweak or disable it in the settings
+
 Bugfixes:
 - `for` did not validate the variable name (fish-shell/fish-shell#5800)
 - In some cases, command substitution and variable expansion weren't recognised when inside of brace expansion

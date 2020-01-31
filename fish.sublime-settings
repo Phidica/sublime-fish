@@ -23,6 +23,16 @@
   // Must restart ST or reload plugins for change to take effect
   "highlighter_debugging": false,
 
+  // (Applies to all enabled highlighters)
+  // Control when to show information from highlighters in the status bar (bottom left of the Sublime Text window), for highlighters which choose to provide information here.
+  // Currently only the compatibility highlighter has a status, which indicates the number of issues in the current document (only critical if non-zero).
+  // Valid settings are:
+  //   - "always" (show all statuses)
+  //   - "critical" (show only the statuses classed as critical)
+  //   - "off" (show no statuses)
+  // Must restart ST or reload plugins for change to take effect
+  "highlighter_show_status": "always",
+
   // (Applies to compatibility highlighter)
   // The version of fish which scripts will be targeted to, highlighting anything inconsistent or incompatible with that version.
   // May be "auto" to read the version of fish installed on the system, or a version number of the form "X[.Y[.Z]]" where X, Y, and Z are integers and Y and Z are optional and assumed to be "0" if not given.

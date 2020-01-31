@@ -131,3 +131,6 @@ class PathHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
     drawStyle = sublime.DRAW_NO_FILL | sublime.DRAW_NO_OUTLINE | sublime.DRAW_SOLID_UNDERLINE
 
     return ('path', drawScope, drawStyle)
+
+  def _build_status(self):
+    return None

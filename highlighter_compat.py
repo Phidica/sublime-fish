@@ -2,6 +2,7 @@ import os.path
 import logging
 import re
 import subprocess
+import collections # OrderedDict
 import sublime, sublime_plugin
 
 from fish.highlighter_base import BaseHighlighter
@@ -287,6 +288,44 @@ class CompatHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
 
     self.regionStates[regionID] = state
     return (issueID, drawScope, drawStyle)
+
+  def _build_status(self):
+    # For Python < 3.6, we need a special dictionary to keep the items in this order. Regular dictionaries do it from 3.6 onwards
+    types = collections.OrderedDict.fromkeys( [
+      "error",
+      "behaviour warning",
+      "deprecation",
+    ], 0)
+    plurs = ['s', 's', 's'] # plurals strings for above words
+
+    for key,state in self.regionStates.items():
+      # Old keys don't get removed from regionStates, so check if they're drawn
+      if key not in self.drawnRegions.keys():
+        continue
+
+      change = state['change']
+      if change == 'added' or change == 'removed':
+        types["error"] += 1
+      elif change == 'behaviour':
+        types["behaviour warning"] += 1
+      elif change == 'deprecated':
+        types["deprecation"] += 1
+      else:
+        self.logger.error("Unknown change state {} when building status".format(change))
+        return None
+
+    if sum( types.values() ) > 0:
+      critical = True
+      msg = ", ".join( [
+        "{} {}{}".format(
+          t[1], t[0], "" if t[1] == 1 else plurs[i]
+        ) for i,t in enumerate(types.items()) if t[1] > 0
+      ] )
+    else:
+      critical = False
+      msg = u"\u2714" # Heavy check mark, easier to spot at a glance?
+
+    return (critical, "Fish compatibility highlighter ({})".format(msg))
 
   def _is_highlighter_test(self):
     return self.view.find(r'^#! HIGHLIGHTER TEST COMPATIBILITY', 0).begin() == 0

@@ -22,13 +22,23 @@ class BaseHighlighter(metaclass = abc.ABCMeta):
     else:
       self.logger.setLevel(logging.WARNING)
 
+    # Status elements get displayed alphabetically, so be thematic
+    self.statusKey = 'fish_' + self.__class__.__name__
+
+    self.statusSetting = view.settings().get('highlighter_show_status')
+    if self.statusSetting not in ['always', 'critical', 'off']:
+      sublime.error_message("Error in fish.sublime-settings: Invalid value '{}' for '{}'.".format(self.statusSetting, 'highlighter_show_status'))
+      self.statusSetting = 'off'
+
     # Abstract members
     self.selectors = None
 
-  # Clear all regions, because we're about to lose their keys
+  # Clear everything that uses keys, because we're about to lose them
   def __del__(self):
     for key in self.drawnRegions:
       self.view.erase_regions(key)
+
+    self.view.erase_status(self.statusKey)
 
   def _update_markup(self, local = False):
     # https://github.com/SublimeTextIssues/Core/issues/289 means that we can't
@@ -133,6 +143,14 @@ class BaseHighlighter(metaclass = abc.ABCMeta):
       self.nextKeyID += 1
 
     self.logger.debug("Final drawn regions = {} = {}".format(len(self.drawnRegions), self.drawnRegions))
+
+    status = self._build_status()
+    if status \
+    and self.statusSetting == 'always' \
+    or (self.statusSetting == 'critical' and status[0]):
+      self.view.set_status(self.statusKey, status[1])
+    else:
+      self.view.erase_status(self.statusKey)
 
   def _run_test(self):
     self.logger.debug("Running test")
@@ -300,6 +318,11 @@ class BaseHighlighter(metaclass = abc.ABCMeta):
   @abc.abstractmethod
   def _test_draw_region(self, region, selector, regionID):
     # Return None or (name, drawScope, drawStyle)
+    pass
+
+  @abc.abstractmethod
+  def _build_status(self):
+    # Return None or (critical [bool], message [string])
     pass
 
 
