@@ -54,7 +54,7 @@ $function; /bin/$function-2 arg
 #! <-- cmd-variable-expansion
 #!^^^^^^^       ^^^^^^^^^ cmd-variable-expansion
 
-echo {} out {   } {  b  }
+echo {} out {   } {  ,  }
 #!   ^^ arg-braces-empty
 #!           ^^^   ^^ ^^ arg-braces-space
 

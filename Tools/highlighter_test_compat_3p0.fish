@@ -39,9 +39,14 @@ echo star* qmark? foo??r
 # No regions (2.7)
 ech{o,a}
 $function; /bin/$function-2 arg
-echo {} out {   } {  b  }
+echo {} out {   } {  ,  }
 echo {a,
 b}
+
+git reset HEAD@{0}
+#!             ^^^ arg-braces-no-expansion
+ech{o} out
+#! ^^^ arg-braces-no-expansion
 
 # No regions here (job expansion)
 echo %1 %9999
