@@ -308,6 +308,11 @@ cat ((echo out) echo out) out
 #! ^^^^ invalid.illegal.function-call
 ##      ^^^ meta.function-call.parameter.argument # Not possible due to technical limitations
 
+}option arg
+#! <- invalid.illegal.function-call
+#! ^^^^ invalid.illegal.function-call
+#!       ^^ meta.function-call.parameter.argument
+
 echo>out arg 2>err &
 #! ^^^^^^^^^^^^^^^^^ meta.function-call
 #!  ^^^^ meta.function-call.operator.redirection
@@ -1069,6 +1074,13 @@ echo one{, ,\ }two
 #!        ^ meta.braces.brace-expansion.ignored-whitespace.fish
 #!          ^^ constant.character.escape
 
+echo a{;,&,|,<,>,1,a1,1;,1 }
+#!     ^^^^^^^^^ - invalid.illegal
+#!               ^ constant.numeric
+#!                  ^ - constant.numeric
+#!                    ^ - constant.numeric
+#!                       ^ constant.numeric
+
 for var in {foo, #not comment
 #bar}
 #! <- -comment.line
@@ -1077,43 +1089,50 @@ for var in {foo, #not comment
 end
 
 cmd a{}b { } c
-#!   ^^ meta.braces.brace-expansion.empty.no-whitespace
-#!       ^^^ meta.braces.brace-expansion
-#!        ^ meta.braces.brace-expansion.ignored-whitespace
+#!   ^^ meta.braces.literal.empty
+#!       ^^^ meta.braces.literal.empty
+#!        ^ meta.braces.literal.empty.ignored-whitespace
 
 echo {{},{}}
 #!   ^^^^^^^ meta.function-call.parameter.argument.path meta.string.unquoted meta.braces.brace-expansion
 #!   ^ punctuation.section.braces.begin
-#!    ^^ meta.braces.brace-expansion.empty
+#!    ^^ meta.braces.literal.empty
 #!      ^ punctuation.section.braces.separator
-#!       ^^ meta.braces.brace-expansion.empty
+#!       ^^ meta.braces.literal.empty
 #!         ^ punctuation.section.braces.end
 
 echo {foo$bar} {foo(echo bar)}
-#!       ^^^^ meta.variable-expansion variable.other
-#!                 ^^^^^^^^^^ meta.parens.command-substitution
+#!       ^^^^ meta.braces.brace-expansion meta.variable-expansion variable.other
+#!                 ^^^^^^^^^^ meta.braces.literal.non-empty meta.parens.command-substitution
 
-git reset HEAD@{0}
-#!             ^^^ meta.braces.brace-expansion.no-expansion
+git reset HEAD@{0} { foo1 } {abc;} {&}
+#!             ^^^ meta.braces.literal.non-empty
 #!             ^ - punctuation.section.braces.begin
+#!              ^ meta.braces.literal.non-empty constant.numeric
+#!                      ^ - constant.numeric
+#!                              ^ - invalid.illegal
+#!                                  ^ - invalid.illegal
 
 echo ab{$cd}ef
 #!     ^^^^^ meta.braces.brace-expansion
 #!     ^ meta.braces.brace-expansion punctuation.section.braces.begin
-#!      ^^^ meta.variable-expansion variable.other
+#!      ^^^ meta.braces.brace-expansion meta.variable-expansion variable.other
 #!         ^ meta.braces.brace-expansion punctuation.section.braces.end
 
 echo {foo
 }
-#!<- meta.braces.brace-expansion.no-expansion
+#!<- meta.braces.literal.non-empty
 
 echo {foo \
 }
-#!<- meta.braces.brace-expansion.no-expansion
+#!<- meta.braces.literal.non-empty
 
-echo {foo | echo out
-#!   ^^^^ meta.braces.brace-expansion.no-expansion
-#!        ^^^^^^^^^^ invalid.illegal.operator
+echo {foo | echo out )
+#!   ^^^^^^^^^^^^^^^^ meta.braces.literal.non-empty
+#!                   ^ invalid.illegal.operator
+
+echo {ab(} arg) }
+#!       ^ invalid.illegal.function-call
 
 echo %"fish" one%two %%percent
 #!   ^^^^^^^ meta.function-call.parameter.argument.process-expansion

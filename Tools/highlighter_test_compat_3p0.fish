@@ -43,10 +43,10 @@ echo {} out {   } {  ,  }
 echo {a,
 b}
 
-git reset HEAD@{0}
-#!             ^^^ arg-braces-no-expansion
+git reset HEAD@{0} { foo }
+#!             ^^^ ^^^^^^^ arg-braces-non-empty
 ech{o} out
-#! ^^^ arg-braces-no-expansion
+#! ^^^ arg-braces-non-empty
 
 # No regions here (job expansion)
 echo %1 %9999

@@ -12,7 +12,11 @@ New feature:
 - Compatibility highlighter can show a summary of the issues in the current file using the status bar (bottom left of the Sublime Text window):
   - This is enabled by default, but you can tweak or disable it in the settings
 
+Renamed scopes:
+- `meta.braces.brace-expansion.empty.no-whitespace` -> `meta.braces.literal.empty`
+
 Bugfixes:
+- `}` appeared to be a valid command name
 - `for` did not validate the variable name (fish-shell/fish-shell#5800)
 - In some cases, command substitution and variable expansion weren't recognised when inside of brace expansion
 - The `compat_highighter_fish_version` option didn't allow the lazy version specification which was advertised

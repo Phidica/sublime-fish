@@ -31,6 +31,9 @@ changes:
 #   the structure was only added in fish 3.0) then the full extent of the
 #   structure will be highlighted. Hovering over the region will reveal
 #   the "hint" that suggests alternative structures to resolve the conflict
+# Important to note: the order of issues is important, as it determines
+#   which issue will be preferentially drawn in the (uncommon) event that two
+#   or more issues can all describe the exact same region in a file
 issues:
   op-bang:
     selector: meta.function-call.name keyword.operator.word.bang
@@ -110,29 +113,34 @@ issues:
         version: 3.0
     hint: Try using <code>eval</code>.
 
+  # This can overlap with arg-braces-empty or arg-braces-non-empty, but it is a more serious issue (results in an error not a warning). Place it above them in this list so that it is drawn preferentially
+  arg-braces-space:
+    selector: [
+      meta.braces.literal.empty.ignored-whitespace,
+      meta.braces.literal.non-empty.ignored-whitespace,
+      meta.braces.brace-expansion.ignored-whitespace,
+    ]
+    match: true
+    history:
+      - change: added
+        version: 3.0
+    hint: Delete extra spaces.
+
   arg-braces-empty:
-    selector: meta.braces.brace-expansion.empty.no-whitespace
+    selector: meta.braces.literal.empty
     match: true
     history:
       - change: behaviour
         version: 3.0
     hint: This will expand to an empty string and the braces disappear.
 
-  arg-braces-no-expansion:
-    selector: meta.braces.brace-expansion.no-expansion
+  arg-braces-non-empty:
+    selector: meta.braces.literal.non-empty
     match: true
     history:
       - change: behaviour
         version: 3.1
     hint: This will expand to its contents and the braces disappear.
-
-  arg-braces-space:
-    selector: meta.braces.brace-expansion.ignored-whitespace
-    match: true
-    history:
-      - change: added
-        version: 3.0
-    hint: Delete extra spaces.
 
   arg-process-expansion-last:
     selector: meta.function-call.parameter.argument.process-expansion.last

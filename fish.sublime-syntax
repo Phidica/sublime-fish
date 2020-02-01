@@ -591,6 +591,10 @@ contexts:
                         - match: \)|(?=[\n{{op_s}}{{pipe_s}}{{redir_s}}])
                           pop: true
 
+                # A command can't start with a closing brace (an unbalanced expansion). I think this is the level at which we would like to match ')' as well, but since it is a much stronger operator it appears in a lot of lookaheads before this point and we struggle to capture it
+                - match: \}[^{{param_sep}}]*
+                  scope: invalid.illegal.function-call.fish
+
                 # Otherwise, treat the element as a fraction of a name made of arbitrary strings (which breaks at an escaped newline)
                 - match: (?!\s)
                   push:
@@ -1384,41 +1388,65 @@ contexts:
 
     - include: string-unquoted-patterns-escapes
 
-    # Changed in fish 3.0, an empty set of braces will "expand" to itself literally
-    - match: \{\}
-      scope: meta.braces.brace-expansion.empty.no-whitespace.fish
-
-    # Also "expands" to itself literally, but the whitespace disappears
+    # Changed in fish 3.0: an empty set of braces will not be brace-expanded, but print literally, however whitespace will disappear. Braces were not allowed to contain whitespace before, so this structure is invalid prior to fish 3.0
     - match: (\{)({{ws_sep}}+)(\})
       captures:
-        1: meta.braces.brace-expansion.empty.with-whitespace.fish
-        2: meta.braces.brace-expansion.ignored-whitespace.fish
-        3: meta.braces.brace-expansion.empty.with-whitespace.fish
+        1: meta.braces.literal.empty.fish
+        2: meta.braces.literal.empty.ignored-whitespace.fish
+        3: meta.braces.literal.empty.fish
 
-    # Changed in fish 3.1, a set of braces that doesn't contain ',' or a variable expansion will "expand" to itself, literally
+    # This is a special case of the above where the braces don't contain whitespace. This was valid prior to fish 3.0, but the behaviour changed
+    - match: \{\}
+      scope: meta.braces.literal.empty.fish
+
+    # Changed in fish 3.1: a set of braces that doesn't contain ',' or a variable expansion will not be brace-expanded, but print literally including all content
+    # I wish English had a better term for "non-empty", but the best alternative I've seen is "laden" (https://english.stackexchange.com/a/102788) and that isn't easy to understand without explanation
     - match: \{(?=[^,$\{]+(?:\n|\\\n|\}))
+      scope: meta.braces.literal.non-empty.fish
       push:
-        - meta_scope: meta.braces.brace-expansion.no-expansion.fish
-        - match: \}|([\){{op_s}}{{pipe_s}}].*)
+        # All operators are treated as literals inside of the braces. Only ')' is invalid
+        - match: (\})|(\).*)
           captures:
-            1: invalid.illegal.operator.fish
+            1: meta.braces.literal.non-empty.fish
+            2: invalid.illegal.operator.fish
           pop: true
 
-        - include: command-substitution
-        - include: variable-expansion
-        - include: string-unquoted-patterns
+        # Important - this includes newlines!
+        - match: \s+
+          scope: meta.braces.literal.non-empty.ignored-whitespace.fish
+
+        # Wrap up all the normal argument stuff, and re-allow numerics
+        - match: (?!\s)
+          push:
+            - [
+                {meta_scope: meta.braces.literal.non-empty.fish},
+                {match: '', pop: true},
+              ]
+            - [
+                {include: command-substitution},
+                {include: variable-expansion},
+                {include: string-quoted},
+                # Prevent doubling the meta.string.unquoted string scope
+                {include: string-unquoted-patterns},
+                {match: '(?=[\s\}])', pop: true},
+              ]
+            - [
+                {match: '{{real}}(?=$|[\s\}])', scope: constant.numeric.fish, pop: true},
+                {match: '', pop: true},
+              ]
 
     # Real brace expansion
-    # Since fish 3.0, all whitespace including newlines is permitted
+    # Since fish 3.0: all whitespace including newlines is permitted
     - match: \{
       scope:
         meta.braces.brace-expansion.fish
         punctuation.section.braces.begin.fish
       push:
-        - match: (\})|([\){{op_s}}{{pipe_s}}].*)
+        # All operators are treated as literals inside of the braces. Only ')' is invalid
+        - match: (\})|(\).*)
           captures:
             1: meta.braces.brace-expansion.fish punctuation.section.braces.end.fish
-            2: invalid.illegal.punctuation.section.fish
+            2: invalid.illegal.operator.fish
           pop: true
 
         - match: \,
@@ -1426,37 +1454,31 @@ contexts:
             meta.braces.brace-expansion.fish
             punctuation.section.braces.separator.fish
 
-        # I want a unique name on this. Sad that getting it requires making every other include so complicated
+        # Important - this includes newlines!
         - match: \s+
           scope: meta.braces.brace-expansion.ignored-whitespace.fish
 
-        # Manually recreate the string rule with a numeric match, extra logic in unquoted strings, and don't repeat the meta.string.unquoted scope
-
-        - match: (?=['"])
+        # Wrap up all the normal argument stuff, re-allow numerics, and add an escaped ','
+        - match: (?!\s)
           push:
-            - meta_scope: meta.braces.brace-expansion.fish
-            - match: (?!['"])
-              pop: true
-            - include: string-quoted
-
-        - match: '{{real}}(?=$|[{{param_sep}},}])'
-          scope:
-            meta.braces.brace-expansion.fish
-            constant.numeric.fish
-
-        # Begin/end string as before with the addition of breaking at a '}' or ','
-        - match: (?![{{param_sep}}'"])
-          push:
-            - meta_scope: meta.braces.brace-expansion.fish
-            - match: (?=[{{param_sep}}'"]|\}|\,)
-              pop: true
-
-            - match: \\\,
-              scope: constant.character.escape.fish
-
-            - include: command-substitution
-            - include: variable-expansion
-            - include: string-unquoted-patterns
+            - [
+                {meta_scope: meta.braces.brace-expansion.fish},
+                {match: '', pop: true},
+              ]
+            - [
+                {include: command-substitution},
+                {include: variable-expansion},
+                {include: string-quoted},
+                # Prevent doubling the meta.string.unquoted string scope
+                {include: string-unquoted-patterns},
+                # Escaped ','
+                {match: '\\\,', scope: constant.character.escape.fish},
+                {match: '(?=[\s,\}])', pop: true},
+              ]
+            - [
+                {match: '{{real}}(?=$|[\s,\}])', scope: constant.numeric.fish, pop: true},
+                {match: '', pop: true},
+              ]
 
     - match: (\*\*)|(\*)|(\?)
       captures:

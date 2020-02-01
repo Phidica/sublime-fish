@@ -62,5 +62,9 @@ echo {} out {   } {  ,  }
 echo {a,
 b}
 
+echo {$var} {foo} { foo }
+#!          ^^^^^ arg-braces-non-empty
+#!                 ^   ^ arg-braces-space
+
 # No regions (3.0)
 echo %a1 %name %12w %selfa%self %lasta
