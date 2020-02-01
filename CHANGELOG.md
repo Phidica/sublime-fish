@@ -15,6 +15,7 @@ New feature:
 Bugfixes:
 - `for` did not validate the variable name (fish-shell/fish-shell#5800)
 - In some cases, command substitution and variable expansion weren't recognised when inside of brace expansion
+- The `compat_highighter_fish_version` option didn't allow the lazy version specification which was advertised
 
 3.0.1 (ST3 only)
 ----------------

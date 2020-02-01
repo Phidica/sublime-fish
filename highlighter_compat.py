@@ -341,7 +341,7 @@ class CompatHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
   def _cache_settings_fish_version(self):
     versionStr = getSetting(self.view.settings(),
       'compat_highlighter_fish_version',
-      r'auto|[0-9]+\.[0-9]+\.[0-9]+')
+      r'auto|[0-9]+(?:\.[0-9]+(?:\.[0-9]+)?)?')
 
     if versionStr == None:
       # It was malformed, so stick to None
