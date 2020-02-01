@@ -3,6 +3,8 @@ import logging
 import abc
 import re
 
+from fish.Tools.misc import getSetting
+
 import sublime, sublime_plugin
 
 
@@ -25,10 +27,7 @@ class BaseHighlighter(metaclass = abc.ABCMeta):
     # Status elements get displayed alphabetically, so be thematic
     self.statusKey = 'fish_' + self.__class__.__name__
 
-    self.statusSetting = view.settings().get('highlighter_show_status')
-    if self.statusSetting not in ['always', 'critical', 'off']:
-      sublime.error_message("Error in fish.sublime-settings: Invalid value '{}' for '{}'.".format(self.statusSetting, 'highlighter_show_status'))
-      self.statusSetting = 'off'
+    self.statusSetting = getSetting(view.settings(), 'highlighter_show_status', r'always|critical|off', 'off')
 
     # Abstract members
     self.selectors = None

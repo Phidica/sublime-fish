@@ -6,7 +6,7 @@ import collections # OrderedDict
 import sublime, sublime_plugin
 
 from fish.highlighter_base import BaseHighlighter
-from fish.Tools.misc import getFishOutput
+from fish.Tools.misc import getFishOutput, getSetting
 
 import yaml # external dependency pyyaml (see dependencies.json)
 
@@ -339,8 +339,14 @@ class CompatHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
       return self.settingsFishVer
 
   def _cache_settings_fish_version(self):
-    versionStr = self.view.settings().get('compat_highlighter_fish_version', '')
-    if versionStr == 'auto':
+    versionStr = getSetting(self.view.settings(),
+      'compat_highlighter_fish_version',
+      r'auto|[0-9]+\.[0-9]+\.[0-9]+')
+
+    if versionStr == None:
+      # It was malformed, so stick to None
+      self.settingsFishVer = None
+    elif versionStr == 'auto':
       if CompatHighlighter.sysFishVer == 'not found':
         self.settingsFishVer = None
         self.logger.error("fish not found! Version couldn't be determined automatically")
@@ -357,12 +363,9 @@ class CompatHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
       else:
         self.settingsFishVer = CompatHighlighter.sysFishVer
         self.logger.info("Settings fish version is {} (system)".format(self.settingsFishVer))
-    elif versionStr and re.match(r'[0-9]+\.[0-9]+\.[0-9]+\Z', versionStr):
+    else: # It was a valid version number
       self.settingsFishVer = versionStr
       self.logger.info("Settings fish version is {}".format(self.settingsFishVer))
-    else:
-      sublime.error_message("Error in fish.sublime-settings: Invalid value '{}' for compat_highlighter_fish_version.".format(versionStr))
-      self.settingsFishVer = None
 
   def _cache_local_fish_version(self):
     firstLine = self.view.substr(self.view.line( sublime.Region(0,0) ))

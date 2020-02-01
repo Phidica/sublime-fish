@@ -1,5 +1,6 @@
 import sublime
 import os.path
+import re
 import subprocess
 
 # Check for command, expanding search to valid fish installs on Windows
@@ -50,3 +51,13 @@ def getFishOutput(args, settings, pipeInput = None):
     print("Error: Couldn't run {}, system reports '{}'".format(command, ex))
 
   return (out,err)
+
+def getSetting(settings, name, schema, default = None):
+  value = settings.get(name)
+  # https://stackoverflow.com/a/30212799
+  # Effectively backport re.fullmatch() to Python 3.3 by adding end-of-string anchor
+  if re.match('(?:' + schema + r')\Z', value):
+    return value
+  else:
+    sublime.error_message("Error in fish.sublime-settings: Invalid value '{}' for '{}'.".format(value, name))
+    return default
