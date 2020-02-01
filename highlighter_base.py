@@ -57,12 +57,8 @@ class BaseHighlighter(metaclass = abc.ABCMeta):
 
     self.logger.debug("Next key ID = {}".format(self.nextKeyID))
 
-    # Keep only regions that don't intersect with any previous regions
-    allCand = []
-    for s in self.selectors:
-      for r in self.view.find_by_selector(s):
-        if not any( map(lambda c: c[0].intersects(r), allCand) ):
-          allCand.append( (r, s) ) # tuple of region and the selector that got it
+    # Build a complete list of candidates from the selectors we can find
+    allCand = [(r,s) for s in self.selectors for r in self.view.find_by_selector(s)]
 
     self.logger.debug("{} unique candidates".format(len(allCand)))
 
@@ -127,6 +123,10 @@ class BaseHighlighter(metaclass = abc.ABCMeta):
 
     # Test and draw each remaining candidate region
     for region,selector in focusCand:
+      # Discard any candidate that intersects with an already drawn region
+      if any( map(lambda d: d[0].intersects(region), self.drawnRegions.values()) ):
+        continue
+
       regionID = "{}_{}".format(self.__class__.__name__, self.nextKeyID)
 
       regionProps = self._test_draw_region(region, selector, regionID)
