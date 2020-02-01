@@ -34,6 +34,22 @@ def semver_lt(strA, strB):
     or (lA[0] == lB[0] and lA[1] == lB[1] and lA[2] < lB[2])
 
 
+# Adapted from https://stackoverflow.com/a/21912744
+# Ensures that the returned dictionary will be in the exact order it was defined in the YAML stream
+# Note that yaml.BaseLoader does not support this overload, so you must use at least SafeLoader
+def ordered_load(stream, Loader):
+  class OrderedLoader(Loader):
+    pass
+
+  def construct_mapping(loader, node):
+    loader.flatten_mapping(node)
+    return collections.OrderedDict(loader.construct_pairs(node))
+
+  OrderedLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+    construct_mapping)
+  return yaml.load(stream, Loader = OrderedLoader)
+
+
 class CompatHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
   # Database shared by all instances of the class
   database = None
@@ -48,9 +64,10 @@ class CompatHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
     # Only first instance will load database
     if CompatHighlighter.database is None:
       # We can't do this in the static class variable declaration because API not loaded yet
-      CompatHighlighter.database = yaml.load(
+      # For Python < 3.6, the default yaml.load() will be unordered, so we have to extend a loader to enable that ourselves. Once we are in Python >= 3.6, we can switch this back to simply yaml.load()
+      CompatHighlighter.database = ordered_load(
         sublime.load_resource('Packages/fish/highlighter_compat_rules.yaml'),
-        Loader = yaml.BaseLoader,
+        Loader = yaml.SafeLoader,
       )
 
     # Only first instance will set this
@@ -226,7 +243,7 @@ class CompatHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
         or
         (not isinstance(issue['selector'], list) and selector == issue['selector'])
       ) and (
-        issue['match'] == 'true'
+        issue['match'] == True
         or
         # https://stackoverflow.com/a/30212799
         # Effectively backport re.fullmatch() to Python 3.3 by adding end-of-string anchor
@@ -242,7 +259,7 @@ class CompatHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
     state = None
     for testState in CompatHighlighter.database['issues'][issueID]['history']:
       c = testState['change']
-      v = testState['version']
+      v = str(testState['version'])
       if (
         # If the target version is less than this state then draw
         (c == 'added' or c == 'behaviour')
