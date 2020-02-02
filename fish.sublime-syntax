@@ -42,31 +42,34 @@ variables:
   # Terminates pipelines
   nl_s: \n\) # \n)
 
-  # Weak newline set - Must ensure preceded by whitespace
+  # Weak newline set - Some chars must be preceded by whitespace
   nl_w: '{{nl_s}}#' # \n)#
 
   # Strong redirection - No need to be preceded by whitespace
   # Controls data flow for a single command
   redir_s: <>
 
-  # Weak redirection - Must ensure preceded by whitespace
+  # (Redirection into file and redirection into pipe use '&' slightly differently...grumble)
+  _redir_base: (?:[0-9]+)?(?:[{{redir_s}}]|>>)|\^\^?
+
+  # Weak redirection - Some chars must be preceded by whitespace
   # Controls data flow for a single command
-  redir_w: (?:[0-9]+)?(?:<|>>?)|\^\^?
+  redir_w: '{{_redir_base}}|&>>?'
 
   # Strong pipe - No need to be preceded by whitespace
   # Separates commands in a pipeline
   pipe_s: \|
 
-  # Weak pipe (may be redirection into pipe) - Must ensure preceded by whitespace
-  pipe_w: (?:{{redir_w}})?{{pipe_s}}
+  # Weak pipe (may be redirection into pipe) - Some chars must be preceded by whitespace
+  pipe_w: (?:{{_redir_base}}|&)?{{pipe_s}}
 
   # Strong operator set - No need to be preceded by whitespace
   # Terminates pipelines
   op_s: ;&
 
-  # Weak operator set - Must ensure preceded by whitespace
+  # Weak operator set - Some chars must be preceded by whitespace
   # Terminates pipelines
-  op_w: '[{{nl_w}}{{op_s}}]'
+  op_w: '[{{nl_w}}]|;|&(?![|>])'
 
   # Weak operator set, including pipe
   # Terminates pipelines or separates commands in a pipeline
@@ -415,6 +418,8 @@ contexts:
                       ((2)(?:(>>)|(>)))|(\^\^)|(\^)
                     )
                   |
+                    (&)
+                  |
                     (([0-9]+)(?:(>>)|(<|>)))
                   )?(\|)
                 )({{ws_sep}}*)(\n?)
@@ -444,14 +449,16 @@ contexts:
                 18: meta.function-call.operator.pipe.stderr.implicit.fish keyword.operator.redirect.append.fish
                 19: meta.function-call.operator.pipe.stderr.implicit.fish keyword.operator.redirect.truncate.fish
 
-                20: meta.function-call.operator.pipe.other.fish
-                21: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
-                22: keyword.operator.redirect.append.fish
-                23: keyword.operator.redirect.truncate.fish
+                20: meta.function-call.operator.pipe.std-write.fish meta.string.unquoted.fish constant.numeric.file-descriptor.fish
 
-                24: meta.function-call.operator.pipe.fish keyword.operator.pipe.fish
-                25: meta.function-call.fish
-                26: meta.function-call.operator.control.newline.ignored.fish
+                21: meta.function-call.operator.pipe.other.fish
+                22: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
+                23: keyword.operator.redirect.append.fish
+                24: keyword.operator.redirect.truncate.fish
+
+                25: meta.function-call.operator.pipe.fish keyword.operator.pipe.fish
+                26: meta.function-call.fish
+                27: meta.function-call.operator.control.newline.ignored.fish
               push:
                 - match: (?=[{{nl_s}}{{op_s}}])
                   pop: true
@@ -539,7 +546,7 @@ contexts:
           pop: true
 
         # A name or block element. If a block is found, everything up to the `end` command is captured here. Note that redirection and process expansion can't start the element
-        - match: (?![\s{{redir_s}}^%])
+        - match: (?![\s&{{redir_s}}^%])
           push:
             - match: (?=[{{param_sep}}])
               pop: true
@@ -1159,7 +1166,7 @@ contexts:
 
     # This redirection pattern connects a file descriptor (either explicit or implied) and a file path
     # Begin at any of the redirections valid for a file path (the '?' may optionally be used to prevent clobber). See above comments on stderr redirect operator '^'
-    - match: (?=(?:[0-9]+(?:<|>>|>)|>>|\^\^|[<>^])\??)
+    - match: (?=(?:[0-9]+(?:<|>>|>)|\&(?:>>|>)|>>|\^\^|[<>^])\??)
       push:
         - [
             {match: '[{{param_sep}}#]\S*', scope: meta.function-call.operator.redirection.fish invalid.illegal.path.fish, pop: true},
@@ -1261,6 +1268,16 @@ contexts:
         5: meta.function-call.operator.redirection.stderr.implicit.fish keyword.operator.redirect.append.fish
         6: meta.function-call.operator.redirection.stderr.implicit.fish keyword.operator.redirect.truncate.fish
         7: meta.function-call.operator.redirection.fish keyword.operator.redirect.clobber-test.fish
+      pop: true
+
+    - match: ((\&)(?:(>>)|(>)))(\?)?
+      captures:
+        # Let me know if there is a better collective name for "stdout and stderr" because I had to make this up myself. The thing that unifies them is they're the standard FDs for writing (by default), while stdin is the standard for reading
+        1: meta.function-call.operator.redirection.std-write.fish
+        2: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
+        3: keyword.operator.redirect.append.fish
+        4: keyword.operator.redirect.truncate.fish
+        5: meta.function-call.operator.redirection.fish keyword.operator.redirect.clobber-test.fish
       pop: true
 
     - match: (([0-9]+)(?:(>>)|(<|>)))(\?)?

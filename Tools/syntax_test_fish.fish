@@ -468,6 +468,22 @@ echo out <#comment <&#comment
 #!        ^^^^^^^^ meta.function-call.operator.redirection invalid.illegal.path
 #!                   ^^^^^^^^ meta.function-call.operator.redirection invalid.illegal.file-descriptor
 
+echo&>file &
+#!  ^^^^^^ meta.function-call.operator.redirection
+#!  ^^ meta.function-call.operator.redirection.std-write
+#!  ^ constant.numeric.file-descriptor
+#!         ^ keyword.operator.control
+
+echo out &>file -- out &>>?file
+#!       ^^^^^^ meta.function-call.operator.redirection
+#!                     ^^^^^^^^ meta.function-call.operator.redirection
+#!                     ^ constant.numeric.file-descriptor
+#!                      ^^ meta.function-call.operator.redirection.std-write keyword.operator.redirect.append
+#!                        ^ keyword.operator.redirect.clobber-test
+
+begin echo out; end &>file
+#!                  ^^ meta.function-call.operator.redirection.std-write
+
 echo (echo one \
 #!   ^^^^^^^^^^^ meta.parens.command-substitution
 #!             ^ constant.character.escape
@@ -794,6 +810,24 @@ echo out ^| cat ^^| cat
 #!              ^^ meta.function-call.operator.pipe keyword.operator.redirect
 #!                ^ meta.function-call.operator.pipe keyword.operator.pipe
 
+echo out &| cat &>| cat
+#!       ^^ meta.function-call.operator.pipe
+#!       ^ meta.function-call.operator.pipe.std-write constant.numeric.file-descriptor
+#!        ^ meta.function-call.operator.pipe keyword.operator.pipe
+#!          ^^^ meta.function-call.name variable.function
+#!              ^^ meta.function-call.operator.redirection.std-write
+#!                ^ invalid.illegal.path
+
+echo out &>>| cat
+#!       ^^^ meta.function-call.operator.redirection.std-write
+#!          ^ invalid.illegal.path
+
+# Kinda funky but that's just how our parsing goes, preferring to accept & and reject |
+echo |& cat # comment
+#!   ^ invalid.illegal
+#!    ^ meta.function-call keyword.operator.control
+#!          ^^^^^^^^^ comment.line
+
 command >| cat
 #! <- variable.function
 
@@ -872,17 +906,6 @@ not true && true ; or true || not true
 true && and true; false || or false
 #!      ^^^ invalid.illegal.function-call
 #!                         ^^ invalid.illegal.function-call
-
-echo &| cat # comment
-#!   ^ meta.function-call keyword.operator.control
-#!    ^ invalid.illegal
-#!          ^^^^^^^^^ comment.line
-
-# Kinda funky but that's just how our parsing goes, preferring to accept & and reject |
-echo |& cat # comment
-#!   ^ invalid.illegal
-#!    ^ meta.function-call keyword.operator.control
-#!          ^^^^^^^^^ comment.line
 
 echo arg | not echo arg
 #!       ^ meta.function-call keyword.operator.pipe
