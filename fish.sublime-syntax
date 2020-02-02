@@ -1161,77 +1161,20 @@ contexts:
     # Begin at any of the redirections valid for a file path (the '?' may optionally be used to prevent clobber). See above comments on stderr redirect operator '^'
     - match: (?=(?:[0-9]+(?:<|>>|>)|>>|\^\^|[<>^])\??)
       push:
-        # End at anything that would end a parameter, including redirections, so that either this scope can be reopened or another one opened instead
-        - match: (?=[{{param_sep}}])
-          pop: true
-
-        - include: redirection-to-file-path-match
-
-        - include: line-continuation
-
-        # A redirection path cannot contain brace expansion
-        - match: \{|(?=\})
-          push:
-            - meta_scope:
-                meta.function-call.operator.redirection.fish
-                invalid.illegal.path.fish
-            - match: '{{ws_sep}}|[{{nl_s}}{{op_s}}{{pipe_s}}]|\}'
-              pop: true
-
-        # A redirection path cannot contain wildcard expansion
-        - match: '[*?]'
-          scope:
-            meta.function-call.operator.redirection.fish
-            invalid.illegal.path.fish
-
-        # Check for characters which are associated with redirection, so path cannot begin with them
-        - match: '[&?]|[0-9]*[<>^].*$'
-          scope:
-            meta.function-call.operator.redirection.fish
-            invalid.illegal.path.fish
-
-        # We reserve the meta.redirection.path scope only for redirection paths which may represent literal paths
-
-        - match: \~
-          scope:
-            meta.function-call.operator.redirection.path.fish
-            meta.string.unquoted.fish
-            keyword.operator.tilde.fish
-
-        # Use strings to build a file path, but break out if any invalid elements or elements that wouldn't form a literal path are encountered
-        - match: (?![{{param_sep}}(${}*?])
-          push:
-            - meta_scope: meta.function-call.operator.redirection.path.fish
-            - match: (?=[{{param_sep}}(${}*?])
-              pop: true
-            - include: string-quoted
-
-            # Should use the same patterns as the above begin/end, but also add the quotes so the string-quoted context can handle quoted strings
-            - match: (?![{{param_sep}}(${}*?]|['"])
-              push:
-                - meta_scope: meta.string.unquoted.fish
-                - match: (?=[{{param_sep}}(${}*?]|['"])
-                  pop: true
-                - include: string-unquoted-patterns-escapes
-
-        # A literal path cannot begin with '(' since this undergoes command substitution
-        - match: (?=\()
-          push:
-            - meta_scope: meta.function-call.operator.redirection.fish
-            - match: (?!\()
-              pop: true
-            - include: command-substitution
-
-        # A literal path cannot begin with '$' since this undergoes variable expansion
-        # We also make sure that variable expansion is scoped as an unquoted string, since if it appears inside quotes then it gets scoped as a quoted string and we should mirror that
-        - match: (?=\$)
-          push:
-            - meta_scope:
-                meta.function-call.operator.redirection.fish
-                meta.string.unquoted.fish
-            - match: (?!\$)
-              pop: true
-            - include: variable-expansion
+        - [
+            {match: '[{{param_sep}}#]\S*', scope: meta.function-call.operator.redirection.fish invalid.illegal.path.fish, pop: true},
+            {match: '', set: redirection-to-file-path-path},
+          ]
+        - [
+            # Eat spaces to get to the path
+            {match: \s+, scope: meta.function-call.operator.redirection.fish},
+            {match: '', pop: true}
+          ]
+        - [
+            {include: redirection-to-file-path-match},
+            {include: line-continuation},
+            {match: '', pop: true}
+          ]
 
   redirection-to-file-descriptor-match:
     # We have to consume the '&' in any match or it will be seen as a valid command call terminator
@@ -1289,17 +1232,16 @@ contexts:
     - include: line-continuation # Eats whitespace on next line
 
   redirection-to-file-path-match:
-    - match: (?:((0)(<))|(<))((\?)?\s*)
+    - match: (?:((0)(<))|(<))(\?)?
       captures:
         1: meta.function-call.operator.redirection.stdin.explicit.fish
         2: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
         3: keyword.operator.redirect.truncate.fish
         4: meta.function-call.operator.redirection.stdin.implicit.fish keyword.operator.redirect.truncate.fish
-        5: meta.function-call.operator.redirection.fish
-        6: keyword.operator.redirect.clobber-test.fish
-      push: redirection-to-file-path-pop
+        5: meta.function-call.operator.redirection.fish keyword.operator.redirect.clobber-test.fish
+      pop: true
 
-    - match: (?:((1)(?:(>>)|(>)))|(?:(>>)|(>)))((\?)?\s*)
+    - match: (?:((1)(?:(>>)|(>)))|(?:(>>)|(>)))(\?)?
       captures:
         1: meta.function-call.operator.redirection.stdout.explicit.fish
         2: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
@@ -1307,11 +1249,10 @@ contexts:
         4: keyword.operator.redirect.truncate.fish
         5: meta.function-call.operator.redirection.stdout.implicit.fish keyword.operator.redirect.append.fish
         6: meta.function-call.operator.redirection.stdout.implicit.fish keyword.operator.redirect.truncate.fish
-        7: meta.function-call.operator.redirection.fish
-        8: keyword.operator.redirect.clobber-test.fish
-      push: redirection-to-file-path-pop
+        7: meta.function-call.operator.redirection.fish keyword.operator.redirect.clobber-test.fish
+      pop: true
 
-    - match: (?:((2)(?:(>>)|(>)))|(?:(\^\^)|(\^)))((\?)?\s*)
+    - match: (?:((2)(?:(>>)|(>)))|(?:(\^\^)|(\^)))(\?)?
       captures:
         1: meta.function-call.operator.redirection.stderr.explicit.fish
         2: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
@@ -1319,28 +1260,88 @@ contexts:
         4: keyword.operator.redirect.truncate.fish
         5: meta.function-call.operator.redirection.stderr.implicit.fish keyword.operator.redirect.append.fish
         6: meta.function-call.operator.redirection.stderr.implicit.fish keyword.operator.redirect.truncate.fish
-        7: meta.function-call.operator.redirection.fish
-        8: keyword.operator.redirect.clobber-test.fish
-      push: redirection-to-file-path-pop
+        7: meta.function-call.operator.redirection.fish keyword.operator.redirect.clobber-test.fish
+      pop: true
 
-    - match: (([0-9]+)(?:(>>)|(<|>)))((\?)?\s*)
+    - match: (([0-9]+)(?:(>>)|(<|>)))(\?)?
       captures:
         1: meta.function-call.operator.redirection.other.fish
         2: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
         3: keyword.operator.redirect.append.fish
         4: keyword.operator.redirect.truncate.fish
-        5: meta.function-call.operator.redirection.fish
-        6: keyword.operator.redirect.clobber-test.fish
-      push: redirection-to-file-path-pop
-
-  redirection-to-file-path-pop:
-    # We try to catch bad operators here because if they are seen by the outer end match then they will be considered valid and the redirection scope will immediately terminate
-    - match: ((?:[#&?]|[0-9]*[<>^])\S*)|(?![&?<>^])
-      captures:
-        0: meta.function-call.operator.redirection.fish
-        1: invalid.illegal.path.fish
+        5: meta.function-call.operator.redirection.fish keyword.operator.redirect.clobber-test.fish
       pop: true
-    - include: line-continuation # Eats whitespace on next line
+
+  redirection-to-file-path-path:
+    # End at anything that would end a parameter, including redirections, so that either this scope can be reopened or another one opened instead
+    - match: (?=[{{param_sep}}])
+      pop: true
+
+    - include: line-continuation
+
+    # A redirection path cannot contain brace expansion
+    - match: \{|(?=\})
+      push:
+        - meta_scope:
+            meta.function-call.operator.redirection.fish
+            invalid.illegal.path.fish
+        - match: '{{ws_sep}}|[{{nl_s}}{{op_s}}{{pipe_s}}]|\}'
+          pop: true
+
+    # A redirection path cannot contain wildcard expansion
+    - match: '[*?]'
+      scope:
+        meta.function-call.operator.redirection.fish
+        invalid.illegal.path.fish
+
+    # Check for characters which are associated with redirection, so path cannot begin with them
+    - match: '[&?]|[0-9]*[<>^].*$'
+      scope:
+        meta.function-call.operator.redirection.fish
+        invalid.illegal.path.fish
+
+    # We reserve the meta.redirection.path scope only for redirection paths which may represent literal paths
+
+    - match: \~
+      scope:
+        meta.function-call.operator.redirection.path.fish
+        meta.string.unquoted.fish
+        keyword.operator.tilde.fish
+
+    # Use strings to build a file path, but break out if any invalid elements or elements that wouldn't form a literal path are encountered
+    - match: (?![{{param_sep}}(${}*?])
+      push:
+        - meta_scope: meta.function-call.operator.redirection.path.fish
+        - match: (?=[{{param_sep}}(${}*?])
+          pop: true
+        - include: string-quoted
+
+        # Should use the same patterns as the above begin/end, but also add the quotes so the string-quoted context can handle quoted strings
+        - match: (?![{{param_sep}}(${}*?]|['"])
+          push:
+            - meta_scope: meta.string.unquoted.fish
+            - match: (?=[{{param_sep}}(${}*?]|['"])
+              pop: true
+            - include: string-unquoted-patterns-escapes
+
+    # A literal path cannot begin with '(' since this undergoes command substitution
+    - match: (?=\()
+      push:
+        - meta_scope: meta.function-call.operator.redirection.fish
+        - match: (?!\()
+          pop: true
+        - include: command-substitution
+
+    # A literal path cannot begin with '$' since this undergoes variable expansion
+    # We also make sure that variable expansion is scoped as an unquoted string, since if it appears inside quotes then it gets scoped as a quoted string and we should mirror that
+    - match: (?=\$)
+      push:
+        - meta_scope:
+            meta.function-call.operator.redirection.fish
+            meta.string.unquoted.fish
+        - match: (?!\$)
+          pop: true
+        - include: variable-expansion
 
   string:
     - include: string-quoted

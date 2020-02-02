@@ -370,7 +370,7 @@ echo one ^err.log^'log' >out.log<in.log < \?in.log > ?out.log
 #!                                        ^^^^^^^^ meta.function-call.operator.redirection.path
 #!                                                 ^^^^^^^^^^ meta.function-call.operator.redirection
 #!                                                 ^ keyword.operator.redirect
-#!                                                   ^^^^^^^^ invalid.illegal.path
+#!                                                   ^ invalid.illegal.path
 
 echo one >? 1 >? 2<in.log
 #!       ^^^^ meta.function-call.operator.redirection
