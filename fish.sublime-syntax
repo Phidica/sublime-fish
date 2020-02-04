@@ -391,88 +391,51 @@ contexts:
               scope: invalid.illegal.operator.fish
 
             # Say the piping/logic is okay; the tests at the start of pipeline-segment will highlight any invalid commands (eg, redirection)
-            # Refer to {{pipe_w}} for the non-matching description of the piping elements
-            # We consume the whitespace because a pipeline is permitted to continue on the next line with unescaped newlines in between (though we can only catch one)
-            - match: |-
-                (?x)
-                (?# Find piping/logic, and any whitespace after it)
-                (?:
-                  (?# Logic)
-                  (
-                    (&&)
-                  |
-                    (\|\|)
-                  )
-                |
-                  (?# Piping)
-                  (?:
-                    (?:
-                      ((0)(<))|(<)
-                    )
-                  |
-                    (?:
-                      ((1)(?:(>>)|(>)))|(>>)|(>)
-                    )
-                  |
-                    (?:
-                      ((2)(?:(>>)|(>)))|(\^\^)|(\^)
-                    )
-                  |
-                    (&)
-                  |
-                    (([0-9]+)(?:(>>)|(<|>)))
-                  )?(\|)
-                )({{ws_sep}}*)(\n?)
-              captures:
-                # TODO: Please do this properly and avoid this nightmare
+            # A pipeline is permitted to continue on the next line with whitespace and unescaped newlines in between (though we can only catch one newline)
+            - match: (?=&&|\|\||{{pipe_w}})
+              set:
+                - [
+                    {match: '(?=[{{nl_s}}{{op_s}}])', pop: true},
 
-                1: meta.function-call.operator.control.fish
-                2: keyword.operator.control.double-ampersand.fish
-                3: keyword.operator.control.double-bar.fish
+                    # After piping/logic can't be an "and" or "or" that is taking another command as its parameters. This regex should resemble the match which seeks a valid "and"/"or" in the pipeline context, since the only difference is that here the same matched text is instead invalid. We can be a little simpler though, and not worry about marking an '&' as invalid since the word will be instead
+                    {match: '(and|or)\b(?!\s*[\n;-])', scope: invalid.illegal.function-call.fish},
 
-                4: meta.function-call.operator.pipe.stdin.explicit.fish
-                5: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
-                6: keyword.operator.redirect.truncate.fish
-                7: meta.function-call.operator.pipe.stdin.implicit.fish keyword.operator.redirect.truncate.fish
+                    {include: separator-whitespace},
+                    {include: line-continuation},
+                    {include: comment},
 
-                8: meta.function-call.operator.pipe.stdout.explicit.fish
-                9: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
-                10: keyword.operator.redirect.append.fish
-                11: keyword.operator.redirect.truncate.fish
-                12: meta.function-call.operator.pipe.stdout.implicit.fish keyword.operator.redirect.append.fish
-                13: meta.function-call.operator.pipe.stdout.implicit.fish keyword.operator.redirect.truncate.fish
+                    # Match the next command and any piping/logic which follows it, and so on
+                    {include: pipeline-segment},
+                  ]
+                - [
+                    # Sadly we will catch at most one newline; Sublime can't feed us another if there are more newlines after it
+                    {match: '\n', scope: meta.function-call.operator.control.newline.ignored.fish},
+                    {match: '', pop: true},
+                  ]
+                - [
+                    {include: separator-whitespace},
+                    {match: '', pop: true},
+                  ]
+                - pipeline-segment-piping
 
-                14: meta.function-call.operator.pipe.stderr.explicit.fish
-                15: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
-                16: keyword.operator.redirect.write.append.fish
-                17: keyword.operator.redirect.write.truncate.fish
-                18: meta.function-call.operator.pipe.stderr.implicit.fish keyword.operator.redirect.write.append.fish
-                19: meta.function-call.operator.pipe.stderr.implicit.fish keyword.operator.redirect.write.truncate.fish
+  pipeline-segment-piping:
+    - match: (&&)|(\|\|)
+      captures:
+        0: meta.function-call.operator.control.fish
+        1: keyword.operator.control.double-ampersand.fish
+        2: keyword.operator.control.double-bar.fish
+      pop: true
 
-                20: meta.function-call.operator.pipe.std-write.fish meta.string.unquoted.fish constant.numeric.file-descriptor.fish
+    - match: ''
+      set:
+        - include: redirection-to-pipe-lhs+op
+        - match: ''
+          pop: true
 
-                21: meta.function-call.operator.pipe.other.fish
-                22: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
-                23: keyword.operator.redirect.append.fish
-                24: keyword.operator.redirect.truncate.fish
-
-                25: meta.function-call.operator.pipe.fish keyword.operator.pipe.fish
-                26: meta.function-call.fish
-                27: meta.function-call.operator.control.newline.ignored.fish
-              push:
-                - match: (?=[{{nl_s}}{{op_s}}])
-                  pop: true
-
-                # After piping/logic can't be an "and" or "or" that is taking another command as its parameters. This regex should resemble the match which seeks a valid "and"/"or" in the pipeline context, since the only difference is that here the same matched text is instead invalid. We can be a little simpler though, and not worry about marking an '&' as invalid since the word will be instead
-                - match: (and|or)\b(?!\s*[\n;-])
-                  scope: invalid.illegal.function-call.fish
-
-                - include: separator-whitespace
-                - include: line-continuation
-                - include: comment
-
-                # Match the next command and any piping/logic which follows it, and so on
-                - include: pipeline-segment
+  pipe-common:
+    - match: '{{pipe_s}}'
+      scope: keyword.operator.pipe.fish
+      pop: true
 
   command-call-meta:
     # These builtins take another command as parameters, hence, meta commands. However, they act as regular commands if they take an option, are backgrounded/piped, or in some cases are redirected - the command-call-standard context picks them up in that case
@@ -1380,6 +1343,87 @@ contexts:
         - match: (?!\$)
           pop: true
         - include: variable-expansion
+
+  redirection-to-pipe-lhs+op:
+    # Mysteriously, the explicit "0<" form isn't allowed (since at least 2.7)
+    # Raises the question of what this is actually doing...
+    - match: (?=<)
+      set:
+        - [
+            {meta_scope: meta.function-call.operator.pipe.stdin.implicit.fish},
+            {include: pipe-common},
+          ]
+        - redirection-common-op-read
+
+    # Append form (">>") is illegal from 3.1 onwards
+    - match: (?=1?>>?)
+      set:
+        - match: (?=1>>?)
+          set:
+            - [
+                {meta_scope: meta.function-call.operator.pipe.stdout.explicit.fish},
+                {include: pipe-common},
+              ]
+            - redirection-common-op-write
+            - redirection-common-lhs
+        - match: (?=>>?)
+          set:
+            - [
+                {meta_scope: meta.function-call.operator.pipe.stdout.implicit.fish},
+                {include: pipe-common},
+              ]
+            - redirection-common-op-write
+
+    # Pipe with no redirection in front at all
+    - match: (?={{pipe_s}})
+      set:
+        - [
+            {meta_scope: meta.function-call.operator.pipe.stdout.implicit.fish},
+            {include: pipe-common},
+          ]
+
+    # Only the explicit truncate form ("2>") is legal from 3.1 onwards
+    - match: (?=2>>?|\^\^?)
+      set:
+        - match: (?=2>>?)
+          set:
+            - [
+                {meta_scope: meta.function-call.operator.pipe.stderr.explicit.fish},
+                {include: pipe-common},
+              ]
+            - redirection-common-op-write
+            - redirection-common-lhs
+        - match: (?=\^\^?)
+          set:
+            - [
+                {meta_scope: meta.function-call.operator.pipe.stderr.implicit.fish},
+                {include: pipe-common},
+              ]
+            - redirection-common-op-write-caret
+
+    # From 3.1 we gain access to the std-write form (see notes in redirection-to-file-path-lhs+op)
+    - match: (?=\&)
+      set:
+        - [
+            {meta_scope: meta.function-call.operator.pipe.std-write.fish},
+            {include: pipe-common},
+          ]
+        - [
+            {match: '\&', scope: meta.string.unquoted.fish constant.numeric.file-descriptor.fish, pop: true},
+          ]
+
+    # Read ("<") and append form (">>") are illegal from 3.1 onwards
+    - match: (?=[0-9]+(?:<|>>|>))
+      set:
+        - [
+            {meta_scope: meta.function-call.operator.pipe.other.fish},
+            {include: pipe-common},
+          ]
+        - [
+            {include: redirection-common-op-read},
+            {include: redirection-common-op-write},
+          ]
+        - redirection-common-lhs
 
   string:
     - include: string-quoted
