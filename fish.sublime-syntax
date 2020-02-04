@@ -444,10 +444,10 @@ contexts:
 
                 14: meta.function-call.operator.pipe.stderr.explicit.fish
                 15: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
-                16: keyword.operator.redirect.append.fish
-                17: keyword.operator.redirect.truncate.fish
-                18: meta.function-call.operator.pipe.stderr.implicit.fish keyword.operator.redirect.append.fish
-                19: meta.function-call.operator.pipe.stderr.implicit.fish keyword.operator.redirect.truncate.fish
+                16: keyword.operator.redirect.write.append.fish
+                17: keyword.operator.redirect.write.truncate.fish
+                18: meta.function-call.operator.pipe.stderr.implicit.fish keyword.operator.redirect.write.append.fish
+                19: meta.function-call.operator.pipe.stderr.implicit.fish keyword.operator.redirect.write.truncate.fish
 
                 20: meta.function-call.operator.pipe.std-write.fish meta.string.unquoted.fish constant.numeric.file-descriptor.fish
 
@@ -1165,12 +1165,12 @@ contexts:
             invalid.illegal.file-descriptor.fish
 
     # This redirection pattern connects a file descriptor (either explicit or implied) and a file path
-    # Begin at any of the redirections valid for a file path (the '?' may optionally be used to prevent clobber). See above comments on stderr redirect operator '^'
-    - match: (?=(?:[0-9]+(?:<|>>|>)|\&(?:>>|>)|>>|\^\^|[<>^])\??)
+    # Begin at any of the redirections valid for a file path. See above comments on stderr redirect operator '^'
+    - match: (?=[0-9]+(?:<|>>|>)|\&(?:>>|>)|>>|\^\^|[<>^])
       push:
         - [
             {match: '[{{param_sep}}#]\S*', scope: meta.function-call.operator.redirection.fish invalid.illegal.path.fish, pop: true},
-            {match: '', set: redirection-to-file-path-path},
+            {match: '', set: redirection-to-file-path-rhs},
           ]
         - [
             # Eat spaces to get to the path
@@ -1178,10 +1178,30 @@ contexts:
             {match: '', pop: true}
           ]
         - [
-            {include: redirection-to-file-path-match},
-            {include: line-continuation},
+            # Optional clobber test
+            {match: '\?', scope: meta.function-call.operator.redirection.fish keyword.operator.redirect.clobber-test.fish, pop: true},
             {match: '', pop: true}
           ]
+        - redirection-to-file-path-lhs+op
+
+  redirection-op-read:
+    - match: '<'
+      scope: keyword.operator.redirect.read.fish
+      pop: true
+
+  redirection-op-write:
+    - match: (>>)|(>)
+      captures:
+        1: keyword.operator.redirect.write.append.fish
+        2: keyword.operator.redirect.write.truncate.fish
+      pop: true
+
+  redirection-op-write-caret:
+    - match: (\^\^)|(\^)
+      captures:
+        1: keyword.operator.redirect.write.append.fish
+        2: keyword.operator.redirect.write.truncate.fish
+      pop: true
 
   redirection-to-file-descriptor-match:
     # We have to consume the '&' in any match or it will be seen as a valid command call terminator
@@ -1212,10 +1232,10 @@ contexts:
       captures:
         1: meta.function-call.operator.redirection.stderr.explicit.fish
         2: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
-        3: keyword.operator.redirect.append.fish
-        4: keyword.operator.redirect.truncate.fish
-        5: meta.function-call.operator.redirection.stderr.implicit.fish keyword.operator.redirect.append.fish
-        6: meta.function-call.operator.redirection.stderr.implicit.fish keyword.operator.redirect.truncate.fish
+        3: keyword.operator.redirect.write.append.fish
+        4: keyword.operator.redirect.write.truncate.fish
+        5: meta.function-call.operator.redirection.stderr.implicit.fish keyword.operator.redirect.write.append.fish
+        6: meta.function-call.operator.redirection.stderr.implicit.fish keyword.operator.redirect.write.truncate.fish
         7: meta.function-call.operator.redirection.fish
         8: keyword.operator.redirect.dereference.fish
       push: redirection-to-file-descriptor-pop
@@ -1238,58 +1258,90 @@ contexts:
       pop: true
     - include: line-continuation # Eats whitespace on next line
 
-  redirection-to-file-path-match:
-    - match: (?:((0)(<))|(<))(\?)?
-      captures:
-        1: meta.function-call.operator.redirection.stdin.explicit.fish
-        2: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
-        3: keyword.operator.redirect.truncate.fish
-        4: meta.function-call.operator.redirection.stdin.implicit.fish keyword.operator.redirect.truncate.fish
-        5: meta.function-call.operator.redirection.fish keyword.operator.redirect.clobber-test.fish
+  redirection-to-file-path-lhs+op:
+    - match: (?=0?<)
+      set:
+        - match: (?=0<)
+          set:
+            - [
+                {meta_scope: meta.function-call.operator.redirection.stdin.explicit.fish},
+                {include: redirection-op-read},
+              ]
+            - redirection-to-file-path-lhs
+
+        - match: (?=<)
+          set:
+            - [
+                {meta_scope: meta.function-call.operator.redirection.stdin.implicit.fish},
+                {include: redirection-op-read},
+              ]
+
+    - match: (?=1?>>?)
+      set:
+        - match: (?=1>>?)
+          set:
+            - [
+                {meta_scope: meta.function-call.operator.redirection.stdout.explicit.fish},
+                {include: redirection-op-write},
+              ]
+            - redirection-to-file-path-lhs
+        - match: (?=>>?)
+          set:
+            - [
+                {meta_scope: meta.function-call.operator.redirection.stdout.implicit.fish},
+                {include: redirection-op-write},
+              ]
+
+    - match: (?=2>>?|\^\^?)
+      set:
+        - match: (?=2>>?)
+          set:
+            - [
+                {meta_scope: meta.function-call.operator.redirection.stderr.explicit.fish},
+                {include: redirection-op-write},
+              ]
+            - redirection-to-file-path-lhs
+        - match: (?=\^\^?)
+          set:
+            - [
+                {meta_scope: meta.function-call.operator.redirection.stderr.implicit.fish},
+                {include: redirection-op-write-caret},
+              ]
+
+    - match: (?=\&>>?)
+      set:
+        # Let me know if there is a better collective name for "stdout and stderr" than "std-write", which I had to make up myself. The thing that unifies them is they're the standard FDs for writing (by default), while stdin is the standard for reading
+        # These meta scopes go all the way down to specifying whether they append or truncate because that's needed for the compatibility highlighter, but I'm not putting that specificity on the meta scopes for the other types of redirections because it adds more complexity that I highly doubt will be useful to anyone for anything
+        - match: (?=\&>>)
+          set:
+            - [
+                {meta_scope: meta.function-call.operator.redirection.std-write.append.fish},
+                {include: redirection-op-write},
+              ]
+            - redirection-to-file-path-lhs
+        - match: (?=\&>)
+          set:
+            - [
+                {meta_scope: meta.function-call.operator.redirection.std-write.truncate.fish},
+                {include: redirection-op-write},
+              ]
+            - redirection-to-file-path-lhs
+
+    - match: (?=[0-9]+(?:<|>>|>))
+      set:
+        - [
+            {meta_scope: meta.function-call.operator.redirection.other.fish},
+            {include: redirection-op-read},
+            {include: redirection-op-write},
+          ]
+        - redirection-to-file-path-lhs
+
+  redirection-to-file-path-lhs:
+    - match: ([0-9]+)|\&
+      scope: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
       pop: true
 
-    - match: (?:((1)(?:(>>)|(>)))|(?:(>>)|(>)))(\?)?
-      captures:
-        1: meta.function-call.operator.redirection.stdout.explicit.fish
-        2: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
-        3: keyword.operator.redirect.append.fish
-        4: keyword.operator.redirect.truncate.fish
-        5: meta.function-call.operator.redirection.stdout.implicit.fish keyword.operator.redirect.append.fish
-        6: meta.function-call.operator.redirection.stdout.implicit.fish keyword.operator.redirect.truncate.fish
-        7: meta.function-call.operator.redirection.fish keyword.operator.redirect.clobber-test.fish
-      pop: true
-
-    - match: (?:((2)(?:(>>)|(>)))|(?:(\^\^)|(\^)))(\?)?
-      captures:
-        1: meta.function-call.operator.redirection.stderr.explicit.fish
-        2: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
-        3: keyword.operator.redirect.append.fish
-        4: keyword.operator.redirect.truncate.fish
-        5: meta.function-call.operator.redirection.stderr.implicit.fish keyword.operator.redirect.append.fish
-        6: meta.function-call.operator.redirection.stderr.implicit.fish keyword.operator.redirect.truncate.fish
-        7: meta.function-call.operator.redirection.fish keyword.operator.redirect.clobber-test.fish
-      pop: true
-
-    - match: ((\&)(?:(>>)|(>)))(\?)?
-      captures:
-        # Let me know if there is a better collective name for "stdout and stderr" because I had to make this up myself. The thing that unifies them is they're the standard FDs for writing (by default), while stdin is the standard for reading
-        1: meta.function-call.operator.redirection.std-write.fish
-        2: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
-        3: keyword.operator.redirect.append.fish
-        4: keyword.operator.redirect.truncate.fish
-        5: meta.function-call.operator.redirection.fish keyword.operator.redirect.clobber-test.fish
-      pop: true
-
-    - match: (([0-9]+)(?:(>>)|(<|>)))(\?)?
-      captures:
-        1: meta.function-call.operator.redirection.other.fish
-        2: meta.string.unquoted.fish constant.numeric.file-descriptor.fish
-        3: keyword.operator.redirect.append.fish
-        4: keyword.operator.redirect.truncate.fish
-        5: meta.function-call.operator.redirection.fish keyword.operator.redirect.clobber-test.fish
-      pop: true
-
-  redirection-to-file-path-path:
+  redirection-to-file-path-rhs:
     # End at anything that would end a parameter, including redirections, so that either this scope can be reopened or another one opened instead
     - match: (?=[{{param_sep}}])
       pop: true
@@ -1306,13 +1358,13 @@ contexts:
           pop: true
 
     # A redirection path cannot contain wildcard expansion
-    - match: '[*?]'
+    - match: '[*?]\S*'
       scope:
         meta.function-call.operator.redirection.fish
         invalid.illegal.path.fish
 
     # Check for characters which are associated with redirection, so path cannot begin with them
-    - match: '[&?]|[0-9]*[<>^].*$'
+    - match: '[&?]|[0-9]*[<>^]\S*'
       scope:
         meta.function-call.operator.redirection.fish
         invalid.illegal.path.fish

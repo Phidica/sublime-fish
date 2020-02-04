@@ -69,8 +69,8 @@ issues:
 
   op-stderr-nocaret-append:
     selector: [
-      meta.function-call.operator.pipe.stderr.implicit keyword.operator.redirect.append,
-      meta.function-call.operator.redirection.stderr.implicit keyword.operator.redirect.append,
+      meta.function-call.operator.pipe.stderr.implicit keyword.operator.redirect.write.append,
+      meta.function-call.operator.redirection.stderr.implicit keyword.operator.redirect.write.append,
     ]
     match: true
     history:
@@ -80,8 +80,8 @@ issues:
 
   op-stderr-nocaret-truncate:
     selector: [
-      meta.function-call.operator.pipe.stderr.implicit keyword.operator.redirect.truncate,
-      meta.function-call.operator.redirection.stderr.implicit keyword.operator.redirect.truncate,
+      meta.function-call.operator.pipe.stderr.implicit keyword.operator.redirect.write.truncate,
+      meta.function-call.operator.redirection.stderr.implicit keyword.operator.redirect.write.truncate,
     ]
     match: true
     history:
