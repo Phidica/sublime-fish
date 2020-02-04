@@ -33,6 +33,14 @@ echo arg ^&11 2>&12 \
   ^^|k 2>>|l
 #!^^ op-stderr-nocaret-append
 
+echo arg &>file &>?file \
+#!       ^^     ^^ op-std-write-file-truncate
+  &>>file &>>?file
+#!^^^     ^^^ op-std-write-file-append
+
+echo arg &| cat
+#!       ^^ op-std-write-pipe
+
 echo star* qmark? foo??r
 #!              ^    ^^ op-qmark-noglob
 

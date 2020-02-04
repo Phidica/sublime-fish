@@ -89,6 +89,32 @@ issues:
         version: 3.0
     hint: Consider using <code>2></code>.
 
+  op-std-write-file-append:
+    selector: meta.function-call.operator.redirection.std-write.append
+    match: true
+    history:
+      - change: added
+        version: 3.1
+    # Whether you use 2>&1 or 2>>&1 makes no difference in fish
+    hint: Use <code>&gt;&gt;file 2&gt;&amp;1</code>.
+
+  op-std-write-file-truncate:
+    selector: meta.function-call.operator.redirection.std-write.truncate
+    match: true
+    history:
+      - change: added
+        version: 3.1
+    # Whether you use 2>&1 or 2>>&1 makes no difference in fish
+    hint: Use <code>&gt;file 2&gt;&amp;1</code>.
+
+  op-std-write-pipe:
+    selector: meta.function-call.operator.pipe.std-write
+    match: true
+    history:
+      - change: added
+        version: 3.1
+    hint: Use <code>2&gt;&amp;1 &gt;|</code>.
+
   op-qmark-noglob:
     selector: keyword.operator.question-mark
     match: true
