@@ -378,6 +378,10 @@ echo arg >>>file arg ^^^file arg >>??file arg <<file
 #!                                  ^ invalid.illegal.path
 #!                                             ^ invalid.illegal.path
 
+echo out >>\
+&file
+#! <- meta.function-call.operator.redirection invalid.illegal.path
+
 echo one >? 1 >? 2<in.log
 #!       ^^^^ meta.function-call.operator.redirection
 #!       ^^ keyword.operator.redirect
@@ -486,6 +490,10 @@ echo out &>file -- out &>>?file
 #!                     ^ constant.numeric.file-descriptor
 #!                      ^^ meta.function-call.operator.redirection.std-write keyword.operator.redirect.write.append
 #!                        ^ keyword.operator.redirect.clobber-test
+
+echo fail &>&1 fail &>>&2
+#!          ^^ invalid.illegal.path
+#!                     ^^ invalid.illegal.path
 
 # Don't care too much what this error looks like, as long as there is one
 echo fail &<file
