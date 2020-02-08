@@ -1060,7 +1060,10 @@ contexts:
       push:
         - [
             {include: line-continuation},
-            {match: '[{{param_sep}}#]\S*', scope: meta.function-call.operator.redirection.fish invalid.illegal.file-descriptor.fish, pop: true},
+            {match: '[{{param_sep}}#]\S*', scope:
+              meta.function-call.operator.redirection.fish
+              invalid.illegal.file-descriptor.fish,
+            pop: true},
             {match: '', set: redirection-to-file-descriptor-rhs},
           ]
         - [
@@ -1070,7 +1073,10 @@ contexts:
           ]
         - [
             # Requisite dereference operator
-            {match: '\&', scope: meta.function-call.operator.redirection.fish keyword.operator.redirect.dereference.fish, pop: true},
+            {match: '\&', scope:
+              meta.function-call.operator.redirection.fish
+              keyword.operator.redirect.dereference.fish,
+            pop: true},
           ]
         - redirection-common-lhs+op
 
@@ -1080,7 +1086,10 @@ contexts:
       push:
         - [
             {include: line-continuation},
-            {match: '[{{param_sep}}#]\S*', scope: meta.function-call.operator.redirection.fish invalid.illegal.path.fish, pop: true},
+            {match: '[{{param_sep}}#]\S*', scope:
+              meta.function-call.operator.redirection.fish
+              invalid.illegal.path.fish,
+            pop: true},
             {match: '', set: redirection-to-file-path-rhs},
           ]
         - [
@@ -1090,7 +1099,10 @@ contexts:
           ]
         - [
             # Optional clobber test
-            {match: '\?', scope: meta.function-call.operator.redirection.fish keyword.operator.redirect.clobber-test.fish, pop: true},
+            {match: '\?', scope:
+              meta.function-call.operator.redirection.fish
+              keyword.operator.redirect.clobber-test.fish,
+            pop: true},
             {match: '', pop: true}
           ]
         - redirection-to-file-path-lhs+op
@@ -1242,7 +1254,10 @@ contexts:
                 {include: redirection-common-op-write},
               ]
             - [
-                {match: '\&', scope: meta.string.unquoted.fish constant.numeric.file-descriptor.fish, pop: true},
+                {match: '\&', scope:
+                  meta.string.unquoted.fish
+                  constant.numeric.file-descriptor.fish,
+                pop: true},
               ]
         - match: (?=\&>)
           set:
@@ -1251,7 +1266,10 @@ contexts:
                 {include: redirection-common-op-write},
               ]
             - [
-                {match: '\&', scope: meta.string.unquoted.fish constant.numeric.file-descriptor.fish, pop: true},
+                {match: '\&', scope:
+                  meta.string.unquoted.fish
+                  constant.numeric.file-descriptor.fish,
+                pop: true},
               ]
 
   redirection-to-file-path-rhs:
@@ -1390,7 +1408,10 @@ contexts:
             {include: pipe-common},
           ]
         - [
-            {match: '\&', scope: meta.string.unquoted.fish constant.numeric.file-descriptor.fish, pop: true},
+            {match: '\&', scope:
+              meta.string.unquoted.fish
+              constant.numeric.file-descriptor.fish,
+            pop: true},
           ]
 
     # Read ("<") and append form (">>") are illegal from 3.1 onwards
