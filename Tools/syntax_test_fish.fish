@@ -1257,6 +1257,10 @@ echo arg
 [ 1 -eq 2 ] || [ 2 -eq 2 ]
 #!          ^^ meta.function-call.operator.control keyword.operator.control.double-bar
 
+[ a = b ] arg >/dev/null | cat
+#!        ^^^ meta.function-call invalid.illegal.parameter
+#!            ^^^^^^^^^^ meta.function-call.operator.redirection
+
 return
 #! <- meta.function-call.name keyword.control.conditional meta.string.unquoted
 
