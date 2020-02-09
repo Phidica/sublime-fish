@@ -154,6 +154,9 @@ class BaseHighlighter(metaclass = abc.ABCMeta):
   def _run_test(self):
     self.logger.debug("Running test")
 
+    # Make sure we have the latest markup
+    self._update_markup()
+
     # Set up the build results panel
     # We could use any name, but this name is special and grants extra functionality
     #   by highlighting lines within the panel while navigating the errors
