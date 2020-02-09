@@ -92,6 +92,9 @@ variables:
   # Real (floating-point) number
   real: (?:{{int}}\.?[0-9]*|[+-]?[0-9]*\.?[0-9]+)
 
+  # Valid characters in a variable name identifier
+  id_var: \w
+
 contexts:
   main:
     # Pick up '#' and "\\\n" before command-call sees them
@@ -302,6 +305,11 @@ contexts:
   pipeline:
     # The pipeline context is nonterminating, meaning that it will not consume a *valid* control operator ('\n', ')', '#', ';', or '&'). It *will* consume control operators that appear in invalid locations
 
+    # Check for environment setting that precedes the decorators
+    - include: command-call-environment
+    - include: separator-whitespace
+    - include: line-continuation
+
     # This meta command acts as a unary operator on the command to the right, but it is only allowed at the beginning of a pipeline! It can't come after a pipe, so it isn't in the more general command-call-meta context. If the command is followed by any form of execution that just prints help text (ie, with an option or with an explicit or implicit newline), then don't open the scope
     # Within fish 3.0, these two commands are "decorators" and intentionally apply their logic to an entire "job conjunction" which we call a logic pipeline
     - match: (?=(and|or)\b(?!\s*[{{nl_w}};-]))
@@ -361,11 +369,17 @@ contexts:
         # Ensure no whitespace, comments, background, piping
         - match: (?![\s#&]|{{pipe_w}})
           push:
-            - match: (?={{op_w_pipe}})
-              pop: true
-
-            - include: command-call-meta
-            - include: command-call-standard
+            - [
+                {match: '(?={{op_w_pipe}})', pop: true},
+                {include: command-call-meta},
+                {include: command-call-standard},
+              ]
+            - [
+                {include: command-call-environment},
+                {include: separator-whitespace},
+                {include: line-continuation},
+                {match: '', pop: true},
+              ]
 
         # Look for piping/logic which may lead to a second command, and if it does recurse into the pipeline-segment context again
         # TODO: Use the scope stack to better control the unlimited number of optional newlines and comments that can follow a pipe/logic operation
@@ -428,6 +442,30 @@ contexts:
     - match: '{{pipe_s}}'
       scope: keyword.operator.pipe.fish
       pop: true
+
+  command-call-environment:
+    # Must start with a valid variable name identifier
+    - match: (?=[{{id_var}}]+=)
+      push:
+        - [
+            {meta_scope: meta.function-call.environment.fish},
+            {match: '(?=[{{param_sep}}])', pop: true},
+            # Match the rest of the environment set, but mark it invalid if the command call is about to end
+            # It's illegal for the only thing before the next control operator to be a command substitution, but we have essentially no way of checking that. At least by doing this, we can check if there is a command substitution that has no spaces in it, which is at least something
+            {match: '\S+?(?=\s*[\n{{op_s}}{{pipe_s}}{{redir_s}}])', scope: invalid.illegal.function-call.fish, pop: true},
+            {include: parameter-common},
+          ]
+        - [
+            # Consume the '=' but mark it invalid if the command call is about to end
+            # I chose that a valid '=' would be keyword.operator because, unlike the '=' in a long option, this one is actually parsed by the shell and affects its behaviour before the command is even called. It seems disingenuous not to call it a keyword, even though it only has any power in this exact position (since an '=' after the command name is just a literal)
+            {match: '=(?={{op_w_pipe_redir}})', scope: invalid.illegal.function-call.fish, pop: true},
+            {match: '=', scope: keyword.operator.assignment.fish, pop: true},
+          ]
+        - [
+            # Get the variable name identifier, which must be an unquoted string
+            {meta_scope: variable.parameter.fish meta.string.unquoted.fish},
+            {match: '(?=\=)', pop: true},
+          ]
 
   command-call-meta:
     # These builtins take another command as parameters, hence, meta commands. However, they act as regular commands if they take an option, are backgrounded/piped, or in some cases are redirected - the command-call-standard context picks them up in that case
@@ -732,12 +770,12 @@ contexts:
                     - include: variable-expansion
                 - include: string-quoted
 
-                # The only unquoted strings should be word characters
-                - match: \w
+                # The only unquoted string should be a valid variable name identifier
+                - match: '{{id_var}}'
                   scope: meta.string.unquoted.fish
 
                 # If we get to here, we have an illegal character for variables
-                - match: \W
+                - match: .
                   scope: invalid.illegal.string.fish
 
             # Capture any operators
@@ -1621,7 +1659,7 @@ contexts:
       push:
         # Variables can only be made of word characters or other variables
         - meta_scope: variable.other.fish
-        - match: (?=[^\$\w])(?!\\\n)
+        - match: (?=[^\${{id_var}}])(?!\\\n)
           pop: true
 
         - include: string-unquoted-patterns-escapes-newline
@@ -1631,5 +1669,5 @@ contexts:
     # Describe illegal variable expansions separately
 
     # A lone '$' followed by the closing of some scope, or an attempt to expand a variable starting with a nonword character, is an error
-    - match: \$(?:(?=[,'"\]}{{param_sep}}])|[^\$\w][^$,'"\]}{{param_sep}}]*)
+    - match: \$(?:(?=[,'"\]}{{param_sep}}])|[^\${{id_var}}][^$,'"\]}{{param_sep}}]*)
       scope: invalid.illegal.variable-expansion.fish

@@ -166,6 +166,71 @@ cmd -h --help -- -- -h # comment
 #!             ^^^ constant.numeric
 #!                 ^^^ constant.numeric
 
+foo=bar echo $foo
+#! <- meta.function-call.environment variable.parameter meta.string.unquoted
+#!^^^^^ meta.function-call.environment
+#!^ variable.parameter meta.string.unquoted
+#! ^ keyword.operator.assignment
+#!  ^^^ meta.string.unquoted
+#!     ^ meta.function-call
+#!      ^^^^ meta.function-call.name variable.function
+
+foo= echo
+#! ^ meta.function-call.environment keyword.operator.assignment
+#!   ^^^^ meta.function-call.name variable.function
+
+foo=bar=baz echo; foo=(cat)
+#!     ^ - keyword.operator
+#!                    ^^^^^ invalid.illegal.function-call
+
+a=(echo) b=b(echo) c=$b{d,e$f} echo $a $b $c
+#! ^^^^^ meta.function-call.environment
+#! ^^^^^ - invalid.illegal
+#!       ^^^^^^^^^ meta.function-call.environment
+#!       ^^^^^^^^^ - invalid.illegal
+#!                 ^^^^^^^^^^^ meta.function-call.environment
+#!                 ^^^^^^^^^^^ - invalid.illegal
+#!                             ^^^^ meta.function-call.name variable.function
+
+foo=(foo=)bar ;
+#!  ^^^^^^^^^ invalid.illegal.function-call
+
+foo=bar(foo=) echo
+#!         ^ invalid.illegal.function-call
+#! ^^^^^^^^ - invalid.illegal
+
+PATH=; SHELL=>out; TERM=
+#!  ^ invalid.illegal.function-call
+#!          ^ invalid.illegal.function-call
+#!                     ^ invalid.illegal.function-call
+
+foo=bar; bar=baz|cat; baz=foo
+#!  ^^^ invalid.illegal.function-call
+#!     ^ meta.function-call.operator
+#!           ^^^ invalid.illegal.function-call
+#!                  ^ meta.function-call.operator
+#!                        ^^^ invalid.illegal.function-call
+#!                           ^ meta.function-call.operator
+
+foo=bar \
+bar=baz echo out | foo=baz echo $foo
+#! ^^^^ meta.function-call.environment
+#!                 ^^^^^^^ meta.function-call.environment
+
+GIT_DIR=repo.git and command git
+#!               ^^^ meta.function-call.name keyword.operator.word
+#!                   ^^^^^^^ meta.function-call.name support.function
+#!                           ^^^ meta.function-call.name variable.function
+
+(echo foo)=bar echo $foo
+#! <- invalid.illegal.function-call
+
+$foo=bar echo foo
+#! <- meta.function-call.name variable.function meta.string.unquoted
+
+fo'o'=bar echo
+#! ^^^^^^ - meta.function-call.environment
+
 echo str \ # not-comment \  # comment
 #!   ^^^ meta.string.unquoted
 #!       ^^^ meta.string.unquoted
@@ -1372,7 +1437,6 @@ while-cmd
 
 while true; break ; end
 #! <- meta.block.while meta.function-call.name keyword.control.conditional meta.string.unquoted
-#!   ^ - meta.function-call
 #!    ^^^^ meta.block.while meta.function-call.name variable.function
 #!                  ^^^ meta.block.while meta.function-call.name keyword.control.conditional meta.string.unquoted
 

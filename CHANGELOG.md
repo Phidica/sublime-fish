@@ -8,6 +8,7 @@ Support for fish 3.1:
 - Add the `time` builtin (fish-shell/fish-shell#117, fish-shell/fish-shell#6446)
 - Brace expansion will not occur unless the braces contain a `,` or a variable expansion (fish-shell/fish-shell#5869)
 - Add new redirections `&>` and `&|` which redirect or pipe stdout and stderr to the same source (fish-shell/fish-shell#6206)
+- The `VAR=val cmd` syntax may be used to run a command in a modified environment (fish-shell/fish-shell#6048, fish-shell/fish-shell#6287)
 
 New feature:
 - Compatibility highlighter can show a summary of the issues in the current file using the status bar (bottom left of the Sublime Text window):
