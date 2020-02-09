@@ -51,6 +51,11 @@ echo {} out {   } {  ,  }
 echo {a,
 b}
 
+VAR=val echo $VAR
+#! <- cmd-environment
+#! <-- cmd-environment
+#!^^^^^ cmd-environment
+
 git reset HEAD@{0} { foo }
 #!             ^^^ ^^^^^^^ arg-braces-non-empty
 ech{o} out

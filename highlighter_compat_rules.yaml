@@ -139,6 +139,15 @@ issues:
         version: 3.0
     hint: Try using <code>eval</code>.
 
+  cmd-environment:
+    selector: meta.function-call.environment
+    match: true
+    history:
+      - change: added
+        version: 3.1
+    # This is what `VAR=val cmd` is literally equivalent to
+    hint: Use <code>begin set -lx VAR val; cmd; end</code>.
+
   # This can overlap with arg-braces-empty or arg-braces-non-empty, but it is a more serious issue (results in an error not a warning). Place it above them in this list so that it is drawn preferentially
   arg-braces-space:
     selector: [

@@ -8,3 +8,6 @@ ech{o} out
 echo arg &>file &>?file \
   &>>file &>>?file
 echo arg &| cat
+
+# No region (3.0)
+VAR=val echo $VAR
