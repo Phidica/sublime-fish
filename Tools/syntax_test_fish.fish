@@ -222,6 +222,12 @@ GIT_DIR=repo.git and command git
 #!                   ^^^^^^^ meta.function-call.name support.function
 #!                           ^^^ meta.function-call.name variable.function
 
+foo=bar(echo baz)
+#!     ^^^^^^^^^^ meta.function-call.environment invalid.illegal.function-call
+
+foo=bar(echo baz) cmd makes it all okay!
+#!     ^^^^^^^^^^ - meta.function-call.environment invalid.illegal.function-call
+
 (echo foo)=bar echo $foo
 #! <- invalid.illegal.function-call
 

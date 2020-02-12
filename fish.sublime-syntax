@@ -451,8 +451,7 @@ contexts:
             {meta_scope: meta.function-call.environment.fish},
             {match: '(?=[{{param_sep}}])', pop: true},
             # Match the rest of the environment set, but mark it invalid if the command call is about to end
-            # It's illegal for the only thing before the next control operator to be a command substitution, but we have essentially no way of checking that. At least by doing this, we can check if there is a command substitution that has no spaces in it, which is at least something
-            {match: '\S+?(?=\s*[\n{{op_s}}{{pipe_s}}{{redir_s}}])', scope: invalid.illegal.function-call.fish, pop: true},
+            {match: '(?:\S+?|\(.*\))(?=\s*[\n{{op_s}}{{pipe_s}}{{redir_s}}])', scope: invalid.illegal.function-call.fish, pop: true},
             {include: parameter-common},
           ]
         - [
