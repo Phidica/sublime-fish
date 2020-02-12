@@ -401,27 +401,15 @@ contexts:
             - match: (?=&&|\|\||{{pipe_w}})
               set:
                 - [
-                    {match: '(?=[{{nl_s}}{{op_s}}])', pop: true},
+                    {match: '(?={{op_w}})', pop: true},
 
                     # After piping/logic can't be an "and" or "or" that is taking another command as its parameters. This regex should resemble the match which seeks a valid "and"/"or" in the pipeline context, since the only difference is that here the same matched text is instead invalid. We can be a little simpler though, and not worry about marking an '&' as invalid since the word will be instead
                     {match: '(and|or)\b(?!\s*[\n;-])', scope: invalid.illegal.function-call.fish},
 
-                    {include: separator-whitespace},
-                    {include: line-continuation},
-                    {include: comment},
-
                     # Match the next command and any piping/logic which follows it, and so on
                     {include: pipeline-segment},
                   ]
-                - [
-                    # Sadly we will catch at most one newline; Sublime can't feed us another if there are more newlines after it
-                    {match: '\n', scope: meta.function-call.operator.control.newline.ignored.fish},
-                    {match: '', pop: true},
-                  ]
-                - [
-                    {include: separator-whitespace},
-                    {match: '', pop: true},
-                  ]
+                - pipeline-segment-between
                 - pipeline-segment-piping
 
   pipeline-segment-piping:
@@ -437,6 +425,19 @@ contexts:
         - include: redirection-to-pipe-lhs+op
         - match: ''
           pop: true
+
+  pipeline-segment-between:
+    # This rule lists elements that we can consume indefinitely between the piping and the next pipeline-segment (command call) which follows it
+
+    - include: separator-whitespace
+    - include: line-continuation
+    - include: comment
+    - match: \n
+      scope: meta.function-call.operator.control.newline.ignored.fish
+
+    # Matching '' would pop this rule at the end of the first line, which is less than what we want. Looking ahead for a character forces Sublime to keep feeding us lines until we hit something that isn't consumed above
+    - match: (?=.)
+      pop: true
 
   pipe-common:
     - match: '{{pipe_s}}'

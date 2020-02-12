@@ -841,6 +841,16 @@ false ||
 or true
 #! <- invalid.illegal.function-call
 
+true && #
+#
+and false
+#! <- invalid.illegal
+
+true && \
+\
+and false
+#! <- invalid.illegal
+
 2>echo; 2>&>&|>&>|echo
 #! <- invalid.illegal.function-call
 #! ^^^ variable.function
@@ -863,6 +873,15 @@ echo arg | # comment
 #!       ^ meta.function-call.operator.pipe keyword.operator.pipe
 #!         ^^^^^^^^^ comment.line
 cat
+
+# Since fish 3.0
+echo arg |
+#!        ^ meta.function-call.operator.control.newline.ignored
+
+#! <- meta.function-call.operator.control.newline.ignored
+
+and false
+#! <- invalid.illegal
 
 echo out one | \
 # comment
@@ -1421,6 +1440,17 @@ begin
   echo arg
 end & echo next | cat
 #!  ^ keyword.operator.control
+
+# Issue 22
+begin
+  cmd | pipe #
+end
+#! <- keyword.control.conditional
+begin
+  cmd | pipe #
+  #
+end
+#! <- keyword.control.conditional
 
 begin || true; end
 #!    ^^ invalid.illegal.operator

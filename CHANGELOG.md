@@ -18,10 +18,11 @@ Renamed scopes:
 - `meta.braces.brace-expansion.empty.no-whitespace` -> `meta.braces.literal.empty`
 
 Bugfixes:
+- Ending a pipeline with a comment while inside of a block would mark the `end` as invalid (#22)
+- The `compat_highighter_fish_version` option didn't allow the lazy version specification which was advertised
 - `}` appeared to be a valid command name
 - `for` did not validate the variable name (fish-shell/fish-shell#5800)
 - In some cases, command substitution and variable expansion weren't recognised when inside of brace expansion
-- The `compat_highighter_fish_version` option didn't allow the lazy version specification which was advertised
 
 3.0.1 (ST3 only)
 ----------------
