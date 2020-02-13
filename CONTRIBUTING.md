@@ -28,10 +28,10 @@ Ensure `CHANGELOG.md` has a new version number, and all *relevant* committed cha
 - Only pluralise headings for lists of more than one item.
 - Be aware that the text is copied directly to the GitHub release description, so stick to valid markdown.
 
-Bump the version number corresponding to `Messages/changes.md` in `messages.json` to the new version number in `CHANGELOG.md`.
-
-If there's a major addition, add a news message and link it in `messages.json`.
+Bump the version number in `messages.json` to the version number in `CHANGELOG.md`. Depending on the release, enact one of the following two options:
+- If this is a bugfix release or there's nothing that important to say, just bump the number corresponding to `Messages/changes.md`.
+- If there's a major addition, add a news message `Messages/news-X.X.X.md` and set that to have the new highest version number. Don't do this *and* bump the `changes` number.
 
 Ensure all changes are on master, `git push origin master`.
 
-Create a tagged release on GitHub: put new version number in fields for tag *and* title, and copy in the `CHANGELOG.md` text for that release directly.
+Create a tagged release on GitHub: put new version number in the title field, and version number prepended by `st2-` or `st3-` in the tag field, and copy in the `CHANGELOG.md` text for that release directly.
