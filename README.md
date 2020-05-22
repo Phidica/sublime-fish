@@ -97,4 +97,4 @@ Guide for contributing is located [here](CONTRIBUTING.md).
 History
 -------
 
-This project was forked from original groundwork laid by [toru hamaguchi](https://github.com/toru-hamaguchi/sublime-fish-shell).
+The first Sublime Text fish syntax highlighter was by [toru hamaguchi](https://github.com/toru-hamaguchi/sublime-fish-shell). When that project became unmaintained, @Phidica fully rewrote the schema and replaced the links on Package Control.
