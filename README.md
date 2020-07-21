@@ -34,7 +34,7 @@ Clone the repository to your [Packages directory](http://docs.sublimetext.info/e
     git clone https://github.com/Phidica/sublime-fish.git
     mv sublime-fish fish
 
-Open a `.fish` file and verify the selected syntax is "Friendly Interactive Shell (fish)".
+Open a `.fish` file and verify the selected syntax is "Fish".
 
 Screenshots
 -----------

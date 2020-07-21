@@ -1,6 +1,12 @@
 Changelog
 =========
 
+3.2.0 (ST3 only)
+----------------
+
+Packaging:
+- Rename syntax to "Fish", as the de facto standard for syntax names is to use an abbreviated form if it is more common (#24, sublimehq/Packages#2390)
+
 3.1.0 (ST3 only)
 ----------------
 
