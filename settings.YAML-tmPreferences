@@ -3,7 +3,7 @@
 name: settings
 scope: source.shell.fish
 
-# See docs at http://docs.sublimetext.info/en/latest/reference/metadata.html
+# See docs at https://docs.sublimetext.io/reference/metadata.html
 
 settings:
   shellVariables:

@@ -28,7 +28,7 @@ Install [Package Control](https://packagecontrol.io), then go to Command Palette
 
 ### Manual
 
-Clone the repository to your [Packages directory](http://docs.sublimetext.info/en/latest/basic_concepts.html#the-packages-directory) and rename it to `fish`.
+Clone the repository to your [Packages directory](https://www.sublimetext.com/docs/3/packages.html) and rename it to `fish`.
 
     cd /path/to/sublime/packages/directory
     git clone https://github.com/Phidica/sublime-fish.git
