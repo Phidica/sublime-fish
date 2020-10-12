@@ -68,10 +68,9 @@ issues:
     hint: Insert <code>\</code>.
 
   op-stderr-nocaret-append:
-    selector: [
-      meta.function-call.operator.pipe.stderr.implicit keyword.operator.redirect.write.append,
-      meta.function-call.operator.redirection.stderr.implicit keyword.operator.redirect.write.append,
-    ]
+    selector:
+      - meta.function-call.operator.pipe.stderr.implicit keyword.operator.redirect.write.append
+      - meta.function-call.operator.redirection.stderr.implicit keyword.operator.redirect.write.append
     match: true
     history:
       - change: deprecated
@@ -79,10 +78,9 @@ issues:
     hint: Consider using <code>2>></code>.
 
   op-stderr-nocaret-truncate:
-    selector: [
-      meta.function-call.operator.pipe.stderr.implicit keyword.operator.redirect.write.truncate,
-      meta.function-call.operator.redirection.stderr.implicit keyword.operator.redirect.write.truncate,
-    ]
+    selector:
+      - meta.function-call.operator.pipe.stderr.implicit keyword.operator.redirect.write.truncate
+      - meta.function-call.operator.redirection.stderr.implicit keyword.operator.redirect.write.truncate
     match: true
     history:
       - change: deprecated
@@ -150,11 +148,10 @@ issues:
 
   # This can overlap with arg-braces-empty or arg-braces-non-empty, but it is a more serious issue (results in an error not a warning). Place it above them in this list so that it is drawn preferentially
   arg-braces-space:
-    selector: [
-      meta.braces.literal.empty.ignored-whitespace,
-      meta.braces.literal.non-empty.ignored-whitespace,
-      meta.braces.brace-expansion.ignored-whitespace,
-    ]
+    selector:
+      - meta.braces.literal.empty.ignored-whitespace
+      - meta.braces.literal.non-empty.ignored-whitespace
+      - meta.braces.brace-expansion.ignored-whitespace
     match: true
     history:
       - change: added
