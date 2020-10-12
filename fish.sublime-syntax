@@ -369,17 +369,17 @@ contexts:
         # Ensure no whitespace, comments, background, piping
         - match: (?![\s#&]|{{pipe_w}})
           push:
-            - [
-                {match: '(?={{op_w_pipe}})', pop: true},
-                {include: command-call-meta},
-                {include: command-call-standard},
-              ]
-            - [
-                {include: command-call-environment},
-                {include: separator-whitespace},
-                {include: line-continuation},
-                {match: '', pop: true},
-              ]
+            -
+              - match: (?={{op_w_pipe}})
+                pop: true
+              - include: command-call-meta
+              - include: command-call-standard
+            -
+              - include: command-call-environment
+              - include: separator-whitespace
+              - include: line-continuation
+              - match: ''
+                pop: true
 
         # Look for piping/logic which may lead to a second command, and if it does recurse into the pipeline-segment context again
         # TODO: Use the scope stack to better control the unlimited number of optional newlines and comments that can follow a pipe/logic operation
@@ -400,15 +400,16 @@ contexts:
             # A pipeline is permitted to continue on the next line with whitespace and unescaped newlines in between (though we can only catch one newline)
             - match: (?=&&|\|\||{{pipe_w}})
               set:
-                - [
-                    {match: '(?={{op_w}})', pop: true},
+                -
+                  - match: (?={{op_w}})
+                    pop: true
 
-                    # After piping/logic can't be an "and" or "or" that is taking another command as its parameters. This regex should resemble the match which seeks a valid "and"/"or" in the pipeline context, since the only difference is that here the same matched text is instead invalid. We can be a little simpler though, and not worry about marking an '&' as invalid since the word will be instead
-                    {match: '(and|or)\b(?!\s*[\n;-])', scope: invalid.illegal.function-call.fish},
+                  # After piping/logic can't be an "and" or "or" that is taking another command as its parameters. This regex should resemble the match which seeks a valid "and"/"or" in the pipeline context, since the only difference is that here the same matched text is instead invalid. We can be a little simpler though, and not worry about marking an '&' as invalid since the word will be instead
+                  - match: (and|or)\b(?!\s*[\n;-])
+                    scope: invalid.illegal.function-call.fish
 
-                    # Match the next command and any piping/logic which follows it, and so on
-                    {include: pipeline-segment},
-                  ]
+                  # Match the next command and any piping/logic which follows it, and so on
+                  - include: pipeline-segment
                 - pipeline-segment-between
                 - pipeline-segment-piping
 
@@ -448,24 +449,31 @@ contexts:
     # Must start with a valid variable name identifier
     - match: (?=[{{id_var}}]+=)
       push:
-        - [
-            {meta_scope: meta.function-call.environment.fish},
-            {match: '(?=[{{param_sep}}])', pop: true},
-            # Match the rest of the environment set, but mark it invalid if the command call is about to end
-            {match: '(?:\S+?|\(.*\))(?=\s*[\n{{op_s}}{{pipe_s}}{{redir_s}}])', scope: invalid.illegal.function-call.fish, pop: true},
-            {include: parameter-common},
-          ]
-        - [
-            # Consume the '=' but mark it invalid if the command call is about to end
-            # I chose that a valid '=' would be keyword.operator because, unlike the '=' in a long option, this one is actually parsed by the shell and affects its behaviour before the command is even called. It seems disingenuous not to call it a keyword, even though it only has any power in this exact position (since an '=' after the command name is just a literal)
-            {match: '=(?={{op_w_pipe_redir}})', scope: invalid.illegal.function-call.fish, pop: true},
-            {match: '=', scope: keyword.operator.assignment.fish, pop: true},
-          ]
-        - [
-            # Get the variable name identifier, which must be an unquoted string
-            {meta_scope: variable.parameter.fish meta.string.unquoted.fish},
-            {match: '(?=\=)', pop: true},
-          ]
+        -
+          - meta_scope: meta.function-call.environment.fish
+          - match: (?=[{{param_sep}}])
+            pop: true
+          # Match the rest of the environment set, but mark it invalid if the command call is about to end
+          - match: (?:\S+?|\(.*\))(?=\s*[\n{{op_s}}{{pipe_s}}{{redir_s}}])
+            scope: invalid.illegal.function-call.fish
+            pop: true
+          - include: parameter-common
+        -
+          # Consume the '=' but mark it invalid if the command call is about to end
+          - match: =(?={{op_w_pipe_redir}})
+            scope: invalid.illegal.function-call.fish
+            pop: true
+          # I chose that a valid '=' would be keyword.operator because, unlike the '=' in a long option, this one is actually parsed by the shell and affects its behaviour before the command is even called. It seems disingenuous not to call it a keyword, even though it only has any power in this exact position (since an '=' after the command name is just a literal)
+          - match: =
+            scope: keyword.operator.assignment.fish
+            pop: true
+        -
+          # Get the variable name identifier, which must be an unquoted string
+          - meta_scope:
+              variable.parameter.fish
+              meta.string.unquoted.fish
+          - match: (?=\=)
+            pop: true
 
   command-call-meta:
     # These builtins take another command as parameters, hence, meta commands. However, they act as regular commands if they take an option, are backgrounded/piped, or in some cases are redirected - the command-call-standard context picks them up in that case
@@ -539,70 +547,74 @@ contexts:
         support.function.test.begin.fish
         meta.string.unquoted.fish
       set:
-        - [
-            # After the closing ']' further parameters are illegal, but redirection is okay (for no good reason)
-            {match: '(?={{op_w_pipe}})', pop: true},
-            {include: separator-whitespace},
-            {include: line-continuation},
-            {include: redirection},
-            {match: '(?!{{op_w_pipe}}).', scope:
+        -
+          # After the closing ']' further parameters are illegal, but redirection is okay (for no good reason)
+          - match: (?={{op_w_pipe}})
+            pop: true
+          - include: separator-whitespace
+          - include: line-continuation
+          - include: redirection
+          - match: (?!{{op_w_pipe}}).
+            scope:
               meta.function-call.fish
               invalid.illegal.parameter.fish
-            },
-          ]
-        - [
-            {match: '\]', scope:
+        -
+          - match: \]
+            scope:
               meta.function-call.name.fish
               support.function.test.end.fish
-              meta.string.unquoted.fish,
-            pop: true},
-            {match: '[{{nl_s}}{{op_s}}{{pipe_s}}].*', scope: invalid.illegal.function-call.fish, pop: true},
-            {include: separator-whitespace},
-            {include: line-continuation},
-            {include: redirection},
-            {include: parameter},
-          ]
+              meta.string.unquoted.fish
+            pop: true
+          - match: '[{{nl_s}}{{op_s}}{{pipe_s}}].*'
+            scope: invalid.illegal.function-call.fish
+            pop: true
+          - include: separator-whitespace
+          - include: line-continuation
+          - include: redirection
+          - include: parameter
 
     # A complete command comprising a name element and optional parameter/redirection/comment elements
     - match: (?=\S)
       set:
-        - [
-            {match: '(?={{op_w_pipe}})', pop: true},
+        -
+          - match: (?={{op_w_pipe}})
+            pop: true
 
-            # Allowed elements (now forcibly using arguments, no more options)
-            {include: separator-whitespace},
-            {include: line-continuation},
-            {include: redirection},
-            {include: parameter-argument},
-          ]
-        - [
-            {match: '(?={{op_w_pipe}})', pop: true},
+          # Allowed elements (now forcibly using arguments, no more options)
+          - include: separator-whitespace
+          - include: line-continuation
+          - include: redirection
+          - include: parameter-argument
+        -
+          - match: (?={{op_w_pipe}})
+            pop: true
 
-            # End of options (parameter of just two hyphens)
-            {match: '--(?=[{{param_sep}}])', scope:
+          # End of options (parameter of just two hyphens)
+          - match: --(?=[{{param_sep}}])
+            scope:
               meta.function-call.parameter.option.end.fish
               variable.parameter.fish
               punctuation.definition.option.end.fish
-              meta.string.unquoted.fish,
-            pop: true},
+              meta.string.unquoted.fish
+            pop: true
 
-            # Allowed elements (including options)
-            {include: separator-whitespace},
-            {include: line-continuation},
-            {include: redirection},
-            {include: parameter},
-          ]
-        - [
-            # A name or block element. If a block is found, everything up to the `end` command is captured here
-            {match: '(?=[{{param_sep}}])', pop: true},
-            {include: command-call-standard-block},
-            {include: command-call-standard-name},
-          ]
-        - [
-            # A command name can't begin with a process expansion operator (however the variable expansion operator '$' is allowed)
-            {match: '\%[^{{param_sep}}]*', scope: invalid.illegal.function-call.fish},
-            {match: '', pop: true},
-          ]
+          # Allowed elements (including options)
+          - include: separator-whitespace
+          - include: line-continuation
+          - include: redirection
+          - include: parameter
+        -
+          # A name or block element. If a block is found, everything up to the `end` command is captured here
+          - match: (?=[{{param_sep}}])
+            pop: true
+          - include: command-call-standard-block
+          - include: command-call-standard-name
+        -
+          # A command name can't begin with a process expansion operator (however the variable expansion operator '$' is allowed)
+          - match: \%[^{{param_sep}}]*
+            scope: invalid.illegal.function-call.fish
+          - match: ''
+            pop: true
 
   command-call-standard-name:
     # Look for loop/function control commands. We perform no checking on the validity of their scope (because only allowing them in the correct scope won't work if they are used within if-blocks) or parameters (because fish does that during execution not parsing)
@@ -1096,53 +1108,58 @@ contexts:
     # Begin at any of the redirections valid for a file descriptor (the '&' must be present). Note that the stderr redirect operator '^' cannot be preceded by a file descriptor. The parameter and argument rules are in charge of preventing '^' being treated as a redirection when it appears in the middle of a word
     - match: (?=(?:[0-9]+(?:<|>>|>)|>>|\^\^|[<>^])\&)
       push:
-        - [
-            {include: line-continuation},
-            {match: '[{{param_sep}}#]\S*', scope:
+        -
+          - include: line-continuation
+          - match: '[{{param_sep}}#]\S*'
+            scope:
               meta.function-call.operator.redirection.fish
-              invalid.illegal.file-descriptor.fish,
-            pop: true},
-            {match: '', set: redirection-to-file-descriptor-rhs},
-          ]
-        - [
-            # Eat spaces to get to the fd
-            {match: \s+, scope: meta.function-call.operator.redirection.fish},
-            {match: '', pop: true},
-          ]
-        - [
-            # Requisite dereference operator
-            {match: '\&', scope:
+              invalid.illegal.file-descriptor.fish
+            pop: true
+          - match: ''
+            set: redirection-to-file-descriptor-rhs
+        -
+          # Eat spaces to get to the fd
+          - match: \s+
+            scope: meta.function-call.operator.redirection.fish
+          - match: ''
+            pop: true
+        -
+          # Requisite dereference operator
+          - match: \&
+            scope:
               meta.function-call.operator.redirection.fish
-              keyword.operator.redirect.dereference.fish,
-            pop: true},
-          ]
+              keyword.operator.redirect.dereference.fish
+            pop: true
         - redirection-common-lhs+op
 
     # This redirection pattern connects a file descriptor (either explicit or implied) and a file path
     # Begin at any of the redirections valid for a file path. See above comments on stderr redirect operator '^'
     - match: (?=[0-9]+(?:<|>>|>)|\&(?:>>|>)|>>|\^\^|[<>^])
       push:
-        - [
-            {include: line-continuation},
-            {match: '[{{param_sep}}#]\S*', scope:
+        -
+          - include: line-continuation
+          - match: '[{{param_sep}}#]\S*'
+            scope:
               meta.function-call.operator.redirection.fish
-              invalid.illegal.path.fish,
-            pop: true},
-            {match: '', set: redirection-to-file-path-rhs},
-          ]
-        - [
-            # Eat spaces to get to the path
-            {match: \s+, scope: meta.function-call.operator.redirection.fish},
-            {match: '', pop: true}
-          ]
-        - [
-            # Optional clobber test
-            {match: '\?', scope:
+              invalid.illegal.path.fish
+            pop: true
+          - match: ''
+            set: redirection-to-file-path-rhs
+        -
+          # Eat spaces to get to the path
+          - match: \s+
+            scope: meta.function-call.operator.redirection.fish
+          - match: ''
+            pop: true
+        -
+          # Optional clobber test
+          - match: \?
+            scope:
               meta.function-call.operator.redirection.fish
-              keyword.operator.redirect.clobber-test.fish,
-            pop: true},
-            {match: '', pop: true}
-          ]
+              keyword.operator.redirect.clobber-test.fish
+            pop: true
+          - match: ''
+            pop: true
         - redirection-to-file-path-lhs+op
 
   redirection-common-lhs:
@@ -1174,57 +1191,47 @@ contexts:
       set:
         - match: (?=0<)
           set:
-            - [
-                {meta_scope: meta.function-call.operator.redirection.stdin.explicit.fish},
-                {include: redirection-common-op-read},
-              ]
+            -
+              - meta_scope: meta.function-call.operator.redirection.stdin.explicit.fish
+              - include: redirection-common-op-read
             - redirection-common-lhs
         - match: (?=<)
           set:
-            - [
-                {meta_scope: meta.function-call.operator.redirection.stdin.implicit.fish},
-                {include: redirection-common-op-read},
-              ]
+            - meta_scope: meta.function-call.operator.redirection.stdin.implicit.fish
+            - include: redirection-common-op-read
 
     - match: (?=1?>>?)
       set:
         - match: (?=1>>?)
           set:
-            - [
-                {meta_scope: meta.function-call.operator.redirection.stdout.explicit.fish},
-                {include: redirection-common-op-write},
-              ]
+            -
+              - meta_scope: meta.function-call.operator.redirection.stdout.explicit.fish
+              - include: redirection-common-op-write
             - redirection-common-lhs
         - match: (?=>>?)
           set:
-            - [
-                {meta_scope: meta.function-call.operator.redirection.stdout.implicit.fish},
-                {include: redirection-common-op-write},
-              ]
+            - meta_scope: meta.function-call.operator.redirection.stdout.implicit.fish
+            - include: redirection-common-op-write
 
     - match: (?=2>>?|\^\^?)
       set:
         - match: (?=2>>?)
           set:
-            - [
-                {meta_scope: meta.function-call.operator.redirection.stderr.explicit.fish},
-                {include: redirection-common-op-write},
-              ]
+            -
+              - meta_scope: meta.function-call.operator.redirection.stderr.explicit.fish
+              - include: redirection-common-op-write
             - redirection-common-lhs
         - match: (?=\^\^?)
           set:
-            - [
-                {meta_scope: meta.function-call.operator.redirection.stderr.implicit.fish},
-                {include: redirection-common-op-write-caret},
-              ]
+            - meta_scope: meta.function-call.operator.redirection.stderr.implicit.fish
+            - include: redirection-common-op-write-caret
 
     - match: (?=[0-9]+(?:<|>>|>))
       set:
-        - [
-            {meta_scope: meta.function-call.operator.redirection.other.fish},
-            {include: redirection-common-op-read},
-            {include: redirection-common-op-write},
-          ]
+        -
+          - meta_scope: meta.function-call.operator.redirection.other.fish
+          - include: redirection-common-op-read
+          - include: redirection-common-op-write
         - redirection-common-lhs
 
   redirection-to-file-descriptor-rhs:
@@ -1287,28 +1294,26 @@ contexts:
         # These meta scopes go all the way down to specifying whether they append or truncate because that's needed for the compatibility highlighter, but I'm not putting that specificity on the meta scopes for the other types of redirections because it adds more complexity that I highly doubt will be useful to anyone for anything
         - match: (?=\&>>)
           set:
-            - [
-                {meta_scope: meta.function-call.operator.redirection.std-write.append.fish},
-                {include: redirection-common-op-write},
-              ]
-            - [
-                {match: '\&', scope:
+            -
+              - meta_scope: meta.function-call.operator.redirection.std-write.append.fish
+              - include: redirection-common-op-write
+            -
+              - match: \&
+                scope:
                   meta.string.unquoted.fish
-                  constant.numeric.file-descriptor.fish,
-                pop: true},
-              ]
+                  constant.numeric.file-descriptor.fish
+                pop: true
         - match: (?=\&>)
           set:
-            - [
-                {meta_scope: meta.function-call.operator.redirection.std-write.truncate.fish},
-                {include: redirection-common-op-write},
-              ]
-            - [
-                {match: '\&', scope:
+            -
+              - meta_scope: meta.function-call.operator.redirection.std-write.truncate.fish
+              - include: redirection-common-op-write
+            -
+              - match: \&
+                scope:
                   meta.string.unquoted.fish
-                  constant.numeric.file-descriptor.fish,
-                pop: true},
-              ]
+                  constant.numeric.file-descriptor.fish
+                pop: true
 
   redirection-to-file-path-rhs:
     # End at anything that would end a parameter, including redirections
@@ -1386,10 +1391,9 @@ contexts:
     # Raises the question of what this is actually doing...
     - match: (?=<)
       set:
-        - [
-            {meta_scope: meta.function-call.operator.pipe.stdin.implicit.fish},
-            {include: pipe-common},
-          ]
+        -
+          - meta_scope: meta.function-call.operator.pipe.stdin.implicit.fish
+          - include: pipe-common
         - redirection-common-op-read
 
     # Append form (">>") is illegal from 3.1 onwards
@@ -1397,72 +1401,63 @@ contexts:
       set:
         - match: (?=1>>?)
           set:
-            - [
-                {meta_scope: meta.function-call.operator.pipe.stdout.explicit.fish},
-                {include: pipe-common},
-              ]
+            -
+              - meta_scope: meta.function-call.operator.pipe.stdout.explicit.fish
+              - include: pipe-common
             - redirection-common-op-write
             - redirection-common-lhs
         - match: (?=>>?)
           set:
-            - [
-                {meta_scope: meta.function-call.operator.pipe.stdout.implicit.fish},
-                {include: pipe-common},
-              ]
+            -
+              - meta_scope: meta.function-call.operator.pipe.stdout.implicit.fish
+              - include: pipe-common
             - redirection-common-op-write
 
     # Pipe with no redirection in front at all
     - match: (?={{pipe_s}})
       set:
-        - [
-            {meta_scope: meta.function-call.operator.pipe.stdout.implicit.fish},
-            {include: pipe-common},
-          ]
+        - meta_scope: meta.function-call.operator.pipe.stdout.implicit.fish
+        - include: pipe-common
 
     # Only the explicit truncate form ("2>") is legal from 3.1 onwards
     - match: (?=2>>?|\^\^?)
       set:
         - match: (?=2>>?)
           set:
-            - [
-                {meta_scope: meta.function-call.operator.pipe.stderr.explicit.fish},
-                {include: pipe-common},
-              ]
+            -
+              - meta_scope: meta.function-call.operator.pipe.stderr.explicit.fish
+              - include: pipe-common
             - redirection-common-op-write
             - redirection-common-lhs
         - match: (?=\^\^?)
           set:
-            - [
-                {meta_scope: meta.function-call.operator.pipe.stderr.implicit.fish},
-                {include: pipe-common},
-              ]
+            -
+              - meta_scope: meta.function-call.operator.pipe.stderr.implicit.fish
+              - include: pipe-common
             - redirection-common-op-write-caret
 
     # From 3.1 we gain access to the std-write form (see notes in redirection-to-file-path-lhs+op)
     - match: (?=\&)
       set:
-        - [
-            {meta_scope: meta.function-call.operator.pipe.std-write.fish},
-            {include: pipe-common},
-          ]
-        - [
-            {match: '\&', scope:
+        -
+          - meta_scope: meta.function-call.operator.pipe.std-write.fish
+          - include: pipe-common
+        -
+          - match: \&
+            scope:
               meta.string.unquoted.fish
-              constant.numeric.file-descriptor.fish,
-            pop: true},
-          ]
+              constant.numeric.file-descriptor.fish
+            pop: true
 
     # Read ("<") and append form (">>") are illegal from 3.1 onwards
     - match: (?=[0-9]+(?:<|>>|>))
       set:
-        - [
-            {meta_scope: meta.function-call.operator.pipe.other.fish},
-            {include: pipe-common},
-          ]
-        - [
-            {include: redirection-common-op-read},
-            {include: redirection-common-op-write},
-          ]
+        -
+          - meta_scope: meta.function-call.operator.pipe.other.fish
+          - include: pipe-common
+        -
+          - include: redirection-common-op-read
+          - include: redirection-common-op-write
         - redirection-common-lhs
 
   string:
@@ -1541,22 +1536,24 @@ contexts:
         # Wrap up all the normal argument stuff, and re-allow numerics
         - match: (?!\s)
           push:
-            - [
-                {meta_scope: meta.braces.literal.non-empty.fish},
-                {match: '', pop: true},
-              ]
-            - [
-                {include: command-substitution},
-                {include: variable-expansion},
-                {include: string-quoted},
-                # Prevent doubling the meta.string.unquoted string scope
-                {include: string-unquoted-patterns},
-                {match: '(?=[\s\}])', pop: true},
-              ]
-            - [
-                {match: '{{real}}(?=$|[\s\}])', scope: constant.numeric.fish, pop: true},
-                {match: '', pop: true},
-              ]
+            -
+              - meta_scope: meta.braces.literal.non-empty.fish
+              - match: ''
+                pop: true
+            -
+              - include: command-substitution
+              - include: variable-expansion
+              - include: string-quoted
+              # Prevent doubling the meta.string.unquoted string scope
+              - include: string-unquoted-patterns
+              - match: (?=[\s\}])
+                pop: true
+            -
+              - match: '{{real}}(?=$|[\s\}])'
+                scope: constant.numeric.fish
+                pop: true
+              - match: ''
+                pop: true
 
     # Real brace expansion
     # Since fish 3.0: all whitespace including newlines is permitted
@@ -1584,24 +1581,27 @@ contexts:
         # Wrap up all the normal argument stuff, re-allow numerics, and add an escaped ','
         - match: (?!\s)
           push:
-            - [
-                {meta_scope: meta.braces.brace-expansion.fish},
-                {match: '', pop: true},
-              ]
-            - [
-                {include: command-substitution},
-                {include: variable-expansion},
-                {include: string-quoted},
-                # Prevent doubling the meta.string.unquoted string scope
-                {include: string-unquoted-patterns},
-                # Escaped ','
-                {match: '\\\,', scope: constant.character.escape.fish},
-                {match: '(?=[\s,\}])', pop: true},
-              ]
-            - [
-                {match: '{{real}}(?=$|[\s,\}])', scope: constant.numeric.fish, pop: true},
-                {match: '', pop: true},
-              ]
+            -
+              - meta_scope: meta.braces.brace-expansion.fish
+              - match: ''
+                pop: true
+            -
+              - include: command-substitution
+              - include: variable-expansion
+              - include: string-quoted
+              # Prevent doubling the meta.string.unquoted string scope
+              - include: string-unquoted-patterns
+              # Escaped ','
+              - match: \\\,
+                scope: constant.character.escape.fish
+              - match: (?=[\s,\}])
+                pop: true
+            -
+              - match: '{{real}}(?=$|[\s,\}])'
+                scope: constant.numeric.fish
+                pop: true
+              - match: ''
+                pop: true
 
     - match: (\*\*)|(\*)|(\?)
       captures:
