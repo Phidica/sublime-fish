@@ -6,6 +6,13 @@ Changelog
 
 Packaging:
 - Rename syntax to "Fish", as the de facto standard for syntax names is to use an abbreviated form if it is more common (#24, sublimehq/Packages#2390)
+- Update documentation to describe shift in focus to ST4
+
+Support for fish 3.2:
+- There were no changes to the fish syntax in fish version 3.2
+
+Bugfix:
+- Indentation and prettification could not occur under ST4
 
 3.1.0 (ST3 only)
 ----------------
