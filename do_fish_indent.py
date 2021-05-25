@@ -8,7 +8,7 @@ from fish.Tools.misc import getFishOutput
 class DoFishIndentCommand(sublime_plugin.TextCommand):
   def is_enabled(self):
     # We are very incompatible with ST1, and kind of with ST2
-    return int(sublime.version()[0]) == 3
+    return int(sublime.version()[0]) >= 3
 
   def is_visible(self):
     # Syntax will be like "Packages/fish/fish.tmLanguage"
