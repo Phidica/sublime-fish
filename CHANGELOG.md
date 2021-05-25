@@ -9,7 +9,7 @@ Packaging:
 - Update documentation to describe shift in focus to ST4
 
 Support for fish 3.2:
-- There were no changes to the fish syntax in fish version 3.2
+- There were no relevant changes to the fish syntax in fish version 3.2
 
 Bugfix:
 - Indentation and prettification could not occur under ST4
