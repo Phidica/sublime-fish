@@ -6,7 +6,7 @@ It features a robust syntax highlighting scheme that mimics the native highlight
 
 The package currently supports up to fish version: **3.2**
 
-Note: ST3 support is capped at fish version 3.2. ST2 support is capped at fish 2.7 with a limited set of the following features.
+Note: ST3 support will cease in a future release. ST2 support is capped at fish 2.7 with a limited set of the following features.
 
 Features
 --------
