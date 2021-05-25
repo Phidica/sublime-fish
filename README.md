@@ -1,12 +1,12 @@
 Friendly Interactive Shell (fish)
 =================================
 
-A Sublime Text 2/3 package for the [friendly interactive shell](https://github.com/fish-shell/fish-shell).
+A Sublime Text package for the [friendly interactive shell](https://github.com/fish-shell/fish-shell).
 It features a robust syntax highlighting scheme that mimics the native highlighting behaviour of fish.
 
-The package currently supports up to fish version: **3.1**
+The package currently supports up to fish version: **3.2**
 
-Note: ST2 support is capped at fish version 2.7, with a limited set of the following features.
+Note: ST3 support is capped at fish version 3.2. ST2 support is capped at fish 2.7 with a limited set of the following features.
 
 Features
 --------
@@ -28,7 +28,7 @@ Install [Package Control](https://packagecontrol.io), then go to Command Palette
 
 ### Manual
 
-Clone the repository to your [Packages directory](https://www.sublimetext.com/docs/3/packages.html) and rename it to `fish`.
+Clone the repository to your [Packages directory](https://www.sublimetext.com/docs/packages.html) and rename it to `fish`.
 
     cd /path/to/sublime/packages/directory
     git clone https://github.com/Phidica/sublime-fish.git
@@ -72,14 +72,16 @@ Exposed scopes
 Branches and releases
 ---------------------
 
-ST2 support and ST3 support is separated between two branches:
+Support for different ST major versions is separated between several branches:
 
-- `st2`: Plugins only compatible with ST2, syntax uses `tmLanguage` scheme, and provides highlighting for fish 2.7 *only*.
-- `master`: Plugins only compatible with ST3, syntax uses `sublime-syntax` scheme, and provides highlighting up to the currently supported version of fish.
+- `master`: Plugins compatible with ST4, and syntax provides highlighting for the currently supported version of fish (see top of page).
+- `st3`: Plugins compatible with ST3 and above (via backwards compatibility features), and syntax provides highlighting for fish versions between 2.7 and 3.2.
+- `st2`: Plugins only compatible with ST2, syntax uses the more limited `tmLanguage` scheme instead of `sublime-syntax`, and provides highlighting for fish 2.7 *only*.
 
-The 2.x.x series of releases (on both ST support branches) only support fish 2.7.
+The particular fish major version supported by a tagged release is indicated by the version number:
 
-The 3.x.x series of releases (on the `master` branch alone) includes support for fish 3.0 and beyond.
+- The 2.x.x series (on `st2` and `st3`) only supports fish 2.7.
+- The 3.x.x series (on `st3` and `master`) includes support for fish 3.0 and beyond.
 
 Contribution
 ------------
@@ -90,7 +92,7 @@ Requirements:
 
 ST2 development: The source file of the syntax is `fish.YAML-tmLanguage`. When editing this file, "compile" it with the PackageDev build system to automatically generate the `fish.tmLanguage` file which is used by Sublime Text 2.
 
-ST3 development: The source file of the syntax is `fish.sublime-syntax`.
+ST3+ development: The source file of the syntax is `fish.sublime-syntax`.
 
 Guide for contributing is located [here](CONTRIBUTING.md).
 
