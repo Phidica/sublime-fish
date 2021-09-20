@@ -6,6 +6,12 @@ import subprocess
 # Check for command, expanding search to valid fish installs on Windows
 def commandOnAbsolutePath(command, settings):
   dirPath = settings.get('fish_directory')
+  if type(dirPath) is dict:
+    subl_os = sublime.platform()
+    if subl_os in dirPath:
+      dirPath = dirPath[subl_os]
+    else:
+      dirPath = None
 
   if not dirPath and sublime.platform() == 'windows':
     if sublime.arch() == 'x32':

@@ -1,5 +1,11 @@
 {
   // Absolute file path to directory containing fish binaries (fish, fish_indent).
+  // A string or a dictionary keyed off sublime.platform() values, so it may be customized on a per-platform basis:
+    // "fish_directory": {
+    //   "windows": "C:/cygwin/bin",
+    //   "linux":   "/usr/local/bin/",
+    //   "osx":     "/usr/local/bin/"
+    // },
   // Only need to specify for nonstandard fish installs! On Windows, the Cygwin/MSYS2 arch is assumed to be the same as that of the system.
   // E.g., for a default 32-bit Cygwin install on 64-bit Windows you must set to "C:/cygwin/bin"
   "fish_directory": "",

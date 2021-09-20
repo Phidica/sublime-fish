@@ -1,6 +1,12 @@
 Changelog
 =========
 
+3.2.1 (ST3 only)
+----------------
+
+Settings change:
+- Allow `fish_directory` to be a dictionary with per-platform values in addition to a simple string
+
 3.2.0 (ST3 only)
 ----------------
 
