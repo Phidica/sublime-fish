@@ -1043,7 +1043,7 @@ contexts:
           # As of fish 3.4.0, trying to escape the "$" has no effect on unquoted string command substitutions, the substitution still happens and without even a "$" getting printed. To indicate this, don't show the "$" as getting escaped
         - match: (\\)?(\$)
           captures:
-            0: meta.parens.command-substitution.fish
+            0: meta.parens.command-substitution.dollar.fish
             1: constant.character.escape.fish
             # Imitate the Bash syntax schema and scope this "$" the same as we do for variable expansions
             2: punctuation.definition.variable.fish

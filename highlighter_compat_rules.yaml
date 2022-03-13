@@ -43,6 +43,14 @@ issues:
         version: 3.4
     hint: Use unquoted as <code>(... | string collect)</code>
 
+  op-cmdsub-with-dollar:
+    selector: meta.parens.command-substitution.dollar punctuation.definition.variable
+    match: true
+    history:
+      - change: added
+        version: 3.4
+    hint: Remove <code>$</code>
+
   op-bang:
     selector: meta.function-call.name keyword.operator.word.bang
     match: true
