@@ -35,6 +35,14 @@ changes:
 #   which issue will be preferentially drawn in the (uncommon) event that two
 #   or more issues can all describe the exact same region in a file
 issues:
+  op-cmdsub-in-str:
+    selector: meta.interpolation.command meta.parens.command-substitution
+    match: true
+    history:
+      - change: added
+        version: 3.4
+    hint: Use unquoted as <code>(... | string collect)</code>
+
   op-bang:
     selector: meta.function-call.name keyword.operator.word.bang
     match: true

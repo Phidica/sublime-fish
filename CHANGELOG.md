@@ -1,8 +1,13 @@
 Changelog
 =========
 
-3.2.1 (ST3 only)
-----------------
+3.4.0 (ST3 and ST4)
+-------------------
+
+The version immediately before this is 3.2.0. There is no version 3.3.0
+
+Support for fish 3.4:
+- Add the alternate syntax for command substitution `$(...)` which works in double-quoted as well as unquoted strings (fish-shell/fish-shell#159, fish-shell/fish-shell#8059)
 
 Settings change:
 - Allow `fish_directory` to be a dictionary with per-platform values in addition to a simple string

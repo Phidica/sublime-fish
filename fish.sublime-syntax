@@ -1034,11 +1034,19 @@ contexts:
             - include: main
 
   command-substitution:
-    # Capture "(...)" or "(...)[...]"
-    - match: (?=\()
+    # Capture "(...)" or "(...)[...]" which may be preceded by "$" or "\$"
+    - match: (?=(\\?\$)?\()
       push:
         - match: (?![\(\[])
           pop: true
+
+          # As of fish 3.4.0, trying to escape the "$" has no effect on unquoted string command substitutions, the substitution still happens and without even a "$" getting printed. To indicate this, don't show the "$" as getting escaped
+        - match: (\\)?(\$)
+          captures:
+            0: meta.parens.command-substitution.fish
+            1: constant.character.escape.fish
+            # Imitate the Bash syntax schema and scope this "$" the same as we do for variable expansions
+            2: punctuation.definition.variable.fish
 
         - match: \(
           scope: punctuation.section.parens.begin.fish
@@ -1480,16 +1488,30 @@ contexts:
     - match: \"
       scope: punctuation.definition.string.begin.fish
       push:
-        - meta_scope: string.quoted.double.fish
-        - match: \"
-          scope: punctuation.definition.string.end.fish
-          pop: true
+        - string-quoted-patterns
 
-        # Only accepted escapes are \<newline>, \", \\, and \$
-        - match: \\[\n\"\\$]
-          scope: constant.character.escape.fish
-        # Variable expansion is the only expansion accepted
-        - include: variable-expansion
+  string-quoted-patterns:
+    # Describe contents of a quoted string separately for ease of recursion
+
+    - meta_scope: string.quoted.double.fish
+    - match: \"
+      scope: punctuation.definition.string.end.fish
+      pop: true
+
+    # Only accepted escapes are \<newline>, \", \\, and \$
+    - match: \\[\n\"\\$]
+      scope: constant.character.escape.fish
+
+    # Command substitution - replace the string scope with meta.interpolation as recommended by ST docs (and how the Bash syntax does it)
+    - match: (?=\$\()
+      set:
+        - meta_scope: meta.interpolation.command.fish
+        - include: command-substitution
+        - match: ''
+          set: string-quoted-patterns
+
+    # Variable expansion is the only other expansion accepted
+    - include: variable-expansion
 
   string-unquoted:
     # Begin unquoted string if not whitespace, control operator, quoted string, or variable expansion

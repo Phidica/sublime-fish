@@ -290,6 +290,34 @@ echo (cat (cat))
 # comment
 #! <- - meta.parens.command-substitution
 
+# Trying to escape the $ actually doesn't work in unquoted strings (fish 3.4.0)
+echo $(cat $(cat)) \$(cat)
+#!   ^^ meta.parens.command-substitution
+#!   ^ punctuation.definition.variable
+#!         ^^ meta.parens.command-substitution
+#!         ^ punctuation.definition.variable
+#!                 ^^^ meta.parens.command-substitution
+#!                 ^ constant.character.escape
+#!                  ^ - constant.character.escape
+
+echo "$(echo a "b" 'c' d)[1]e $(echo f) \$(echo g) (echo h)"
+#!    ^^^^^^^^^^^^^^^^^^^^^^ meta.interpolation.command
+#!    ^^^^^^^^^              - string.quoted.double
+#!             ^^^           - string.quoted.double string.quoted.double
+#!                ^^^^^^^^^^ - string.quoted.double
+#!    ^^^^^^^^^^^^^^^^^^^ meta.parens.command-substitution
+#!    ^ punctuation.definition.variable
+#!                       ^^^ meta.brackets.index-expansion
+#!                          ^^ string.quoted.double
+#!                            ^^^ meta.interpolation.command meta.parens.command-substitution
+#!                                     ^^^^^^^^^^^^^^^^^^^^ string.quoted.double
+#!                                      ^^^^ - meta.parens.command-substitution
+#!                                      ^^ constant.character.escape
+
+echo '$(echo) (echo)'
+#!    ^^ - meta.parens.command-substitution
+#!            ^ - meta.parens.command-substitution
+
 echo --arg=~/Documents --(echo arg)=(echo val)
 #!         ^^^^^^^^^^^ meta.string.unquoted
 #!         ^ - keyword.operator.tilde
