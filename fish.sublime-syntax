@@ -117,12 +117,12 @@ contexts:
     # Base pipeline: goes up until a definitive end (typical control operators, or a comment to finish the line) or the sequences that could be an end if we're actually inside the main context right now (')' and "end")
     - match: (?=\S)
       push:
-        - match: (\n)|([{{op_s}}])|(?=\)|#|end)
+        - match: (\n)|(;)|(&)|(?=\)|#|end)
           captures:
             # Redirection uses the meta.function-call.operator prefix, so we have it here too despite it being redundant
-            # TODO: Add more detail to the op_s operators
-            1: meta.function-call.operator.control.fish
-            2: meta.function-call.operator.control.fish keyword.operator.control.fish
+            1: meta.function-call.operator.control.newline.fish
+            2: meta.function-call.operator.control.semicolon.fish keyword.operator.control.fish
+            3: meta.function-call.operator.control.ampersand.fish keyword.operator.control.fish
           pop: true
 
         - include: pipeline
@@ -721,8 +721,8 @@ contexts:
         # Capture the operator we know is there, include the main context, and end when an `end` command is seen. The main context handles any invalid operators
         - match: (\n)|(;)|(?=[#)&])
           captures:
-            1: meta.function-call.operator.control.fish
-            2: meta.function-call.operator.control.fish keyword.operator.control.fish
+            1: meta.function-call.operator.control.newline.fish
+            2: meta.function-call.operator.control.semicolon.fish keyword.operator.control.fish
           push:
             - match: (?=end(?:$|[{{param_sep}}]))
               pop: true
@@ -814,8 +814,8 @@ contexts:
         # Capture the operator we know is there, include the main context, and end when an `end` command is seen. The main context handles any invalid operators
         - match: (\n)|(;)|(?=[)#])
           captures:
-            1: meta.function-call.operator.control.fish
-            2: meta.function-call.operator.control.fish keyword.operator.control.fish
+            1: meta.function-call.operator.control.newline.fish
+            2: meta.function-call.operator.control.semicolon.fish keyword.operator.control.fish
           push:
             - match: (?=end(?:$|[{{param_sep}}]))
               pop: true
@@ -873,8 +873,8 @@ contexts:
         # Capture the operator we know is there, include the main context, and end when an `end` command is seen. The main context handles any invalid operators
         - match: (\n)|(;)|(?=[#)])
           captures:
-            1: meta.function-call.operator.control.fish
-            2: meta.function-call.operator.control.fish keyword.operator.control.fish
+            1: meta.function-call.operator.control.newline.fish
+            2: meta.function-call.operator.control.semicolon.fish keyword.operator.control.fish
           push:
             - match: (?=end(?:$|[{{param_sep}}]))
               pop: true
@@ -888,8 +888,8 @@ contexts:
               push:
                 - match: (\n)|(;)|(?=[)#&{{pipe_s}}]|{{redir_w}})
                   captures:
-                    1: meta.function-call.operator.control.fish
-                    2: meta.function-call.operator.control.fish keyword.operator.control.fish
+                    1: meta.function-call.operator.control.newline.fish
+                    2: meta.function-call.operator.control.semicolon.fish keyword.operator.control.fish
                   pop: true
 
                 - include: separator-whitespace
@@ -957,8 +957,8 @@ contexts:
         # Capture the operator we know is there, include the main context, and end when an `end` command is seen. The main context handles any invalid operators
         - match: (\n)|(;)|(?=[)#&{{pipe_s}}]|{{redir_w}})
           captures:
-            1: meta.function-call.operator.control.fish
-            2: meta.function-call.operator.control.fish keyword.operator.control.fish
+            1: meta.function-call.operator.control.newline.fish
+            2: meta.function-call.operator.control.semicolon.fish keyword.operator.control.fish
           push:
             - match: (?=end(?:$|[{{param_sep}}]))
               pop: true
@@ -989,8 +989,8 @@ contexts:
         # Match the operator we know is there, then include the main context or an `else` structure. The main context handles any invalid operators
         - match: (\n)|(;)|(?=[#&])
           captures:
-            1: meta.function-call.operator.control.fish
-            2: meta.function-call.operator.control.fish keyword.operator.control.fish
+            1: meta.function-call.operator.control.newline.fish
+            2: meta.function-call.operator.control.semicolon.fish keyword.operator.control.fish
           push:
             - match: '(?=end(?:$|[{{param_sep}}]))'
               pop: true
@@ -1021,8 +1021,8 @@ contexts:
                 # Match the operator which will be there if no `if` was seen, then include the main context which marks further `else` commands as invalid. The main context handles any invalid operators
                 - match: (\n)|(;)|(?=[#&|])
                   captures:
-                    1: meta.function-call.operator.control.fish
-                    2: meta.function-call.operator.control.fish keyword.operator.control.fish
+                    1: meta.function-call.operator.control.newline.fish
+                    2: meta.function-call.operator.control.semicolon.fish keyword.operator.control.fish
                   push:
                     - match: (?=end(?:$|[{{param_sep}}]))
                       pop: true
