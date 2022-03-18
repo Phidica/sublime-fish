@@ -791,19 +791,19 @@ echo out | echo out
 #!        ^ meta.function-call
 
 echo & echo && echo &&& echo || echo ||| echo
-#!          ^^ keyword.operator.control.double-ampersand
+#!          ^^ meta.function-call.operator.control.double-ampersand
 #!                  ^^ invalid.illegal.operator
-#!                           ^^ keyword.operator.control.double-bar
+#!                           ^^ meta.function-call.operator.control.double-bar
 #!                                   ^^ invalid.illegal.operator
 
 echo | cmd || true
-#!         ^^ keyword.operator.control.double-bar
+#!         ^^ meta.function-call.operator.control.double-bar
 
 not cmd || out
-#!      ^^ meta.function-call.operator.control keyword.operator.control.double-bar
+#!      ^^ meta.function-call.operator.control.double-bar
 
 and cmd && cmd
-#!      ^^ meta.function-call.operator.control keyword.operator.control.double-ampersand
+#!      ^^ meta.function-call.operator.control.double-ampersand
 
 command echo out 2>| cat
 #!                ^^ meta.function-call.operator.pipe keyword.operator
@@ -860,12 +860,12 @@ arg
 #! <- invalid.illegal.function-call
 
 true &&
-#!   ^^ meta.function-call.operator.control keyword.operator.control.double-ampersand
+#!   ^^ meta.function-call.operator.control.double-ampersand
 and false
 #! <- invalid.illegal.function-call
 
 false ||
-#!    ^^ meta.function-call.operator.control keyword.operator.control.double-bar
+#!    ^^ meta.function-call.operator.control.double-bar
 or true
 #! <- invalid.illegal.function-call
 
@@ -1035,8 +1035,8 @@ and>cat
 #!  ^^^ meta.function-call.name variable.function
 
 not true && true ; or true || not true
-#!       ^^ meta.function-call.operator.control keyword.operator.control.double-ampersand
-#!                         ^^ meta.function-call.operator.control keyword.operator.control.double-bar
+#!       ^^ meta.function-call.operator.control.double-ampersand
+#!                         ^^ meta.function-call.operator.control.double-bar
 
 # At least in fish 3.0 the parser makes it look like this would be okay, but it really doesn't work
 true && and true; false || or false
@@ -1085,7 +1085,7 @@ true | cat
 #!     ^^^ meta.function-call.name variable.function
 
 builtin true || true
-#!           ^^ meta.function-call.operator.control keyword.operator.control.double-bar
+#!           ^^ meta.function-call.operator.control.double-bar
 
 echo out | >echo
 #!       ^ keyword.operator.pipe
@@ -1373,7 +1373,7 @@ echo arg
 #!        ^^^^^^^^^^^ invalid.illegal.function-call
 
 [ 1 -eq 2 ] || [ 2 -eq 2 ]
-#!          ^^ meta.function-call.operator.control keyword.operator.control.double-bar
+#!          ^^ meta.function-call.operator.control.double-bar
 
 [ a = b ] arg >/dev/null | cat
 #!        ^^^ meta.function-call invalid.illegal.parameter
@@ -1586,13 +1586,13 @@ while true # comment
 end
 
 true | true || true
-#!          ^^ meta.function-call.operator.control keyword.operator.control.double-bar
+#!          ^^ meta.function-call.operator.control.double-bar
 
 while true | true || true
-#!                ^^ keyword.operator.control.double-bar
+#!                ^^ meta.function-call.operator.control.double-bar
   true
   while true && false
-#!           ^^ keyword.operator.control.double-ampersand
+#!           ^^ meta.function-call.operator.control.double-ampersand
     false
   end
 end
@@ -1720,10 +1720,10 @@ end
 #! <- meta.block.if keyword.control.conditional
 
 if true || false
-#!      ^^ keyword.operator.control.double-bar
+#!      ^^ meta.function-call.operator.control.double-bar
   true
   if false && true
-#!         ^^ keyword.operator.control.double-ampersand
+#!         ^^ meta.function-call.operator.control.double-ampersand
     false
   end
 end

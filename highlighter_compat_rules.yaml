@@ -60,7 +60,7 @@ issues:
     hint: Use <code>not</code>.
 
   op-double-ampersand:
-    selector: meta.function-call.operator.control keyword.operator.control.double-ampersand
+    selector: meta.function-call.operator.control.double-ampersand
     match: true
     history:
       - change: added
@@ -68,7 +68,7 @@ issues:
     hint: Use <code>; and</code>.
 
   op-double-bar:
-    selector: meta.function-call.operator.control keyword.operator.control.double-bar
+    selector: meta.function-call.operator.control.double-bar
     match: true
     history:
       - change: added

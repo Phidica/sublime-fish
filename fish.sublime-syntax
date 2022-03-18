@@ -416,9 +416,8 @@ contexts:
   pipeline-segment-piping:
     - match: (&&)|(\|\|)
       captures:
-        0: meta.function-call.operator.control.fish
-        1: keyword.operator.control.double-ampersand.fish
-        2: keyword.operator.control.double-bar.fish
+        1: meta.function-call.operator.control.double-ampersand.fish keyword.operator.control.fish
+        2: meta.function-call.operator.control.double-bar.fish keyword.operator.control.fish
       pop: true
 
     - match: ''
