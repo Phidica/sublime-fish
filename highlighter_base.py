@@ -57,72 +57,82 @@ class BaseHighlighter(metaclass = abc.ABCMeta):
 
     self.logger.debug("Next key ID = {}".format(self.nextKeyID))
 
-    # Build a complete list of candidates from the selectors we can find
-    allCand = [(r,s) for s in self.selectors for r in self.view.find_by_selector(s)]
+    # Build a complete list of candidate regions from the selectors we can match
+    fullFileSelMatch = [(r,s) for s in self.selectors for r in self.view.find_by_selector(s)]
 
-    self.logger.debug("{} unique candidates".format(len(allCand)))
+    self.logger.debug("{} candidate regions found in file".format(len(fullFileSelMatch)))
 
-    focusCand = []
+    nearCursorSelMatch = []
     if local:
       sel = list(self.view.sel())
+      self.logger.debug("Focusing on regions near this cursor {}".format(sel))
 
-      # Keep only the candidates that are on the same line as a selection region
-      for c in allCand:
+      # Keep only the candidates that are on the same line as a cursor selection
+      for c in fullFileSelMatch:
         if any( map(lambda r: c[0].intersects( self.view.line(r) ), sel) ):
-          focusCand.append(c)
+          nearCursorSelMatch.append(c)
 
-      self.logger.debug("Focusing on selection regions {}".format(sel))
-      self.logger.debug("{} focused candidates".format(len(focusCand)))
+      self.logger.debug("{} focused candidates".format(len(nearCursorSelMatch)))
+      regionsInQuestion = nearCursorSelMatch
     else:
-      # Keep all candidates
-      focusCand = allCand
+      # Keep all candidate regions
+      regionsInQuestion = fullFileSelMatch
 
-    # Review all the current drawn regions and ignore any focused candidates that are already drawn
-    self.logger.debug("Current drawn regions = {}".format(self.drawnRegions))
-    for key,value in list(self.drawnRegions.items()):
-      cachedRegion,regionName = value
-      self.logger.debug("Reviewing drawn region '{}' {}".format(key, cachedRegion))
-
-      activeRegion = self.view.get_regions(key)
-      if activeRegion:
-        activeRegion = self.view.get_regions(key)[0]
-        self.logger.debug("Found it at {}".format(activeRegion))
-
-        # If no characters have been deleted, we might be able to leave it drawn
-        if activeRegion.size() == cachedRegion.size():
-          self.drawnRegions[key] = (activeRegion,regionName)
-
-          # If the region still covers the entirety of one candidate, keep it
-          foundInFocus = False
-          for i,c in enumerate(focusCand):
-            if activeRegion == c[0]:
-              focusCand.pop(i) # Exclude from os.path.exists() tests
-              foundInFocus = True
-              break
-
-          # Expand our search to all the candidates across the file, since if we're
-          #   in local mode we're probably considering a region that's on another line
-          foundInAll = False
-          if not foundInFocus and local:
-            for i,c in enumerate(allCand):
-              if activeRegion == c[0]:
-                foundInAll = True
-                break
-
-          if foundInFocus or foundInAll:
-            self.logger.debug("Ignoring drawn region '{}'".format(key))
-            continue
-          # else: we fall into the below statements because the region is now too small
-
-      # Region has either changed in size or been deleted
-      self.logger.debug("Erasing stale drawn region '{}'".format(key))
+    def erase_region(key):
       self.view.erase_regions(key)
       self.drawnRegions.pop(key)
 
-    self.logger.debug("Remaining candidates = {} = {}".format(len(focusCand), focusCand))
+    # Rather than erase every region and re-test every candidate, try to keep
+    # existing regions that still align with a candidate
+    for key,value in list(self.drawnRegions.items()):
+      cachedRegion,regionName = value
+      self.logger.debug("Reviewing previously drawn region '{}' {}".format(key, cachedRegion))
+
+      # Check if region has been deleted by the user
+      activeRegion = self.view.get_regions(key)
+      if not activeRegion:
+        self.logger.debug("Region no longer exists")
+        erase_region(key)
+        continue
+
+      activeRegion = self.view.get_regions(key)[0]
+      self.logger.debug("Found it at {}".format(activeRegion))
+
+      # If content of region has changed, erase it and we'll test later if we can redraw
+      if activeRegion.size() != cachedRegion.size():
+        self.logger.debug("Erasing region because its size has changed")
+        erase_region(key)
+        continue
+
+      # If size is the same, region may have moved but remain valid
+      self.drawnRegions[key] = (activeRegion,regionName)
+
+      # If the region covers the entirety of a matched selector anywhere in the file, then keep it
+      foundInFile = False
+      for c in fullFileSelMatch:
+        if activeRegion == c[0]:
+          self.logger.debug("Keeping drawn region")
+          foundInFile = True
+          break
+
+      # File content has changed in a way that this region no longer aligns to any matched selectors
+      if not foundInFile:
+        self.logger.debug("Erasing stale drawn region '{}'".format(key))
+        erase_region(key)
+
+    # Discard any focused candidates which exactly align to regions we've left
+    # drawn, assuming they would test true to being redrawn anyway
+    for key,value in list(self.drawnRegions.items()):
+      cachedRegion,regionName = value
+      for i,c in enumerate(regionsInQuestion):
+        if cachedRegion == c[0]:
+          regionsInQuestion.pop(i)
+          break
+
+    self.logger.debug("Remaining candidates = {} = {}".format(len(regionsInQuestion), regionsInQuestion))
 
     # Test and draw each remaining candidate region
-    for region,selector in focusCand:
+    for region,selector in regionsInQuestion:
       # Discard any candidate that intersects with an already drawn region
       if any( map(lambda d: d[0].intersects(region), self.drawnRegions.values()) ):
         continue
