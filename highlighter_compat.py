@@ -303,7 +303,7 @@ class CompatHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
     drawStyle = sublime.DRAW_NO_FILL
 
     self.regionStates[regionID] = state
-    return (issueID, drawScope, drawStyle)
+    return dict(name = issueID, scope = drawScope, style = drawStyle)
 
   def _build_status(self):
     # For Python < 3.6, we need a special dictionary to keep the items in this order. Regular dictionaries do it from 3.6 onwards

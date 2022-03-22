@@ -130,7 +130,7 @@ class PathHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
     # Whitespace will not be underlined, see https://github.com/SublimeTextIssues/Core/issues/137
     drawStyle = sublime.DRAW_NO_FILL | sublime.DRAW_NO_OUTLINE | sublime.DRAW_SOLID_UNDERLINE
 
-    return ('path', drawScope, drawStyle)
+    return dict(name = 'path', scope = drawScope, style = drawStyle)
 
   def _build_status(self):
     return None

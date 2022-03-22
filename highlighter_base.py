@@ -138,16 +138,15 @@ class BaseHighlighter(metaclass = abc.ABCMeta):
 
       regionID = "{}_{}".format(self.__class__.__name__, self.nextKeyID)
 
-      regionProps = self._test_draw_region(region, selector, regionID)
-      if not regionProps:
+      props = self._test_draw_region(region, selector, regionID)
+      if not props:
         continue
 
-      name,drawScope,drawStyle = regionProps
-      drawStyle = drawStyle | sublime.HIDE_ON_MINIMAP
+      props['style'] = props['style'] | sublime.HIDE_ON_MINIMAP
 
-      self.view.add_regions(regionID, [region], drawScope, '', drawStyle)
+      self.view.add_regions(regionID, [region], scope = props['scope'], flags = props['style'])
       self.drawnRegions[regionID] = dict(
-        name = name,
+        name = props['name'],
         area = region,
       )
 
@@ -332,7 +331,7 @@ class BaseHighlighter(metaclass = abc.ABCMeta):
 
   @abc.abstractmethod
   def _test_draw_region(self, region, selector, regionID):
-    # Return None or (name, drawScope, drawStyle)
+    # Return None or a dict of the properties 'name', 'scope', and 'style'
     pass
 
   @abc.abstractmethod
