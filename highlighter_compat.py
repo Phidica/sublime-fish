@@ -161,10 +161,10 @@ class CompatHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
 
     self.logger.debug("on_hover")
 
-    for key,value in self.drawnRegions.items():
-      region,issueID = value
-      # Find the region which overlaps with the mouse hover location
-      if not region.contains(point):
+    for key,props in self.drawnRegions.items():
+      issueID = props['name']
+      # Find the drawn region which overlaps with the mouse hover location
+      if not props['area'].contains(point):
         continue
 
       issue = CompatHighlighter.database['issues'][issueID]
@@ -178,9 +178,8 @@ class CompatHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
 
       # In most cases, align popup to the first character of the region.
       # However if the region is on a newline, popup must be one character back or it will draw on the wrong line
-      location = region.begin() + 1
-      regChar = self.view.substr( region.begin() )
-      if regChar == '\n':
+      location = props['area'].begin() + 1
+      if self.view.substr( props['area'].begin() ) == '\n':
         location -= 1
 
       self.view.show_popup(
@@ -317,7 +316,7 @@ class CompatHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
 
     for key,state in self.regionStates.items():
       # Old keys don't get removed from regionStates, so check if they're drawn
-      if key not in self.drawnRegions.keys():
+      if key not in self.drawnRegions:
         continue
 
       change = state['change']

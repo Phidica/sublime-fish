@@ -68,9 +68,9 @@ class BaseHighlighter(metaclass = abc.ABCMeta):
       self.logger.debug("Focusing on regions near this cursor {}".format(sel))
 
       # Keep only the candidates that are on the same line as a cursor selection
-      for c in fullFileSelMatch:
-        if any( map(lambda r: c[0].intersects( self.view.line(r) ), sel) ):
-          nearCursorSelMatch.append(c)
+      for cand in fullFileSelMatch:
+        if any( map(lambda r: cand[0].intersects( self.view.line(r) ), sel) ):
+          nearCursorSelMatch.append(cand)
 
       self.logger.debug("{} focused candidates".format(len(nearCursorSelMatch)))
       regionsInQuestion = nearCursorSelMatch
@@ -84,48 +84,47 @@ class BaseHighlighter(metaclass = abc.ABCMeta):
 
     # Rather than erase every region and re-test every candidate, try to keep
     # existing regions that still align with a candidate
-    for key,value in list(self.drawnRegions.items()):
-      cachedRegion,regionName = value
-      self.logger.debug("Reviewing previously drawn region '{}' {}".format(key, cachedRegion))
+    for key,props in list(self.drawnRegions.items()):
+      cachedArea = props['area']
+      self.logger.debug("Reviewing previously drawn region '{}' {}".format(key, cachedArea))
 
       # Check if region has been deleted by the user
-      activeRegion = self.view.get_regions(key)
-      if not activeRegion:
+      activeArea = self.view.get_regions(key)
+      if not activeArea:
         self.logger.debug("Region no longer exists")
         erase_region(key)
         continue
 
-      activeRegion = self.view.get_regions(key)[0]
-      self.logger.debug("Found it at {}".format(activeRegion))
+      activeArea = self.view.get_regions(key)[0]
+      self.logger.debug("Found it at {}".format(activeArea))
 
       # If content of region has changed, erase it and we'll test later if we can redraw
-      if activeRegion.size() != cachedRegion.size():
+      if activeArea.size() != cachedArea.size():
         self.logger.debug("Erasing region because its size has changed")
         erase_region(key)
         continue
 
       # If size is the same, region may have moved but remain valid
-      self.drawnRegions[key] = (activeRegion,regionName)
+      self.drawnRegions[key]['area'] = activeArea
 
-      # If the region covers the entirety of a matched selector anywhere in the file, then keep it
+      # If the region covers the entirety of a matched selector anywhere in the
+      # file, then keep it. Otherwise the file content has changed in a way
+      # that this region no longer aligns to any matched selectors
       foundInFile = False
-      for c in fullFileSelMatch:
-        if activeRegion == c[0]:
+      for cand in fullFileSelMatch:
+        if activeArea == cand[0]:
           self.logger.debug("Keeping drawn region")
           foundInFile = True
           break
-
-      # File content has changed in a way that this region no longer aligns to any matched selectors
       if not foundInFile:
         self.logger.debug("Erasing stale drawn region '{}'".format(key))
         erase_region(key)
 
     # Discard any focused candidates which exactly align to regions we've left
     # drawn, assuming they would test true to being redrawn anyway
-    for key,value in list(self.drawnRegions.items()):
-      cachedRegion,regionName = value
-      for i,c in enumerate(regionsInQuestion):
-        if cachedRegion == c[0]:
+    for drawn in self.drawnRegions.values():
+      for i,cand in enumerate(regionsInQuestion):
+        if cand[0] == drawn['area']:
           regionsInQuestion.pop(i)
           break
 
@@ -134,7 +133,7 @@ class BaseHighlighter(metaclass = abc.ABCMeta):
     # Test and draw each remaining candidate region
     for region,selector in regionsInQuestion:
       # Discard any candidate that intersects with an already drawn region
-      if any( map(lambda d: d[0].intersects(region), self.drawnRegions.values()) ):
+      if any( map(lambda d: d['area'].intersects(region), self.drawnRegions.values()) ):
         continue
 
       regionID = "{}_{}".format(self.__class__.__name__, self.nextKeyID)
@@ -147,7 +146,10 @@ class BaseHighlighter(metaclass = abc.ABCMeta):
       drawStyle = drawStyle | sublime.HIDE_ON_MINIMAP
 
       self.view.add_regions(regionID, [region], drawScope, '', drawStyle)
-      self.drawnRegions[regionID] = (region,name)
+      self.drawnRegions[regionID] = dict(
+        name = name,
+        area = region,
+      )
 
       self.nextKeyID += 1
 
@@ -276,13 +278,14 @@ class BaseHighlighter(metaclass = abc.ABCMeta):
         # Check if the expected point is drawn, and what name that drawn region has
         foundPt = False
         foundName = None
-        for dReg,dName in self.drawnRegions.values():
-          if dReg.begin() <= assertPt < dReg.end(): # Can't use .contains() because it's end-inclusive
+        for drawn in self.drawnRegions.values():
+          if drawn['area'].begin() <= assertPt < drawn['area'].end():
+            # Can't use .contains() because it's end-inclusive
             foundPt = True
-            if dName == assertName:
+            if drawn['name'] == assertName:
               foundName = True
             else:
-              foundName = dName
+              foundName = drawn['name']
             break
 
         if foundPt:
@@ -300,10 +303,10 @@ class BaseHighlighter(metaclass = abc.ABCMeta):
 
     # Find any points that have a region drawn on them but weren't checked by any explicit assertion
     # Call these more failed assertions, since we implicitly asserted they *wouldn't* exist!
-    for dReg,dName in self.drawnRegions.values():
-      for dPt in range(dReg.begin(), dReg.end()):
+    for drawn in self.drawnRegions.values():
+      for dPt in range(drawn['area'].begin(), drawn['area'].end()):
         if dPt not in checkedPts:
-          errorResults.append(make_error(dPt, "Unexpected region [{}]".format(dName)))
+          errorResults.append(make_error(dPt, "Unexpected region [{}]".format(drawn['name'])))
           countAsrtFail += 1
           countAsrtTotal += 1
 
