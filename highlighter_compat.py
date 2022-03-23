@@ -235,22 +235,23 @@ class CompatHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
 
     # re._MAXCACHE = 512 in builtin Python as of ST 3.2.1, so we needn't cache regexes ourselves
 
+    extraFlags = dict()
+
     found = False
     for issueID,issue in CompatHighlighter.database['issues'].items():
-      if (
-        (isinstance(issue['selector'], list) and selector in issue['selector'])
-        or
-        (not isinstance(issue['selector'], list) and selector == issue['selector'])
-      ) and (
-        issue['match'] == True
-        or
-        # https://stackoverflow.com/a/30212799
-        # Effectively backport re.fullmatch() to Python 3.3 by adding end-of-string anchor
-        re.match('(?:' + issue['match'] + r')\Z', text)
-      ):
-        found = True
-        self.logger.debug("Found as issueID {}".format(issueID))
-        break
+      targetSel = issue['selector']
+      matchedSel = (selector in targetSel) if isinstance(targetSel, list) else (selector == targetSel)
+      if matchedSel:
+        matchedRegex = (issue['match'] == True)
+        if not matchedRegex and isinstance(issue['match'], str):
+          extraFlags['quick-check-selector'] = False
+          # https://stackoverflow.com/a/30212799
+          # Effectively backport re.fullmatch() to Python 3.3 by adding end-of-string anchor
+          matchedRegex = re.match('(?:' + issue['match'] + r')\Z', text)
+        if matchedRegex:
+          found = True
+          self.logger.debug("Found as issueID {}".format(issueID))
+          break
     if not found:
       return None
 
@@ -303,7 +304,7 @@ class CompatHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
     drawStyle = sublime.DRAW_NO_FILL
 
     self.regionStates[regionID] = state
-    return dict(name = issueID, scope = drawScope, style = drawStyle)
+    return dict(name = issueID, scope = drawScope, style = drawStyle, **extraFlags)
 
   def _build_status(self):
     # For Python < 3.6, we need a special dictionary to keep the items in this order. Regular dictionaries do it from 3.6 onwards

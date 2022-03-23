@@ -98,6 +98,20 @@ class BaseHighlighter(metaclass = abc.ABCMeta):
       activeArea = self.view.get_regions(key)[0]
       self.logger.debug("Found it at {}".format(activeArea))
 
+      # If the _test_draw_region() logic is complex, we may be directed not to
+      # attempt this optimisation for keeping regions when possible
+      if not props.get('quick-check-selector', True):
+        self.logger.debug("Erasing region we cannot quick-check via selector")
+        if local:
+          # local mode assumes we'll only need to redraw regions near the
+          # cursor, but because we're erasing these regions no matter where
+          # they are in the file we will still need to test redrawing them
+          for cand in fullFileSelMatch:
+            if cand[0] == activeArea:
+              regionsInQuestion.append(cand)
+        erase_region(key)
+        continue
+
       # If content of region has changed, erase it and we'll test later if we can redraw
       if activeArea.size() != cachedArea.size():
         self.logger.debug("Erasing region because its size has changed")
@@ -146,8 +160,8 @@ class BaseHighlighter(metaclass = abc.ABCMeta):
 
       self.view.add_regions(regionID, [region], scope = props['scope'], flags = props['style'])
       self.drawnRegions[regionID] = dict(
-        name = props['name'],
         area = region,
+        **props # unpack 'name' and any optional props
       )
 
       self.nextKeyID += 1
@@ -331,7 +345,8 @@ class BaseHighlighter(metaclass = abc.ABCMeta):
 
   @abc.abstractmethod
   def _test_draw_region(self, region, selector, regionID):
-    # Return None or a dict of the properties 'name', 'scope', and 'style'
+    # Return None or a dict of the properties 'name', 'scope', and 'style' (optional
+    # properties: 'quick-check-selector')
     pass
 
   @abc.abstractmethod
