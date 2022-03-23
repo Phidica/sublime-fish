@@ -230,8 +230,7 @@ class CompatHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
       return True
 
   def _test_draw_region(self, region, selector, regionID):
-    text = self.view.substr(region)
-    self.logger.debug("Region {} text = {}".format(region, text))
+    self.logger.debug("Region {} text = {}".format(region, self.view.substr(region)))
 
     # re._MAXCACHE = 512 in builtin Python as of ST 3.2.1, so we needn't cache regexes ourselves
 
@@ -245,6 +244,14 @@ class CompatHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
         matchedRegex = (issue['match'] == True)
         if not matchedRegex and isinstance(issue['match'], str):
           extraFlags['quick-check-selector'] = False
+          try:
+            extend = issue['extend']
+            if int(extend) < 1:
+              raise ValueError
+            extendRegion = sublime.Region(region.begin() - extend, region.end() + extend)
+            text = self.view.substr(extendRegion)
+          except Exception:
+            text = self.view.substr(region)
           # https://stackoverflow.com/a/30212799
           # Effectively backport re.fullmatch() to Python 3.3 by adding end-of-string anchor
           matchedRegex = re.match('(?:' + issue['match'] + r')\Z', text)

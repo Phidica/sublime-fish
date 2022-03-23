@@ -19,11 +19,13 @@ changes:
 # List of conflicting structures between fish versions.
 # Each issue must have one or more scope selectors ("selector") used to pick
 #   candidate structures from the source file. The full text of each
-#   structure is then tested against the given regular expression ("match").
+#   structure (or the text captured after extending the range of the selector
+#   by the positive integer "extend" number of characters in both directions)
+#   is then tested against the given regular expression ("match").
 #   Alternatively, if the expression is "true" then no testing is done
-#   and the candidate is immediately accepted. (This is much more efficient,
-#   because we can have all the regex matching done instead during syntax
-#   parsing. To this end, regex testing may be removed entirely in future.)
+#   and the candidate is immediately accepted. (This is much more
+#   efficient when possible, because essentially the regex matching is done
+#   during syntax parsing and optimised by Sublime Text.)
 #   If the candidate is accepted, then the fish version being
 #   targeted by the plugin is compared to each individual state
 #   throughout the "history" of the issue. If a conflict is determined
