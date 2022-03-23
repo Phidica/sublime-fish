@@ -805,6 +805,24 @@ not cmd || out
 and cmd && cmd
 #!      ^^ meta.function-call.operator.control.double-ampersand
 
+# fish 3.4 deprecated the use of '&' without a space before it or a strong separator after it (therefore making it just like '#'). For now this is still treated as acceptable by the syntax schema, but the following tests can be repurposed if support for older fish versions is eventually dropped
+
+echo out & echo
+#!       ^ meta.function-call.operator.control.ampersand
+echo out& echo
+#!      ^ meta.function-call.operator.control.ampersand
+echo    &echo
+#!      ^ meta.function-call.operator.control.ampersand
+echo out&echo # not an operator here
+#!      ^ meta.function-call.operator.control.ampersand
+echo out&&echo
+#!      ^^ meta.function-call.operator.control.double-ampersand
+begin echo out&end ; end # not an operator here
+#!            ^ meta.function-call.operator.control.ampersand
+echo (echo out&#)echo # not an operator here
+#!            ^ meta.function-call.operator.control.ampersand
+)
+
 command echo out 2>| cat
 #!                ^^ meta.function-call.operator.pipe keyword.operator
 

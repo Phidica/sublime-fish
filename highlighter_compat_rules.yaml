@@ -61,6 +61,15 @@ issues:
         version: 3.0
     hint: Use <code>not</code>.
 
+  op-ampersand-nobg-in-token:
+    selector: meta.function-call.operator.control.ampersand
+    extend: 1
+    match: '\w\&[\w#]'
+    history:
+      - change: deprecated
+        version: 3.4
+    hint: Consider putting a separator before or after this symbol.
+
   op-double-ampersand:
     selector: meta.function-call.operator.control.double-ampersand
     match: true
