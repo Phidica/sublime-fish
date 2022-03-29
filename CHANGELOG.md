@@ -11,7 +11,7 @@ Support for fish 3.4:
 - Compatibility highlighter will draw attention to the deprecated use of `&` without a separator before or after it (fish-shell/fish-shell#7991)
 
 Improvements:
-- Allow the `fish_directory` setting to be a dictionary with per-platform values in addition to a simple string
+- Allow the `fish_directory` setting to be a dictionary with per-platform values in addition to a simple string (thanks @eugenesvk!)
 - Use `meta.function-call.operator.control.`{`newline`,`semicolon`,`ampersand`} to distinguish control operators
 
 Renamed scopes:

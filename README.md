@@ -4,7 +4,7 @@ Friendly Interactive Shell (fish)
 A Sublime Text package for the [friendly interactive shell](https://github.com/fish-shell/fish-shell).
 It features a robust syntax highlighting scheme that mimics the native highlighting behaviour of fish.
 
-The package currently supports up to fish version: **3.2**
+The package currently supports up to fish version: **3.4**
 
 Note: ST3 support will cease in a future release. ST2 support is capped at fish 2.7 with a limited set of the following features.
 
@@ -74,8 +74,8 @@ Branches and releases
 
 Support for different ST major versions is separated between several branches:
 
-- `master`: Plugins compatible with ST4, and syntax provides highlighting for the currently supported version of fish (see top of page).
-- `st3`: Plugins compatible with ST3 and above (via backwards compatibility features), and syntax provides highlighting for fish versions between 2.7 and 3.2.
+- `master`: Plugins compatible with ST4, and syntax provides highlighting for fish versions 2.7 *and up*.
+- `st3`: Plugins compatible with ST3 and above (via backwards compatibility features), and syntax provides highlighting for fish versions 2.7 *and up*.
 - `st2`: Plugins only compatible with ST2, syntax uses the more limited `tmLanguage` scheme instead of `sublime-syntax`, and provides highlighting for fish 2.7 *only*.
 
 The particular fish major version supported by a tagged release is indicated by the version number:
