@@ -1,6 +1,12 @@
 Changelog
 =========
 
+3.4.1 (ST3 and ST4)
+-------------------
+
+Bugfix:
+- Systems without fish installed would always raise an error dialogue box when first opening a fish file, due to the compatibility highlighter initialisation failing to establish the system fish version.
+
 3.4.0 (ST3 and ST4)
 -------------------
 

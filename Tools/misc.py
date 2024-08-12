@@ -28,7 +28,7 @@ def commandOnAbsolutePath(command, settings):
   else:
     return command
 
-def getFishOutput(args, settings, pipeInput = None):
+def getFishOutput(args, settings, pipeInput = None, quiet = False):
   # Put command name on an absolute path if needed
   command = args[0]
   args[0] = commandOnAbsolutePath(command, settings)
@@ -50,7 +50,10 @@ def getFishOutput(args, settings, pipeInput = None):
     if args[0] == command:
       msg += " Specify a nonstandard install location in Preferences > " \
         "Package Settings > Fish > Settings."
-    sublime.error_message(msg)
+    if quiet:
+      print(msg)
+    else:
+      sublime.error_message(msg)
   except OSError as ex:
     # Right now I only know of this happening when fish is in WSL.
     # That's not meant to be supported, so keep the error quiet

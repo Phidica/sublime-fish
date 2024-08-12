@@ -72,7 +72,8 @@ class CompatHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
 
     # Only first instance will set this
     if CompatHighlighter.sysFishVer is None:
-      out,err = getFishOutput(['fish', '--version'], self.view.settings())
+      # Request no error to be raised if fish isn't found, since this is still plugin initialisation
+      out,err = getFishOutput(['fish', '--version'], self.view.settings(), quiet = True)
       match = None
       if out:
         # For builds from source, version string may be e.g. "fish, version 3.0.2-1588-g70fc2611"
@@ -223,11 +224,7 @@ class CompatHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
       self._run_test()
 
   def _should_markup(self):
-    if self._fish_version() is None:
-      self.logger.info("Refusing to mark up because targeted fish version unknown")
-      return False
-    else:
-      return True
+    return self._fish_version() is not None
 
   def _test_draw_region(self, region, selector, regionID):
     self.logger.debug("Region {} text = {}".format(region, self.view.substr(region)))
@@ -373,7 +370,11 @@ class CompatHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
     elif versionStr == 'auto':
       if CompatHighlighter.sysFishVer == 'not found':
         self.settingsFishVer = None
-        self.logger.error("fish not found! Version couldn't be determined automatically")
+        self.logger.error("fish not found! Version couldn't be determined " \
+          "automatically. Set 'compat_highlighter_fish_version' in the " \
+          "settings file or write a 'fishX.Y' version number on the first " \
+          "line of this file."
+        )
       elif CompatHighlighter.sysFishVer == 'error':
         self.settingsFishVer = None
         # Currently, I can't imagine this happening. Prove me wrong!
@@ -382,7 +383,7 @@ class CompatHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
           "Please report a bug using Preferences > Package Settings > Fish " \
           "> Report a bug. Include your system information, and the output " \
           "of 'fish --version' in your terminal. To work around this error, " \
-          "set your fish version manually in the settings file."
+          "set 'compat_highlighter_fish_version' in the settings file."
         )
       else:
         self.settingsFishVer = CompatHighlighter.sysFishVer
