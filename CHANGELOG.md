@@ -1,6 +1,12 @@
 Changelog
 =========
 
+3.4.2 (ST3 and ST4)
+-------------------
+
+Bugfix:
+- Beta releases of fish weren't recognised by the compatibility highlighter due to inadequate matching of the system version string.
+
 3.4.1 (ST3 and ST4)
 -------------------
 
