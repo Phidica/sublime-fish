@@ -522,6 +522,7 @@ contexts:
         - match: (?={{op_w_pipe}})
           pop: true
 
+        - include: command-call-environment
         - include: separator-whitespace
         - include: line-continuation
         - include: command-call-standard

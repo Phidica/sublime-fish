@@ -736,6 +736,10 @@ notecho out
 not notecho
 #!  ^^^^^^^ meta.function-call.name variable.function
 
+not foo=bar cmd
+#!  ^^^^^^^ meta.function-call.environment
+#!          ^^^ meta.function-call.name variable.function
+
 ! command true
 #! <- keyword.operator.word
 #!^^^^^^^ meta.function-call.name support.function
@@ -859,6 +863,18 @@ time echo out && time echo out | time echo true
 time begin echo out; end
 #! <- meta.function-call support.function
 #!   ^^^^^ meta.block.begin keyword.control.conditional
+
+time foo=bar cmd
+#!   ^^^^^^^ meta.function-call.environment
+#!           ^^^ meta.function-call.name variable.function
+
+not time foo=bar cmd
+#!       ^^^^^^^ meta.function-call.environment
+#!               ^^^ meta.function-call.name variable.function
+
+# Only 'time' has the power to do an environment override here
+builtin foo=bar cmd
+#!      ^^^^^^^ meta.function-call.name variable.function
 
 echo arg | cat
 #! <- meta.function-call.name variable.function

@@ -5,8 +5,11 @@ Changelog
 -------------------
 
 Support for fish 3.5:
-- Numerics recognised by `math` can use underscores as unit separators.
-- Not directly related to fish 3.5, but for the benefit of `math`hexadecimal numerics and scientific notation are now also recognised. Hex numerics are scoped as `constant.numeric.hex.fish`.
+- Allow underscores as unit separators in numerics recognised by `math`, eg `1_000_000`.
+
+Improvements:
+- Treat hexadecimal and scientific notation as numerics, for the benefit of `math`. Hex numerics are scoped as `constant.numeric.hex.fish`.
+- Allow `VAR=val` environment modification after the `time` builtin.
 
 3.4.2 (ST3 and ST4)
 -------------------
