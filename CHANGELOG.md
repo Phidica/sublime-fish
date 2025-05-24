@@ -21,6 +21,9 @@ Improvements:
 - Treat hexadecimal and scientific notation as numerics, for the benefit of `math`. Hex numerics are scoped as `constant.numeric.hex.fish`.
 - Allow `VAR=val` environment modification after the `time` builtin.
 
+Packaging:
+- Remove `.python-version` file, which was fixing the package to Python 3.3 for Package Control dependency support, because this is no longer required.
+
 3.4.2 (ST3 and ST4)
 -------------------
 
