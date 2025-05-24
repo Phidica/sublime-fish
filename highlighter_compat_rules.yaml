@@ -209,6 +209,14 @@ issues:
         version: 3.0
     hint: Use <code>$last_pid</code>.
 
+  arg-process-expansion-self:
+    selector: meta.function-call.parameter.argument.process-expansion.self
+    match: true
+    history:
+      - change: deprecated
+        version: 4.0
+    hint: Use <code>$fish_pid</code>.
+
   arg-process-expansion:
     selector: meta.function-call.parameter.argument.process-expansion.other
     match: true

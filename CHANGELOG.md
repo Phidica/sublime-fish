@@ -7,6 +7,16 @@ Changelog
 Support for fish 3.5:
 - Allow underscores as unit separators in numerics recognised by `math`, eg `1_000_000`.
 
+Support for fish 3.6:
+- There were no relevant changes to the fish syntax in fish version 3.6.
+
+Support for fish 3.7:
+- There were no relevant changes to the fish syntax in fish version 3.7.
+
+Support for fish 4.0:
+- There were no relevant changes to the fish syntax in fish version 4.0.
+- Compatibility highlighter will draw attention to the deprecated use of  `%self` (fish-shell/fish-shell#10262).
+
 Improvements:
 - Treat hexadecimal and scientific notation as numerics, for the benefit of `math`. Hex numerics are scoped as `constant.numeric.hex.fish`.
 - Allow `VAR=val` environment modification after the `time` builtin.
