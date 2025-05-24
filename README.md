@@ -81,7 +81,8 @@ Support for different ST major versions is separated between several branches:
 The particular fish major version supported by a tagged release is indicated by the version number:
 
 - The 2.x.x series (on `st2` and `st3`) only supports fish 2.7.
-- The 3.x.x series (on `st3` and `master`) includes support for fish 3.0 and beyond.
+- The 3.x.x series (on `st3` and `master`) includes support for fish 3.0 to 3.7.
+- The 4.x.x series (on `st3` and `master`) includes support for fish 4.0 and beyond.
 
 Contribution
 ------------
