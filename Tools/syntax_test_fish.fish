@@ -108,6 +108,19 @@ echo 1 1.2 .3 4. .
 #!            ^^ constant.numeric
 #!               ^ - constant.numeric
 
+math 1_000 1___0 1__.__0__ _100_
+#!   ^^^^^ constant.numeric
+#!         ^^^^^ constant.numeric
+#!               ^^^^^^^^^ constant.numeric
+#!                         ^^^^^ - constant.numeric
+
+math 0X100 0x_89_AB_CD_EF 1.234_567_e89 1.2E1_5 e1
+#!   ^^^^^ constant.numeric.hex
+#!         ^^^^^^^^^^^^^^ constant.numeric.hex
+#!                        ^^^^^^^^^^^^^ constant.numeric
+#!                                      ^^^^^^^ constant.numeric
+#!                                              ^^ - constant.numeric
+
 echo --arg -arg arg ; echo arg # comment
 #! <- meta.function-call.name variable.function
 #! ^^^^^^^^^^^^^^^^  meta.function-call

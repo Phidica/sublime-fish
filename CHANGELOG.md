@@ -1,6 +1,13 @@
 Changelog
 =========
 
+4.0.0 (ST3 and ST4)
+-------------------
+
+Support for fish 3.5:
+- Numerics recognised by `math` can use underscores as unit separators.
+- Not directly related to fish 3.5, but for the benefit of `math`hexadecimal numerics and scientific notation are now also recognised. Hex numerics are scoped as `constant.numeric.hex.fish`.
+
 3.4.2 (ST3 and ST4)
 -------------------
 

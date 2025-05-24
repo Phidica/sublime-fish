@@ -89,8 +89,16 @@ variables:
   # Integer number
   int: '[+-]?[0-9]+'
 
+  # Integer with underscore groupings
+  int_g: '[0-9][0-9_]*'
+
   # Real (floating-point) number
-  real: (?:{{int}}\.?[0-9]*|[+-]?[0-9]*\.?[0-9]+)
+  real: '[+-]?(?:{{int_g}}(?:\.[0-9_]*)?|(?:{{int_g}})?\.[0-9_]+)(?:[Ee]{{int_g}})?'
+
+  # Hexadecimal number
+  # As far as the 'math' builtin is concerned, basically anything like a real prepended by '0x' is valid
+  hex_g: '[0-9A-Fa-f][0-9A-Fa-f_]*'
+  hex: '[+-]?0[Xx]_?(?:{{hex_g}}(?:\.[0-9A-Fa-f_]*)?|(?:{{hex_g}})?\.[0-9A-Fa-f_]+)(?:[Ee]{{hex_g}})?'
 
   # Valid characters in a variable name identifier
   id_var: \w
@@ -210,6 +218,11 @@ contexts:
                 meta.string.unquoted.fish
                 constant.numeric.fish
 
+            - match: '{{hex}}(?=$|[{{param_sep}}])'
+              scope:
+                meta.string.unquoted.fish
+                constant.numeric.hex.fish
+
             - include: parameter-common
 
     # Short option (parameter starting with one hyphen)
@@ -274,6 +287,11 @@ contexts:
             meta.function-call.parameter.argument.numeric.fish
             meta.string.unquoted.fish
             constant.numeric.fish
+        - match: '{{hex}}(?=$|[{{param_sep}}])'
+          scope:
+            meta.function-call.parameter.argument.numeric.fish
+            meta.string.unquoted.fish
+            constant.numeric.hex.fish
 
         # This scope can be used by plugins to locate arguments which don't *start* with command substitution or variable expansion and may directly resolve to file paths. Of course, they could have command substitution or variable expansion further on in them (and we do include those contexts), but looking ahead for that to avoid using this particular scope name is nontrivial
         - match: (?![\s($])
@@ -1573,6 +1591,9 @@ contexts:
               - match: '{{real}}(?=$|[\s\}])'
                 scope: constant.numeric.fish
                 pop: true
+              - match: '{{hex}}(?=$|[\s\}])'
+                scope: constant.numeric.hex.fish
+                pop: true
               - match: ''
                 pop: true
 
@@ -1620,6 +1641,9 @@ contexts:
             -
               - match: '{{real}}(?=$|[\s,\}])'
                 scope: constant.numeric.fish
+                pop: true
+              - match: '{{hex}}(?=$|[\s,\}])'
+                scope: constant.numeric.hex.fish
                 pop: true
               - match: ''
                 pop: true
