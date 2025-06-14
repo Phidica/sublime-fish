@@ -1,6 +1,12 @@
 Changelog
 =========
 
+4.0.1 (ST3 and ST4)
+-------------------
+
+Bugfix:
+- Indent on save with `fish_indent` would operate on selections. Now, no indentation will occur at save if there is a selection.
+
 4.0.0 (ST3 and ST4)
 -------------------
 

@@ -130,4 +130,7 @@ class DoFishIndentOnSave(sublime_plugin.ViewEventListener):
     # Skip blacklisted files
     if os.path.basename(self.view.file_name()) in self.view.settings().get('indent_on_save_blacklist'):
       return
+    # Don't indent if there are any selections
+    if any( map(lambda p: p.size() != 0, self.view.sel()) ):
+      return
     self.view.run_command('do_fish_indent')
