@@ -1,6 +1,12 @@
 Changelog
 =========
 
+4.0.2 (ST3 and ST4)
+-------------------
+
+Bugfix:
+- System fish version identification was failing for non-English localisations.
+
 4.0.1 (ST3 and ST4)
 -------------------
 

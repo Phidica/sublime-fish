@@ -78,7 +78,7 @@ class CompatHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
       if out:
         # For builds from source, version string may be e.g. "fish, version 3.0.2-1588-g70fc2611"
         # Hence, we just search() for the match anywhere in the string
-        match = re.search(r'.*version ([\d\.]+)', out.strip())
+        match = re.search(r'([\d\.]+)', out.strip())
       else:
         CompatHighlighter.sysFishVer = 'not found' # Couldn't find executable
 
