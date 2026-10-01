@@ -9,35 +9,48 @@ import sublime, sublime_plugin
 
 
 class BaseHighlighter(metaclass = abc.ABCMeta):
-  def __init__(self, view):
+  def __init__(self, view = None, **kwargs):
+    # In Python 3.14+, ViewEventListener.__init__ calls super().__init__()
+    # without forwarding arguments, which reaches here with view=None via
+    # the cooperative MRO. Guard all view access so this path is safe;
+    # the subclass __init__ (PathHighlighter/CompatHighlighter) sets
+    # self.view explicitly after calling BaseHighlighter.__init__(self, view).
+    self.view = view
     self.drawnRegions = dict()
     self.nextKeyID = 0
-    if self.view.file_name() is None:
-      self.baseName = 'untitled'
-    else:
-      self.baseName = os.path.basename(self.view.file_name())
+    self.baseName = 'untitled'
+    if view is not None and view.file_name():
+      self.baseName = os.path.basename(view.file_name())
 
     logging.basicConfig()
     self.logger = logging.getLogger(self.__class__.__name__ + ':' + self.baseName)
-    if view.settings().get('highlighter_debugging'):
-      self.logger.setLevel(logging.DEBUG)
+    if view is not None:
+      if view.settings().get('highlighter_debugging'):
+        self.logger.setLevel(logging.DEBUG)
+      else:
+        self.logger.setLevel(logging.WARNING)
+      self.statusSetting = getSetting(view.settings(), 'highlighter_show_status', r'always|critical|off', 'off')
     else:
       self.logger.setLevel(logging.WARNING)
+      self.statusSetting = 'off'
 
     # Status elements get displayed alphabetically, so be thematic
     self.statusKey = 'fish_' + self.__class__.__name__
-
-    self.statusSetting = getSetting(view.settings(), 'highlighter_show_status', r'always|critical|off', 'off')
 
     # Abstract members
     self.selectors = None
 
   # Clear everything that uses keys, because we're about to lose them
   def __del__(self):
+    if not hasattr(self, 'drawnRegions'):
+      return
+    view = getattr(self, 'view', None)
+    if view is None:
+      return
     for key in self.drawnRegions:
-      self.view.erase_regions(key)
+      view.erase_regions(key)
 
-    self.view.erase_status(self.statusKey)
+    view.erase_status(self.statusKey)
 
   def _update_markup(self, local = False):
     # https://github.com/SublimeTextIssues/Core/issues/289 means that we can't
