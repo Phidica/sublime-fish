@@ -50,7 +50,7 @@ def ordered_load(stream, Loader):
   return yaml.load(stream, Loader = OrderedLoader)
 
 
-class CompatHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
+class CompatHighlighter(BaseHighlighter, sublime_plugin.ViewEventListener):
   # Database shared by all instances of the class
   database = None
 

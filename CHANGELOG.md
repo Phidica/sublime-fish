@@ -1,6 +1,12 @@
 Changelog
 =========
 
+4.0.3 (ST3 and ST4)
+-------------------
+
+Bugfix:
+- Compatibility and path highlighters failed to properly initialise in Sublime Text 4213 and above (#33).
+
 4.0.2 (ST3 and ST4)
 -------------------
 

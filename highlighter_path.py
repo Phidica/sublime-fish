@@ -6,7 +6,7 @@ import sublime, sublime_plugin
 from fish.highlighter_base import BaseHighlighter
 
 
-class PathHighlighter(sublime_plugin.ViewEventListener, BaseHighlighter):
+class PathHighlighter(BaseHighlighter, sublime_plugin.ViewEventListener):
   def __init__(self, view):
     sublime_plugin.ViewEventListener.__init__(self, view)
     BaseHighlighter.__init__(self, view)
