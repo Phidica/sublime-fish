@@ -3,6 +3,11 @@ Major changes or additions
 
 Before starting work on significant contributions, please open an issue to discuss them. For example, work may already be underway on a similar project.
 
+LLM policy
+==========
+
+This project does not accept contributions that have made use of LLM coding tools at any step of preparation.
+
 Developing
 ==========
 
